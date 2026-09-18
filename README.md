@@ -85,6 +85,19 @@ docs/
 
 ## 构建与测试
 
+### 开发环境要求
+
+| 项目 | 要求 |
+| --- | --- |
+| 操作系统 | 当前已在 Windows 11 x64 验证；其他系统可使用 Gradle Wrapper，但尚未纳入回归。 |
+| JDK | **JDK 17**。Gradle/Android Gradle Plugin 运行在 JDK 17；应用源码仍以 Java 11 作为编译目标。 |
+| Android Studio | 使用支持 Android Gradle Plugin 9.0.1、Kotlin 2.0.21 与 Compose 的稳定版 Android Studio。 |
+| Android SDK | 安装 Android SDK Platform 36；项目 `compileSdk` 与 `targetSdk` 均为 36。 |
+| Gradle | 使用仓库自带的 Gradle Wrapper（9.1.0），不要自行替换为系统 Gradle。首次同步需要网络下载 Wrapper 与 Maven 依赖。 |
+| 测试设备 | 单元测试不需要设备；仪器测试需要 API 26 或更高版本的模拟器/专用测试设备。发布候选还应在 API 36 模拟器和真实设备回归。 |
+
+不要提交 `local.properties`、`keystore.properties`、`.jks`/`.keystore` 文件或任何 API Key。正式 `release` 构建还需要按 [docs/RELEASE.md](docs/RELEASE.md) 配置独立的签名凭据。
+
 使用 Android Studio 打开 `android/`，或在仓库根目录运行：
 
 ```powershell
