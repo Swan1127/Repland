@@ -13,6 +13,8 @@ import com.swan1127.repland.data.room.RoomReminderSettingsRepository
 import com.swan1127.repland.data.room.RoomProfileEvidenceRepository
 import com.swan1127.repland.data.room.RoomDataManagementRepository
 import com.swan1127.repland.data.room.RoomAiSettingsRepository
+import com.swan1127.repland.data.room.RoomEngagementRepository
+import com.swan1127.repland.data.security.SecureAiProviderConfigRepository
 import com.swan1127.repland.domain.model.PlanDraftGenerator
 import com.swan1127.repland.domain.model.PlanGenerator
 import com.swan1127.repland.domain.ports.PlanRepository
@@ -23,8 +25,11 @@ import com.swan1127.repland.domain.ports.ReminderSettingsRepository
 import com.swan1127.repland.domain.ports.ProfileEvidenceRepository
 import com.swan1127.repland.domain.ports.DataManagementRepository
 import com.swan1127.repland.domain.ports.AiSettingsRepository
+import com.swan1127.repland.domain.ports.AiProviderConfigRepository
 import com.swan1127.repland.domain.model.AiAdvisor
 import com.swan1127.repland.domain.model.NoOpAiAdvisor
+import com.swan1127.repland.domain.model.ArrangementAssistantAdvisor
+import com.swan1127.repland.domain.model.NoOpArrangementAssistantAdvisor
 import com.swan1127.repland.domain.model.PlanningAgent
 import com.swan1127.repland.domain.model.PlanningAgentWorkflow
 import com.swan1127.repland.reminders.LocalReminderScheduler
@@ -57,6 +62,11 @@ class AppContainer(context: Context) {
         ReplandDatabase.MIGRATION_11_12,
         ReplandDatabase.MIGRATION_12_13,
         ReplandDatabase.MIGRATION_13_14,
+        ReplandDatabase.MIGRATION_14_15,
+        ReplandDatabase.MIGRATION_15_16,
+        ReplandDatabase.MIGRATION_16_17,
+        ReplandDatabase.MIGRATION_17_18,
+        ReplandDatabase.MIGRATION_18_19,
     ).build()
 
     val taskRepository: TaskRepository = RoomTaskRepository(database)
@@ -69,8 +79,19 @@ class AppContainer(context: Context) {
     val profileEvidenceRepository: ProfileEvidenceRepository = RoomProfileEvidenceRepository(database)
     val dataManagementRepository: DataManagementRepository = RoomDataManagementRepository(database)
     val aiSettingsRepository: AiSettingsRepository = RoomAiSettingsRepository(database.aiSettingsDao())
-    /** ADR 0001: no network provider or API key is bundled with the app. */
-    val aiAdvisor: AiAdvisor = NoOpAiAdvisor
+    val aiProviderConfigRepository: AiProviderConfigRepository = SecureAiProviderConfigRepository(context)
+    val engagementRepository = RoomEngagementRepository(database)
+    /** Debug builds may use the user-configured provider. Release builds remain local-only. */
+    val aiAdvisor: AiAdvisor = runCatching {
+        Class.forName("com.swan1127.repland.debug.DebugAgnesAdvisor")
+            .getDeclaredConstructor(AiProviderConfigRepository::class.java)
+            .newInstance(aiProviderConfigRepository) as AiAdvisor
+    }.getOrDefault(NoOpAiAdvisor)
+    val arrangementAssistantAdvisor: ArrangementAssistantAdvisor = runCatching {
+        Class.forName("com.swan1127.repland.debug.DebugAgnesArrangementAdvisor")
+            .getDeclaredConstructor(AiProviderConfigRepository::class.java)
+            .newInstance(aiProviderConfigRepository) as ArrangementAssistantAdvisor
+    }.getOrDefault(NoOpArrangementAssistantAdvisor)
     val planDraftGenerator: PlanDraftGenerator = PlanGenerator
     /** Local bounded workflow; it has no repository write capability. */
     val planningAgentWorkflow = PlanningAgentWorkflow(

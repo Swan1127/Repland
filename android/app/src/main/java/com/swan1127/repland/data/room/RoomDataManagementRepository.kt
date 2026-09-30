@@ -32,6 +32,10 @@ class RoomDataManagementRepository(
             aiPreferences = database.aiSettingsDao().get()?.toDomain()
                 ?: com.swan1127.repland.domain.model.AiPreferences(),
             profileEvidence = database.profileEvidenceDao().getAll().toDomainEvidence(logs, tasks),
+            engagementMode = database.engagementDao().getSettings()?.mode
+                ?.let(com.swan1127.repland.domain.model.EngagementMode::valueOf)
+                ?: com.swan1127.repland.domain.model.EngagementMode.GUIDED,
+            usageEvents = database.engagementDao().getEvents().map(UsageEventEntity::toDomain),
         )
     }
 

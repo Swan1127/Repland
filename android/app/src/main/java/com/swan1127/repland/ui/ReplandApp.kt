@@ -1,6 +1,9 @@
 package com.swan1127.repland.ui
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
 import android.net.Uri
 import android.content.pm.PackageManager
 import android.os.Build
@@ -8,7 +11,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,14 +24,22 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -36,15 +49,20 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -55,12 +73,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.app.NotificationManagerCompat
@@ -68,6 +94,7 @@ import androidx.core.content.ContextCompat
 import com.swan1127.repland.R
 import com.swan1127.repland.domain.model.ClassPeriodClock
 import com.swan1127.repland.domain.model.AiAdvisorFailureReason
+import com.swan1127.repland.domain.model.AiProviderConfig
 import com.swan1127.repland.domain.model.AiAdvisorRequest
 import com.swan1127.repland.domain.model.AiAdvisorResponse
 import com.swan1127.repland.domain.model.AiDailySummaryRequest
@@ -104,12 +131,17 @@ import com.swan1127.repland.domain.model.Task
 import com.swan1127.repland.domain.model.TaskCategory
 import com.swan1127.repland.domain.model.TaskDraft
 import com.swan1127.repland.domain.model.TaskDraftValidator
+import com.swan1127.repland.domain.model.TaskName
 import com.swan1127.repland.domain.model.TaskExecutionLog
 import com.swan1127.repland.domain.model.TaskFeedback
 import com.swan1127.repland.domain.model.TaskPriority
 import com.swan1127.repland.domain.model.TaskStatus
 import com.swan1127.repland.domain.model.TimeBlockKind
 import com.swan1127.repland.domain.model.TimeBlockValidator
+import com.swan1127.repland.domain.model.ScheduleTimeline
+import com.swan1127.repland.domain.model.TimelineEntry
+import com.swan1127.repland.domain.model.TimelinePhase
+import com.swan1127.repland.domain.model.EngagementMode
 import com.swan1127.repland.domain.model.WeeklyTimeBlock
 import com.swan1127.repland.domain.model.WeeklyTimeBlockDraft
 import com.swan1127.repland.domain.model.UnscheduledReason
@@ -122,7 +154,27 @@ import com.swan1127.repland.ui.profile.ProfileEvidenceViewModel
 import com.swan1127.repland.ui.data.DataManagementResult
 import com.swan1127.repland.ui.data.DataManagementViewModel
 import com.swan1127.repland.ui.ai.PlanningAgentViewModel
+import com.swan1127.repland.ui.ai.AiProviderConfigViewModel
+import com.swan1127.repland.ui.ai.AiProviderConnectionTest
+import com.swan1127.repland.ui.agent.AgentCenterScreen
+import com.swan1127.repland.ui.agent.ArrangementAssistantViewModel
 import com.swan1127.repland.ui.tasks.TaskViewModel
+import com.swan1127.repland.ui.schedule.TimelineDashboard
+import com.swan1127.repland.ui.schedule.WeekScheduleView
+import com.swan1127.repland.ui.schedule.MonthScheduleView
+import com.swan1127.repland.ui.schedule.TimelineEventObject
+import com.swan1127.repland.ui.schedule.DailyDesk
+import com.swan1127.repland.ui.engagement.EngagementViewModel
+import com.swan1127.repland.ui.components.CapacitySummary
+import com.swan1127.repland.ui.components.EditorSheet
+import com.swan1127.repland.ui.components.AssistantSheet
+import com.swan1127.repland.ui.components.NowCard
+import com.swan1127.repland.ui.components.TaskCaptureSheet
+import com.swan1127.repland.ui.components.TaskDatePickerDialog
+import com.swan1127.repland.ui.components.TaskRow
+import com.swan1127.repland.ui.components.TaskRowEmphasis
+import com.swan1127.repland.ui.components.PlannerIcons
+import com.swan1127.repland.ui.components.taskDateLabel
 import com.swan1127.repland.reminders.LocalReminderScheduler
 import java.time.DayOfWeek
 import java.time.Instant
@@ -130,8 +182,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.abs
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.delay
 
 private enum class AppTab(
     @param:StringRes val titleRes: Int,
@@ -139,9 +193,12 @@ private enum class AppTab(
 ) {
     TODAY(R.string.today_title, R.string.tab_today),
     TASKS(R.string.tasks_title, R.string.tab_tasks),
+    AGENT(R.string.agent_title, R.string.tab_agent),
     TIME(R.string.time_title, R.string.tab_time),
     MINE(R.string.mine_title, R.string.tab_mine),
 }
+
+private enum class ScheduleRange { OVERVIEW, DAY, WEEK, MONTH }
 
 private const val POSTPONEMENT_ADVICE_THRESHOLD = 3
 
@@ -156,6 +213,9 @@ fun ReplandApp(
     profileEvidenceViewModel: ProfileEvidenceViewModel,
     dataManagementViewModel: DataManagementViewModel,
     planningAgentViewModel: PlanningAgentViewModel,
+    aiProviderConfigViewModel: AiProviderConfigViewModel,
+    arrangementAssistantViewModel: ArrangementAssistantViewModel,
+    engagementViewModel: EngagementViewModel,
 ) {
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val timeUiState by timeViewModel.uiState.collectAsStateWithLifecycle()
@@ -165,6 +225,16 @@ fun ReplandApp(
     val profileEvidenceUiState by profileEvidenceViewModel.uiState.collectAsStateWithLifecycle()
     val dataManagementUiState by dataManagementViewModel.uiState.collectAsStateWithLifecycle()
     val planningAgentUiState by planningAgentViewModel.uiState.collectAsStateWithLifecycle()
+    val aiProviderConfigUiState by aiProviderConfigViewModel.uiState.collectAsStateWithLifecycle()
+    val arrangementAssistantAccess by arrangementAssistantViewModel.access.collectAsStateWithLifecycle()
+    val engagementMode by engagementViewModel.mode.collectAsStateWithLifecycle()
+    var activeDate by remember { mutableStateOf(LocalDate.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(60_000)
+            activeDate = LocalDate.now()
+        }
+    }
     val context = LocalContext.current
     val notificationPermissionGranted = context.canPostLocalNotifications()
     val reminderScheduler = remember(context) { LocalReminderScheduler(context.applicationContext) }
@@ -178,10 +248,36 @@ fun ReplandApp(
     ) { destination ->
         destination?.let { uri -> dataManagementViewModel.exportTo(context.contentResolver, uri) }
     }
+    var showVoiceComposer by rememberSaveable { mutableStateOf(false) }
+    var voiceTranscript by rememberSaveable { mutableStateOf("") }
+    var voiceError by rememberSaveable { mutableStateOf(false) }
+    val speechLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val words = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                ?.firstOrNull().orEmpty()
+            if (words.isNotBlank()) voiceTranscript = words
+            else voiceError = true
+        }
+    }
+    val onVoiceCapture: () -> Unit = {
+        voiceError = false
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "说出想安排的事")
+        }
+        runCatching { speechLauncher.launch(intent) }.onFailure { voiceError = true }
+        Unit
+    }
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.TODAY) }
+    var timeReturnTab by rememberSaveable { mutableStateOf(AppTab.TODAY) }
     var selectedTaskId by rememberSaveable { mutableStateOf<String?>(null) }
     var taskEditorTarget by remember { mutableStateOf<Task?>(null) }
     var showTaskEditor by rememberSaveable { mutableStateOf(false) }
+    var showTaskCapture by rememberSaveable { mutableStateOf(false) }
+    var taskEditorSeed by rememberSaveable { mutableStateOf("") }
     var completingTask by remember { mutableStateOf<Task?>(null) }
     var partiallyCompletingTask by remember { mutableStateOf<Task?>(null) }
     var feedbackTask by remember { mutableStateOf<Task?>(null) }
@@ -201,9 +297,11 @@ fun ReplandApp(
     var showClearLocalDataConfirmation by rememberSaveable { mutableStateOf(false) }
     var showAiConsentDialog by rememberSaveable { mutableStateOf(false) }
     var showDailyReview by rememberSaveable { mutableStateOf(false) }
+    var assistantTaskId by rememberSaveable { mutableStateOf<String?>(null) }
+    var showAssistant by rememberSaveable { mutableStateOf(false) }
     var lastPlanningAgentTaskId by rememberSaveable { mutableStateOf<String?>(null) }
     var reviewingAgentDraft by rememberSaveable { mutableStateOf(false) }
-    val reviewDate = LocalDate.now()
+    val reviewDate = activeDate
     val dailyLogsFlow = remember(reviewDate) { taskViewModel.observeExecutionLogsForDate(reviewDate) }
     val dailyLogs by dailyLogsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedTask = selectedTaskId?.let { id -> uiState.tasks.firstOrNull { it.id == id } }
@@ -241,6 +339,16 @@ fun ReplandApp(
         timeUiState.weeklyBlocks.maxOfOrNull(WeeklyTimeBlock::updatedAtEpochMillis) ?: 0L,
         timeUiState.dateOverrides.maxOfOrNull(DateOverride::updatedAtEpochMillis) ?: 0L,
         timeUiState.timeConstraintsUpdatedAtEpochMillis,
+    )
+    // The arrangement assistant previews against exactly the same projected day
+    // that the user sees on the home timeline; it never schedules into a vacuum.
+    val agentTimelineEntries = ScheduleTimeline.entries(
+        date = activeDate,
+        weeklyBlocks = timeUiState.weeklyBlocks,
+        dateOverrides = timeUiState.dateOverrides,
+        segments = planUiState.currentPlan?.segments.orEmpty(),
+        tasks = uiState.tasks,
+        semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
     )
 
     // Feedback and future-constraint changes can propose a new plan, but only the user
@@ -300,9 +408,10 @@ fun ReplandApp(
             },
             onPostpone = { postponingTask = selectedTask },
             onCancel = { cancellingTask = selectedTask },
-            onComplete = { completingTask = selectedTask },
+            onComplete = { taskViewModel.completeTask(selectedTask.id) },
             onPartialCompletion = { partiallyCompletingTask = selectedTask },
             onFeedback = { feedbackTask = selectedTask },
+            onOpenAssistant = { assistantTaskId = selectedTask.id; showAssistant = true },
             onReplace = { replacingTask = selectedTask },
             onRestore = { taskViewModel.restoreTask(selectedTask.id) },
             onCorrectLog = { correctingLog = it },
@@ -371,42 +480,76 @@ fun ReplandApp(
     } else {
         Scaffold(
             topBar = {
-                CenterAlignedTopAppBar(title = { Text(stringResource(selectedTab.titleRes)) })
+                if (selectedTab != AppTab.AGENT) TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                if (selectedTab == AppTab.TIME) "导入课表" else stringResource(selectedTab.titleRes),
+                                style = MaterialTheme.typography.titleLarge,
+                            )
+                            if (selectedTab == AppTab.TODAY) {
+                                Text(
+                                    text = activeDate.format(DateTimeFormatter.ofPattern("M月d日 E", Locale.CHINA)),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    },
+                    navigationIcon = {
+                        if (selectedTab == AppTab.TIME) {
+                            IconButton(
+                                onClick = { selectedTab = timeReturnTab },
+                                modifier = Modifier.testTag("timetable-back"),
+                            ) {
+                                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回")
+                            }
+                        }
+                    },
+                    actions = {
+                        if (selectedTab == AppTab.TASKS) {
+                            TextButton(
+                                onClick = { showVoiceComposer = true; voiceError = false },
+                                modifier = Modifier.testTag("voice-capture"),
+                            ) { Text("语音添加") }
+                        }
+                    },
+                )
             },
             bottomBar = {
-                NavigationBar {
-                    AppTab.entries.forEach { tab ->
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
+                    AppTab.entries.filter { it != AppTab.TIME }.forEach { tab ->
                         NavigationBarItem(
                             selected = selectedTab == tab,
                             onClick = { selectedTab = tab },
                             modifier = Modifier.testTag("navigation-${tab.name.lowercase()}"),
-                            icon = { Text(stringResource(tab.shortRes).take(1)) },
+                            icon = { TabIcon(tab) },
                             label = { Text(stringResource(tab.shortRes)) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            ),
                         )
                     }
                 }
             },
             floatingActionButton = {
                 when (selectedTab) {
-                    AppTab.TODAY, AppTab.TASKS -> {
+                    AppTab.TASKS -> {
                         FloatingActionButton(
                             onClick = {
-                                taskEditorTarget = null
-                                showTaskEditor = true
+                                showTaskCapture = true
                             },
                             modifier = Modifier.testTag("add-task"),
-                        ) { Text("+") }
+                        ) { Icon(Icons.Outlined.Add, contentDescription = "添加任务") }
                     }
 
-                    AppTab.TIME -> {
-                        FloatingActionButton(
-                            onClick = {
-                                weeklyBlockEditorTarget = null
-                                showWeeklyBlockEditor = true
-                            },
-                            modifier = Modifier.testTag("add-time-block"),
-                        ) { Text("+") }
-                    }
+                    AppTab.TODAY -> Unit
+
+                    AppTab.AGENT -> Unit
+
+                    AppTab.TIME -> Unit
 
                     AppTab.MINE -> Unit
                 }
@@ -419,11 +562,40 @@ fun ReplandApp(
             ) {
                 when (selectedTab) {
                     AppTab.TODAY -> TodayScreen(
+                        date = activeDate,
                         tasks = uiState.tasks.filter(Task::isTodayRelevant),
                         allTasks = uiState.tasks,
+                        weeklyBlocks = timeUiState.weeklyBlocks,
+                        dateOverrides = timeUiState.dateOverrides,
+                        semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
+                        engagementMode = engagementMode,
+                        onOpenTimelineEntry = engagementViewModel::recordTimelineOpened,
+                        onEditTimelineEntry = { entry ->
+                            when {
+                                entry.id.startsWith("segment:") -> entry.taskId?.let { taskId ->
+                                    taskEditorTarget = uiState.tasks.firstOrNull { it.id == taskId }
+                                    showTaskEditor = taskEditorTarget != null
+                                }
+
+                                entry.id.startsWith("weekly:") -> {
+                                    weeklyBlockEditorTarget = timeUiState.weeklyBlocks.firstOrNull {
+                                        it.id == entry.id.removePrefix("weekly:")
+                                    }
+                                    showWeeklyBlockEditor = weeklyBlockEditorTarget != null
+                                }
+
+                                entry.id.startsWith("override:") -> {
+                                    dateOverrideEditorTarget = timeUiState.dateOverrides.firstOrNull {
+                                        it.id == entry.id.removePrefix("override:")
+                                    }
+                                    showDateOverrideEditor = dateOverrideEditorTarget != null
+                                }
+                            }
+                        },
                         planSegments = planUiState.currentPlan?.segments
-                            ?.filter { it.date == LocalDate.now() }
+                            ?.filter { it.date == activeDate }
                             .orEmpty(),
+                        allPlanSegments = planUiState.currentPlan?.segments.orEmpty(),
                         hasConfirmedPlan = planUiState.currentPlan != null,
                         pendingConfirmationSegments = planUiState.currentPlan?.segments
                             ?.filter { segment ->
@@ -437,8 +609,116 @@ fun ReplandApp(
                         onStart = taskViewModel::startTask,
                         onOpenDailyReview = { showDailyReview = true },
                         onAdd = {
-                            taskEditorTarget = null
-                            showTaskEditor = true
+                            showTaskCapture = true
+                        },
+                        onOpenPlan = { selectedTab = AppTab.AGENT },
+                        onPlaceEvent = planViewModel::placeTask,
+                        onFocusStarted = taskViewModel::startTask,
+                        onFocusCompleted = { taskId, minutes ->
+                            taskViewModel.completeTask(taskId, actualDurationMinutes = minutes)
+                        },
+                        onFocusNotCompleted = { taskId, minutes ->
+                            taskViewModel.recordFeedback(
+                                taskId,
+                                TaskFeedback(actualDurationMinutes = minutes, completionResult = "focus_incomplete"),
+                            )
+                        },
+                        onCreateCourse = { request, courseDate ->
+                            timeViewModel.saveWeeklyBlock(
+                                WeeklyTimeBlockDraft(
+                                    title = request.title,
+                                    kind = TimeBlockKind.COURSE,
+                                    dayOfWeek = courseDate.dayOfWeek,
+                                    startMinute = request.startMinute,
+                                    endMinute = (request.startMinute + request.durationMinutes).coerceAtMost(1_440),
+                                    trackId = request.trackId,
+                                ),
+                            )
+                        },
+                        onRemovePlacement = planViewModel::removePlacement,
+                        onMoveEntry = { entry, startMinute ->
+                            val duration = entry.endMinute - entry.startMinute
+                            val endMinute = startMinute + duration
+                            when {
+                                entry.id.startsWith("segment:") -> planViewModel.movePlacement(
+                                    entry.id.removePrefix("segment:"), startMinute, endMinute, entry.trackId,
+                                )
+
+                                entry.id.startsWith("weekly:") -> timeUiState.weeklyBlocks
+                                    .firstOrNull { it.id == entry.id.removePrefix("weekly:") }
+                                    ?.let { block ->
+                                        timeViewModel.saveWeeklyBlock(
+                                            WeeklyTimeBlockDraft(
+                                                id = block.id,
+                                                title = block.title,
+                                                kind = block.kind,
+                                                dayOfWeek = block.dayOfWeek,
+                                                startMinute = startMinute,
+                                                endMinute = endMinute,
+                                                weekPattern = block.weekPattern,
+                                                trackId = block.trackId,
+                                                note = block.note,
+                                            ),
+                                        )
+                                    }
+
+                                entry.id.startsWith("override:") -> timeUiState.dateOverrides
+                                    .firstOrNull { it.id == entry.id.removePrefix("override:") }
+                                    ?.let { override ->
+                                        timeViewModel.saveDateOverride(
+                                            DateOverrideDraft(
+                                                id = override.id,
+                                                title = override.title,
+                                                type = override.type,
+                                                date = override.date,
+                                                startMinute = startMinute,
+                                                endMinute = endMinute,
+                                                note = override.note,
+                                            ),
+                                        )
+                                    }
+                            }
+                        },
+                        onUpdateEntryTime = { entry, startMinute, endMinute ->
+                            when {
+                                entry.id.startsWith("segment:") -> planViewModel.movePlacement(
+                                    entry.id.removePrefix("segment:"), startMinute, endMinute, entry.trackId,
+                                )
+
+                                entry.id.startsWith("weekly:") -> timeUiState.weeklyBlocks
+                                    .firstOrNull { it.id == entry.id.removePrefix("weekly:") }
+                                    ?.let { block ->
+                                        timeViewModel.saveWeeklyBlock(
+                                            WeeklyTimeBlockDraft(
+                                                id = block.id,
+                                                title = block.title,
+                                                kind = block.kind,
+                                                dayOfWeek = block.dayOfWeek,
+                                                startMinute = startMinute,
+                                                endMinute = endMinute,
+                                                weekPattern = block.weekPattern,
+                                                trackId = block.trackId,
+                                                note = block.note,
+                                            ),
+                                        )
+                                    }
+
+                                entry.id.startsWith("override:") -> timeUiState.dateOverrides
+                                    .firstOrNull { it.id == entry.id.removePrefix("override:") }
+                                    ?.let { override ->
+                                        timeViewModel.saveDateOverride(
+                                            DateOverrideDraft(
+                                                id = override.id,
+                                                title = override.title,
+                                                type = override.type,
+                                                date = override.date,
+                                                startMinute = startMinute,
+                                                endMinute = endMinute,
+                                                note = override.note,
+                                            ),
+                                        )
+                                    }
+                            }
                         },
                     )
 
@@ -448,50 +728,37 @@ fun ReplandApp(
                         onOpen = { selectedTaskId = it.id },
                         onStart = taskViewModel::startTask,
                         onAdd = {
-                            taskEditorTarget = null
-                            showTaskEditor = true
+                            showTaskCapture = true
+                        },
+                    )
+
+                    AppTab.AGENT -> AgentCenterScreen(
+                        activeDate = activeDate,
+                        occupiedEntries = agentTimelineEntries,
+                        canRefineWithAi = arrangementAssistantAccess.isEnabled &&
+                            arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey,
+                        onRefineWithAi = arrangementAssistantViewModel::refine,
+                        onSaveTasks = { drafts -> drafts.forEach(taskViewModel::saveTask) },
+                        onPlaceTask = { taskId, startMinute, endMinute, trackId ->
+                            planViewModel.placeTask(taskId, activeDate, startMinute, endMinute, trackId)
+                        },
+                        onOpenTimeStudio = {
+                            timeReturnTab = AppTab.AGENT
+                            selectedTab = AppTab.TIME
                         },
                     )
 
                     AppTab.TIME -> TimeScreen(
-                        weeklyBlocks = timeUiState.weeklyBlocks,
-                        dateOverrides = timeUiState.dateOverrides,
-                        isLoading = timeUiState.isLoading,
                         timetableImport = timeUiState.timetableImport,
-                        semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
-                        currentPlanSegmentCount = planUiState.currentPlan?.segments?.size ?: 0,
-                        hasPlanHistory = planUiState.planHistory.isNotEmpty(),
-                        planNeedsUpdate = planNeedsUpdate,
                         onImportPdf = timeViewModel::readTimetable,
                         onClearTimetableImport = timeViewModel::clearTimetableImport,
-                        onGenerateDraft = generatePlanDraft,
-                        onEditSemesterStart = { showSemesterStartEditor = true },
-                        onOpenPlanOverview = { showPlanOverview = true },
-                        onAddWeeklyBlock = {
-                            weeklyBlockEditorTarget = null
-                            showWeeklyBlockEditor = true
-                        },
-                        onEditWeeklyBlock = {
-                            weeklyBlockEditorTarget = it
-                            showWeeklyBlockEditor = true
-                        },
-                        onDeleteWeeklyBlock = { deletingWeeklyBlock = it },
-                        onAddDateOverride = {
-                            dateOverrideEditorTarget = null
-                            showDateOverrideEditor = true
-                        },
-                        onEditDateOverride = {
-                            dateOverrideEditorTarget = it
-                            showDateOverrideEditor = true
-                        },
-                        onDeleteDateOverride = { deletingDateOverride = it },
                     )
                     AppTab.MINE -> MineScreen(
                         weights = categoryPreferenceUiState.weights,
                         profileEvidence = profileEvidenceUiState.evidence,
                         isLoading = categoryPreferenceUiState.isLoading ||
                             reminderSettingsUiState.isLoading || profileEvidenceUiState.isLoading ||
-                            planningAgentUiState.isLoading,
+                            planningAgentUiState.isLoading || aiProviderConfigUiState.isLoading,
                         onSave = categoryPreferenceViewModel::save,
                         remindersEnabled = reminderSettingsUiState.preferences.isEnabled,
                         notificationsAllowed = notificationPermissionGranted,
@@ -509,32 +776,121 @@ fun ReplandApp(
                         aiEnabled = planningAgentUiState.preferences.isEnabled,
                         aiConsented = planningAgentUiState.preferences.hasExplicitConsent,
                         onAiEnabledChange = onAiEnabledChange,
+                        aiProviderConfig = aiProviderConfigUiState.config,
+                        aiProviderConfigError = aiProviderConfigUiState.errorMessage,
+                        aiProviderConnectionTest = aiProviderConfigUiState.connectionTest,
+                        onSaveAiProviderConfig = aiProviderConfigViewModel::save,
+                        onClearAiProviderKey = aiProviderConfigViewModel::clearApiKey,
+                        onTestAiProviderConnection = aiProviderConfigViewModel::testConnection,
+                        engagementMode = engagementMode,
+                        onEngagementModeChange = engagementViewModel::setMode,
                     )
                 }
             }
         }
     }
 
-    if (showTaskEditor) {
-        TaskEditorDialog(
-            task = taskEditorTarget,
-            onDismiss = { showTaskEditor = false },
+    if (showTaskCapture) {
+        TaskCaptureSheet(
+            initialText = taskEditorSeed,
+            onDismiss = { showTaskCapture = false; taskEditorSeed = "" },
             onSave = {
                 taskViewModel.saveTask(it)
-                showTaskEditor = false
+                showTaskCapture = false
+                taskEditorSeed = ""
             },
         )
     }
 
-    completingTask?.let { task ->
-        CompleteTaskDialog(
-            task = task,
-            onDismiss = { completingTask = null },
-            onConfirm = { content, result, actualMinutes, progress ->
-                taskViewModel.completeTask(task.id, content, result, actualMinutes, progress)
-                completingTask = null
+    if (showTaskEditor) {
+        TaskEditorDialog(
+            task = taskEditorTarget,
+            initialText = taskEditorSeed,
+            onDismiss = { showTaskEditor = false; taskEditorSeed = "" },
+            onSave = {
+                taskViewModel.saveTask(it)
+                showTaskEditor = false
+                taskEditorSeed = ""
             },
         )
+    }
+
+    if (showVoiceComposer) {
+        AlertDialog(
+            onDismissRequest = { showVoiceComposer = false },
+            title = { Text("说出你的安排") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("语音由设备选择的识别服务处理，可能联网；请先检查文字，再决定是否创建任务。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedTextField(
+                        value = voiceTranscript,
+                        onValueChange = { voiceTranscript = it },
+                        modifier = Modifier.fillMaxWidth().testTag("voice-transcript"),
+                        label = { Text("识别文字（可编辑）") },
+                        minLines = 3,
+                    )
+                    if (voiceError) Text("语音服务不可用或没有识别出内容；你仍可在这里输入。",
+                        color = MaterialTheme.colorScheme.error)
+                    TextButton(onClick = onVoiceCapture) { Text("开始语音识别") }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        taskEditorTarget = null
+                        taskEditorSeed = voiceTranscript.trim()
+                        showVoiceComposer = false
+                        showTaskCapture = true
+                    },
+                    enabled = voiceTranscript.isNotBlank(),
+                    modifier = Modifier.testTag("voice-to-task"),
+                ) { Text("转成任务草稿") }
+            },
+            dismissButton = { TextButton(onClick = { showVoiceComposer = false }) { Text("取消") } },
+        )
+    }
+
+    if (showAssistant) {
+        val task = assistantTaskId?.let { id -> uiState.tasks.firstOrNull { it.id == id } }
+            ?: selectedTask
+        task?.let {
+            AssistantSheet(
+                taskTitle = it.displayName,
+                onDismiss = { assistantTaskId = null; showAssistant = false },
+                onSubmit = { prompt ->
+                    assistantTaskId = null
+                    showAssistant = false
+                    val type = when {
+                        prompt.contains("时间") || prompt.contains("多久") -> PlanningAgentRequestType.DIFFICULTY_AND_DURATION
+                        prompt.contains("拆") || prompt.contains("步骤") -> PlanningAgentRequestType.TASK_BREAKDOWN
+                        prompt.contains("调整") || prompt.contains("安排") -> PlanningAgentRequestType.REPLAN
+                        else -> PlanningAgentRequestType.TASK_UNDERSTANDING
+                    }
+                    lastPlanningAgentTaskId = it.id
+                    when (type) {
+                        PlanningAgentRequestType.TASK_UNDERSTANDING -> planningAgentViewModel.beginTaskUnderstanding(it, executionLogs, planUiState.currentPlan)
+                        PlanningAgentRequestType.DIFFICULTY_AND_DURATION -> planningAgentViewModel.beginDifficultyAndDuration(it, executionLogs, planUiState.currentPlan)
+                        PlanningAgentRequestType.TASK_BREAKDOWN -> planningAgentViewModel.beginTaskBreakdown(it, executionLogs, planUiState.currentPlan)
+                        PlanningAgentRequestType.REPLAN -> planningAgentViewModel.beginReplan(
+                            affectedTasks = listOf(it), executionLogs = executionLogs,
+                            currentPlan = planUiState.currentPlan,
+                            localPlanInput = PlanGenerationInput(
+                                tasks = uiState.tasks, weeklyBlocks = timeUiState.weeklyBlocks,
+                                dateOverrides = timeUiState.dateOverrides,
+                                semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
+                                lockedSegments = planUiState.currentPlan?.segments?.filter { it.isLocked && !it.hasEndedBefore(LocalDateTime.now()) }.orEmpty(),
+                                categoryPreferences = categoryPreferenceUiState.weights,
+                                manualTaskOrder = planUiState.currentPlan?.takeIf { it.hasManualTaskOrder }?.orderedTaskIds.orEmpty(),
+                            ),
+                            constraintSummary = listOf("只处理未来安排，结果需要你确认。"),
+                        )
+                        else -> Unit
+                    }
+                },
+            )
+        }
     }
 
     partiallyCompletingTask?.let { task ->
@@ -662,18 +1018,13 @@ fun ReplandApp(
         )
     }
 
-    (timeUiState.timetableImport as? TimetableImportState.Review)?.let { review ->
-        TimetableImportReviewDialog(
-            courses = review.courses,
-            onDismiss = timeViewModel::clearTimetableImport,
-            onConfirm = timeViewModel::confirmTimetableImport,
-        )
-    }
-
     planUiState.draft?.let { draft ->
         PlanDraftDialog(
             draft = draft,
             tasks = uiState.tasks,
+            weeklyBlocks = timeUiState.weeklyBlocks,
+            dateOverrides = timeUiState.dateOverrides,
+            semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
             onDismiss = {
                 planViewModel.discardDraft()
                 if (reviewingAgentDraft) {
@@ -808,10 +1159,30 @@ fun ReplandApp(
 }
 
 @Composable
+private fun TabIcon(tab: AppTab) {
+    val icon = when (tab) {
+        AppTab.TODAY -> Icons.Outlined.DateRange
+        AppTab.TASKS -> Icons.AutoMirrored.Outlined.List
+        AppTab.AGENT -> Icons.Outlined.Add
+        AppTab.TIME -> Icons.Outlined.DateRange
+        AppTab.MINE -> Icons.Outlined.Person
+    }
+    Icon(icon, contentDescription = null)
+}
+
+@Composable
 private fun TodayScreen(
+    date: LocalDate,
     tasks: List<Task>,
     allTasks: List<Task>,
+    weeklyBlocks: List<WeeklyTimeBlock>,
+    dateOverrides: List<DateOverride>,
+    semesterFirstWeekMonday: LocalDate?,
+    engagementMode: EngagementMode,
+    onOpenTimelineEntry: (String) -> Unit,
+    onEditTimelineEntry: (TimelineEntry) -> Unit,
     planSegments: List<PlannedSegment>,
+    allPlanSegments: List<PlannedSegment>,
     hasConfirmedPlan: Boolean,
     pendingConfirmationSegments: List<PlannedSegment>,
     isLoading: Boolean,
@@ -819,104 +1190,199 @@ private fun TodayScreen(
     onStart: (String) -> Unit,
     onOpenDailyReview: () -> Unit,
     onAdd: () -> Unit,
+    onOpenPlan: () -> Unit,
+    onPlaceEvent: (String, LocalDate, Int, Int, String) -> Unit,
+    onFocusStarted: (String) -> Unit,
+    onFocusCompleted: (String, Int) -> Unit,
+    onFocusNotCompleted: (String, Int) -> Unit,
+    onCreateCourse: (com.swan1127.repland.ui.schedule.CourseInsertionRequest, LocalDate) -> Unit,
+    onRemovePlacement: (String) -> Unit,
+    onMoveEntry: (TimelineEntry, Int) -> Unit,
+    onUpdateEntryTime: (TimelineEntry, Int, Int) -> Unit,
 ) {
     if (isLoading) return
-    if (hasConfirmedPlan || planSegments.isNotEmpty() || pendingConfirmationSegments.isNotEmpty()) {
-        val taskById = allTasks.associateBy(Task::id)
-        val plannedTaskIds = planSegments.map(PlannedSegment::taskId).toSet()
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
+    var scheduleRange by rememberSaveable { mutableStateOf(ScheduleRange.DAY) }
+    var scheduleDate by remember { mutableStateOf(date) }
+    LaunchedEffect(date) { scheduleDate = date }
+    val taskById = allTasks.associateBy(Task::id)
+    val timelineEntries = ScheduleTimeline.entries(scheduleDate, weeklyBlocks, dateOverrides, allPlanSegments, allTasks, semesterFirstWeekMonday)
+    val nowMinute = java.time.LocalTime.now().let { it.hour * 60 + it.minute }
+    val currentOrNext = planSegments
+        .filter { it.endMinute > nowMinute }
+        .minByOrNull { it.startMinute }
+    val currentTask = currentOrNext?.let { taskById[it.taskId] }
+    val plannedTaskIds = planSegments.map(PlannedSegment::taskId).toSet()
+    val placedTaskIdsForScheduleDate = allPlanSegments.filter { it.date == scheduleDate }.map(PlannedSegment::taskId).toSet()
+    val scheduledMinutes = planSegments.sumOf { (it.endMinute - it.startMinute).coerceAtLeast(0) }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        if (scheduleRange == ScheduleRange.DAY) {
             item {
-                TextButton(onClick = onOpenDailyReview) {
-                    Text(stringResource(R.string.open_daily_review))
-                }
-            }
-            if (planSegments.isNotEmpty()) {
-                item {
-                    Text(
-                        stringResource(R.string.today_schedule),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-            }
-            if (pendingConfirmationSegments.isNotEmpty()) {
-                item {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(R.string.pending_confirmation_segments),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        stringResource(R.string.pending_confirmation_notice),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                items(
-                    items = pendingConfirmationSegments,
-                    key = { segment -> "pending-${segment.id.ifBlank { "${segment.taskId}-${segment.date}-${segment.startMinute}" }}" },
-                ) { segment ->
-                    taskById[segment.taskId]?.let { task ->
-                        PendingConfirmationTaskCard(
-                            task = task,
-                            segment = segment,
-                            onOpen = { onOpen(task) },
-                        )
-                    }
-                }
-            }
-            if (planSegments.isNotEmpty()) {
-                items(
-                    items = planSegments,
-                    key = { segment ->
-                        segment.id.ifBlank { "${segment.taskId}-${segment.date}-${segment.startMinute}" }
-                    },
-                ) { segment ->
-                    taskById[segment.taskId]?.let { task ->
-                        PlannedTaskCard(
-                            task = task,
-                            segment = segment,
-                            onOpen = { onOpen(task) },
-                            onStart = { onStart(task.id) },
-                        )
-                    }
-                }
-            }
-            tasks.filter { it.id !in plannedTaskIds }.takeIf(List<Task>::isNotEmpty)?.let { otherTasks ->
-                item {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        stringResource(R.string.other_active_tasks),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                items(otherTasks, key = Task::id) { task ->
-                    TaskCard(
-                        task = task,
-                        onOpen = { onOpen(task) },
-                        onStart = { onStart(task.id) },
-                    )
-                }
+                TodayFocalOverview(
+                    nextEntries = timelineEntries.filter { it.endMinute > nowMinute }.sortedBy(TimelineEntry::startMinute),
+                    unplacedCount = allTasks.count { it.id !in placedTaskIdsForScheduleDate && it.status.isActive },
+                    onOpenSchedule = { scheduleRange = ScheduleRange.DAY },
+                    onOpenTasks = onOpenPlan,
+                )
             }
         }
-        return
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = scheduleRange == ScheduleRange.DAY, onClick = { scheduleRange = ScheduleRange.DAY }, label = { Text("日") }, modifier = Modifier.testTag("today-timeline"))
+                FilterChip(selected = scheduleRange == ScheduleRange.WEEK, onClick = { scheduleRange = ScheduleRange.WEEK }, label = { Text("周") }, modifier = Modifier.testTag("week-schedule"))
+                FilterChip(selected = scheduleRange == ScheduleRange.MONTH, onClick = { scheduleRange = ScheduleRange.MONTH }, label = { Text("月") }, modifier = Modifier.testTag("month-schedule"))
+            }
+        }
+        if (scheduleRange == ScheduleRange.DAY) {
+            item {
+                TimelineDashboard(
+                    entries = timelineEntries,
+                    mode = engagementMode,
+                    onOpenEntry = onOpenTimelineEntry,
+                    onOpenTask = { id -> taskById[id]?.let(onOpen) },
+                    onEditEntry = onEditTimelineEntry,
+                    eventObjects = allTasks
+                        .filter { it.id !in placedTaskIdsForScheduleDate && it.status.isActive }
+                        .map { TimelineEventObject(it.id, it.displayName, it.totalDurationMinutes, it.category) },
+                    onPlaceEvent = { event, trackId, startMinute ->
+                        val duration = event.durationMinutes?.coerceIn(15, 240) ?: 30
+                        onPlaceEvent(event.id, scheduleDate, startMinute, (startMinute + duration).coerceAtMost(1440), trackId)
+                    },
+                    scheduleDate = scheduleDate,
+                    onCreateCourse = { request -> onCreateCourse(request, scheduleDate) },
+                    onFocusStarted = onFocusStarted,
+                    onFocusCompleted = onFocusCompleted,
+                    onFocusNotCompleted = onFocusNotCompleted,
+                    onRemovePlacement = onRemovePlacement,
+                    onMoveEntry = onMoveEntry,
+                    onUpdateEntryTime = onUpdateEntryTime,
+                )
+            }
+        } else if (scheduleRange == ScheduleRange.WEEK) {
+            item {
+                WeekScheduleView(
+                    date = scheduleDate,
+                    weeklyBlocks = weeklyBlocks,
+                    dateOverrides = dateOverrides,
+                    planSegments = allPlanSegments,
+                    tasks = allTasks,
+                    semesterFirstWeekMonday = semesterFirstWeekMonday,
+                    mode = engagementMode,
+                    onOpenEntry = onOpenTimelineEntry,
+                )
+            }
+        } else if (scheduleRange == ScheduleRange.MONTH) {
+            item {
+                MonthScheduleView(
+                    date = scheduleDate,
+                    weeklyBlocks = weeklyBlocks,
+                    dateOverrides = dateOverrides,
+                    planSegments = allPlanSegments,
+                    tasks = allTasks,
+                    semesterFirstWeekMonday = semesterFirstWeekMonday,
+                    onSelectDate = { selectedDate -> scheduleDate = selectedDate; scheduleRange = ScheduleRange.DAY },
+                    onOpenEntry = onOpenTimelineEntry,
+                )
+            }
+        } else {
+        item {
+            DailyDesk(
+                date = scheduleDate,
+                entries = ScheduleTimeline.entries(scheduleDate, weeklyBlocks, dateOverrides, allPlanSegments, allTasks, semesterFirstWeekMonday),
+                unplacedCount = allTasks.count { it.id !in placedTaskIdsForScheduleDate && it.status.isActive },
+                unplacedTasks = allTasks.filter { it.id !in placedTaskIdsForScheduleDate && it.status.isActive },
+                plannedMinutes = planSegments.sumOf { (it.endMinute - it.startMinute).coerceAtLeast(0) },
+                onOpenEntry = onOpenTimelineEntry,
+                onOpenTask = onOpen,
+                onOpenPlan = { scheduleRange = ScheduleRange.DAY },
+                onAdd = onAdd,
+            )
+        }
+        }
+        if (scheduleRange != ScheduleRange.OVERVIEW) {
+            item { TextButton(onClick = onOpenDailyReview) { Text(stringResource(R.string.open_daily_review)) } }
+        }
     }
-    if (tasks.isEmpty()) {
-        EmptyState(
-            title = stringResource(R.string.today_empty),
-            actionLabel = stringResource(R.string.add_first_task),
-            onAction = onAdd,
-        )
-        return
+}
+
+@Composable
+private fun TodayFocalOverview(
+    nextEntries: List<TimelineEntry>,
+    unplacedCount: Int,
+    onOpenSchedule: () -> Unit,
+    onOpenTasks: () -> Unit,
+) {
+    val first = nextEntries.firstOrNull()
+    val sameMoment = first?.let { lead -> nextEntries.count { it.startMinute == lead.startMinute } } ?: 0
+    val phase = first?.let { ScheduleTimeline.clock(it, LocalDateTime.now()).phase }
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onOpenSchedule).testTag("today-focus"),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shape = RoundedCornerShape(22.dp),
+    ) {
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    when (phase) {
+                        TimelinePhase.ACTIVE -> "正在进行"
+                        TimelinePhase.OVERRUN -> "已超时"
+                        TimelinePhase.UPCOMING -> "下一项"
+                        else -> "今天"
+                    },
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(Modifier.weight(1f))
+                if (unplacedCount > 0) {
+                    TextButton(onClick = onOpenTasks) { Text("待安排 $unplacedCount") }
+                }
+            }
+            Text(first?.title ?: "今天还没有具体安排", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                first?.let { "${TimeBlockValidator.formatTime(it.startMinute)}–${TimeBlockValidator.formatTime(it.endMinute)}" } ?: "从任务库选择一件事，再放进日轨道。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            if (sameMoment > 1) {
+                Text("同一时段还有 ${sameMoment - 1} 件并行事项", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+        }
     }
-    TaskList(tasks = tasks, onOpen = onOpen, onStart = onStart)
+}
+
+@Composable
+private fun TodayEmptyState(onAdd: () -> Unit, onVoiceCapture: () -> Unit) {
+    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.surfaceContainerLow)))
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)) {
+                Icon(Icons.Outlined.DateRange, contentDescription = null, modifier = Modifier.padding(14.dp).size(26.dp), tint = MaterialTheme.colorScheme.primary)
+            }
+            Text("把今天，留给\n重要的事。", style = MaterialTheme.typography.headlineMedium)
+            Text("还没有安排。先记下一件事，\n让一天从容开始。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onAdd) { Text("添加第一件事") }
+                TextButton(onClick = onVoiceCapture) { Text("说一句话") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CompactSectionHeader(title: String, count: Int, action: String? = null, onAction: (() -> Unit)? = null) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text("  $count", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.weight(1f))
+        if (action != null && onAction != null) TextButton(onClick = onAction) { Text(action) }
+    }
 }
 
 @Composable
@@ -1121,37 +1587,105 @@ private fun TasksScreen(
     onStart: (String) -> Unit,
     onAdd: () -> Unit,
 ) {
-    var showHistory by rememberSaveable { mutableStateOf(false) }
-    val visibleTasks = tasks.filter { task -> task.status.isActive != showHistory }
+    var view by rememberSaveable { mutableStateOf(TaskCenterView.OVERVIEW) }
+    val activeTasks = tasks.filter { it.status.isActive }
+    val today = LocalDate.now()
+    val visibleTasks = when (view) {
+        TaskCenterView.OVERVIEW -> activeTasks
+        TaskCenterView.INBOX -> activeTasks.filter { it.dueDate == null && it.scheduledForDate == null }
+        TaskCenterView.TODAY -> activeTasks.filter { it.dueDate == today || it.scheduledForDate == today }
+        TaskCenterView.OVERDUE -> activeTasks.filter { it.dueDate?.isBefore(today) == true }
+        TaskCenterView.COMPLETED -> tasks.filter { !it.status.isActive }
+    }
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            FilterChip(
-                selected = !showHistory,
-                onClick = { showHistory = false },
-                label = { Text(stringResource(R.string.active_tasks)) },
-            )
-            FilterChip(
-                selected = showHistory,
-                onClick = { showHistory = true },
-                label = { Text(stringResource(R.string.history_tasks)) },
-            )
+            TaskCenterView.entries.forEach { option ->
+                FilterChip(selected = view == option, onClick = { view = option }, label = { Text(option.label) })
+            }
         }
         if (!isLoading && visibleTasks.isEmpty()) {
             EmptyState(
-                title = stringResource(
-                    if (showHistory) R.string.no_history_tasks else R.string.no_active_tasks,
-                ),
-                actionLabel = if (showHistory) null else stringResource(R.string.add_first_task),
+                title = when (view) {
+                    TaskCenterView.INBOX -> "收件箱是空的"
+                    TaskCenterView.TODAY -> "今天还没有任务"
+                    TaskCenterView.OVERDUE -> "没有逾期任务"
+                    TaskCenterView.COMPLETED -> "还没有完成记录"
+                    TaskCenterView.OVERVIEW -> "还没有需要处理的任务"
+                },
+                actionLabel = if (view == TaskCenterView.COMPLETED || view == TaskCenterView.OVERDUE) null else "添加任务",
                 onAction = onAdd,
             )
         } else if (!isLoading) {
-            TaskList(tasks = visibleTasks, onOpen = onOpen, onStart = onStart)
+            if (view == TaskCenterView.OVERVIEW) {
+                TaskControlCenter(tasks = activeTasks, onOpen = onOpen, onStart = onStart)
+            } else {
+                TaskList(tasks = visibleTasks, onOpen = onOpen, onStart = onStart)
+            }
         }
+    }
+}
+
+private enum class TaskCenterView(val label: String) {
+    OVERVIEW("总览"), INBOX("待安排"), TODAY("今天"), OVERDUE("逾期"), COMPLETED("已完成"),
+}
+
+@Composable
+private fun TaskControlCenter(
+    tasks: List<Task>,
+    onOpen: (Task) -> Unit,
+    onStart: (String) -> Unit,
+) {
+    val today = LocalDate.now()
+    val attention = tasks.filter {
+        it.dueDate?.isBefore(today) == true ||
+            it.scheduledForDate?.isBefore(today) == true ||
+            it.status == TaskStatus.POSTPONED
+    }
+    val todayTasks = tasks.filter { (it.dueDate == today || it.scheduledForDate == today) && it !in attention }
+    val inbox = tasks.filter { it.dueDate == null && it.scheduledForDate == null && it !in attention && it !in todayTasks }
+    val later = tasks.filter { it !in attention && it !in todayTasks && it !in inbox }
+    var expandedGroup by rememberSaveable { mutableStateOf<String?>(null) }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        item {
+            Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text("每件事，都有位置", style = MaterialTheme.typography.titleLarge)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        listOf("进行中" to tasks.count { it.status == TaskStatus.IN_PROGRESS }, "待安排" to inbox.size, "需处理" to attention.size).forEach { (label, count) ->
+                            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text(count.toString(), style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
+                                Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        listOf("需要处理" to attention, "今天" to todayTasks, "待安排" to inbox, "更晚" to later).forEach { (title, group) ->
+            if (group.isNotEmpty()) {
+                item(key = "heading-$title") {
+                    CompactSectionHeader(title, group.size,
+                        action = if (group.size > 3) { if (expandedGroup == title) "收起" else "查看全部" } else null,
+                        onAction = { expandedGroup = if (expandedGroup == title) null else title })
+                }
+                items(if (expandedGroup == title) group else group.take(3), key = Task::id) { task ->
+                    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                        TaskRow(task, { onOpen(task) }, { onStart(task.id) }, emphasis = if (title == "需要处理") TaskRowEmphasis.ATTENTION else TaskRowEmphasis.NORMAL)
+                    }
+                }
+            }
+        }
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }
 
@@ -1167,11 +1701,7 @@ private fun TaskList(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         items(tasks, key = Task::id) { task ->
-            TaskCard(
-                task = task,
-                onOpen = { onOpen(task) },
-                onStart = { onStart(task.id) },
-            )
+            TaskRow(task = task, onOpen = { onOpen(task) }, onStart = { onStart(task.id) })
         }
     }
 }
@@ -1182,42 +1712,7 @@ private fun TaskCard(
     onOpen: () -> Unit,
     onStart: () -> Unit,
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onOpen)
-            .testTag("task-card-${task.displayName}"),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = task.displayName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                )
-                task.description.takeIf { it.isNotBlank() && it != task.displayName }?.let { intro ->
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = intro,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            TaskStatusButton(task = task, onStart = onStart)
-        }
-    }
+    TaskRow(task = task, onOpen = onOpen, onStart = onStart)
 }
 
 @Composable
@@ -1226,10 +1721,11 @@ private fun TaskStatusButton(task: Task, onStart: () -> Unit) {
     OutlinedButton(
         onClick = onStart,
         enabled = canStart,
+        modifier = Modifier.testTag("start-task"),
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
     ) {
-        Text(stringResource(task.status.labelRes()))
+        Text(if (canStart) "开始" else stringResource(task.status.labelRes()))
     }
 }
 
@@ -1246,6 +1742,7 @@ private fun TaskDetailScreen(
     onComplete: () -> Unit,
     onPartialCompletion: () -> Unit,
     onFeedback: () -> Unit,
+    onOpenAssistant: () -> Unit,
     onReplace: () -> Unit,
     onRestore: () -> Unit,
     onCorrectLog: (TaskExecutionLog) -> Unit,
@@ -1257,13 +1754,21 @@ private fun TaskDetailScreen(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.task_detail)) },
+            TopAppBar(
+                title = {
+                    Text(
+                        text = task.displayName,
+                        maxLines = 1,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
                 navigationIcon = {
-                    TextButton(
+                    IconButton(
                         onClick = onBack,
                         modifier = Modifier.testTag("task-detail-back"),
-                    ) { Text(stringResource(R.string.back)) }
+                    ) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
                 },
             )
         },
@@ -1277,12 +1782,9 @@ private fun TaskDetailScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                Card(
+                Surface(
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
                 ) {
                     Column(modifier = Modifier.padding(22.dp)) {
                         Row(
@@ -1291,26 +1793,42 @@ private fun TaskDetailScreen(
                             verticalAlignment = Alignment.Top,
                         ) {
                             Text(
-                                text = task.displayName,
+                                text = stringResource(task.status.labelRes()),
                                 modifier = Modifier.weight(1f),
-                                style = MaterialTheme.typography.headlineSmall,
+                                style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                             Spacer(Modifier.width(12.dp))
                             TaskStatusButton(task = task, onStart = { onStart(task.id) })
                         }
                         Spacer(Modifier.height(14.dp))
                         Text(
-                            text = task.description.takeIf { it.isNotBlank() && it != task.displayName }
-                                ?: stringResource(R.string.no_introduction),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            text = task.displayName,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
+                        task.description.takeIf { it.isNotBlank() && it != task.displayName }?.let {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.78f),
+                            )
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            DetailMetaPill(stringResource(task.category.labelRes()))
+                            DetailMetaPill(stringResource(task.userPriority.labelRes()))
+                            task.totalDurationMinutes?.let {
+                                DetailMetaPill(stringResource(R.string.duration_format, it))
+                            }
+                        }
                     }
                 }
             }
             item {
-                DetailSection(title = stringResource(R.string.task_information)) {
+                DetailSection(title = stringResource(R.string.task_information), eyebrow = "任务上下文") {
                     DetailLine(stringResource(R.string.category), stringResource(task.category.labelRes()))
                     DetailLine(stringResource(R.string.priority), stringResource(task.userPriority.labelRes()))
                     DetailLine(
@@ -1325,7 +1843,13 @@ private fun TaskDetailScreen(
                     task.dueDate?.let {
                         DetailLine(
                             stringResource(R.string.due_date_optional),
-                            stringResource(R.string.due_date_format, it.toString()),
+                            taskDateLabel(it),
+                        )
+                    }
+                    task.scheduledForDate?.let {
+                        DetailLine(
+                            "计划日期",
+                            taskDateLabel(it),
                         )
                     }
                 }
@@ -1333,7 +1857,7 @@ private fun TaskDetailScreen(
             (task.completionSummary != null || task.completionResult != null ||
                 task.actualDurationMinutes != null || task.progressPercent != null).takeIf { it }?.let {
                 item {
-                    DetailSection(title = stringResource(R.string.latest_feedback)) {
+                    DetailSection(title = stringResource(R.string.latest_feedback), eyebrow = "最近一次记录") {
                         task.completionSummary?.let { content ->
                             DetailLine(stringResource(R.string.completed_content), content)
                         }
@@ -1365,7 +1889,7 @@ private fun TaskDetailScreen(
                 }
             }
             item {
-                DetailSection(title = stringResource(R.string.execution_logs)) {
+                DetailSection(title = stringResource(R.string.execution_logs), eyebrow = "可回溯") {
                     if (executionLogs.isEmpty()) {
                         Text(
                             stringResource(R.string.no_execution_logs),
@@ -1387,6 +1911,7 @@ private fun TaskDetailScreen(
                     onComplete = onComplete,
                     onPartialCompletion = onPartialCompletion,
                     onFeedback = onFeedback,
+                    onOpenAssistant = onOpenAssistant,
                     onReplace = onReplace,
                     onRestore = onRestore,
                     isAiEnabled = isAiEnabled,
@@ -1406,10 +1931,32 @@ private fun TaskDetailScreen(
 }
 
 @Composable
-private fun DetailSection(title: String, content: @Composable () -> Unit) {
+private fun DetailSection(title: String, eyebrow: String? = null, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+        eyebrow?.let {
+            Text(
+                text = it,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         content()
+    }
+}
+
+@Composable
+private fun DetailMetaPill(text: String) {
+    Surface(
+        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(50),
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
     }
 }
 
@@ -1450,20 +1997,25 @@ private fun PostponementGuidance(
 
 @Composable
 private fun DetailLine(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 3.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top,
+    ) {
+        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
         Spacer(Modifier.width(16.dp))
-        Text(value, fontWeight = FontWeight.Medium)
+        Text(value, fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
 @Composable
 private fun ExecutionLogCard(log: TaskExecutionLog, onCorrect: () -> Unit) {
-    Card(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -1532,12 +2084,13 @@ private fun DetailActions(
     onComplete: () -> Unit,
     onPartialCompletion: () -> Unit,
     onFeedback: () -> Unit,
+    onOpenAssistant: () -> Unit,
     onReplace: () -> Unit,
     onRestore: () -> Unit,
     isAiEnabled: Boolean,
     onRequestAiAdvice: (PlanningAgentRequestType) -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         if (task.status.isActive) {
             Button(
                 onClick = onComplete,
@@ -1545,16 +2098,16 @@ private fun DetailActions(
             ) {
                 Text(stringResource(R.string.complete))
             }
-            OutlinedButton(
-                onClick = onPartialCompletion,
-                modifier = Modifier.fillMaxWidth().testTag("partial-completion"),
-            ) {
-                Text(stringResource(R.string.partial_completion))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = onPartialCompletion,
+                    modifier = Modifier.weight(1f).testTag("partial-completion"),
+                ) { Text(stringResource(R.string.partial_completion)) }
+                OutlinedButton(onClick = onPostpone, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.postpone))
+                }
             }
-            OutlinedButton(onClick = onPostpone, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.postpone))
-            }
-            OutlinedButton(onClick = onReplace, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onReplace, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.replace_task))
             }
         }
@@ -1572,29 +2125,24 @@ private fun DetailActions(
             }
         }
         if (isAiEnabled && task.status != TaskStatus.REPLACED) {
-            OutlinedButton(
-                onClick = { onRequestAiAdvice(PlanningAgentRequestType.TASK_UNDERSTANDING) },
-                modifier = Modifier.fillMaxWidth().testTag("request-ai-advice"),
+            Surface(
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                shape = RoundedCornerShape(18.dp),
             ) {
-                Text(stringResource(R.string.request_ai_advice))
-            }
-            TextButton(
-                onClick = { onRequestAiAdvice(PlanningAgentRequestType.DIFFICULTY_AND_DURATION) },
-                modifier = Modifier.fillMaxWidth().testTag("request-agent-difficulty"),
-            ) { Text(stringResource(R.string.request_agent_difficulty)) }
-            TextButton(
-                onClick = { onRequestAiAdvice(PlanningAgentRequestType.TASK_BREAKDOWN) },
-                modifier = Modifier.fillMaxWidth().testTag("request-agent-breakdown"),
-            ) { Text(stringResource(R.string.request_agent_breakdown)) }
-            TextButton(
-                onClick = { onRequestAiAdvice(PlanningAgentRequestType.SORTING_EXPLANATION) },
-                modifier = Modifier.fillMaxWidth().testTag("request-agent-sorting"),
-            ) { Text(stringResource(R.string.request_agent_sorting)) }
-            if (task.status.isActive) {
-                TextButton(
-                    onClick = { onRequestAiAdvice(PlanningAgentRequestType.REPLAN) },
-                    modifier = Modifier.fillMaxWidth().testTag("request-agent-replan"),
-                ) { Text(stringResource(R.string.request_agent_replan)) }
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text("需要一点协助？", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "一起拆解任务，找到合适的下一步。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    )
+                    OutlinedButton(onClick = onOpenAssistant, modifier = Modifier.fillMaxWidth().testTag("request-ai-advice")) {
+                        Text("打开对话")
+                    }
+                }
             }
         }
         if (task.status.isActive) {
@@ -1862,125 +2410,58 @@ private fun AiRequestPreviewDialog(
 
 @Composable
 private fun TimeScreen(
-    weeklyBlocks: List<WeeklyTimeBlock>,
-    dateOverrides: List<DateOverride>,
-    isLoading: Boolean,
     timetableImport: TimetableImportState,
-    semesterFirstWeekMonday: LocalDate?,
-    currentPlanSegmentCount: Int,
-    hasPlanHistory: Boolean,
-    planNeedsUpdate: Boolean,
     onImportPdf: (Uri) -> Unit,
     onClearTimetableImport: () -> Unit,
-    onGenerateDraft: () -> Unit,
-    onEditSemesterStart: () -> Unit,
-    onOpenPlanOverview: () -> Unit,
-    onAddWeeklyBlock: () -> Unit,
-    onEditWeeklyBlock: (WeeklyTimeBlock) -> Unit,
-    onDeleteWeeklyBlock: (WeeklyTimeBlock) -> Unit,
-    onAddDateOverride: () -> Unit,
-    onEditDateOverride: (DateOverride) -> Unit,
-    onDeleteDateOverride: (DateOverride) -> Unit,
 ) {
-    var showOverrides by rememberSaveable { mutableStateOf(false) }
     val timetablePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri -> uri?.let(onImportPdf) },
     )
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    Column(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        item {
-            Text(
-                stringResource(R.string.time_intro),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        item {
-            SemesterWeekCard(
-                semesterFirstWeekMonday = semesterFirstWeekMonday,
-                onEdit = onEditSemesterStart,
-            )
-        }
-        item {
-            Button(
-                onClick = onGenerateDraft,
-                modifier = Modifier.fillMaxWidth().testTag("generate-plan-draft"),
+        Text("导入固定课程", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+        Text(
+            "选择课表 PDF 后，识别到的课程会直接进入日与周视图。课程在日轨道上可长按拖动调整时间。",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            shape = RoundedCornerShape(24.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                Text(stringResource(R.string.generate_plan_draft))
-            }
-        }
-        if (currentPlanSegmentCount > 0) {
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        stringResource(R.string.current_plan_segment_count, currentPlanSegmentCount),
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    TextButton(onClick = onOpenPlanOverview) {
-                        Text(stringResource(R.string.view_plan))
-                    }
-                }
-            }
-        }
-        if (planNeedsUpdate) {
-            item {
-                Text(
-                    stringResource(R.string.plan_needs_update),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-        } else if (hasPlanHistory && currentPlanSegmentCount == 0) {
-            item {
-                TextButton(onClick = onOpenPlanOverview) {
-                    Text(stringResource(R.string.view_plan_history))
-                }
-            }
-        }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+                Text("课表 PDF", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Text(
                     stringResource(R.string.import_timetable_hint),
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
-                Spacer(Modifier.width(12.dp))
-                OutlinedButton(
+                Button(
                     onClick = { timetablePicker.launch(arrayOf("application/pdf")) },
-                    modifier = Modifier.testTag("import-timetable-pdf"),
-                ) {
-                    Text(stringResource(R.string.import_timetable_pdf))
-                }
+                    modifier = Modifier.fillMaxWidth().testTag("import-timetable-pdf"),
+                ) { Text(stringResource(R.string.import_timetable_pdf)) }
             }
         }
         when (timetableImport) {
             TimetableImportState.Idle,
             is TimetableImportState.Review -> Unit
 
-            TimetableImportState.Reading -> item {
+            TimetableImportState.Reading -> {
                 Text(
-                    stringResource(R.string.reading_timetable),
+                    "正在导入课表…",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
 
-            is TimetableImportState.Failed -> item {
+            is TimetableImportState.Failed -> {
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
@@ -2003,57 +2484,6 @@ private fun TimeScreen(
                         }
                     }
                 }
-            }
-        }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = !showOverrides,
-                    onClick = { showOverrides = false },
-                    label = { Text(stringResource(R.string.weekly_blocks)) },
-                )
-                FilterChip(
-                    selected = showOverrides,
-                    onClick = { showOverrides = true },
-                    label = { Text(stringResource(R.string.date_overrides)) },
-                )
-            }
-        }
-        if (showOverrides) {
-            item {
-                TimeListHeading(
-                    title = stringResource(R.string.date_overrides),
-                    actionLabel = stringResource(R.string.add_date_override),
-                    onAction = onAddDateOverride,
-                )
-            }
-            if (!isLoading && dateOverrides.isEmpty()) {
-                item { TimeEmptyState(R.string.no_date_overrides, onAddDateOverride) }
-            }
-            items(dateOverrides, key = DateOverride::id) { dateOverride ->
-                DateOverrideCard(
-                    dateOverride = dateOverride,
-                    onEdit = { onEditDateOverride(dateOverride) },
-                    onDelete = { onDeleteDateOverride(dateOverride) },
-                )
-            }
-        } else {
-            item {
-                TimeListHeading(
-                    title = stringResource(R.string.weekly_blocks),
-                    actionLabel = stringResource(R.string.add_weekly_block),
-                    onAction = onAddWeeklyBlock,
-                )
-            }
-            if (!isLoading && weeklyBlocks.isEmpty()) {
-                item { TimeEmptyState(R.string.no_weekly_blocks, onAddWeeklyBlock) }
-            }
-            items(weeklyBlocks, key = WeeklyTimeBlock::id) { block ->
-                WeeklyBlockCard(
-                    block = block,
-                    onEdit = { onEditWeeklyBlock(block) },
-                    onDelete = { onDeleteWeeklyBlock(block) },
-                )
             }
         }
     }
@@ -2439,27 +2869,32 @@ private fun ImportedCourseEditorDialog(
 }
 
 @Composable
-private fun PlanDraftDialog(
+internal fun PlanDraftDialog(
     draft: PlanDraft,
     tasks: List<Task>,
+    weeklyBlocks: List<WeeklyTimeBlock>,
+    dateOverrides: List<DateOverride>,
+    semesterFirstWeekMonday: LocalDate?,
     onDismiss: () -> Unit,
     onUpdateDraft: (PlanDraft) -> Unit,
     onAccept: () -> Unit,
 ) {
     val tasksById = tasks.associateBy(Task::id)
+    val unknownTaskLabel = stringResource(R.string.unknown_task)
     val orderedTaskIds = draft.orderedTaskIds
         .distinct()
         .filter(tasksById::containsKey)
         .ifEmpty { (draft.segments.map(PlannedSegment::taskId) + draft.pendingTaskIds).distinct() }
     val priorityAssessmentsByTask = draft.priorityAssessments.associateBy(LocalPriorityAssessment::taskId)
     var editingSegmentId by remember { mutableStateOf<String?>(null) }
-    AlertDialog(
+    var showTaskOrder by rememberSaveable { mutableStateOf(false) }
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.plan_draft_title)) },
         text = {
             Column(
                 modifier = Modifier
-                    .height(420.dp)
+                    .height(500.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -2468,155 +2903,94 @@ private fun PlanDraftDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (draft.priorityAssessments.isNotEmpty()) {
-                    Text(
-                        stringResource(R.string.local_planner_notice),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (orderedTaskIds.isNotEmpty()) {
-                    Text(
-                        stringResource(R.string.plan_draft_task_order),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                    Text(
-                        stringResource(R.string.plan_draft_drag_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    orderedTaskIds.forEachIndexed { index, taskId ->
-                        tasksById[taskId]?.let { task ->
-                            DraftTaskOrderRow(
-                                task = task,
-                                assessment = priorityAssessmentsByTask[taskId],
-                                index = index,
-                                total = orderedTaskIds.size,
-                                onMove = { offset ->
-                                    onUpdateDraft(PlanDraftEditor.moveTask(draft, taskId, offset))
+                PlanDraftTimelinePreview(
+                    draft = draft,
+                    tasks = tasks,
+                    weeklyBlocks = weeklyBlocks,
+                    dateOverrides = dateOverrides,
+                    semesterFirstWeekMonday = semesterFirstWeekMonday,
+                    onEditSegment = { editingSegmentId = it },
+                )
+                draft.pendingTaskIds.takeIf(List<String>::isNotEmpty)?.let { pendingIds ->
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("${stringResource(R.string.plan_pending_tasks)} · ${pendingIds.size}", style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                pendingIds.joinToString("、") { taskId ->
+                                    tasksById[taskId]?.displayName ?: unknownTaskLabel
                                 },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
                 }
-                if (draft.segments.isEmpty()) {
-                    Text(
-                        stringResource(
-                            if (draft.pendingTaskIds.isNotEmpty()) R.string.list_only_plan
-                            else R.string.no_plan_segments,
-                        ),
-                    )
-                } else {
-                    draft.segments.forEach { segment ->
-                        Card(
-                            modifier = Modifier.clickable { editingSegmentId = segment.id },
-                            shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                        ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
+                draft.unscheduledTasks.takeIf(List<*>::isNotEmpty)?.let { unscheduledTasks ->
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                stringResource(R.string.plan_feasibility_warning),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                            )
+                            unscheduledTasks.forEach { unscheduled ->
                                 Text(
-                                    tasksById[segment.taskId]?.displayName
-                                        ?: stringResource(R.string.unknown_task),
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
-                                Text(
-                                    segment.date.toString() + " · " +
-                                        TimeBlockValidator.formatTime(segment.startMinute) + "–" +
-                                        TimeBlockValidator.formatTime(segment.endMinute),
+                                    stringResource(
+                                        R.string.plan_unassigned_task,
+                                        tasksById[unscheduled.taskId]?.displayName
+                                            ?: stringResource(R.string.unknown_task),
+                                        unscheduled.remainingMinutes,
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
                                 )
-                                if (segment.isLocked) {
-                                    Text(
-                                        stringResource(R.string.segment_locked),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
-                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    TextButton(onClick = { editingSegmentId = segment.id }) {
-                                        Text(stringResource(R.string.edit_plan_segment))
-                                    }
-                                    if (PlanDraftEditor.canSplit(segment)) {
-                                        TextButton(
-                                            onClick = {
-                                                onUpdateDraft(PlanDraftEditor.splitSegment(draft, segment.id))
-                                            },
-                                        ) { Text(stringResource(R.string.split_plan_segment)) }
-                                    }
-                                    if (PlanDraftEditor.canMergeWithAdjacentSegment(draft, segment.id)) {
-                                        TextButton(
-                                            onClick = {
-                                                onUpdateDraft(
-                                                    PlanDraftEditor.mergeWithAdjacentSegment(draft, segment.id),
-                                                )
-                                            },
-                                        ) { Text(stringResource(R.string.merge_plan_segment)) }
-                                    }
-                                    TextButton(
-                                        onClick = {
-                                            onUpdateDraft(
-                                                PlanDraftEditor.setSegmentLocked(
-                                                    draft,
-                                                    segment.id,
-                                                    !segment.isLocked,
-                                                ),
-                                            )
-                                        },
-                                    ) {
-                                        Text(
-                                            stringResource(
-                                                if (segment.isLocked) R.string.unlock_segment
-                                                else R.string.lock_segment,
-                                            ),
-                                        )
-                                    }
-                                }
                             }
                         }
                     }
                 }
-                draft.pendingTaskIds.takeIf(List<String>::isNotEmpty)?.let { pendingIds ->
-                    Text(
-                        stringResource(R.string.plan_pending_tasks),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                    pendingIds.forEach { taskId ->
-                        Text("• " + (tasksById[taskId]?.displayName ?: stringResource(R.string.unknown_task)))
+                if (orderedTaskIds.isNotEmpty()) {
+                    Surface(
+                        onClick = { showTaskOrder = !showTaskOrder },
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text("候选事项顺序", style = MaterialTheme.typography.titleSmall)
+                                Text("只影响下次自动安排，不会改变上面的时段。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Text(if (showTaskOrder) "收起" else "调整", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                        }
                     }
-                }
-                draft.unscheduledTasks.takeIf(List<*>::isNotEmpty)?.let { unscheduledTasks ->
-                    Text(
-                        stringResource(R.string.plan_feasibility_warning),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                    unscheduledTasks.forEach { unscheduled ->
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(
-                                stringResource(
-                                    R.string.plan_unassigned_task,
-                                    tasksById[unscheduled.taskId]?.displayName
-                                        ?: stringResource(R.string.unknown_task),
-                                    unscheduled.remainingMinutes,
-                                ),
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                            Text(
-                                stringResource(unscheduled.reason.labelRes()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
+                    if (showTaskOrder) {
+                        orderedTaskIds.forEachIndexed { index, taskId ->
+                            tasksById[taskId]?.let { task ->
+                                DraftTaskOrderRow(
+                                    task = task,
+                                    assessment = priorityAssessmentsByTask[taskId],
+                                    index = index,
+                                    total = orderedTaskIds.size,
+                                    onMove = { offset ->
+                                        onUpdateDraft(PlanDraftEditor.moveTask(draft, taskId, offset))
+                                    },
+                                )
+                            }
                         }
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = onAccept,
                 modifier = Modifier.testTag("accept-plan-draft"),
                 enabled = draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty(),
@@ -2632,6 +3006,7 @@ private fun PlanDraftDialog(
         draft.segments.firstOrNull { it.id == segmentId }?.let { segment ->
             PlanSegmentEditorDialog(
                 segment = segment,
+                availableTrackIds = (listOf("focus", "parallel-2", "parallel-3") + draft.segments.map(PlannedSegment::trackId)).distinct(),
                 hasConflict = { candidate -> PlanDraftEditor.overlapsAnotherSegment(draft, candidate) },
                 onDismiss = { editingSegmentId = null },
                 onSave = { updated ->
@@ -2644,6 +3019,186 @@ private fun PlanDraftDialog(
 }
 
 @Composable
+private fun PlanDraftTimelinePreview(
+    draft: PlanDraft,
+    tasks: List<Task>,
+    weeklyBlocks: List<WeeklyTimeBlock>,
+    dateOverrides: List<DateOverride>,
+    semesterFirstWeekMonday: LocalDate?,
+    onEditSegment: (String) -> Unit,
+) {
+    val dates = draft.segments.map(PlannedSegment::date).distinct().sorted()
+    var selectedDate by remember(dates) { mutableStateOf(dates.firstOrNull()) }
+    if (selectedDate !in dates) selectedDate = dates.firstOrNull()
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("plan-draft-preview"),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("安排预览", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text("真实时间与轨道；点选蓝色事项可调整。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Text("尚未写入", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            }
+            if (dates.isEmpty()) {
+                Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp)) {
+                    Text(
+                        "还没有可落位的时段。先保留为待安排，或回到安排助手补充时间。",
+                        modifier = Modifier.padding(14.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    dates.forEach { date ->
+                        FilterChip(
+                            selected = selectedDate == date,
+                            onClick = { selectedDate = date },
+                            label = { Text(date.format(DateTimeFormatter.ofPattern("M/d E", Locale.SIMPLIFIED_CHINESE))) },
+                            modifier = Modifier.testTag("plan-draft-date-$date"),
+                        )
+                    }
+                }
+                val date = requireNotNull(selectedDate)
+                val entries = ScheduleTimeline.entries(
+                    date = date,
+                    weeklyBlocks = weeklyBlocks,
+                    dateOverrides = dateOverrides,
+                    segments = draft.segments,
+                    tasks = tasks,
+                    semesterFirstWeekMonday = semesterFirstWeekMonday,
+                )
+                DraftDayTrackPreview(entries = entries, onEditSegment = onEditSegment)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DraftDayTrackPreview(
+    entries: List<TimelineEntry>,
+    onEditSegment: (String) -> Unit,
+) {
+    val laneCount = (entries.maxOfOrNull(TimelineEntry::lane) ?: 0) + 1
+    val laneTracks = (0 until laneCount).associateWith { lane ->
+        entries.firstOrNull { it.lane == lane }?.trackId ?: "focus"
+    }
+    val rulerWidth = 38.dp
+    val laneWidth = 112.dp
+    val headerHeight = 28.dp
+    val dayStart = 7 * 60
+    val dayEnd = 23 * 60
+    val hourHeight = 14.dp
+    val contentHeight = headerHeight + hourHeight * ((dayEnd - dayStart) / 60)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(14.dp),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(contentHeight + 18.dp)
+                .horizontalScroll(rememberScrollState())
+                .padding(8.dp),
+        ) {
+            Box(Modifier.width(rulerWidth + laneWidth * laneCount).height(contentHeight)) {
+                laneTracks.forEach { (lane, trackId) ->
+                    Surface(
+                        modifier = Modifier
+                            .offset(x = rulerWidth + laneWidth * lane)
+                            .width(laneWidth - 6.dp)
+                            .height(22.dp),
+                        color = if (lane == 0) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        Text(
+                            draftTrackLabel(trackId),
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+                (dayStart / 60..dayEnd / 60).forEach { hour ->
+                    val y = headerHeight + hourHeight * (hour - dayStart / 60)
+                    Text(
+                        String.format(Locale.ROOT, "%02d", hour),
+                        modifier = Modifier.offset(y = y - 6.dp).width(rulerWidth),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .offset(x = rulerWidth, y = y)
+                            .width(laneWidth * laneCount)
+                            .height(1.dp)
+                            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.52f)),
+                    )
+                }
+                entries.forEach { entry ->
+                    val start = entry.startMinute.coerceIn(dayStart, dayEnd)
+                    val end = entry.endMinute.coerceIn(dayStart, dayEnd)
+                    if (end > start) {
+                        val isProposed = entry.id.startsWith("segment:")
+                        val y = headerHeight + hourHeight * ((start - dayStart) / 60f)
+                        val blockHeight = (hourHeight * ((end - start) / 60f)).coerceAtLeast(24.dp)
+                        val modifier = Modifier
+                            .offset(x = rulerWidth + laneWidth * entry.lane, y = y)
+                            .width(laneWidth - 6.dp)
+                            .height(blockHeight)
+                            .then(
+                                if (isProposed) Modifier.testTag("draft-segment-${entry.id.removePrefix("segment:")}") else Modifier,
+                            )
+                        val content: @Composable () -> Unit = {
+                            Column(Modifier.padding(6.dp), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                                Text(entry.title, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                                Text(
+                                    "${TimeBlockValidator.formatTime(entry.startMinute)}–${TimeBlockValidator.formatTime(entry.endMinute)}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    color = if (isProposed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        if (isProposed) {
+                            Surface(
+                                onClick = { onEditSegment(entry.id.removePrefix("segment:")) },
+                                modifier = modifier,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(9.dp),
+                            ) { content() }
+                        } else {
+                            Surface(
+                                modifier = modifier,
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                shape = RoundedCornerShape(9.dp),
+                            ) { content() }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun draftTrackLabel(trackId: String): String = when (trackId) {
+    "focus" -> "主线"
+    "course" -> "课程"
+    "fixed" -> "固定"
+    "rest" -> "休息"
+    else -> trackId.removePrefix("parallel-").toIntOrNull()?.let { "并行 $it" } ?: trackId
+}
+
+@Composable
 private fun DraftTaskOrderRow(
     task: Task,
     assessment: LocalPriorityAssessment?,
@@ -2652,11 +3207,12 @@ private fun DraftTaskOrderRow(
     onMove: (Int) -> Unit,
 ) {
     var accumulatedDragY by remember(task.id) { mutableFloatStateOf(0f) }
+    var showReason by rememberSaveable(task.id) { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .pointerInput(task.id) {
-                detectDragGestures(
+                detectDragGesturesAfterLongPress(
                     onDragStart = { accumulatedDragY = 0f },
                     onDrag = { change, amount ->
                         change.consume()
@@ -2679,11 +3235,11 @@ private fun DraftTaskOrderRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(task.displayName, style = MaterialTheme.typography.bodyMedium)
                 assessment?.let { value ->
-                    Text(
-                        text = stringResource(R.string.dynamic_priority_score, value.score),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    TextButton(onClick = { showReason = !showReason }) {
+                        Text(if (showReason) "收起排序依据" else "排序依据", style = MaterialTheme.typography.labelSmall)
+                    }
+                    if (showReason) {
+                    Text(stringResource(R.string.dynamic_priority_score, value.score), style = MaterialTheme.typography.bodySmall)
                     value.reasons
                         .filter { it.kind != PriorityReasonKind.LOCAL_AI_NEUTRAL }
                         .take(3)
@@ -2694,6 +3250,7 @@ private fun DraftTaskOrderRow(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
+                    }
                 }
             }
             TextButton(onClick = { onMove(-1) }, enabled = index > 0) {
@@ -2709,6 +3266,7 @@ private fun DraftTaskOrderRow(
 @Composable
 private fun PlanSegmentEditorDialog(
     segment: PlannedSegment,
+    availableTrackIds: List<String>,
     hasConflict: (PlannedSegment) -> Boolean,
     onDismiss: () -> Unit,
     onSave: (PlannedSegment) -> Unit,
@@ -2716,6 +3274,7 @@ private fun PlanSegmentEditorDialog(
     var dateText by remember(segment) { mutableStateOf(segment.date.toString()) }
     var startTime by remember(segment) { mutableStateOf(TimeBlockValidator.formatTime(segment.startMinute)) }
     var endTime by remember(segment) { mutableStateOf(TimeBlockValidator.formatTime(segment.endMinute)) }
+    var selectedTrackId by remember(segment) { mutableStateOf(segment.trackId) }
     var showValidationError by remember { mutableStateOf(false) }
     var confirmConflict by remember { mutableStateOf(false) }
     AlertDialog(
@@ -2763,6 +3322,22 @@ private fun PlanSegmentEditorDialog(
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
                 )
+                Text("轨道", style = MaterialTheme.typography.labelLarge)
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    availableTrackIds.forEach { trackId ->
+                        FilterChip(
+                            selected = selectedTrackId == trackId,
+                            onClick = {
+                                selectedTrackId = trackId
+                                confirmConflict = false
+                            },
+                            label = { Text(draftTrackLabel(trackId)) },
+                        )
+                    }
+                }
                 if (confirmConflict) {
                     Text(
                         stringResource(R.string.plan_segment_overlap_warning),
@@ -2786,6 +3361,7 @@ private fun PlanSegmentEditorDialog(
                         date = parsedDate ?: segment.date,
                         startMinute = TimeBlockValidator.parseTime(startTime) ?: -1,
                         endMinute = TimeBlockValidator.parseTime(endTime) ?: -1,
+                        trackId = selectedTrackId,
                     )
                     if (parsedDate == null || !PlanDraftEditor.isValidSegment(updated)) {
                         showValidationError = true
@@ -2813,7 +3389,7 @@ private fun PlanOverviewDialog(
     onToggleSegmentLock: (segmentId: String, isLocked: Boolean) -> Unit,
 ) {
     val tasksById = tasks.associateBy(Task::id)
-    AlertDialog(
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.plan_overview_title)) },
         text = {
@@ -2978,8 +3554,19 @@ private fun MineScreen(
     aiEnabled: Boolean,
     aiConsented: Boolean,
     onAiEnabledChange: (Boolean) -> Unit,
+    aiProviderConfig: AiProviderConfig,
+    aiProviderConfigError: String?,
+    aiProviderConnectionTest: AiProviderConnectionTest,
+    onSaveAiProviderConfig: (String, String, String) -> Unit,
+    onClearAiProviderKey: () -> Unit,
+    onTestAiProviderConnection: () -> Unit,
+    engagementMode: EngagementMode,
+    onEngagementModeChange: (EngagementMode) -> Unit,
 ) {
     if (isLoading) return
+    var showPreferences by rememberSaveable { mutableStateOf(false) }
+    var showProfile by rememberSaveable { mutableStateOf(false) }
+    var showData by rememberSaveable { mutableStateOf(false) }
     var editableWeights by remember(weights) {
         mutableStateOf(TaskCategory.entries.associateWith { weights.getValue(it).toString() })
     }
@@ -2995,10 +3582,11 @@ private fun MineScreen(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Card(
+        Text("日常使用", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        EngagementModeSection(engagementMode, onEngagementModeChange)
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         ) {
             Column(
                 modifier = Modifier.padding(18.dp),
@@ -3011,13 +3599,13 @@ private fun MineScreen(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             stringResource(R.string.local_reminders_title),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Medium,
                         )
                         Text(
                             stringResource(R.string.local_reminders_description),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     Switch(
@@ -3035,12 +3623,21 @@ private fun MineScreen(
                 }
             }
         }
+        Text("智能与个性化", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
         AiSettingsSection(
             aiEnabled = aiEnabled,
             aiConsented = aiConsented,
             onAiEnabledChange = onAiEnabledChange,
+            providerConfig = aiProviderConfig,
+            providerConfigError = aiProviderConfigError,
+            providerConnectionTest = aiProviderConnectionTest,
+            onSaveProviderConfig = onSaveAiProviderConfig,
+            onClearProviderKey = onClearAiProviderKey,
+            onTestConnection = onTestAiProviderConnection,
         )
-        Text(stringResource(R.string.category_preferences_title), style = MaterialTheme.typography.titleLarge)
+        SettingsDisclosure("类别偏好", "调整不同事情在计划中的权重", showPreferences, { showPreferences = !showPreferences })
+        if (showPreferences) {
+        Text(stringResource(R.string.category_preferences_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text(
             stringResource(R.string.category_preferences_intro),
             style = MaterialTheme.typography.bodyMedium,
@@ -3072,6 +3669,9 @@ private fun MineScreen(
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text(stringResource(R.string.save_category_preferences)) }
+        }
+        SettingsDisclosure("关于你的记录", "${profileEvidence.size} 条画像记录 · 查看、修正与删除", showProfile, { showProfile = !showProfile })
+        if (showProfile) {
         ProfileEvidenceSection(
             evidence = profileEvidence,
             onGenerate = onGenerateProfileEvidence,
@@ -3079,12 +3679,77 @@ private fun MineScreen(
             onDelete = onDeleteProfileEvidence,
             hasActionError = hasProfileActionError,
         )
+        }
+        Text("数据与隐私", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        SettingsDisclosure("本地数据", "导出备份与数据管理", showData, { showData = !showData })
+        if (showData) {
         LocalDataManagementSection(
             isWorking = isDataWorking,
             result = dataResult,
             onExport = onExportLocalData,
             onClear = onClearLocalData,
         )
+        }
+        Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun SettingsDisclosure(title: String, description: String, expanded: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.width(12.dp))
+            Text(if (expanded) "收起" else "展开", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+@Composable
+private fun EngagementModeSection(
+    selected: EngagementMode,
+    onSelect: (EngagementMode) -> Unit,
+) {
+    Text("你的参与方式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Text("随时切换；只改变信息密度与建议方式，不替你做决定。",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(18.dp)) {
+        Column {
+            listOf(
+                Triple(EngagementMode.CO_PLANNER, "重度参与", "看完整时间轨道，主动编排与复盘"),
+                Triple(EngagementMode.GUIDED, "适度引导", "保留全局视图，在关键节点接受建议"),
+                Triple(EngagementMode.EXECUTOR, "轻量执行", "先看到接下来三项，需要时展开全局"),
+            ).forEachIndexed { index, (mode, label, detail) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelect(mode) }
+                        .testTag("engagement-${mode.name.lowercase()}")
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (selected == mode) {
+                        Surface(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(50)) {
+                            Text("当前", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary)
+                        }
+                    }
+                }
+                if (index < 2) Spacer(Modifier.height(1.dp))
+            }
+        }
     }
 }
 
@@ -3093,11 +3758,17 @@ private fun AiSettingsSection(
     aiEnabled: Boolean,
     aiConsented: Boolean,
     onAiEnabledChange: (Boolean) -> Unit,
+    providerConfig: AiProviderConfig,
+    providerConfigError: String?,
+    providerConnectionTest: AiProviderConnectionTest,
+    onSaveProviderConfig: (String, String, String) -> Unit,
+    onClearProviderKey: () -> Unit,
+    onTestConnection: () -> Unit,
 ) {
-    Card(
+    var showProviderSettings by rememberSaveable { mutableStateOf(false) }
+    Surface(
+        color = MaterialTheme.colorScheme.tertiaryContainer,
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(18.dp),
@@ -3110,7 +3781,7 @@ private fun AiSettingsSection(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         stringResource(R.string.ai_advisor_title),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Medium,
                     )
                     Text(
@@ -3133,13 +3804,165 @@ private fun AiSettingsSection(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
+            Surface(
+                onClick = { showProviderSettings = true },
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth().testTag("ai-provider-settings"),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(start = 14.dp, top = 12.dp, end = 10.dp, bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        color = if (providerConfig.hasApiKey) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        Icon(
+                            PlannerIcons.Send,
+                            contentDescription = null,
+                            modifier = Modifier.padding(9.dp),
+                            tint = if (providerConfig.hasApiKey) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text("Agnes API", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            if (providerConfig.hasApiKey) "密钥已加密保存在本设备 · ${providerConfig.model}"
+                            else "尚未添加密钥 · 本地结构化解析仍可使用",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Text("配置", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+            if (providerConfigError != null) {
+                Text(providerConfigError, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
             Text(
-                stringResource(R.string.ai_advisor_not_configured),
-                style = MaterialTheme.typography.bodySmall,
+                "保存密钥本身不会联网。只有你在助手或任务建议中确认请求后，才会发送本次所需的最小上下文。",
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
         }
     }
+    if (showProviderSettings) {
+        AiProviderSettingsDialog(
+            config = providerConfig,
+            errorMessage = providerConfigError,
+            connectionTest = providerConnectionTest,
+            onDismiss = { showProviderSettings = false },
+            onSave = onSaveProviderConfig,
+            onClearKey = onClearProviderKey,
+            onTestConnection = onTestConnection,
+        )
+    }
+}
+
+@Composable
+private fun AiProviderSettingsDialog(
+    config: AiProviderConfig,
+    errorMessage: String?,
+    connectionTest: AiProviderConnectionTest,
+    onDismiss: () -> Unit,
+    onSave: (String, String, String) -> Unit,
+    onClearKey: () -> Unit,
+    onTestConnection: () -> Unit,
+) {
+    var baseUrl by remember(config.baseUrl) { mutableStateOf(config.baseUrl) }
+    var model by remember(config.model) { mutableStateOf(config.model) }
+    var apiKey by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Agnes API 配置") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    "用于需要更深层语义理解的可选建议。安排写入仍然必须经过轨道草案与手动确认。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text("服务区", style = MaterialTheme.typography.labelLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = baseUrl.contains("apihub.agnes-ai.com"),
+                        onClick = { baseUrl = "https://apihub.agnes-ai.com/v1" },
+                        label = { Text("国际服务") },
+                    )
+                    FilterChip(
+                        selected = baseUrl.contains("api.agnes-ai.cn"),
+                        onClick = { baseUrl = "https://api.agnes-ai.cn/v1" },
+                        label = { Text("中国服务") },
+                    )
+                }
+                OutlinedTextField(
+                    value = baseUrl,
+                    onValueChange = { baseUrl = it },
+                    modifier = Modifier.fillMaxWidth().testTag("ai-provider-endpoint"),
+                    label = { Text("服务地址") },
+                    supportingText = { Text("默认 Agnes OpenAI 兼容地址") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = model,
+                    onValueChange = { model = it },
+                    modifier = Modifier.fillMaxWidth().testTag("ai-provider-model"),
+                    label = { Text("模型") },
+                    supportingText = { Text("默认 agnes-2.5-flash") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = apiKey,
+                    onValueChange = { apiKey = it },
+                    modifier = Modifier.fillMaxWidth().testTag("ai-provider-key"),
+                    label = { Text(if (config.hasApiKey) "替换 API 密钥（留空则保留）" else "API 密钥") },
+                    placeholder = { Text(if (config.hasApiKey) "已安全保存" else "粘贴你的密钥") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    singleLine = true,
+                )
+                if (errorMessage != null) Text(errorMessage, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                when (connectionTest) {
+                    AiProviderConnectionTest.Idle -> Text("保存密钥后可发送一条不含个人数据的最小请求，验证地址、模型与鉴权。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    AiProviderConnectionTest.Testing -> Text("正在验证连接…", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    is AiProviderConnectionTest.Connected -> Text("连接成功：${connectionTest.model} 已可用于安排助手。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                    is AiProviderConnectionTest.Failed -> Text(connectionTest.reason.connectionTestMessage(), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                }
+                if (config.hasApiKey) {
+                    TextButton(onClick = { onClearKey(); apiKey = "" }, modifier = Modifier.testTag("ai-provider-clear")) {
+                        Text("清除本机密钥", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = { onSave(baseUrl, model, apiKey) }, modifier = Modifier.testTag("ai-provider-save")) { Text("加密保存") }
+                TextButton(
+                    onClick = onTestConnection,
+                    enabled = config.hasApiKey && connectionTest !is AiProviderConnectionTest.Testing,
+                    modifier = Modifier.testTag("ai-provider-test"),
+                ) { Text("测试连接") }
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("完成") } },
+    )
+}
+
+private fun AiAdvisorFailureReason.connectionTestMessage(): String = when (this) {
+    AiAdvisorFailureReason.AUTHENTICATION_FAILURE -> "鉴权失败：请检查密钥是否属于当前服务区，以及账户是否可用。"
+    AiAdvisorFailureReason.RATE_LIMITED -> "服务已连通，但当前触发请求额度或频率限制。"
+    AiAdvisorFailureReason.REMOTE_FAILURE -> "已到达服务网关，但模型服务暂时异常；请稍后再试。"
+    AiAdvisorFailureReason.TIMEOUT -> "连接超时：请检查网络，或稍后重试。"
+    AiAdvisorFailureReason.INVALID_RESPONSE -> "服务已返回内容，但格式未通过校验；请重试。"
+    AiAdvisorFailureReason.TRANSPORT_FAILURE -> "无法到达服务：请确认服务区地址和网络。"
+    AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED -> "尚未保存可用密钥。"
+    AiAdvisorFailureReason.DISABLED -> "连接测试不依赖规划开关；请重新保存密钥后测试。"
 }
 
 @Composable
@@ -3398,24 +4221,36 @@ private fun EmptyState(
 @Composable
 private fun TaskEditorDialog(
     task: Task?,
+    initialText: String = "",
     @StringRes dialogTitle: Int? = null,
     @StringRes confirmLabel: Int = R.string.save,
     allowPriorityChange: Boolean = task == null,
     onDismiss: () -> Unit,
     onSave: (TaskDraft) -> Unit,
 ) {
-    var displayName by remember(task) { mutableStateOf(task?.displayName.orEmpty()) }
-    var description by remember(task) {
-        mutableStateOf(task?.description.takeIf { it != task?.displayName }.orEmpty())
+    var displayName by remember(task, initialText) {
+        mutableStateOf(task?.displayName ?: TaskName.fromDescription(initialText))
+    }
+    var description by remember(task, initialText) {
+        mutableStateOf(task?.description.takeIf { it != task?.displayName } ?: initialText)
     }
     var category by remember(task) { mutableStateOf(task?.category ?: TaskCategory.COURSE) }
     var priority by remember(task) { mutableStateOf(task?.userPriority ?: TaskPriority.MEDIUM) }
     var estimatedDaysText by remember(task) { mutableStateOf(task?.estimatedDays?.toString() ?: "1") }
     var durationText by remember(task) { mutableStateOf(task?.totalDurationMinutes?.toString().orEmpty()) }
-    var dueDateText by remember(task) { mutableStateOf(task?.dueDate?.toString().orEmpty()) }
+    var scheduledForDate by remember(task) { mutableStateOf(task?.scheduledForDate) }
+    var dueDate by remember(task) { mutableStateOf(task?.dueDate) }
+    var datePickerTarget by remember { mutableStateOf<TaskEditorDateTarget?>(null) }
     var showValidationError by remember { mutableStateOf(false) }
+    val estimatedDays = estimatedDaysText.toIntOrNull()
+    val durationMinutes = durationText.takeIf(String::isNotBlank)?.toIntOrNull()
+    val estimatedDaysInvalid = estimatedDays !in 1..30
+    val durationInvalid = durationText.isNotBlank() && durationMinutes !in 1..1_440
+    val scheduleAfterDeadline = scheduledForDate?.let { scheduled ->
+        dueDate?.let { deadline -> scheduled.isAfter(deadline) }
+    } == true
 
-    AlertDialog(
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = {
             Text(stringResource(dialogTitle ?: if (task == null) R.string.add_task else R.string.edit_task))
@@ -3437,8 +4272,8 @@ private fun TaskEditorDialog(
                     value = description,
                     onValueChange = { description = it },
                     modifier = Modifier.fillMaxWidth().testTag("task-editor-description"),
-                    label = { Text(stringResource(R.string.task_introduction_optional)) },
-                    placeholder = { Text(stringResource(R.string.task_introduction_hint)) },
+                    label = { Text("备注 / 说明（可选）") },
+                    placeholder = { Text("地点、准备物、下一步或这次安排的上下文") },
                     minLines = 2,
                 )
                 Text(stringResource(R.string.category), style = MaterialTheme.typography.labelLarge)
@@ -3470,6 +4305,10 @@ private fun TaskEditorDialog(
                     label = { Text(stringResource(R.string.estimated_days)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
+                    isError = showValidationError && estimatedDaysInvalid,
+                    supportingText = {
+                        if (showValidationError && estimatedDaysInvalid) Text("请输入 1–30 天")
+                    },
                 )
                 OutlinedTextField(
                     value = durationText,
@@ -3478,14 +4317,36 @@ private fun TaskEditorDialog(
                     label = { Text(stringResource(R.string.duration_minutes_optional)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
+                    isError = showValidationError && durationInvalid,
+                    supportingText = {
+                        if (showValidationError && durationInvalid) Text("时长应为 1–1440 分钟；留空表示暂不估算")
+                    },
                 )
-                OutlinedTextField(
-                    value = dueDateText,
-                    onValueChange = { dueDateText = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.due_date_optional)) },
-                    singleLine = true,
+                TaskDateField(
+                    label = "安排在哪一天？",
+                    description = "只决定它在“今天 / 待安排”中的位置；不会被当作截止时间。",
+                    selectedDate = scheduledForDate,
+                    onSelectDate = { scheduledForDate = it },
+                    onChooseDate = { datePickerTarget = TaskEditorDateTarget.SCHEDULED_FOR },
+                    onClear = { scheduledForDate = null },
+                    tag = "task-editor-scheduled-date",
                 )
+                TaskDateField(
+                    label = stringResource(R.string.due_date_optional),
+                    description = "用于截止提醒、优先级和逾期判断；可自由选择任意日期。",
+                    selectedDate = dueDate,
+                    onSelectDate = { dueDate = it },
+                    onChooseDate = { datePickerTarget = TaskEditorDateTarget.DEADLINE },
+                    onClear = { dueDate = null },
+                    tag = "task-editor-due-date",
+                )
+                if (scheduleAfterDeadline) {
+                    Text(
+                        "计划日期晚于截止日期，保存后任务会按逾期处理。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 if (showValidationError) {
                     Text(
                         stringResource(R.string.save_task_error),
@@ -3503,10 +4364,10 @@ private fun TaskEditorDialog(
                         description = description,
                         category = category,
                         userPriority = priority,
-                        estimatedDays = estimatedDaysText.toIntOrNull() ?: 0,
-                        totalDurationMinutes = durationText.takeIf(String::isNotBlank)?.toIntOrNull(),
-                        dueDate = dueDateText.takeIf(String::isNotBlank)
-                            ?.let { runCatching { LocalDate.parse(it) }.getOrNull() },
+                        estimatedDays = estimatedDays ?: 0,
+                        totalDurationMinutes = durationMinutes,
+                        dueDate = dueDate,
+                        scheduledForDate = scheduledForDate,
                     )
                     if (TaskDraftValidator.isValid(draft)) onSave(draft) else showValidationError = true
                 },
@@ -3517,6 +4378,85 @@ private fun TaskEditorDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
     )
+    datePickerTarget?.let { target ->
+        TaskDatePickerDialog(
+            initialDate = when (target) {
+                TaskEditorDateTarget.SCHEDULED_FOR -> scheduledForDate
+                TaskEditorDateTarget.DEADLINE -> dueDate
+            },
+            onDismiss = { datePickerTarget = null },
+            onDateSelected = { selected ->
+                when (target) {
+                    TaskEditorDateTarget.SCHEDULED_FOR -> scheduledForDate = selected
+                    TaskEditorDateTarget.DEADLINE -> dueDate = selected
+                }
+                datePickerTarget = null
+            },
+        )
+    }
+}
+
+private enum class TaskEditorDateTarget { SCHEDULED_FOR, DEADLINE }
+
+@Composable
+private fun TaskDateField(
+    label: String,
+    description: String,
+    selectedDate: LocalDate?,
+    onSelectDate: (LocalDate) -> Unit,
+    onChooseDate: () -> Unit,
+    onClear: () -> Unit,
+    tag: String,
+) {
+    val today = LocalDate.now()
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag(tag),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(label, style = MaterialTheme.typography.titleSmall)
+                    Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                selectedDate?.let {
+                    TextButton(onClick = onClear, modifier = Modifier.testTag("$tag-clear")) { Text("清除") }
+                }
+            }
+            Text(
+                selectedDate?.let(::taskDateLabel) ?: "未设置",
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (selectedDate == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
+            )
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FilterChip(
+                    selected = selectedDate == today,
+                    onClick = { onSelectDate(today) },
+                    label = { Text("今天") },
+                )
+                FilterChip(
+                    selected = selectedDate == today.plusDays(1),
+                    onClick = { onSelectDate(today.plusDays(1)) },
+                    label = { Text("明天") },
+                )
+                OutlinedButton(
+                    onClick = onChooseDate,
+                    modifier = Modifier.testTag("$tag-picker"),
+                ) {
+                    Icon(Icons.Outlined.DateRange, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("选择日期")
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -3557,9 +4497,10 @@ private fun WeeklyTimeBlockEditorDialog(
     var endTime by remember(block) {
         mutableStateOf(block?.endMinute?.let(TimeBlockValidator::formatTime) ?: "10:00")
     }
+    var note by remember(block) { mutableStateOf(block?.note.orEmpty()) }
     var showValidationError by remember { mutableStateOf(false) }
 
-    AlertDialog(
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = {
             Text(stringResource(if (block == null) R.string.add_weekly_block else R.string.edit_weekly_block))
@@ -3607,6 +4548,14 @@ private fun WeeklyTimeBlockEditorDialog(
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
                 )
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    modifier = Modifier.fillMaxWidth().testTag("weekly-block-note"),
+                    label = { Text("备注（可选）") },
+                    placeholder = { Text("地点、准备物、老师或上课提醒") },
+                    minLines = 2,
+                )
                 if (showValidationError) {
                     Text(
                         stringResource(R.string.time_block_error),
@@ -3626,6 +4575,8 @@ private fun WeeklyTimeBlockEditorDialog(
                         startMinute = TimeBlockValidator.parseTime(startTime) ?: -1,
                         endMinute = TimeBlockValidator.parseTime(endTime) ?: -1,
                         weekPattern = block?.weekPattern,
+                        trackId = block?.trackId ?: "course",
+                        note = note,
                     )
                     if (TimeBlockValidator.isValid(draft)) onSave(draft) else showValidationError = true
                 },
@@ -3656,9 +4607,10 @@ private fun DateOverrideEditorDialog(
     var endTime by remember(dateOverride) {
         mutableStateOf(dateOverride?.endMinute?.let(TimeBlockValidator::formatTime) ?: "10:00")
     }
+    var note by remember(dateOverride) { mutableStateOf(dateOverride?.note.orEmpty()) }
     var showValidationError by remember { mutableStateOf(false) }
 
-    AlertDialog(
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = {
             Text(stringResource(if (dateOverride == null) R.string.add_date_override else R.string.edit_date_override))
@@ -3706,6 +4658,14 @@ private fun DateOverrideEditorDialog(
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
                 )
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    modifier = Modifier.fillMaxWidth().testTag("date-override-note"),
+                    label = { Text("备注（可选）") },
+                    placeholder = { Text("地点、准备物或本次调整的原因") },
+                    minLines = 2,
+                )
                 if (showValidationError) {
                     Text(
                         stringResource(R.string.time_block_error),
@@ -3728,6 +4688,7 @@ private fun DateOverrideEditorDialog(
                             date = it,
                             startMinute = startMinute ?: -1,
                             endMinute = endMinute ?: -1,
+                            note = note,
                         )
                     }
                     if (draft != null && TimeBlockValidator.isValid(draft)) onSave(draft)
@@ -3914,7 +4875,7 @@ private fun FeedbackDialog(
         mutableStateOf(initialFeedback.postponeReason.orEmpty())
     }
     var showValidationError by remember { mutableStateOf(false) }
-    AlertDialog(
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
@@ -4082,6 +5043,9 @@ private fun AiAdvisorFailureReason.labelRes(): Int = when (this) {
     AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED -> R.string.ai_failure_not_configured
     AiAdvisorFailureReason.TRANSPORT_FAILURE -> R.string.ai_failure_transport
     AiAdvisorFailureReason.TIMEOUT -> R.string.ai_failure_timeout
+    AiAdvisorFailureReason.AUTHENTICATION_FAILURE -> R.string.ai_failure_authentication
+    AiAdvisorFailureReason.RATE_LIMITED -> R.string.ai_failure_rate_limited
+    AiAdvisorFailureReason.REMOTE_FAILURE -> R.string.ai_failure_remote
     AiAdvisorFailureReason.INVALID_RESPONSE -> R.string.ai_failure_invalid_response
 }
 

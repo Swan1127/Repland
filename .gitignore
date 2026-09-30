@@ -1,0 +1,28 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+
+# Gradle and Android build output
+.gradle/
+.gradle-cache/
+.gradle-runtime/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# Kotlin compiler caches
+.kotlin/
+**/.kotlin/
+
+# Local Codex/runtime state and generated diagnostics
+.android/
+.localappdata/
+.codex-*.log
+.codex-*.err.log
+.gradle-*.txt
+
+# OS files
+.DS_Store
+Thumbs.db

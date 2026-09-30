@@ -14,6 +14,10 @@ interface PlanDao {
     fun observeCurrentPlan(): Flow<PlanWithSegments?>
 
     @Transaction
+    @Query("SELECT * FROM plans WHERE isCurrent = 1 LIMIT 1")
+    suspend fun getCurrentPlanWithSegments(): PlanWithSegments?
+
+    @Transaction
     @Query("SELECT * FROM plans ORDER BY createdAtEpochMillis DESC, id DESC")
     fun observePlanHistory(): Flow<List<PlanWithSegments>>
 

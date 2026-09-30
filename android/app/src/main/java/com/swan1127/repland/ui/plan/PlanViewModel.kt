@@ -101,6 +101,18 @@ class PlanViewModel(
         viewModelScope.launch { planRepository.setSegmentLocked(segmentId, isLocked) }
     }
 
+    fun placeTask(taskId: String, date: LocalDate, startMinute: Int, endMinute: Int, trackId: String) {
+        viewModelScope.launch { planRepository.placeTask(taskId, date, startMinute, endMinute, trackId) }
+    }
+
+    fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String) {
+        viewModelScope.launch { planRepository.movePlacement(segmentId, startMinute, endMinute, trackId) }
+    }
+
+    fun removePlacement(segmentId: String) {
+        viewModelScope.launch { planRepository.removePlacement(segmentId) }
+    }
+
     class Factory(
         private val planRepository: PlanRepository,
         private val planDraftGenerator: PlanDraftGenerator,

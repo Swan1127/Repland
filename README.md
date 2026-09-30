@@ -57,7 +57,7 @@ PreparingContext → AwaitingConsent → PreviewingRequest
 → ShowingAdvice / ShowingDraft / FailedFallback
 ```
 
-Compose 只显示和驱动工作流，不构建网络请求。`AiAdvisor` 是可替换的边界；当前注入 `NoOpAiAdvisor`，因此所有功能仍在设备本地完成。契约、最小化和校验要求见 [ADR 0001](docs/adr/0001-bounded-ai-advisor.md) 与 [AI 接入计划](docs/AGENT_AND_AI_INTEGRATION_PLAN.md)。
+Compose 只显示和驱动工作流，不构建网络请求。`AiAdvisor` 是可替换的边界；当前注入 `NoOpAiAdvisor`，因此所有功能仍在设备本地完成。契约、最小化和校验要求见 [ADR 0001](docs/adr/0001-bounded-ai-advisor.md) 与 [主思路与执行计划](REPLAND_IDEA.md)。
 
 ## 未来 AI 的两条路径
 
@@ -77,7 +77,6 @@ android/
     └── ui/         # Compose 页面和 ViewModel
 docs/
 ├── AI_DEVELOPMENT_HANDOVER.md
-├── AGENT_AND_AI_INTEGRATION_PLAN.md
 ├── EXTENSION_READINESS.md
 ├── PRIVACY.md
 └── adr/0001-bounded-ai-advisor.md
@@ -114,8 +113,7 @@ docs/
 
 - [CONTEXT.md](CONTEXT.md)：产品术语、状态、边界条件的最高优先级来源。
 - [AI 开发交接](docs/AI_DEVELOPMENT_HANDOVER.md)：当前进度、已解问题、验证和下一步。
-- [核心应用完成计划](docs/CORE_APP_COMPLETION_PLAN.md)：本地 MVP 的验收清单。
-- [受限 Agent 与 AI 接入计划](docs/AGENT_AND_AI_INTEGRATION_PLAN.md)：Agent 与正式联网 AI 的路线。
+- [主思路与执行计划](REPLAND_IDEA.md)：当前产品范围与分阶段执行顺序。
 - [隐私说明](docs/PRIVACY.md)：当前离线内测构建的数据边界。
 
 开发时保持最小改动，不覆盖工作树中与当前任务无关的改动，也不要使用破坏性 Room migration。

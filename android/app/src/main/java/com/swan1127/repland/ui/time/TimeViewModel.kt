@@ -95,10 +95,12 @@ class TimeViewModel(
         viewModelScope.launch {
             runCatching { timetableImporter.parse(uri) }
                 .onSuccess { courses ->
-                    timetableImport.value = if (courses.isEmpty()) {
-                        TimetableImportState.Failed("未识别到课程，请确认这是星期与节次网格形式的课表 PDF")
+                    if (courses.isEmpty()) {
+                        timetableImport.value = TimetableImportState.Failed("未识别到课程，请确认这是星期与节次网格形式的课表 PDF")
                     } else {
-                        TimetableImportState.Review(courses)
+                        // Keep the existing Reading state until the repository write has finished.
+                        // Assigning it after launching the write can otherwise race with the Idle state.
+                        importRecognizedCourses(courses)
                     }
                 }
                 .onFailure { error ->
@@ -110,6 +112,11 @@ class TimeViewModel(
     }
 
     fun confirmTimetableImport(courses: List<ImportedCourse>) {
+        importRecognizedCourses(courses)
+    }
+
+    /** File selection is already an explicit import action; recognized courses go straight to the timeline. */
+    private fun importRecognizedCourses(courses: List<ImportedCourse>) {
         val existingKeys = uiState.value.weeklyBlocks.map { block ->
             listOf(
                 block.title,

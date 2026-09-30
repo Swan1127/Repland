@@ -2,6 +2,7 @@
     <string name="app_name">Repland</string>
     <string name="tab_today">今日</string>
     <string name="tab_tasks">任务</string>
+    <string name="tab_agent">助手</string>
     <string name="tab_time">时间</string>
     <string name="tab_mine">我的</string>
     <string name="today_title">今日计划</string>
@@ -21,6 +22,7 @@
     <string name="pending_confirmation_open_task">打开任务，记录你的确认反馈</string>
     <string name="other_active_tasks">其他待办</string>
     <string name="tasks_title">全部任务</string>
+    <string name="agent_title">安排助手</string>
     <string name="time_title">时间安排</string>
     <string name="mine_title">我的设置</string>
     <string name="add_task">新增任务</string>
@@ -100,7 +102,7 @@
     <string name="semester_week_date">日期（YYYY-MM-DD）</string>
     <string name="semester_week_editor_hint">例如 2026-09-07</string>
     <string name="semester_week_error">请输入一个周一的有效日期。</string>
-    <string name="import_timetable_hint">可从学校课表 PDF 识别课程，确认后加入固定时间。</string>
+    <string name="import_timetable_hint">可从学校课表 PDF 识别课程，导入后直接加入固定时间。</string>
     <string name="import_timetable_pdf">导入课表 PDF</string>
     <string name="reading_timetable">正在本机读取课表…</string>
     <string name="timetable_import_review">确认导入课程</string>
@@ -113,7 +115,6 @@
     <string name="week_pattern_optional">周次（可不填）</string>
     <string name="imported_course_error">请填写课程名，并检查星期和节次范围。</string>
     <string name="close">关闭</string>
-    <string name="generate_plan_draft">生成计划草案</string>
     <string name="current_plan_segment_count">当前已确认计划含 %1$d 个时间段</string>
     <string name="current_status">当前状态</string>
     <string name="view_plan">查看计划</string>
@@ -131,8 +132,8 @@
     <string name="unlock_segment">解除锁定</string>
     <string name="segment_locked">已锁定</string>
     <string name="no_plan_history">还没有已保存的计划。</string>
-    <string name="plan_draft_title">计划草案</string>
-    <string name="plan_draft_notice">这只是建议，不会自动更改任务状态。确认后将作为当前计划保存。</string>
+    <string name="plan_draft_title">安排预览</string>
+    <string name="plan_draft_notice">先在真实时间轴上查看和调整；确认前不会写入日程或改变任务状态。</string>
     <string name="local_planner_notice">本地确定性排序：AI 适配度按中性值处理；分数不会改写你的初始优先级。</string>
     <string name="dynamic_priority_score">本地动态优先级 %1$d / 100</string>
     <string name="priority_reason_initial">初始优先级 %1$d</string>
@@ -162,8 +163,8 @@
     <string name="capacity_rolling_window_reason">原因：未来 30 天的可用时间不足；任务仍保留在待安排列表。</string>
     <string name="capacity_total_window_reason">原因：全部任务总时长超过未来 30 天可用容量；任务仍保留在待安排列表。</string>
     <string name="unknown_task">未知任务</string>
-    <string name="accept_plan_draft">确认计划</string>
-    <string name="discard_plan_draft">放弃草案</string>
+    <string name="accept_plan_draft">确认采用</string>
+    <string name="discard_plan_draft">放弃本次调整</string>
     <string name="weekly_blocks">每周固定</string>
     <string name="date_overrides">临时例外</string>
     <string name="add_weekly_block">添加固定时间</string>
@@ -200,10 +201,10 @@
     <string name="saturday">周六</string>
     <string name="sunday">周日</string>
     <string name="mine_coming_soon">MVP 数据只保存在本机。后续将在这里加入提醒、JSON 导出和数据重置。</string>
-    <string name="ai_advisor_title">受限 AI 建议</string>
-    <string name="ai_advisor_description">仅在你开启后提供任务理解与规划建议；不会自动更改任务状态、优先级或当前计划。</string>
-    <string name="ai_advisor_consent_needed">首次开启前需要你明确同意；每次请求仍会预览将发送的数据。</string>
-    <string name="ai_advisor_consent_recorded">已记录你的授权。你可以随时关闭；每次请求仍须在数据预览页确认。</string>
+    <string name="ai_advisor_title">规划助手</string>
+    <string name="ai_advisor_description">帮你理解任务、估算时长和调整计划。</string>
+    <string name="ai_advisor_consent_needed">开启时确认授权，发送前可查看内容。</string>
+    <string name="ai_advisor_consent_recorded">已开启授权，发送前仍可查看内容。</string>
     <string name="ai_advisor_not_configured">当前 APK 未配置联网 AI 服务；请求会明确提示不可用，本地确定性规划不受影响。</string>
     <string name="ai_consent_title">启用受限 AI 建议</string>
     <string name="ai_consent_message">你同意后，Repland 才允许你在每次数据预览确认后请求 AI 建议。请求只包含当前任务内容、该任务最近最多 5 条反馈和该任务的已确认时间段；不会默认发送其他任务、完整历史、画像或账户数据。AI 只能返回建议，不能直接改变任务状态或当前计划。当前版本未配置联网服务，因此不会实际传输数据。</string>
@@ -229,9 +230,12 @@
     <string name="ai_advice_needs_review">这仅是建议。任何计划变化仍需在草案中由你确认。</string>
     <string name="editable_agent_advice">可编辑建议（不会直接修改任务）</string>
     <string name="ai_failure_disabled">AI 建议已关闭。请在“我的设置”中开启后重试；本地规划仍可使用。</string>
-    <string name="ai_failure_not_configured">当前未配置联网 AI 服务，因此没有发送数据。请继续使用本地确定性规划。</string>
+    <string name="ai_failure_not_configured">本地 AI 代理尚未就绪，没有向 Agnes 发送任务数据。你仍可继续使用本地规划。</string>
     <string name="ai_failure_transport">AI 服务暂时不可用，没有更改任何本地数据；已保留本地确定性规划。</string>
     <string name="ai_failure_timeout">AI 服务响应超时，没有更改任何本地数据；已保留本地确定性规划。</string>
+    <string name="ai_failure_authentication">AI 服务拒绝鉴权。请检查密钥、服务区和账户状态；没有更改任何本地数据。</string>
+    <string name="ai_failure_rate_limited">AI 服务暂时触发频率或额度限制。请稍后重试；没有更改任何本地数据。</string>
+    <string name="ai_failure_remote">AI 服务暂时异常。请稍后重试；没有更改任何本地数据。</string>
     <string name="ai_failure_invalid_response">AI 返回内容未通过本地安全校验，已被丢弃；没有更改任何本地数据。</string>
     <string name="agent_draft_review_notice">这仍是未确认草案；查看、编辑后必须由你确认才会成为当前计划。</string>
     <string name="review_agent_draft">查看并编辑草案</string>
@@ -269,8 +273,8 @@
     <string name="clear_local_data_success">全部本地数据已清除；已导出的文件不受影响。</string>
     <string name="clear_local_data_failed">清除失败。原有数据已保留，请重试。</string>
     <string name="local_reminders_title">本地提醒</string>
-    <string name="local_reminders_description">只为已确认计划安排工作段开始、截止前一日 20:00 和每日 20:30 回顾提醒；草案不会触发提醒。</string>
-    <string name="notification_permission_needed">需要授予系统通知权限后才能开启本地提醒。</string>
+    <string name="local_reminders_description">开始、截止前与每日回顾时提醒你。</string>
+    <string name="notification_permission_needed">开启时需要允许系统通知。</string>
     <string name="reminder_channel_name">计划提醒</string>
     <string name="reminder_channel_description">仅来自已确认计划的本地提醒</string>
     <string name="reminder_start_title">开始：%1$s</string>

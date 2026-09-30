@@ -13,4 +13,6 @@ data class LocalDataSnapshot(
     val reminderPreferences: ReminderPreferences,
     val aiPreferences: AiPreferences,
     val profileEvidence: List<ProfileEvidence>,
+    val engagementMode: EngagementMode = EngagementMode.GUIDED,
+    val usageEvents: List<UsageEvent> = emptyList(),
 )

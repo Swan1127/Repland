@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.data.room.ReplandDatabase
 import com.swan1127.repland.data.room.RoomTimeRepository
+import com.swan1127.repland.domain.model.DateOverrideDraft
+import com.swan1127.repland.domain.model.DateOverrideType
 import com.swan1127.repland.domain.model.TimeBlockKind
 import com.swan1127.repland.domain.model.WeeklyTimeBlockDraft
 import java.time.DayOfWeek
@@ -12,6 +14,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -60,5 +63,32 @@ class TimeConstraintRevisionRepositoryTest {
         assertTrue(afterSave > 0L)
         assertTrue(afterDelete > afterSave)
         assertTrue(afterSemesterChange > afterDelete)
+    }
+
+    @Test
+    fun notes_on_recurring_and_one_day_entries_survive_a_save_and_reload() = runBlocking {
+        repository.saveWeeklyBlock(
+            WeeklyTimeBlockDraft(
+                title = "高数",
+                kind = TimeBlockKind.COURSE,
+                dayOfWeek = DayOfWeek.FRIDAY,
+                startMinute = 9 * 60,
+                endMinute = 10 * 60,
+                note = "带习题册",
+            ),
+        )
+        repository.saveDateOverride(
+            DateOverrideDraft(
+                title = "社团例会",
+                type = DateOverrideType.BLOCKED,
+                date = LocalDate.of(2026, 9, 25),
+                startMinute = 18 * 60,
+                endMinute = 19 * 60,
+                note = "线上会议链接在群公告",
+            ),
+        )
+
+        assertEquals("带习题册", repository.observeWeeklyBlocks().first().single().note)
+        assertEquals("线上会议链接在群公告", repository.observeDateOverrides().first().single().note)
     }
 }

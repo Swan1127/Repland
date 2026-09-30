@@ -20,6 +20,8 @@ data class Task(
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
     val completionResult: String? = null,
+    /** The day the user intends to work on it; unlike [dueDate], this is not a deadline. */
+    val scheduledForDate: LocalDate? = null,
 )
 
 data class TaskDraft(
@@ -31,6 +33,8 @@ data class TaskDraft(
     val estimatedDays: Int,
     val totalDurationMinutes: Int?,
     val dueDate: LocalDate?,
+    /** Optional planned day, kept independent from a final deadline. */
+    val scheduledForDate: LocalDate? = null,
 )
 
 enum class TaskStatus {
@@ -73,6 +77,5 @@ object TaskDraftValidator {
     fun isValid(draft: TaskDraft): Boolean =
         draft.displayName.isNotBlank() &&
             draft.estimatedDays in 1..30 &&
-            (draft.totalDurationMinutes == null || draft.totalDurationMinutes in 1..1_440) &&
-            (draft.dueDate == null || !draft.dueDate.isBefore(LocalDate.now()))
+            (draft.totalDurationMinutes == null || draft.totalDurationMinutes in 1..1_440)
 }

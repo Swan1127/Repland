@@ -23,6 +23,8 @@ data class AiTaskContext(
     val dueDate: LocalDate?,
     val recentFeedback: List<AiFeedbackContext>,
     val confirmedSegments: List<AiSegmentContext>,
+    /** User-stated preferred workday; it is distinct from a deadline. */
+    val scheduledForDate: LocalDate? = null,
 )
 
 data class AiFeedbackContext(
@@ -164,6 +166,9 @@ enum class AiAdvisorFailureReason {
     SERVICE_NOT_CONFIGURED,
     TRANSPORT_FAILURE,
     TIMEOUT,
+    AUTHENTICATION_FAILURE,
+    RATE_LIMITED,
+    REMOTE_FAILURE,
     INVALID_RESPONSE,
 }
 
@@ -408,6 +413,7 @@ object AiRequestFactory {
                 )
             }
             .orEmpty(),
+        scheduledForDate = task.scheduledForDate,
     )
 
     /** A correction becomes the only outbound version of the feedback it corrects. */

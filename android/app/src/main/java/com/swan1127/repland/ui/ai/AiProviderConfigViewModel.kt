@@ -1,0 +1,98 @@
+package com.swan1127.repland.ui.ai
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.swan1127.repland.domain.model.AiProviderConfig
+import com.swan1127.repland.domain.model.AiAdvisorFailureReason
+import com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest
+import com.swan1127.repland.domain.model.ArrangementAssistantAdviceResult
+import com.swan1127.repland.domain.model.ArrangementAssistantAdvisor
+import com.swan1127.repland.domain.ports.AiProviderConfigRepository
+import java.time.LocalDate
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+data class AiProviderConfigUiState(
+    val config: AiProviderConfig = AiProviderConfig(),
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
+    val connectionTest: AiProviderConnectionTest = AiProviderConnectionTest.Idle,
+)
+
+sealed interface AiProviderConnectionTest {
+    data object Idle : AiProviderConnectionTest
+    data object Testing : AiProviderConnectionTest
+    data class Connected(val model: String) : AiProviderConnectionTest
+    data class Failed(val reason: AiAdvisorFailureReason) : AiProviderConnectionTest
+}
+
+class AiProviderConfigViewModel(
+    private val repository: AiProviderConfigRepository,
+    private val arrangementAdvisor: ArrangementAssistantAdvisor,
+) : ViewModel() {
+    private val errorMessage = MutableStateFlow<String?>(null)
+    private val connectionTest = MutableStateFlow<AiProviderConnectionTest>(AiProviderConnectionTest.Idle)
+    val uiState: StateFlow<AiProviderConfigUiState> = combine(repository.observe(), errorMessage, connectionTest) { config, error, test ->
+        AiProviderConfigUiState(config = config, isLoading = false, errorMessage = error, connectionTest = test)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = AiProviderConfigUiState(),
+    )
+
+    fun save(baseUrl: String, model: String, apiKey: String) {
+        viewModelScope.launch {
+            runCatching { repository.save(baseUrl, model, apiKey) }
+                .onSuccess { errorMessage.value = null }
+                .onFailure { errorMessage.value = it.message ?: "配置无法保存，请检查服务地址和模型。" }
+        }
+    }
+
+    fun clearApiKey() {
+        viewModelScope.launch {
+            runCatching { repository.clearApiKey() }
+                .onSuccess { errorMessage.value = null }
+                .onFailure { errorMessage.value = "密钥无法清除，请稍后重试。" }
+        }
+    }
+
+    /** Sends a fixed, non-personal request through the configured debug adapter. */
+    fun testConnection() {
+        if (!uiState.value.config.hasApiKey) {
+            connectionTest.value = AiProviderConnectionTest.Failed(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED)
+            return
+        }
+        viewModelScope.launch {
+            connectionTest.value = AiProviderConnectionTest.Testing
+            connectionTest.value = when (
+                val result = arrangementAdvisor.refine(
+                    ArrangementAssistantAdviceRequest(
+                        utterance = "连接测试：请生成一项 10 分钟的连接测试事项。",
+                        date = LocalDate.now(),
+                        occupiedIntervals = emptyList(),
+                    ),
+                )
+            ) {
+                is ArrangementAssistantAdviceResult.Advice -> AiProviderConnectionTest.Connected(uiState.value.config.model)
+                is ArrangementAssistantAdviceResult.Unavailable -> AiProviderConnectionTest.Failed(result.reason)
+                is ArrangementAssistantAdviceResult.Failed -> AiProviderConnectionTest.Failed(result.reason)
+            }
+        }
+    }
+
+    class Factory(
+        private val repository: AiProviderConfigRepository,
+        private val arrangementAdvisor: ArrangementAssistantAdvisor,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            check(modelClass.isAssignableFrom(AiProviderConfigViewModel::class.java))
+            return AiProviderConfigViewModel(repository, arrangementAdvisor) as T
+        }
+    }
+}

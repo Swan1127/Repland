@@ -20,6 +20,8 @@ data class WeeklyTimeBlockEntity(
     val weekPattern: String?,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+    val trackId: String = "course",
+    val note: String? = null,
 )
 
 @Entity(tableName = "date_overrides")
@@ -32,6 +34,7 @@ data class DateOverrideEntity(
     val endMinute: Int,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+    val note: String? = null,
 )
 
 @Entity(tableName = "semester_settings")
@@ -54,6 +57,8 @@ fun WeeklyTimeBlockEntity.toDomain(): WeeklyTimeBlock = WeeklyTimeBlock(
     weekPattern = weekPattern,
     createdAtEpochMillis = createdAtEpochMillis,
     updatedAtEpochMillis = updatedAtEpochMillis,
+    trackId = trackId,
+    note = note,
 )
 
 fun DateOverrideEntity.toDomain(): DateOverride = DateOverride(
@@ -65,4 +70,5 @@ fun DateOverrideEntity.toDomain(): DateOverride = DateOverride(
     endMinute = endMinute,
     createdAtEpochMillis = createdAtEpochMillis,
     updatedAtEpochMillis = updatedAtEpochMillis,
+    note = note,
 )

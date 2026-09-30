@@ -43,6 +43,16 @@ object LocalDataJsonExporter {
             "consentedAtEpochMillis" to (snapshot.aiPreferences.consentedAtEpochMillis?.toString() ?: "null"),
         ),
         "profileEvidence" to jsonArray(snapshot.profileEvidence.map(::profileEvidenceJson)),
+        "engagementMode" to jsonString(snapshot.engagementMode.name),
+        "usageEvents" to jsonArray(snapshot.usageEvents.map { event ->
+            jsonObject(
+                "id" to jsonString(event.id),
+                "type" to jsonString(event.type.name),
+                "occurredAtEpochMillis" to event.occurredAtEpochMillis.toString(),
+                "mode" to jsonString(event.mode.name),
+                "subjectId" to jsonString(event.subjectId),
+            )
+        }),
     )
 
     private fun taskJson(task: Task): String = jsonObject(
@@ -53,6 +63,7 @@ object LocalDataJsonExporter {
         "userPriority" to jsonString(task.userPriority.name),
         "estimatedDays" to task.estimatedDays.toString(),
         "totalDurationMinutes" to jsonNumber(task.totalDurationMinutes),
+        "scheduledForDate" to jsonString(task.scheduledForDate?.toString()),
         "dueDate" to jsonString(task.dueDate?.toString()),
         "status" to jsonString(task.status.name),
         "completionSummary" to jsonString(task.completionSummary),
@@ -87,6 +98,8 @@ object LocalDataJsonExporter {
         "startMinute" to block.startMinute.toString(),
         "endMinute" to block.endMinute.toString(),
         "weekPattern" to jsonString(block.weekPattern),
+        "trackId" to jsonString(block.trackId),
+        "note" to jsonString(block.note),
         "createdAtEpochMillis" to block.createdAtEpochMillis.toString(),
         "updatedAtEpochMillis" to block.updatedAtEpochMillis.toString(),
     )
@@ -98,6 +111,7 @@ object LocalDataJsonExporter {
         "date" to jsonString(override.date.toString()),
         "startMinute" to override.startMinute.toString(),
         "endMinute" to override.endMinute.toString(),
+        "note" to jsonString(override.note),
         "createdAtEpochMillis" to override.createdAtEpochMillis.toString(),
         "updatedAtEpochMillis" to override.updatedAtEpochMillis.toString(),
     )
@@ -118,6 +132,7 @@ object LocalDataJsonExporter {
         "startMinute" to segment.startMinute.toString(),
         "endMinute" to segment.endMinute.toString(),
         "isLocked" to segment.isLocked.toString(),
+        "trackId" to jsonString(segment.trackId),
     )
 
     private fun profileEvidenceJson(evidence: ProfileEvidence): String = jsonObject(

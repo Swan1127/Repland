@@ -26,6 +26,15 @@ interface ExecutionLogDao {
     @Query(
         """
         SELECT * FROM execution_logs
+        WHERE taskId = :taskId
+        ORDER BY createdAtEpochMillis ASC, id ASC
+        """,
+    )
+    suspend fun getForTask(taskId: String): List<ExecutionLogEntity>
+
+    @Query(
+        """
+        SELECT * FROM execution_logs
         WHERE createdAtEpochMillis >= :startEpochMillis
             AND createdAtEpochMillis < :endEpochMillis
         ORDER BY createdAtEpochMillis ASC, id ASC

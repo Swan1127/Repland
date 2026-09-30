@@ -28,6 +28,7 @@ data class PlanSegmentEntity(
     val startMinute: Int,
     val endMinute: Int,
     val isLocked: Boolean = false,
+    val trackId: String = "focus",
 )
 
 /** The explicit user-reviewed task order that belongs to one immutable plan version. */
@@ -63,6 +64,7 @@ fun PlanWithSegments.toDomain(): ConfirmedPlan = ConfirmedPlan(
             startMinute = segment.startMinute,
             endMinute = segment.endMinute,
             isLocked = segment.isLocked,
+            trackId = segment.trackId,
         )
     }.sortedWith(compareBy(PlannedSegment::date, PlannedSegment::startMinute)),
     orderedTaskIds = taskOrder

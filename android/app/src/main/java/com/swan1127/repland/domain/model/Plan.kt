@@ -13,6 +13,8 @@ data class PlannedSegment(
     val startMinute: Int,
     val endMinute: Int,
     val isLocked: Boolean = false,
+    /** Stable user-facing rhythm lane. The segment is the placement; the task remains reusable. */
+    val trackId: String = "focus",
 )
 
 data class PlanDraft(
@@ -182,6 +184,7 @@ object PlanDraftEditor {
                 candidate.taskId == segment.taskId &&
                 candidate.date == segment.date &&
                 candidate.isLocked == segment.isLocked &&
+                candidate.trackId == segment.trackId &&
                 (candidate.endMinute == segment.startMinute || candidate.startMinute == segment.endMinute)
         } ?: return draft
         val merged = segment.copy(
@@ -209,6 +212,7 @@ object PlanDraftEditor {
                 candidate.taskId == segment.taskId &&
                 candidate.date == segment.date &&
                 candidate.isLocked == segment.isLocked &&
+                candidate.trackId == segment.trackId &&
                 (candidate.endMinute == segment.startMinute || candidate.startMinute == segment.endMinute)
         }
     }
@@ -217,6 +221,7 @@ object PlanDraftEditor {
         draft.segments.any { existing ->
             existing.id != candidate.id &&
                 existing.date == candidate.date &&
+                existing.trackId == candidate.trackId &&
                 existing.startMinute < candidate.endMinute &&
                 existing.endMinute > candidate.startMinute
         }

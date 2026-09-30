@@ -16,6 +16,10 @@ data class WeeklyTimeBlock(
     val weekPattern: String?,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+    /** A stable visual lane. Parallel courses may share a time only when their lanes differ. */
+    val trackId: String = "course",
+    /** A lightweight, user-owned note shown from the day timeline. */
+    val note: String? = null,
 )
 
 data class WeeklyTimeBlockDraft(
@@ -26,6 +30,8 @@ data class WeeklyTimeBlockDraft(
     val startMinute: Int,
     val endMinute: Int,
     val weekPattern: String? = null,
+    val trackId: String = "course",
+    val note: String? = null,
 )
 
 /** A one-day exception that either blocks time or temporarily makes a period available. */
@@ -38,6 +44,8 @@ data class DateOverride(
     val endMinute: Int,
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
+    /** A lightweight, user-owned note shown from the day timeline. */
+    val note: String? = null,
 )
 
 data class DateOverrideDraft(
@@ -47,6 +55,7 @@ data class DateOverrideDraft(
     val date: LocalDate,
     val startMinute: Int,
     val endMinute: Int,
+    val note: String? = null,
 )
 
 /** Atomically observed inputs for deciding whether a confirmed plan is now stale. */

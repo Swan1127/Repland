@@ -83,8 +83,7 @@ object TaskLifecycleValidator {
 
     fun isValidCompletion(feedback: TaskFeedback): Boolean =
         isValidFeedback(feedback) &&
-            (feedback.progressPercent == null || feedback.progressPercent == 100) &&
-            !feedback.completedContent.isNullOrBlank()
+            (feedback.progressPercent == null || feedback.progressPercent == 100)
 
     fun isValidPartialCompletion(feedback: TaskFeedback): Boolean =
         isValidFeedback(feedback) &&

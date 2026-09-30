@@ -12,7 +12,7 @@
 1. `CONTEXT.md`：术语、产品规则和状态语义的来源。
 2. `README.md`：项目入口、当前能力与构建方式。
 3. 本文：本次本地 Agent 实现、BYOK 决策和下一步。
-4. `docs/AGENT_AND_AI_INTEGRATION_PLAN.md`：正式联网 AI 的总体路线。
+4. `REPLAND_IDEA.md`：当前产品范围与正式联网 AI 的总体路线。
 5. `docs/adr/0001-bounded-ai-advisor.md`：类型化契约和数据最小化的 ADR。
 6. `docs/EXTENSION_READINESS.md`、`docs/PRIVACY.md`：联网前的安全、隐私和发布门槛。
 7. `docs/TESTING.md`、`docs/RELEASE.md`：回归、签名与内测要求。
@@ -157,7 +157,7 @@ Idle
 
 ### 若要做正式联网 AI
 
-回到 `docs/AGENT_AND_AI_INTEGRATION_PLAN.md` 阶段 2：优先部署并审计受控网关，模型 Key 只在服务端密钥管理系统中存在。不要复用个人 BYOK 路径作为正式内测架构。
+本交接记录中的受控网关设想已被后续产品决策替代；正式联网 AI 的路线以 `REPLAND_IDEA.md` 第七阶段为准。
 
 ## 给后续 AI Agent 的工作方式
 

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
@@ -13,6 +14,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.state.ToggleableState
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.domain.model.TaskStatus
+import com.swan1127.repland.domain.model.PlanningAgentState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -32,16 +34,129 @@ class CoreWorkflowUiTest {
     val composeRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun task_entry_feedback_plan_confirmation_and_local_controls_are_user_driven() {
+    fun staged_capture_keeps_draft_unsaved_until_duration_is_confirmed() {
+        val taskName = "分步创建 ${System.currentTimeMillis()}"
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
+        waitForTag("task-capture-choose-duration")
+        composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
+        waitForTag("task-capture-duration-30")
+        composeRule.onNodeWithTag("task-capture-duration-30").performClick()
+        val repository = (composeRule.activity.application as ReplandApplication).appContainer.taskRepository
+        assertEquals(false, runBlocking { repository.observeTasks().first().any { it.displayName == taskName } })
+        composeRule.onNodeWithTag("task-capture-save-duration").performClick()
+        val saved = runBlocking {
+            withTimeout(10_000) {
+                repository.observeTasks().first { tasks -> tasks.any { it.displayName == taskName } }
+                    .single { it.displayName == taskName }
+            }
+        }
+        assertEquals(30, saved.totalDurationMinutes)
+        assertEquals(null, saved.dueDate)
+        assertEquals(java.time.LocalDate.now(), saved.scheduledForDate)
+        assertEquals(TaskStatus.NOT_STARTED, saved.status)
+    }
+
+    @Test
+    fun capture_exposes_a_free_deadline_picker_beyond_shortcuts() {
+        val taskName = "自由截止日 ${System.currentTimeMillis()}"
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
+        waitForTag("task-capture-choose-deadline")
+        composeRule.onNodeWithTag("task-capture-choose-deadline").performClick()
+        waitForTag("task-capture-deadline-custom")
+        composeRule.onNodeWithTag("task-capture-deadline-custom").performClick()
+        waitForTag("task-date-picker")
+        // The date picker is modal. Close the exploratory branch through a real task save so
+        // this Compose activity remains in the same clean state as a person would leave it.
+        composeRule.onNodeWithTag("task-date-picker-dismiss").performClick()
+        composeRule.onNodeWithTag("task-capture-deadline-today").performClick()
+        waitForTag("task-card-$taskName")
+    }
+
+    @Test
+    fun capture_accepts_a_custom_duration_without_forcing_a_preset() {
+        val taskName = "自定义时长 ${System.currentTimeMillis()}"
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
+        waitForTag("task-capture-choose-duration")
+        composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
+        composeRule.onNodeWithTag("task-capture-duration-custom").performClick()
+        waitForTag("task-capture-duration-custom-input")
+        composeRule.onNodeWithTag("task-capture-duration-custom-input").performTextInput("45")
+        composeRule.onNodeWithTag("task-capture-save-duration").performClick()
+
+        val repository = (composeRule.activity.application as ReplandApplication).appContainer.taskRepository
+        val saved = runBlocking {
+            withTimeout(10_000) {
+                repository.observeTasks().first { tasks -> tasks.any { it.displayName == taskName } }
+                    .single { it.displayName == taskName }
+            }
+        }
+        assertEquals(45, saved.totalDurationMinutes)
+        assertEquals(java.time.LocalDate.now(), saved.scheduledForDate)
+        assertEquals(null, saved.dueDate)
+    }
+
+    @Test
+    fun start_then_complete_is_one_tap_and_duration_is_recorded_without_feedback_form() {
+        val taskName = "直接完成 ${System.currentTimeMillis()}"
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
+        composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
+        composeRule.onNodeWithTag("task-capture-duration-15").performClick()
+        composeRule.onNodeWithTag("task-capture-save-duration").performClick()
+        waitForTag("task-card-$taskName")
+        composeRule.onNodeWithTag("task-card-$taskName").performClick()
+        waitForTag("task-detail-scroll")
+        composeRule.onNodeWithTag("start-task").performClick()
+        val repository = (composeRule.activity.application as ReplandApplication).appContainer.taskRepository
+        runBlocking {
+            withTimeout(10_000) {
+                repository.observeTasks().first { tasks -> tasks.any { it.displayName == taskName && it.status == TaskStatus.IN_PROGRESS } }
+            }
+        }
+        composeRule.onNodeWithTag("task-detail-scroll").performTouchInput { swipeUp() }
+        composeRule.onNodeWithTag("complete-task").performClick()
+        val completed = runBlocking {
+            withTimeout(10_000) {
+                repository.observeTasks().first { tasks -> tasks.any { it.displayName == taskName && it.status == TaskStatus.COMPLETED } }
+                    .single { it.displayName == taskName }
+            }
+        }
+        assertEquals(null, completed.completionSummary)
+        assertEquals(100, completed.progressPercent)
+        assertEquals(true, completed.actualDurationMinutes != null)
+    }
+
+    @Test
+    fun editable_voice_capture_can_become_a_task_draft_without_auto_saving() {
+        composeRule.onNodeWithTag("navigation-tasks").performClick()
+        waitForTag("voice-capture")
+        composeRule.onNodeWithTag("voice-capture").performClick()
+        waitForTag("voice-transcript")
+        composeRule.onNodeWithTag("voice-transcript").performTextInput("准备英语听力")
+        composeRule.onNodeWithTag("voice-to-task").performClick()
+        waitForTag("task-capture-input")
+        composeRule.onNodeWithTag("task-capture-input").assertTextContains("准备英语听力")
+    }
+
+    @Test
+    fun task_entry_feedback_and_local_controls_are_user_driven() {
         val taskName = "UI 回归 ${System.currentTimeMillis()}"
         val feedbackContent = "已完成 UI 回归反馈"
 
+        // Creation belongs to the task inbox; the day canvas is now for arranging objects.
+        composeRule.onNodeWithTag("navigation-tasks").performClick()
         waitForTag("add-task")
         composeRule.onNodeWithTag("add-task").performClick()
-        waitForTag("task-editor-name")
-        composeRule.onNodeWithTag("task-editor-name").performTextInput(taskName)
-        composeRule.onNodeWithTag("task-editor-duration").performTextInput("30")
-        composeRule.onNodeWithTag("task-editor-save").performClick()
+        waitForTag("task-capture-input")
+        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
 
         waitForTag("task-card-$taskName")
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
@@ -69,19 +184,9 @@ class CoreWorkflowUiTest {
         assertEquals(TaskStatus.NOT_STARTED, task.status)
 
         composeRule.onNodeWithTag("task-detail-back").performClick()
-        composeRule.onNodeWithTag("navigation-time").performClick()
-        waitForTag("generate-plan-draft")
-        composeRule.onNodeWithTag("generate-plan-draft").performClick()
-        waitForTag("accept-plan-draft")
-        composeRule.onNodeWithTag("accept-plan-draft").performClick()
-
-        runBlocking {
-            withTimeout(10_000) {
-                (composeRule.activity.application as ReplandApplication).appContainer.planRepository
-                    .observeCurrentPlan()
-                    .first { plan -> plan?.orderedTaskIds?.contains(task.id) == true }
-            }
-        }
+        composeRule.onNodeWithTag("navigation-agent").performClick()
+        waitForTag("agent-import-timetable")
+        composeRule.onNodeWithTag("agent-import-timetable").performClick()
         // The document picker is exposed, but no PDF can write constraints before its
         // preview is explicitly confirmed (covered by PdfTimetableImporterTest).
         waitForTag("import-timetable-pdf")
@@ -113,9 +218,9 @@ class CoreWorkflowUiTest {
         composeRule.onNodeWithTag("navigation-tasks").performClick()
         waitForTag("add-task")
         composeRule.onNodeWithTag("add-task").performClick()
-        waitForTag("task-editor-name")
-        composeRule.onNodeWithTag("task-editor-name").performTextInput(taskName)
-        composeRule.onNodeWithTag("task-editor-save").performClick()
+        waitForTag("task-capture-input")
+        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
         waitForTag("task-card-$taskName")
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
         waitForTag("task-detail-scroll")
@@ -124,13 +229,17 @@ class CoreWorkflowUiTest {
         }
         waitForTag("request-ai-advice")
         composeRule.onNodeWithTag("request-ai-advice").performClick()
+        waitForTag("assistant-prompt")
+        composeRule.onNodeWithTag("assistant-prompt").performTextInput("帮我理解这项任务")
+        composeRule.onNodeWithTag("assistant-submit").performClick()
         waitForTag("ai-request-confirm")
         composeRule.onNodeWithTag("ai-request-confirm").performClick()
+        val workflow = (composeRule.activity.application as ReplandApplication)
+            .appContainer.planningAgentWorkflow
+        composeRule.waitUntil(timeoutMillis = 15_000) {
+            workflow.state.value is PlanningAgentState.FailedFallback
+        }
         waitForTag("planning-agent-outcome")
-        composeRule.onNodeWithText(
-            composeRule.activity.getString(R.string.ai_failure_not_configured),
-            useUnmergedTree = true,
-        ).assertExists()
 
         val task = runBlocking {
             withTimeout(10_000) {
@@ -149,5 +258,13 @@ class CoreWorkflowUiTest {
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
+    }
+
+    private fun openTaskCapture() {
+        waitForTag("navigation-tasks")
+        composeRule.onNodeWithTag("navigation-tasks").performClick()
+        waitForTag("add-task")
+        composeRule.onNodeWithTag("add-task").performClick()
+        waitForTag("task-capture-input")
     }
 }

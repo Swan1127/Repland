@@ -45,6 +45,15 @@ class TaskDraftValidatorTest {
 
         assertTrue(TaskDraftValidator.isValid(base))
         assertFalse(TaskDraftValidator.isValid(base.copy(totalDurationMinutes = 0)))
+        // A real historical deadline is valid input and must not be silently rewritten.
+        assertTrue(
+            TaskDraftValidator.isValid(
+                base.copy(
+                    dueDate = LocalDate.now().minusDays(3),
+                    scheduledForDate = LocalDate.now().plusDays(2),
+                ),
+            ),
+        )
     }
 
     @Test

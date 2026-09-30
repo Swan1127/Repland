@@ -19,8 +19,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ReminderSettingsEntity::class,
         ProfileEvidenceEntity::class,
         AiSettingsEntity::class,
+        EngagementSettingsEntity::class,
+        UsageEventEntity::class,
     ],
-    version = 14,
+    version = 19,
     exportSchema = false,
 )
 abstract class ReplandDatabase : RoomDatabase() {
@@ -39,6 +41,7 @@ abstract class ReplandDatabase : RoomDatabase() {
     abstract fun profileEvidenceDao(): ProfileEvidenceDao
 
     abstract fun aiSettingsDao(): AiSettingsDao
+    abstract fun engagementDao(): EngagementDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -277,6 +280,42 @@ abstract class ReplandDatabase : RoomDatabase() {
                     )
                     """.trimIndent(),
                 )
+            }
+        }
+
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS engagement_settings (id TEXT NOT NULL, mode TEXT NOT NULL, updatedAtEpochMillis INTEGER NOT NULL, PRIMARY KEY(id))")
+                db.execSQL("CREATE TABLE IF NOT EXISTS usage_events (id TEXT NOT NULL, type TEXT NOT NULL, occurredAtEpochMillis INTEGER NOT NULL, mode TEXT NOT NULL, subjectId TEXT, PRIMARY KEY(id))")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_usage_events_occurredAtEpochMillis ON usage_events(occurredAtEpochMillis)")
+            }
+        }
+
+        val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE plan_segments ADD COLUMN trackId TEXT NOT NULL DEFAULT 'focus'")
+            }
+        }
+
+        /** Keeps recurring courses on their chosen visual lane across app restarts. */
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE weekly_time_blocks ADD COLUMN trackId TEXT NOT NULL DEFAULT 'course'")
+            }
+        }
+
+        /** Adds optional user-owned context without changing the scheduling semantics. */
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE weekly_time_blocks ADD COLUMN note TEXT")
+                db.execSQL("ALTER TABLE date_overrides ADD COLUMN note TEXT")
+            }
+        }
+
+        /** Separates a user's planned workday from a true last-completion deadline. */
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE tasks ADD COLUMN scheduledForEpochDay INTEGER")
             }
         }
     }

@@ -40,6 +40,8 @@ class RoomTimeRepository(
                 startMinute = draft.startMinute,
                 endMinute = draft.endMinute,
                 weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
+                trackId = draft.trackId.ifBlank { "course" },
+                note = draft.note?.trim()?.takeIf(String::isNotBlank),
                 createdAtEpochMillis = existing?.createdAtEpochMillis ?: now,
                 updatedAtEpochMillis = now,
             ),
@@ -62,6 +64,7 @@ class RoomTimeRepository(
                     draft.startMinute,
                     draft.endMinute,
                     draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
+                    draft.trackId.ifBlank { "course" },
                 )
             }
         if (validDrafts.isEmpty()) return
@@ -76,6 +79,8 @@ class RoomTimeRepository(
                     startMinute = draft.startMinute,
                     endMinute = draft.endMinute,
                     weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
+                    trackId = draft.trackId.ifBlank { "course" },
+                    note = draft.note?.trim()?.takeIf(String::isNotBlank),
                     createdAtEpochMillis = now,
                     updatedAtEpochMillis = now,
                 )
@@ -95,6 +100,7 @@ class RoomTimeRepository(
                 dateEpochDay = draft.date.toEpochDay(),
                 startMinute = draft.startMinute,
                 endMinute = draft.endMinute,
+                note = draft.note?.trim()?.takeIf(String::isNotBlank),
                 createdAtEpochMillis = existing?.createdAtEpochMillis ?: now,
                 updatedAtEpochMillis = now,
             ),

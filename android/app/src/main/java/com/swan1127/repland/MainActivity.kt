@@ -12,9 +12,12 @@ import com.swan1127.repland.ui.reminders.ReminderSettingsViewModel
 import com.swan1127.repland.ui.profile.ProfileEvidenceViewModel
 import com.swan1127.repland.ui.data.DataManagementViewModel
 import com.swan1127.repland.ui.ai.PlanningAgentViewModel
+import com.swan1127.repland.ui.ai.AiProviderConfigViewModel
+import com.swan1127.repland.ui.agent.ArrangementAssistantViewModel
 import com.swan1127.repland.ui.time.TimeViewModel
 import com.swan1127.repland.ui.tasks.TaskViewModel
 import com.swan1127.repland.ui.theme.ReplandTheme
+import com.swan1127.repland.ui.engagement.EngagementViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +59,21 @@ class MainActivity : ComponentActivity() {
                         appContainer.planningAgentWorkflow,
                     ),
                 )
+                val aiProviderConfigViewModel: AiProviderConfigViewModel = viewModel(
+                    factory = AiProviderConfigViewModel.Factory(
+                        appContainer.aiProviderConfigRepository,
+                        appContainer.arrangementAssistantAdvisor,
+                    ),
+                )
+                val arrangementAssistantViewModel: ArrangementAssistantViewModel = viewModel(
+                    factory = ArrangementAssistantViewModel.Factory(
+                        appContainer.aiSettingsRepository,
+                        appContainer.arrangementAssistantAdvisor,
+                    ),
+                )
+                val engagementViewModel: EngagementViewModel = viewModel(
+                    factory = EngagementViewModel.Factory(appContainer.engagementRepository),
+                )
                 ReplandApp(
                     taskViewModel,
                     timeViewModel,
@@ -65,6 +83,9 @@ class MainActivity : ComponentActivity() {
                     profileEvidenceViewModel,
                     dataManagementViewModel,
                     planningAgentViewModel,
+                    aiProviderConfigViewModel,
+                    arrangementAssistantViewModel,
+                    engagementViewModel,
                 )
             }
         }

@@ -180,6 +180,18 @@ class TaskLifecycleRepositoryTest {
     }
 
     @Test
+    fun planned_day_and_deadline_persist_independently() = runBlocking {
+        val plannedDay = LocalDate.now().plusDays(5)
+        val deadline = plannedDay.plusDays(3)
+
+        repository.save(taskDraft().copy(scheduledForDate = plannedDay, dueDate = deadline))
+
+        val saved = database.taskDao().observeAll().first().single().toDomain()
+        assertEquals(plannedDay, saved.scheduledForDate)
+        assertEquals(deadline, saved.dueDate)
+    }
+
+    @Test
     fun user_lock_on_current_confirmed_segment_is_persisted() = runBlocking {
         val taskId = createTask()
         val plans = RoomPlanRepository(database.planDao())

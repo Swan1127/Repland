@@ -57,6 +57,7 @@ class RoomTaskRepository(
             createdAtEpochMillis = existing?.createdAtEpochMillis ?: now,
             updatedAtEpochMillis = now,
             completionResult = existing?.completionResult,
+            scheduledForEpochDay = draft.scheduledForDate?.toEpochDay(),
         )
         taskDao.insert(entity)
     }
@@ -76,16 +77,21 @@ class RoomTaskRepository(
         }
         if (status == TaskStatus.COMPLETED) {
             require(TaskLifecycleValidator.isValidCompletion(feedback)) {
-                "Completion requires completed content and a valid 100% progress value."
+                "Completion accepts optional feedback and valid progress values."
             }
         } else {
             require(TaskLifecycleValidator.isValidFeedback(feedback)) { "Invalid feedback values." }
         }
         val now = System.currentTimeMillis()
+        val effectiveFeedback = if (status == TaskStatus.COMPLETED && feedback.actualDurationMinutes == null) {
+            feedback.copy(actualDurationMinutes = inferActualDurationMinutes(existing, taskId, now))
+        } else {
+            feedback
+        }
         val logCreatedAt = nextLogCreatedAt(taskId, now)
-        taskDao.update(existing.withConfirmedStatus(status, feedback, now))
+        taskDao.update(existing.withConfirmedStatus(status, effectiveFeedback, now))
         executionLogDao.insert(
-            feedback.toEntity(
+            effectiveFeedback.toEntity(
                 taskId = taskId,
                 eventType = ExecutionLogEventType.STATUS_CHANGE,
                 confirmedStatus = status,
@@ -192,6 +198,7 @@ class RoomTaskRepository(
                     createdAtEpochMillis = logCreatedAt,
                     updatedAtEpochMillis = now,
                     completionResult = null,
+                    scheduledForEpochDay = replacement.scheduledForDate?.toEpochDay(),
                 ),
             )
             taskDao.update(original.copy(status = TaskStatus.REPLACED.name, updatedAtEpochMillis = now))
@@ -209,6 +216,14 @@ class RoomTaskRepository(
 
     private suspend fun requireTask(taskId: String): TaskEntity =
         requireNotNull(taskDao.getById(taskId)) { "Task does not exist." }
+
+    private suspend fun inferActualDurationMinutes(existing: TaskEntity, taskId: String, now: Long): Int? {
+        val startedAt = executionLogDao.getForTask(taskId)
+            .lastOrNull { it.confirmedStatus == TaskStatus.IN_PROGRESS.name }
+            ?.createdAtEpochMillis
+        val elapsed = startedAt?.let { ((now - it) / 60_000L).toInt().coerceIn(1, 1_440) }
+        return elapsed ?: existing.totalDurationMinutes?.coerceIn(1, 1_440)
+    }
 
     /** Makes chronological ordering deterministic even for confirmations in one clock millisecond. */
     private suspend fun nextLogCreatedAt(taskId: String, now: Long): Long {

@@ -26,6 +26,7 @@ data class TaskEntity(
     val createdAtEpochMillis: Long,
     val updatedAtEpochMillis: Long,
     val completionResult: String? = null,
+    val scheduledForEpochDay: Long? = null,
 )
 
 fun TaskEntity.toDomain(): Task = Task(
@@ -45,4 +46,5 @@ fun TaskEntity.toDomain(): Task = Task(
     createdAtEpochMillis = createdAtEpochMillis,
     updatedAtEpochMillis = updatedAtEpochMillis,
     completionResult = completionResult,
+    scheduledForDate = scheduledForEpochDay?.let(LocalDate::ofEpochDay),
 )

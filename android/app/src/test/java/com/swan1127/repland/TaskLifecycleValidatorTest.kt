@@ -52,7 +52,8 @@ class TaskLifecycleValidatorTest {
         assertFalse(TaskLifecycleValidator.isValidCompletion(
             TaskFeedback(completedContent = "完成题目", progressPercent = 80),
         ))
-        assertFalse(TaskLifecycleValidator.isValidCompletion(TaskFeedback(progressPercent = 100)))
+        assertTrue(TaskLifecycleValidator.isValidCompletion(TaskFeedback(progressPercent = 100)))
+        assertTrue(TaskLifecycleValidator.isValidCompletion(TaskFeedback()))
 
         assertTrue(TaskLifecycleValidator.isValidPartialCompletion(
             TaskFeedback(completedContent = "完成第一章", progressPercent = 40, actualDurationMinutes = 30),

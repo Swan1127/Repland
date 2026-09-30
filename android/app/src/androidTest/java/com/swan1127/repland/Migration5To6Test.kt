@@ -50,6 +50,11 @@ class Migration5To6Test {
                     ReplandDatabase.MIGRATION_11_12,
                     ReplandDatabase.MIGRATION_12_13,
                     ReplandDatabase.MIGRATION_13_14,
+                    ReplandDatabase.MIGRATION_14_15,
+                    ReplandDatabase.MIGRATION_15_16,
+                    ReplandDatabase.MIGRATION_16_17,
+                    ReplandDatabase.MIGRATION_17_18,
+                    ReplandDatabase.MIGRATION_18_19,
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -59,6 +64,10 @@ class Migration5To6Test {
                 assertTrue(cursor.moveToFirst())
                 assertEquals("旧任务", cursor.getString(0))
                 assertTrue(cursor.isNull(1))
+            }
+            migrated.query("SELECT scheduledForEpochDay FROM tasks WHERE id = 'task-1'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertTrue(cursor.isNull(0))
             }
             migrated.query("SELECT COUNT(*) FROM plans").use { cursor ->
                 cursor.moveToFirst()
@@ -75,6 +84,13 @@ class Migration5To6Test {
             migrated.query("SELECT COUNT(*) FROM weekly_time_blocks").use { cursor ->
                 cursor.moveToFirst()
                 assertEquals(1, cursor.getInt(0))
+            }
+            migrated.query("SELECT note FROM weekly_time_blocks WHERE id = 'block-1'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertTrue(cursor.isNull(0))
+            }
+            migrated.query("SELECT note FROM date_overrides").use { cursor ->
+                assertTrue(cursor.moveToFirst().not())
             }
             migrated.query(
                 "SELECT firstWeekMondayEpochDay, updatedAtEpochMillis FROM semester_settings WHERE id = 'current'",

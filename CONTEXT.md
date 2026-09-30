@@ -355,6 +355,46 @@ _Avoid_: Full-device upload, silent profiling
 The user's explicit permission before task content and necessary profile context are sent to the API-connected AI workflow. The user can disable AI later; local deterministic planning remains available.
 _Avoid_: Silent upload, AI-required operation
 
+**Participation mode**:
+The user's changeable preference for how much planning detail and intervention Repland presents: co-planning, guided planning, or focused execution. It does not classify the user's personality or change ownership of tasks and confirmed plans.
+_Avoid_: Fixed user type, separate account identity, inferred diagnosis
+
+**Usage event**:
+An observation of a specific user interaction, such as switching participation mode or opening a schedule item. It is evidence of that interaction only, not evidence that scheduled work was performed.
+_Avoid_: Productivity score, inferred task completion
+
+**Schedule-time state**:
+The relationship between the current clock time and a planned interval: upcoming, within the interval, or past its end. It describes the plan's clock, not the user's actual work duration or outcome.
+_Avoid_: Actual execution state, automatic overtime conclusion
+
+**Voice transcript**:
+Editable text returned by a device-selected speech-recognition service and reviewed by the user before it becomes task input. It is not a confirmed task, schedule change, or stored audio record.
+_Avoid_: Auto-saved task, guaranteed offline recognition
+
+**Event object**:
+The reusable user-owned content object that describes what should be done, such as a task. It can exist independently of a day and can be placed into one or more schedule instances without duplicating its identity.
+_Avoid_: A task being permanently bound to its first time slot, duplicated task records
+
+**Schedule Agent**:
+A specialized assistant surface that turns an editable natural-language or voice transcript into staged Repland proposals such as task drafts, plan drafts, and task breakdowns. It is an input-and-confirmation workflow, not an autonomous general chatbot.
+_Avoid_: Autonomous schedule mutation, a free-form agent that bypasses confirmation
+
+**Agent proposal**:
+An editable, non-persistent set of changes shown by the Schedule Agent before the user chooses a named confirmation action. A proposal may be discarded without affecting tasks, schedule instances, or history.
+_Avoid_: A preview that already writes data, an AI result treated as a command
+
+**Schedule instance**:
+One dated placement of an event object, with a start, end, and track. Moving or reusing an event object creates or changes a placement while preserving the event identity and execution history.
+_Avoid_: Treating the event object as the timeline rectangle, overwriting history when rescheduling
+
+**Schedule track**:
+A named parallel rhythm lane in the day view. Tracks borrow the visual grammar of music arrangement software: events remain independent objects, while their temporal placement and parallel context are shown on the track.
+_Avoid_: An automatically inferred overlap lane, a permanent task category
+
+**Horizon view**:
+The three planning resolutions exposed by Repland: day for execution and track placement, week for rhythm and load distribution, and month for density and milestones. Each view is a projection of the same schedule instances rather than a separate source of truth.
+_Avoid_: Three duplicated calendars, month view as an editable task list
+
 ## GrillMe continuation status
 
 The planned interview frontier has been completed through the current round. The main product decisions, task lifecycle rules, user-authority boundaries, AI workflow, V1 scope, and consistency corrections are recorded above. The next step is to produce the complete product-thinking summary when the user requests it.

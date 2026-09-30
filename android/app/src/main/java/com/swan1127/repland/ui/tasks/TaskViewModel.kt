@@ -74,10 +74,10 @@ class TaskViewModel(
 
     fun completeTask(
         taskId: String,
-        completedContent: String,
-        completionResult: String?,
-        actualDurationMinutes: Int?,
-        progressPercent: Int?,
+        completedContent: String? = null,
+        completionResult: String? = null,
+        actualDurationMinutes: Int? = null,
+        progressPercent: Int? = null,
     ) {
         confirmStatus(
             taskId = taskId,

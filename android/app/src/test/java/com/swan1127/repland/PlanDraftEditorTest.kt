@@ -41,6 +41,26 @@ class PlanDraftEditorTest {
     }
 
     @Test
+    fun `same time is valid on a different track and blocked on the same track`() {
+        val first = segment("a", "task-a", 9 * 60, 10 * 60)
+        val second = segment("b", "task-b", 10 * 60, 11 * 60)
+        val draft = draft(listOf(first, second))
+
+        assertFalse(
+            PlanDraftEditor.overlapsAnotherSegment(
+                draft,
+                first.copy(startMinute = 10 * 60, endMinute = 11 * 60, trackId = "parallel-2"),
+            ),
+        )
+        assertTrue(
+            PlanDraftEditor.overlapsAnotherSegment(
+                draft,
+                first.copy(startMinute = 10 * 60, endMinute = 11 * 60),
+            ),
+        )
+    }
+
+    @Test
     fun `segment split merge and lock remain draft-only operations`() {
         val draft = draft(listOf(segment("a", "task-a", 9 * 60, 11 * 60)))
 
