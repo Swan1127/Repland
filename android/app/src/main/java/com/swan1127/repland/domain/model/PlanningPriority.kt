@@ -137,6 +137,7 @@ object LocalPriorityRanker {
 }
 
 enum class UnscheduledReason {
+    USER_DEFERRED,
     TOTAL_CAPACITY_IN_ROLLING_WINDOW,
     CAPACITY_BEFORE_DUE_DATE,
     CAPACITY_IN_ROLLING_WINDOW,

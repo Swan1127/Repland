@@ -161,6 +161,7 @@
     <string name="plan_unassigned_task">%1$s：仍有 %2$d 分钟尚未排入计划。</string>
     <string name="capacity_before_due_reason">原因：截止日期前的可用时间不足；任务仍保留在待安排列表。</string>
     <string name="capacity_rolling_window_reason">原因：未来 30 天的可用时间不足；任务仍保留在待安排列表。</string>
+    <string name="plan_user_deferred_reason">你选择本次暂不安排；任务仍保留在待安排列表。</string>
     <string name="capacity_total_window_reason">原因：全部任务总时长超过未来 30 天可用容量；任务仍保留在待安排列表。</string>
     <string name="unknown_task">未知任务</string>
     <string name="accept_plan_draft">确认采用</string>

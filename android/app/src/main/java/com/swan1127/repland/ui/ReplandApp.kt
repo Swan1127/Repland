@@ -147,6 +147,7 @@ import com.swan1127.repland.domain.model.EngagementMode
 import com.swan1127.repland.domain.model.WeeklyTimeBlock
 import com.swan1127.repland.domain.model.WeeklyTimeBlockDraft
 import com.swan1127.repland.domain.model.UnscheduledReason
+import com.swan1127.repland.domain.model.PlanDraftReview
 import com.swan1127.repland.ui.time.TimeViewModel
 import com.swan1127.repland.ui.time.TimetableImportState
 import com.swan1127.repland.ui.plan.PlanViewModel
@@ -1063,6 +1064,9 @@ fun ReplandApp(
     planUiState.draft?.let { draft ->
         PlanDraftDialog(
             draft = draft,
+            currentPlan = planUiState.currentPlan,
+            currentTaskOrder = planUiState.taskOrder,
+            isSaving = planUiState.isWorking,
             tracks = workspaceUiState.tracks,
             onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskEditorTarget = task; showTaskEditor = true },
             onConfigureAvailability = { planViewModel.discardDraft(); weeklyBlockEditorTarget = null; weeklyBlockInitialKind = TimeBlockKind.AVAILABLE; showWeeklyBlockEditor = true },
@@ -2932,6 +2936,9 @@ internal fun PlanDraftDialog(
     tracks: List<RhythmTrack> = emptyList(),
     onCompleteTaskDetails: (Task) -> Unit = {},
     onConfigureAvailability: () -> Unit = {},
+    currentPlan: ConfirmedPlan? = null,
+    currentTaskOrder: List<String> = emptyList(),
+    isSaving: Boolean = false,
 ) {
     val tasksById = tasks.associateBy(Task::id)
     val unknownTaskLabel = stringResource(R.string.unknown_task)
@@ -2942,6 +2949,13 @@ internal fun PlanDraftDialog(
     val priorityAssessmentsByTask = draft.priorityAssessments.associateBy(LocalPriorityAssessment::taskId)
     var editingSegmentId by remember { mutableStateOf<String?>(null) }
     var showTaskOrder by rememberSaveable { mutableStateOf(draft.orderOnly) }
+    var showChanges by rememberSaveable { mutableStateOf(false) }
+    val changes = PlanDraftReview.changes(draft, currentPlan, currentTaskOrder)
+    val now = java.time.LocalDateTime.now()
+    val protectedCurrent = currentPlan?.segments.orEmpty().filter {
+        it.isLocked || it.date < now.toLocalDate() || (it.date == now.toLocalDate() && it.startMinute <= now.hour * 60 + now.minute)
+    }
+    val protectedIds = (protectedCurrent.map { it.id } + draft.segments.filter { candidate -> protectedCurrent.any { it.taskId == candidate.taskId } }.map { it.id }).toSet()
     EditorSheet(
         onDismissRequest = onDismiss,
         title = { Text(if (draft.orderOnly) "排序预览" else stringResource(R.string.plan_draft_title)) },
@@ -2957,6 +2971,24 @@ internal fun PlanDraftDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                Text("确认后：${changes.schedules.size} 项日程变化，${changes.order.size} 项顺序变化。取消不会改动当前计划。",
+                    modifier = Modifier.testTag("draft-change-summary"), style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { showChanges = !showChanges }, modifier = Modifier.testTag("draft-show-changes")) {
+                    Text(if (showChanges) "收起变化" else "查看具体变化")
+                }
+                if (showChanges) {
+                    changes.schedules.forEach { change ->
+                        fun placementLabel(segments: List<PlannedSegment>) = if (segments.isEmpty()) "未安排" else segments.joinToString("；") {
+                            "${it.date} ${TimeBlockValidator.formatTime(it.startMinute)}–${TimeBlockValidator.formatTime(it.endMinute)} · ${draftTrackLabel(it.trackId, tracks)}${if (it.isLocked) "（锁定）" else ""}"
+                        }
+                        Text(tasksById[change.taskId]?.displayName ?: unknownTaskLabel, style = MaterialTheme.typography.titleSmall)
+                        Text("原：${placementLabel(change.before)}\n新：${placementLabel(change.after)}", style = MaterialTheme.typography.bodySmall)
+                    }
+                    changes.order.forEach { change ->
+                        Text("${tasksById[change.taskId]?.displayName ?: unknownTaskLabel}：${change.before?.let { "第 $it 位" } ?: "未入排序"} → 第 ${change.after} 位", style = MaterialTheme.typography.bodySmall)
+                    }
+                    if (changes.schedules.isEmpty() && changes.order.isEmpty()) Text("与当前计划和顺序一致。")
+                }
                 if (!draft.orderOnly && weeklyBlocks.none { it.kind == TimeBlockKind.AVAILABLE } && dateOverrides.none { it.type == DateOverrideType.AVAILABLE }) {
                     Text("还没有可用时间，系统不会把所有空白都当作可以工作。", style = MaterialTheme.typography.bodySmall)
                     TextButton(onClick = onConfigureAvailability, modifier = Modifier.testTag("draft-configure-availability")) { Text("补充时间后重新生成") }
@@ -2997,13 +3029,14 @@ internal fun PlanDraftDialog(
                     ) {
                         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                stringResource(R.string.plan_feasibility_warning),
+                                "未排入 / 暂不安排",
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                             )
                             unscheduledTasks.forEach { unscheduled ->
+                                // This is unassigned workload, not a promise of one continuous free slot.
                                 Text(
-                                    stringResource(
+                                    if (unscheduled.reason == UnscheduledReason.USER_DEFERRED && unscheduled.remainingMinutes == 0) "${tasksById[unscheduled.taskId]?.displayName ?: unknownTaskLabel}：本次暂不安排，时长仍待补充。" else stringResource(
                                         R.string.plan_unassigned_task,
                                         tasksById[unscheduled.taskId]?.displayName
                                             ?: stringResource(R.string.unknown_task),
@@ -3012,7 +3045,21 @@ internal fun PlanDraftDialog(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onErrorContainer,
                                 )
+                                Text(when (unscheduled.reason) {
+                                    UnscheduledReason.USER_DEFERRED -> "你选择本次暂不安排；任务不会被删除或标记完成。"
+                                    UnscheduledReason.CAPACITY_BEFORE_DUE_DATE -> "截止日期前的可用时间不足。"
+                                    else -> "本次规划窗口内的可用时间不足。"
+                                }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                                if (unscheduled.reason != UnscheduledReason.USER_DEFERRED) {
+                                    tasksById[unscheduled.taskId]?.let { task ->
+                                        TextButton(onClick = { onCompleteTaskDetails(task) }) { Text("调整 ${task.displayName} 的时长或日期后重新生成") }
+                                    }
+                                }
                             }
+                            val capacityMissing = unscheduledTasks.filter { it.reason != UnscheduledReason.USER_DEFERRED }.sumOf { it.remainingMinutes }
+                            if (capacityMissing > 0) Text("本次未排入工作量合计 $capacityMissing 分钟；补充时间后需重新检查约束。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
+                            TextButton(onClick = onConfigureAvailability, modifier = Modifier.testTag("draft-capacity-add-time")) { Text("补充可用时间后重新生成") }
+                            Text("也可直接确认已排入部分；未排入任务仍保留在待安排列表。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onErrorContainer)
                         }
                     }
                 }
@@ -3045,6 +3092,15 @@ internal fun PlanDraftDialog(
                                         onUpdateDraft(PlanDraftEditor.moveTask(draft, taskId, offset))
                                     },
                                 )
+                                if (!draft.orderOnly) {
+                                    val deferred = draft.unscheduledTasks.any { it.taskId == taskId && it.reason == UnscheduledReason.USER_DEFERRED }
+                                    val protected = draft.segments.any { it.taskId == taskId && (it.isLocked || it.id in protectedIds) }
+                                    TextButton(
+                                        enabled = !isSaving && !deferred && !protected,
+                                        onClick = { onUpdateDraft(PlanDraftReview.defer(draft, taskId, protectedIds)) },
+                                        modifier = Modifier.testTag("draft-defer-$taskId"),
+                                    ) { Text(if (deferred) "本次已暂不安排" else if (protected) "包含锁定或已开始安排" else "本次暂不安排 ${task.displayName}") }
+                                }
                             }
                         }
                     }
@@ -3055,7 +3111,7 @@ internal fun PlanDraftDialog(
             Button(
                 onClick = onAccept,
                 modifier = Modifier.testTag("accept-plan-draft"),
-                enabled = draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty() || (draft.orderOnly && orderedTaskIds.isNotEmpty()),
+                enabled = !isSaving && (draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty() || (draft.orderOnly && orderedTaskIds.isNotEmpty())),
             ) {
                 Text(if (draft.orderOnly) "应用排序" else stringResource(R.string.accept_plan_draft))
             }
@@ -5153,6 +5209,7 @@ private fun priorityReasonText(reason: PriorityReason): String = when (reason.ki
 
 @StringRes
 private fun UnscheduledReason.labelRes(): Int = when (this) {
+    UnscheduledReason.USER_DEFERRED -> R.string.plan_user_deferred_reason
     UnscheduledReason.TOTAL_CAPACITY_IN_ROLLING_WINDOW -> R.string.capacity_total_window_reason
     UnscheduledReason.CAPACITY_BEFORE_DUE_DATE -> R.string.capacity_before_due_reason
     UnscheduledReason.CAPACITY_IN_ROLLING_WINDOW -> R.string.capacity_rolling_window_reason

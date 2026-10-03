@@ -14,6 +14,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class InteractionWorkspaceRepositoryTest {
+    @Test fun deferred_decision_survives_workspace_round_trip() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
+        try {
+            val repo = RoomPlanRepository(db)
+            val draft = PlanDraft(java.time.LocalDateTime.now(), listOf(PlannedSegment("s", "a", LocalDate.now().plusDays(1), 600, 660)), emptyList(), emptyList(), listOf("a"))
+            val deferred = PlanDraftReview.defer(draft, "a")
+            repo.saveDraft(deferred)
+            val restored = repo.observeDraft().first()!!
+            assertEquals(deferred, restored)
+            assertEquals(UnscheduledReason.USER_DEFERRED, restored.unscheduledTasks.single().reason)
+            assertNull(repo.observeCurrentPlan().first())
+        } finally { db.close() }
+    }
     @Test fun undo_restores_only_order_without_moving_the_plan() = runBlocking {
         val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
         try {
