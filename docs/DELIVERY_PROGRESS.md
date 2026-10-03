@@ -169,3 +169,11 @@ APK 检查确认 internal 的两个 Provider 类/构造入口保留；release Ma
 手动 QA 检查：新增一项仅收集任务→补充当天 18:00–20:00→生成 18:00–18:30 预览→确认→日轨道找到同一任务→进入专注。已查看 `android/app/build/reports/ui/availability-017.png` 与 `execution-017.png`（忽略的构建输出）。发现 QA-015 自动重排预览盖住专注，移除自动弹窗并以今日可行动提示替代；执行面板打开时不显示规划模态，真实 Activity 样例增强断言后复测通过。
 
 该复测首次因手动测试残留活动会话未复位而失败，非应用第二轮创建错误；仅清理 `.qa` 数据后重新运行，最终 1 项通过、0 跳过。用例遇到无关活动会话时不结束或改写它。正式/旧 internal 包未清除或覆盖。历史恢复统一保护缺口另记 QA-016，下一批继续处理。
+
+最终构建来源 `4e32e271ecde4393c46845fda6521beb1f440d20`，单元 85 项再次通过；debug/androidTest/internal 构建、release Kotlin/Manifest 和离线边界检查通过。最终 APK 重新安装到 QA 包，不覆盖其他构建。
+
+| 文件 | 版本/包名 | SHA-256 |
+| --- | --- | --- |
+| app-debug.apk | 0.1.7-qa (1007)，com.swan1127.repland.qa | `d64812ef00e42fca9e75df74552adf2e49ada4a43499c1e6b945d8ca96f746b1` |
+| app-internal.apk | 0.1.7-internal (1007)，com.swan1127.repland.internal | `5288273aa49e35625c55407f9063bcbb7cc2765ae25408d6522da3f257b85577` |
+| app-debug-androidTest.apk | 同源测试构建，构建后未整套重跑 | `49ec090f14f1a3c6c38d5c669d64ba78c45c8521839f218fb44d5f74a2c0916c` |
