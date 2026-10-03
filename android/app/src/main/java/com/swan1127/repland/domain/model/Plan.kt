@@ -258,8 +258,7 @@ object PlanDraftEditor {
 object PlanGenerator : PlanDraftGenerator {
     private const val HORIZON_DAYS = 30
     private const val QUANTUM_MINUTES = 30
-    private const val DAY_START_MINUTE = 8 * 60
-    private const val DAY_END_MINUTE = 22 * 60
+    private const val DAY_END_MINUTE = 24 * 60
 
     /** Rebuild only the unprotected remainder of today, keeping all other placements. */
     fun generateToday(input: PlanGenerationInput, current: ConfirmedPlan?, clock: Clock = Clock.systemDefaultZone()): PlanDraft {
@@ -350,7 +349,7 @@ object PlanGenerator : PlanDraftGenerator {
         // Hard constraints produce the candidate slot set before any soft ranking occurs.
         val allSlots = freeSlots(now, weeklyBlocks, dateOverrides, semesterFirstWeekMonday, horizonDays)
         val assignedSlots = allSlots.filterTo(mutableSetOf()) { slot ->
-            preservedLocks.any { locked -> locked.covers(slot) }
+            preservedLocks.any { locked -> locked.overlaps(slot) }
         }
         val lockedMinutesByTask = preservedLocks.groupingBy(PlannedSegment::taskId)
             .fold(0) { total, segment -> total + segment.endMinute - segment.startMinute }
@@ -380,7 +379,7 @@ object PlanGenerator : PlanDraftGenerator {
             if (selected.size < requiredSlots) {
                 unscheduled += UnscheduledTask(
                     taskId = task.id,
-                    remainingMinutes = (requiredSlots - selected.size) * QUANTUM_MINUTES,
+                    remainingMinutes = (remainingMinutes - selected.size * QUANTUM_MINUTES).coerceAtLeast(0),
                     reason = if (hasOverallCapacityShortfall) {
                         UnscheduledReason.TOTAL_CAPACITY_IN_ROLLING_WINDOW
                     } else if (task.dueDate == null) {
@@ -417,9 +416,9 @@ object PlanGenerator : PlanDraftGenerator {
         repeat(horizonDays) { dayOffset ->
             val date = now.toLocalDate().plusDays(dayOffset.toLong())
             val firstMinute = if (dayOffset == 0) {
-                maxOf(DAY_START_MINUTE, roundUpToQuantum(now.hour * 60 + now.minute))
+                roundUpToQuantum(now.hour * 60 + now.minute)
             } else {
-                DAY_START_MINUTE
+                0
             }
             for (minute in firstMinute until DAY_END_MINUTE step QUANTUM_MINUTES) {
                 val slot = Slot(date, minute, minute + QUANTUM_MINUTES)
@@ -480,6 +479,6 @@ object PlanGenerator : PlanDraftGenerator {
         )
     }
 
-    private fun PlannedSegment.covers(slot: Slot): Boolean =
-        date == slot.date && startMinute <= slot.startMinute && endMinute >= slot.endMinute
+    private fun PlannedSegment.overlaps(slot: Slot): Boolean =
+        date == slot.date && startMinute < slot.endMinute && endMinute > slot.startMinute
 }

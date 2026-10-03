@@ -324,7 +324,7 @@ fun AgentCenterScreen(
             prompt = prompt,
             willUseAi = canRefineWithAi,
             isWorking = isRefining,
-            onPromptChange = { requestVersion++; isRefining = false; prompt = it; proposals = emptyList(); intent = null; followUpInstruction = ""; queryTasks = null; explanation = null; persistWorkspace() },
+            onPromptChange = { requestVersion++; isRefining = false; prompt = it; proposals = emptyList(); intent = null; followUpInstruction = ""; queryTasks = null; explanation = null; refinementMessage = null; persistWorkspace() },
             onSeed = selectWorkflow,
             onVoice = {
                 transcriptError = false

@@ -133,6 +133,47 @@ class TimeConstraintPlannerTest {
         assertEquals(listOf("task"), result.orderedTaskIds)
     }
 
+    @Test fun partial_overlap_with_non_aligned_lock_reserves_the_whole_candidate_slot() {
+        val locked = PlannedSegment("manual", "task", monday, 9 * 60 + 15, 10 * 60, isLocked = true)
+        val plan = PlanGenerator.generate(
+            listOf(task(45), task(30).copy(id = "other")),
+            listOf(block(TimeBlockKind.AVAILABLE, 9 * 60, 10 * 60 + 30)), emptyList(),
+            lockedSegments = listOf(locked), clock = clock, horizonDays = 1,
+        )
+        assertTrue(locked in plan.segments)
+        assertEquals(10 * 60, plan.segments.single { it.taskId == "other" }.startMinute)
+        assertFalse(plan.segments.filter { it.id != locked.id }.any {
+            it.startMinute < locked.endMinute && it.endMinute > locked.startMinute
+        })
+    }
+
+    @Test fun explicit_early_and_late_availability_is_not_cut_off_by_an_invented_workday() {
+        val earlyClock = Clock.fixed(Instant.parse("2026-09-14T05:00:00Z"), ZoneOffset.UTC)
+        val plan = PlanGenerator.generate(
+            listOf(task(60)), listOf(block(TimeBlockKind.AVAILABLE, 6 * 60, 6 * 60 + 30),
+                block(TimeBlockKind.AVAILABLE, 23 * 60 + 30, 24 * 60)), emptyList(),
+            clock = earlyClock, horizonDays = 1,
+        )
+        assertEquals(listOf(6 * 60, 23 * 60 + 30), plan.segments.map { it.startMinute })
+        assertEquals(24 * 60, plan.segments.last().endMinute)
+        assertTrue(plan.unscheduledTasks.isEmpty())
+    }
+
+    @Test fun capacity_gap_reports_actual_remaining_work_not_rounded_slot_work() {
+        val plan = PlanGenerator.generate(listOf(task(45)),
+            listOf(block(TimeBlockKind.AVAILABLE, 8 * 60, 8 * 60 + 30)), emptyList(), clock = clock, horizonDays = 1)
+        assertEquals(15, plan.unscheduledTasks.single().remainingMinutes)
+    }
+
+    @Test fun late_availability_still_respects_hard_blocks_and_never_schedules_past_minutes() {
+        val lateClock = Clock.fixed(Instant.parse("2026-09-14T23:15:00Z"), ZoneOffset.UTC)
+        val plan = PlanGenerator.generate(listOf(task(30)),
+            listOf(block(TimeBlockKind.AVAILABLE, 22 * 60, 24 * 60), block(TimeBlockKind.REST, 23 * 60 + 30, 24 * 60)),
+            emptyList(), clock = lateClock, horizonDays = 1)
+        assertTrue(plan.segments.isEmpty())
+        assertEquals(30, plan.unscheduledTasks.single().remainingMinutes)
+    }
+
     private fun task(duration: Int = 30) = Task(
         id = "task",
         description = "",

@@ -80,6 +80,36 @@ class PlanningOperationServiceTest {
         assertNull(plans.observeCurrentPlan().first())
         assertEquals(listOf("low", "high"), plans.observeTaskOrder().first())
     }
+    @Test fun non_aligned_confirmed_lock_remains_safe_through_preview_and_confirmation() = runBlocking {
+        val date = LocalDate.now().plusDays(1)
+        tasks.save(TaskDraft("locked", "锁定事项", "", TaskCategory.COURSE, TaskPriority.HIGH, 1, 45, date))
+        tasks.save(TaskDraft("other", "其他事项", "", TaskCategory.COURSE, TaskPriority.MEDIUM, 1, 30, date))
+        RoomTimeRepository(db.timeDao()).saveDateOverride(DateOverrideDraft(title = "可用", type = DateOverrideType.AVAILABLE,
+            date = date, startMinute = 540, endMinute = 630))
+        plans.accept(PlanDraft(LocalDateTime.now(), listOf(PlannedSegment("lock", "locked", date, 555, 600, true)),
+            emptyList(), emptyList(), listOf("locked", "other")))
+        val original = plans.observeCurrentPlan().first()!!.segments.single()
+        val preview = operations.preview(PlanningPreviewKind.FORMULATE)
+        assertTrue(preview.segments.any { it.taskId == "locked" && it.startMinute == 555 && it.endMinute == 600 && it.isLocked })
+        assertEquals(600, preview.segments.single { it.taskId == "other" }.startMinute)
+        assertEquals(listOf(original), plans.observeCurrentPlan().first()!!.segments)
+        operations.confirm(preview)
+        assertEquals(2, plans.observeCurrentPlan().first()!!.segments.size)
+    }
+
+    @Test fun explicit_early_and_late_slots_can_be_confirmed_without_inventing_availability() = runBlocking {
+        val date = LocalDate.now().plusDays(1)
+        tasks.save(TaskDraft("task", "分段事项", "", TaskCategory.COURSE, TaskPriority.HIGH, 1, 60, date))
+        val times = RoomTimeRepository(db.timeDao())
+        times.saveDateOverride(DateOverrideDraft(title = "清晨", type = DateOverrideType.AVAILABLE, date = date, startMinute = 360, endMinute = 390))
+        times.saveDateOverride(DateOverrideDraft(title = "深夜", type = DateOverrideType.AVAILABLE, date = date, startMinute = 1410, endMinute = 1440))
+        val preview = operations.preview(PlanningPreviewKind.FORMULATE)
+        assertEquals(listOf(360, 1410), preview.segments.map { it.startMinute })
+        assertTrue(preview.unscheduledTasks.isEmpty()); assertNull(plans.observeCurrentPlan().first())
+        operations.confirm(preview)
+        assertEquals(listOf(390, 1440), plans.observeCurrentPlan().first()!!.segments.map { it.endMinute })
+    }
+
     @Test fun batch_capture_and_arrange_is_atomic_and_duplicate_confirm_is_rejected() = runBlocking {
         val draft = TaskDraft("new", "批量事项", "", TaskCategory.COURSE, TaskPriority.MEDIUM, 1, 30, null)
         val date = LocalDate.now().plusDays(1)

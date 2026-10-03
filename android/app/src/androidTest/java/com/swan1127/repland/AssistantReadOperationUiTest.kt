@@ -25,6 +25,9 @@ class AssistantReadOperationUiTest {
         rule.onNodeWithTag("agent-read-result").performScrollTo().assertExists()
         rule.onNodeWithTag("agent-confirm-tasks").assertDoesNotExist()
         assertEquals(0, calls)
+        rule.onNodeWithTag("agent-prompt").performScrollTo().performTextReplacement("新增一个事项")
+        rule.onNodeWithTag("agent-read-result").assertDoesNotExist()
+        rule.onNodeWithText("查询仅显示本地事实，不新增事项或修改计划。").assertDoesNotExist()
     }
     @Test fun query_displays_local_facts_opens_same_task_and_never_offers_confirmation() {
         var saved = 0; var opened: String? = null
