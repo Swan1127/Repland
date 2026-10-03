@@ -99,8 +99,9 @@ class RoomPlanRepository(
         val taskRepository = RoomTaskRepository(database)
         tasks.forEach { taskRepository.save(it) }
         if (segments.isNotEmpty()) {
+            val independentOrder = workspace.get("order")?.let { row -> JSONArray(row.payload).let { array -> (0 until array.length()).map(array::getString) } }.orEmpty()
             accept(PlanDraft(java.time.LocalDateTime.now(), preserved + segments, emptyList(), emptyList(),
-                orderedTaskIds = (current?.orderedTaskIds.orEmpty() + ids).distinct(), hasManualTaskOrder = true))
+                orderedTaskIds = (independentOrder + current?.orderedTaskIds.orEmpty() + ids).distinct(), hasManualTaskOrder = true))
         }
         workspace.remove("assistant")
         fun signature(items: List<PlannedSegment>) = items.map { listOf(it.startMinute, it.endMinute, it.trackId, it.isLocked) }.sortedBy { it.toString() }

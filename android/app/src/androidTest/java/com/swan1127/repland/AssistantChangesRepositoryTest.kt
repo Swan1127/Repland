@@ -15,6 +15,17 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AssistantChangesRepositoryTest {
+    @Test fun assistant_adjustment_preserves_the_independent_task_order() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
+        try {
+            val repo = RoomPlanRepository(db); val day = LocalDate.now().plusDays(1)
+            RoomTaskRepository(db).save(task("a")); RoomTaskRepository(db).save(task("b"))
+            repo.accept(PlanDraft(LocalDateTime.now(), listOf(segment("a", day, 600), segment("b", day, 800)), emptyList(), emptyList(), listOf("a", "b")))
+            repo.saveTaskOrder(listOf("b", "a")); bind(db, repo, day)
+            repo.saveAssistantChanges(emptyList(), listOf(segment("a", day, 720)), setOf("a"), day)
+            assertEquals(listOf("b", "a"), repo.observeTaskOrder().first())
+        } finally { db.close() }
+    }
     private fun task(id: String) = TaskDraft(id, "英语$id", "私有备注", TaskCategory.COURSE, TaskPriority.HIGH, 1, 90, null)
     private fun segment(id: String, day: LocalDate, start: Int, locked: Boolean = false) = PlannedSegment("$id-$day-$start", id, day, start, start + 30, isLocked = locked)
     private suspend fun bind(db: ReplandDatabase, repo: RoomPlanRepository, day: LocalDate) {
