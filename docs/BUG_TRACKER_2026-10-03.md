@@ -118,3 +118,9 @@ A task cannot overlap a course, fixed commitment, or rest block.
 状态：设备日志确认；原因未确定，当前候选是否受影响待验证。优先级 P1。
 
 2026-10-03 04:39:05 UTC，事件日志 `am_anr` 指向 `com.swan1127.repland.internal`，原因 `Input dispatching timed out`，等待 `FocusEvent(hasFocus=true)` 超过 5002ms。设备安装版本为 `0.1.0-internal (1000)`，非本轮 0.1.2 包。发生于长时间设备测试期间旧 internal 页面获得焦点；不能据此判断是旧包主线程问题还是模拟器资源压力。未取得线程栈，未复现到当前候选，未标记修复。当前 0.1.2 QA 包冷启动与输入/轨道恢复检查通过，新 internal 的真机/冷启动回归仍需进行。
+
+### QA-008 — 纯排序预览仍使用时间轴说明
+
+状态：0.1.3 QA 包手动确认；P2 文案问题，待修正。
+
+任务页“自动排序”打开“排序预览”，顶部仍显示“先在真实时间轴上查看和调整”，但纯排序没有时间轴且不会移动时段。下方顺序变化说明及“不移动已安排的时段”规则正确，确认行为也经过测试。应为纯排序提供专用说明，避免误解其适用范围。证据截图 `android/app/build/reports/ui/plan-review-013.png`。
