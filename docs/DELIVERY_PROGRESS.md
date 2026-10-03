@@ -204,7 +204,15 @@ APK 检查确认 internal 的两个 Provider 类/构造入口保留；release Ma
 
 待安排计数与任务页共用 TaskPlanMembership，已有未来安排不会重复算待安排；入口导航任务库。完整日程独立按钮真实滚动到日轨道，不再整卡点击无动作。按 UI/UX 技能使用 48dp 操作区、8dp 间距、语义色和可换行内容，移除嵌套点击。
 
-初步 99 项单元通过；15 项专项设备测试通过（焦点卡 5、真实 Activity 2、会话仓库 7、跨页归属 1），没有跳过。包含深色/2 倍字体操作可达，但不等于横屏、真机或完整无障碍验收。最终源码和安装结果后补。
+最终来源 `38e4dbeb28d80eaed63a1216102d153a793ba834`：99 项单元通过；15 项同源专项设备测试通过（焦点卡 5、真实 Activity 2、会话仓库 7、跨页归属 1），没有跳过。debug/androidTest/internal 构建、release Kotlin 与 Manifest、离线边界通过；未生成 release APK。包含深色/2 倍字体操作可达，但不等于横屏、真机或完整无障碍验收。
+
+当前版原位升级并冷启动成功，版本 0.1.10-internal/1010；只当前包有 PID，旧正式/旧 internal/QA 已停止，未卸载用户包、未读取凭据。手动确认原 QA-API-English-review 和 20:00–20:45 时段仍在，提前开始按钮与待安排/待确认 0 可见；查看完整日程后日轨道真实滚动到顶部。未开始或结束当前包里的用户任务，执行动作仅在隔离 QA 验证。已查看浅色竖屏截图 `android/app/build/reports/ui/repland-today-010.png`（忽略输出）。没有把这次升级视为真实远程请求或真机验收。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `870d2f4b929516dcf3dacf7c72e8840792e32854f1f522bd70fe3f045c6daaf7` |
+| app-debug.apk | `5a3a05e7c3651b53216c647a50118fe094da700df70fbe12e245bf34bc027e82` |
+| app-debug-androidTest.apk | `ef9cecb681f77474e035be9d0bc585ce27a33273ae7baa3bbeec581bb28b9ed4` |
 
 此批补齐 E01 的可用入口并抽出部分 D01 读取规则，未宣称统一五类 AI 操作、完整上下文或复杂容量策略已完成；M5 真机、通知/PDF、用户七天试用仍未验收。
 
