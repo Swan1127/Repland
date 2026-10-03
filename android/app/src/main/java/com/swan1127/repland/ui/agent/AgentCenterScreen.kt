@@ -142,6 +142,10 @@ fun AgentCenterScreen(
     LaunchedEffect(canRefineWithAi, activeDate, occupiedEntries, contextRevision, providerRevision) { requestVersion++; isRefining = false }
     var refinementMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val pageScroll = rememberScrollState()
+    LaunchedEffect(saveReceipt?.id) {
+        if (saveReceipt != null && proposals.isEmpty() && prompt.isBlank()) pageScroll.scrollTo(0)
+    }
     suspend fun refineCurrent(utterance: String, instruction: String? = null): ArrangementAssistantAdviceResult {
         val request = ArrangementAssistantAdviceRequest(utterance, activeDate, occupiedEntries.map {
             ArrangementOccupiedInterval(it.title, it.startMinute, it.endMinute, it.trackId,
@@ -226,7 +230,7 @@ fun AgentCenterScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+        modifier = Modifier.fillMaxSize().verticalScroll(pageScroll).padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         AgentHero(activeDate, occupiedEntries, onOpenTimeStudio)

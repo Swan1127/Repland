@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.ui.agent.AgentCenterScreen
 import com.swan1127.repland.ui.theme.ReplandTheme
@@ -29,6 +30,20 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgentCenterUiTest {
     @get:Rule val rule = createComposeRule()
+    @Test fun successful_confirmation_makes_the_receipt_visible_from_the_bottom() {
+        val receipt = androidx.compose.runtime.mutableStateOf<com.swan1127.repland.domain.model.AssistantSaveReceipt?>(null)
+        val original = com.swan1127.repland.domain.model.AssistantTaskProposal("p", "英语", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "英语", listOf(original)),
+            saveReceipt = receipt.value,
+            onConfirmChanges = { _, _, _, day, done -> receipt.value = com.swan1127.repland.domain.model.AssistantSaveReceipt("r", com.swan1127.repland.domain.model.AssistantSaveResult(1, 0, 1, day)); done() },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo().performClick()
+        rule.waitForIdle()
+        rule.onNodeWithTag("agent-save-receipt").assertIsDisplayed()
+        rule.onNodeWithTag("agent-view-saved-tasks").assertIsDisplayed()
+    }
     @Test fun consecutive_follow_ups_replace_the_same_draft_without_saving() {
         val original = com.swan1127.repland.domain.model.AssistantTaskProposal("p", "英语", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.AI_SUGGESTED)
         var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
