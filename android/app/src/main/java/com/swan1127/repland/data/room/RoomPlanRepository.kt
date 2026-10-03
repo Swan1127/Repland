@@ -18,6 +18,22 @@ class RoomPlanRepository(
     private val planDao = database.planDao()
     private val workspace = database.planningWorkspaceDao()
 
+    override fun observeTracks(): Flow<List<RhythmTrack>> = workspace.observe("tracks").map {
+        it?.let { row -> InteractionWorkspaceCodec.decodeTracks(row.payload) } ?: RhythmTracks.defaults
+    }
+    override suspend fun saveTracks(tracks: List<RhythmTrack>) {
+        require(tracks.isNotEmpty() && tracks.all { it.id.isNotBlank() && it.name.isNotBlank() && it.name.length <= 24 }) { "轨道名称需为 1–24 个字。" }
+        require(tracks.map { it.id }.distinct().size == tracks.size && tracks.map { it.name }.distinct().size == tracks.size) { "轨道 ID 或名称重复。" }
+        workspace.put(PlanningWorkspaceEntity("tracks", InteractionWorkspaceCodec.encodeTracks(tracks)))
+    }
+    override fun observeAssistantWorkspace(): Flow<AssistantWorkspace?> = workspace.observe("assistant").map {
+        it?.let { row -> InteractionWorkspaceCodec.decodeAssistant(row.payload) }
+    }
+    override suspend fun saveAssistantWorkspace(value: AssistantWorkspace?) {
+        if (value == null) workspace.remove("assistant")
+        else workspace.put(PlanningWorkspaceEntity("assistant", InteractionWorkspaceCodec.encodeAssistant(value)))
+    }
+
     override fun observeDraft(): Flow<PlanDraft?> = workspace.observe("draft").map { row ->
         row?.let { PlanDraftCodec.decode(it.payload) }
     }
@@ -28,8 +44,19 @@ class RoomPlanRepository(
     override fun observeTaskOrder(): Flow<List<String>> = workspace.observe("order").map { row ->
         row?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty()
     }
-    override suspend fun saveTaskOrder(ids: List<String>) {
-        workspace.put(PlanningWorkspaceEntity("order", JSONArray(ids.distinct()).toString()))
+    override suspend fun saveTaskOrder(ids: List<String>) = database.withTransaction {
+        val previous = workspace.get("order")?.payload ?: "[]"
+        val updated = JSONArray(ids.distinct()).toString()
+        if (previous != updated) {
+            workspace.put(PlanningWorkspaceEntity("order-undo", previous))
+            workspace.put(PlanningWorkspaceEntity("order", updated))
+        }
+    }
+    override fun observeCanUndoTaskOrder(): Flow<Boolean> = workspace.observe("order-undo").map { it != null }
+    override suspend fun undoTaskOrder() = database.withTransaction {
+        val previous = requireNotNull(workspace.get("order-undo")) { "没有可撤销的排序。" }
+        workspace.put(PlanningWorkspaceEntity("order", previous.payload))
+        workspace.remove("order-undo")
     }
 
     private suspend fun revision(): String = PlanningRevision.of(
@@ -42,6 +69,8 @@ class RoomPlanRepository(
         workspace.get("order")?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty())
 
     override suspend fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>) = database.withTransaction {
+        val sourceRevision = workspace.get("assistant")?.let { InteractionWorkspaceCodec.decodeAssistant(it.payload).sourceRevision }
+        require(sourceRevision == null || sourceRevision == revision()) { "任务、设置或计划已变化，请重新生成助手草案后确认。" }
         require(tasks.isNotEmpty() && tasks.all { TaskDraftValidator.isValid(it) && !it.id.isNullOrBlank() }) { "请检查事项名称和时长。" }
         require(tasks.map { it.id }.distinct().size == tasks.size) { "事项重复，请重新生成。" }
         val ids = tasks.map { requireNotNull(it.id) }.toSet()
@@ -55,6 +84,7 @@ class RoomPlanRepository(
             accept(PlanDraft(java.time.LocalDateTime.now(), current?.segments.orEmpty() + segments, emptyList(), emptyList(),
                 orderedTaskIds = (current?.orderedTaskIds.orEmpty() + ids).distinct(), hasManualTaskOrder = true))
         }
+        workspace.remove("assistant")
     }
 
     private suspend fun validatePlacement(candidate: PlannedSegment, existing: List<PlannedSegment>) {

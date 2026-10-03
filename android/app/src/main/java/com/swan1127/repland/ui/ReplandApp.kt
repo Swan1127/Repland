@@ -121,6 +121,8 @@ import com.swan1127.repland.domain.model.PlanGenerationInput
 import com.swan1127.repland.domain.model.LocalPriorityAssessment
 import com.swan1127.repland.domain.model.PriorityReason
 import com.swan1127.repland.domain.model.PriorityReasonKind
+import com.swan1127.repland.domain.model.RhythmTrack
+import com.swan1127.repland.domain.model.PlanningRevision
 import com.swan1127.repland.domain.model.PlannedSegment
 import com.swan1127.repland.domain.model.PlanningAgentState
 import com.swan1127.repland.domain.model.PlanningAgentRequestType
@@ -220,6 +222,7 @@ fun ReplandApp(
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val timeUiState by timeViewModel.uiState.collectAsStateWithLifecycle()
     val planUiState by planViewModel.uiState.collectAsStateWithLifecycle()
+    val workspaceUiState by planViewModel.workspaceUiState.collectAsStateWithLifecycle()
     val categoryPreferenceUiState by categoryPreferenceViewModel.uiState.collectAsStateWithLifecycle()
     val reminderSettingsUiState by reminderSettingsViewModel.uiState.collectAsStateWithLifecycle()
     val profileEvidenceUiState by profileEvidenceViewModel.uiState.collectAsStateWithLifecycle()
@@ -287,6 +290,7 @@ fun ReplandApp(
     var correctingLog by remember { mutableStateOf<TaskExecutionLog?>(null) }
     var weeklyBlockEditorTarget by remember { mutableStateOf<WeeklyTimeBlock?>(null) }
     var showWeeklyBlockEditor by rememberSaveable { mutableStateOf(false) }
+    var weeklyBlockInitialKind by remember { mutableStateOf(TimeBlockKind.COURSE) }
     var dateOverrideEditorTarget by remember { mutableStateOf<DateOverride?>(null) }
     var showDateOverrideEditor by rememberSaveable { mutableStateOf(false) }
     var deletingWeeklyBlock by remember { mutableStateOf<WeeklyTimeBlock?>(null) }
@@ -510,6 +514,11 @@ fun ReplandApp(
                     },
                     actions = {
                         if (selectedTab == AppTab.TASKS) {
+                            if (workspaceUiState.canUndoOrder) TextButton(
+                                onClick = planViewModel::undoTaskOrder,
+                                enabled = !planUiState.isWorking && planUiState.draft == null,
+                                modifier = Modifier.testTag("undo-task-sort"),
+                            ) { Text("撤销排序") }
                             TextButton(
                                 onClick = { if (planUiState.draft == null) generatePlanDraft(reorder = true, orderOnly = true) },
                                 enabled = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
@@ -572,6 +581,8 @@ fun ReplandApp(
                         dateOverrides = timeUiState.dateOverrides,
                         semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
                         engagementMode = engagementMode,
+                        tracks = workspaceUiState.tracks,
+                        onTracksChanged = planViewModel::saveTracks,
                         onOpenTimelineEntry = engagementViewModel::recordTimelineOpened,
                         onEditTimelineEntry = { entry ->
                             when {
@@ -735,7 +746,7 @@ fun ReplandApp(
                         },
                     )
 
-                    AppTab.AGENT -> AgentCenterScreen(
+                    AppTab.AGENT -> if (!workspaceUiState.isLoading) AgentCenterScreen(
                         activeDate = activeDate,
                         occupiedEntries = agentTimelineEntries,
                         canRefineWithAi = arrangementAssistantAccess.isEnabled &&
@@ -743,6 +754,18 @@ fun ReplandApp(
                         onRefineWithAi = arrangementAssistantViewModel::refine,
                         onSaveTasks = { drafts -> drafts.forEach(taskViewModel::saveTask) },
                         onConfirmBatch = planViewModel::saveTasksAndPlace,
+                        initialWorkspace = workspaceUiState.assistant,
+                        availableTracks = workspaceUiState.tracks,
+                        hasExistingTasks = uiState.tasks.any { it.status.isActive },
+                        onAddTask = { selectedTab = AppTab.TASKS; showTaskCapture = true },
+                        hasAvailability = timeUiState.weeklyBlocks.any { it.kind == TimeBlockKind.AVAILABLE } ||
+                            timeUiState.dateOverrides.any { it.type == DateOverrideType.AVAILABLE && !it.date.isBefore(LocalDate.now()) },
+                        onConfigureAvailability = { weeklyBlockEditorTarget = null; weeklyBlockInitialKind = TimeBlockKind.AVAILABLE; showWeeklyBlockEditor = true },
+                        contextRevision = PlanningRevision.of(com.swan1127.repland.domain.model.PlanGenerationInput(
+                            uiState.tasks, timeUiState.weeklyBlocks, timeUiState.dateOverrides, timeUiState.semesterFirstWeekMonday,
+                            categoryPreferences = categoryPreferenceUiState.weights), planUiState.currentPlan, planUiState.taskOrder),
+                        onWorkspaceChanged = planViewModel::saveAssistantWorkspace,
+                        isSaving = planUiState.isWorking,
                         onFormulatePlan = { generatePlanDraft(reorder = true) },
                         onArrangeExistingToday = { generatePlanDraft(todayOnly = LocalDate.now()) },
                         canFormulatePlan = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
@@ -975,10 +998,12 @@ fun ReplandApp(
     if (showWeeklyBlockEditor) {
         WeeklyTimeBlockEditorDialog(
             block = weeklyBlockEditorTarget,
-            onDismiss = { showWeeklyBlockEditor = false },
+            initialKind = weeklyBlockInitialKind,
+            onDismiss = { showWeeklyBlockEditor = false; weeklyBlockInitialKind = TimeBlockKind.COURSE },
             onSave = {
                 timeViewModel.saveWeeklyBlock(it)
                 showWeeklyBlockEditor = false
+                weeklyBlockInitialKind = TimeBlockKind.COURSE
             },
         )
     }
@@ -1038,6 +1063,9 @@ fun ReplandApp(
     planUiState.draft?.let { draft ->
         PlanDraftDialog(
             draft = draft,
+            tracks = workspaceUiState.tracks,
+            onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskEditorTarget = task; showTaskEditor = true },
+            onConfigureAvailability = { planViewModel.discardDraft(); weeklyBlockEditorTarget = null; weeklyBlockInitialKind = TimeBlockKind.AVAILABLE; showWeeklyBlockEditor = true },
             tasks = uiState.tasks,
             weeklyBlocks = timeUiState.weeklyBlocks,
             dateOverrides = timeUiState.dateOverrides,
@@ -1196,6 +1224,8 @@ private fun TodayScreen(
     dateOverrides: List<DateOverride>,
     semesterFirstWeekMonday: LocalDate?,
     engagementMode: EngagementMode,
+    tracks: List<RhythmTrack>,
+    onTracksChanged: (List<RhythmTrack>) -> Unit,
     onOpenTimelineEntry: (String) -> Unit,
     onEditTimelineEntry: (TimelineEntry) -> Unit,
     planSegments: List<PlannedSegment>,
@@ -1257,6 +1287,8 @@ private fun TodayScreen(
             item {
                 TimelineDashboard(
                     entries = timelineEntries,
+                    persistedTracks = tracks,
+                    onTracksChanged = onTracksChanged,
                     mode = engagementMode,
                     onOpenEntry = onOpenTimelineEntry,
                     onOpenTask = { id -> taskById[id]?.let(onOpen) },
@@ -1288,6 +1320,7 @@ private fun TodayScreen(
                     tasks = allTasks,
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
                     mode = engagementMode,
+                    tracks = tracks,
                     onOpenEntry = onOpenTimelineEntry,
                 )
             }
@@ -1299,6 +1332,7 @@ private fun TodayScreen(
                     dateOverrides = dateOverrides,
                     planSegments = allPlanSegments,
                     tasks = allTasks,
+                    tracks = tracks,
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
                     onSelectDate = { selectedDate -> scheduleDate = selectedDate; scheduleRange = ScheduleRange.DAY },
                     onOpenEntry = onOpenTimelineEntry,
@@ -2895,6 +2929,9 @@ internal fun PlanDraftDialog(
     onDismiss: () -> Unit,
     onUpdateDraft: (PlanDraft) -> Unit,
     onAccept: () -> Unit,
+    tracks: List<RhythmTrack> = emptyList(),
+    onCompleteTaskDetails: (Task) -> Unit = {},
+    onConfigureAvailability: () -> Unit = {},
 ) {
     val tasksById = tasks.associateBy(Task::id)
     val unknownTaskLabel = stringResource(R.string.unknown_task)
@@ -2920,6 +2957,10 @@ internal fun PlanDraftDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                if (!draft.orderOnly && weeklyBlocks.none { it.kind == TimeBlockKind.AVAILABLE } && dateOverrides.none { it.type == DateOverrideType.AVAILABLE }) {
+                    Text("还没有可用时间，系统不会把所有空白都当作可以工作。", style = MaterialTheme.typography.bodySmall)
+                    TextButton(onClick = onConfigureAvailability, modifier = Modifier.testTag("draft-configure-availability")) { Text("补充时间后重新生成") }
+                }
                 if (!draft.orderOnly) PlanDraftTimelinePreview(
                     draft = draft,
                     tasks = tasks,
@@ -2927,6 +2968,7 @@ internal fun PlanDraftDialog(
                     dateOverrides = dateOverrides,
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
                     onEditSegment = { editingSegmentId = it },
+                    tracks = tracks,
                 )
                 draft.pendingTaskIds.takeIf { !draft.orderOnly && it.isNotEmpty() }?.let { pendingIds ->
                     Surface(
@@ -2942,6 +2984,9 @@ internal fun PlanDraftDialog(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                            pendingIds.mapNotNull(tasksById::get).filter { it.totalDurationMinutes == null }.forEach { task ->
+                                TextButton(onClick = { onCompleteTaskDetails(task) }, modifier = Modifier.testTag("draft-complete-details-${task.id}")) { Text("补充 ${task.displayName} 的时长后重新生成") }
+                            }
                         }
                     }
                 }
@@ -3023,7 +3068,8 @@ internal fun PlanDraftDialog(
         draft.segments.firstOrNull { it.id == segmentId }?.let { segment ->
             PlanSegmentEditorDialog(
                 segment = segment,
-                availableTrackIds = (listOf("focus", "parallel-2", "parallel-3") + draft.segments.map(PlannedSegment::trackId)).distinct(),
+                availableTrackIds = (tracks.map { it.id } + listOf("focus", "parallel-2", "parallel-3") + draft.segments.map(PlannedSegment::trackId)).distinct(),
+                tracks = tracks,
                 hasConflict = { candidate -> PlanDraftEditor.overlapsAnotherSegment(draft, candidate) },
                 onDismiss = { editingSegmentId = null },
                 onSave = { updated ->
@@ -3043,6 +3089,7 @@ private fun PlanDraftTimelinePreview(
     dateOverrides: List<DateOverride>,
     semesterFirstWeekMonday: LocalDate?,
     onEditSegment: (String) -> Unit,
+    tracks: List<RhythmTrack> = emptyList(),
 ) {
     val dates = draft.segments.map(PlannedSegment::date).distinct().sorted()
     var selectedDate by remember(dates) { mutableStateOf(dates.firstOrNull()) }
@@ -3092,7 +3139,7 @@ private fun PlanDraftTimelinePreview(
                     tasks = tasks,
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
                 )
-                DraftDayTrackPreview(entries = entries, onEditSegment = onEditSegment)
+                DraftDayTrackPreview(entries = entries, onEditSegment = onEditSegment, tracks = tracks)
             }
         }
     }
@@ -3102,6 +3149,7 @@ private fun PlanDraftTimelinePreview(
 private fun DraftDayTrackPreview(
     entries: List<TimelineEntry>,
     onEditSegment: (String) -> Unit,
+    tracks: List<RhythmTrack> = emptyList(),
 ) {
     val laneCount = (entries.maxOfOrNull(TimelineEntry::lane) ?: 0) + 1
     val laneTracks = (0 until laneCount).associateWith { lane ->
@@ -3137,7 +3185,7 @@ private fun DraftDayTrackPreview(
                         shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
-                            draftTrackLabel(trackId),
+                            draftTrackLabel(trackId, tracks),
                             modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
                             style = MaterialTheme.typography.labelSmall,
                             maxLines = 1,
@@ -3207,7 +3255,7 @@ private fun DraftDayTrackPreview(
     }
 }
 
-private fun draftTrackLabel(trackId: String): String = when (trackId) {
+private fun draftTrackLabel(trackId: String, tracks: List<RhythmTrack> = emptyList()): String = tracks.firstOrNull { it.id == trackId }?.name ?: when (trackId) {
     "focus" -> "主线"
     "course" -> "课程"
     "fixed" -> "固定"
@@ -3287,6 +3335,7 @@ private fun PlanSegmentEditorDialog(
     hasConflict: (PlannedSegment) -> Boolean,
     onDismiss: () -> Unit,
     onSave: (PlannedSegment) -> Unit,
+    tracks: List<RhythmTrack> = emptyList(),
 ) {
     var dateText by remember(segment) { mutableStateOf(segment.date.toString()) }
     var startTime by remember(segment) { mutableStateOf(TimeBlockValidator.formatTime(segment.startMinute)) }
@@ -3351,7 +3400,7 @@ private fun PlanSegmentEditorDialog(
                                 selectedTrackId = trackId
                                 confirmConflict = false
                             },
-                            label = { Text(draftTrackLabel(trackId)) },
+                            label = { Text(draftTrackLabel(trackId, tracks)) },
                         )
                     }
                 }
@@ -4511,10 +4560,11 @@ private fun WeeklyTimeBlockEditorDialog(
     block: WeeklyTimeBlock?,
     onDismiss: () -> Unit,
     onSave: (WeeklyTimeBlockDraft) -> Unit,
+    initialKind: TimeBlockKind = TimeBlockKind.COURSE,
 ) {
     var title by remember(block) { mutableStateOf(block?.title.orEmpty()) }
-    var kind by remember(block) { mutableStateOf(block?.kind ?: TimeBlockKind.COURSE) }
-    var dayOfWeek by remember(block) { mutableStateOf(block?.dayOfWeek ?: DayOfWeek.MONDAY) }
+    var kind by remember(block) { mutableStateOf(block?.kind ?: initialKind) }
+    var dayOfWeek by remember(block) { mutableStateOf(block?.dayOfWeek ?: if (initialKind == TimeBlockKind.AVAILABLE) LocalDate.now().dayOfWeek else DayOfWeek.MONDAY) }
     var startTime by remember(block) {
         mutableStateOf(block?.startMinute?.let(TimeBlockValidator::formatTime) ?: "09:00")
     }

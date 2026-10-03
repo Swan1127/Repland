@@ -74,6 +74,8 @@ import com.swan1127.repland.domain.model.EngagementMode
 import com.swan1127.repland.domain.model.TimeBlockValidator
 import com.swan1127.repland.domain.model.TimelineEntry
 import com.swan1127.repland.domain.model.TimelineKind
+import com.swan1127.repland.domain.model.RhythmTrack
+import com.swan1127.repland.domain.model.RhythmTracks
 import com.swan1127.repland.domain.model.TimelinePhase
 import com.swan1127.repland.domain.model.TaskCategory
 import java.time.LocalDateTime
@@ -128,16 +130,22 @@ fun TimelineDashboard(
     onUpdateEntryTime: (TimelineEntry, Int, Int) -> Unit = { entry, startMinute, _ ->
         onMoveEntry(entry, startMinute)
     },
+    persistedTracks: List<RhythmTrack>? = null,
+    onTracksChanged: (List<RhythmTrack>) -> Unit = {},
 ) {
+    var customTracks by remember { mutableStateOf(emptyList<RhythmTrack>()) }
+    val definitions = persistedTracks ?: customTracks
+    val projection = RhythmTracks.project(entries, definitions)
+    val projectedEntries = if (persistedTracks == null) entries else projection.entries
     val context = LocalContext.current
     val motionScale = remember(context) {
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
     }
     var now by remember { mutableStateOf(LocalDateTime.now()) }
     var showAll by remember { mutableStateOf(false) }
-    var customTrackNames by remember { mutableStateOf(listOf<String>()) }
     var showTrackComposer by remember { mutableStateOf(false) }
     var newTrackName by remember { mutableStateOf("") }
+    var trackError by remember { mutableStateOf<String?>(null) }
     var showEventLibrary by rememberSaveable { mutableStateOf(false) }
     var pendingPlacement by remember { mutableStateOf<Triple<String, String, Int>?>(null) }
     LaunchedEffect(entries, pendingPlacement) {
@@ -175,8 +183,8 @@ fun TimelineDashboard(
         tryUpdateEntryTime(entry, startMinute, startMinute + duration)
     }
     val visibleEntries = if (mode == EngagementMode.EXECUTOR && !showAll) {
-        entries.filter { !it.end.isBefore(now) }.take(3).ifEmpty { entries.takeLast(3) }
-    } else entries
+        projectedEntries.filter { !it.end.isBefore(now) }.take(3).ifEmpty { projectedEntries.takeLast(3) }
+    } else projectedEntries
     val automaticTrackNames = if (visibleEntries.isEmpty()) {
         emptyList()
     } else {
@@ -196,9 +204,9 @@ fun TimelineDashboard(
             if (duplicateOrdinal == 0) baseName else "$baseName · 并行 ${duplicateOrdinal + 1}"
         }
     }
-    val trackNames = automaticTrackNames + customTrackNames
-    val trackIds = trackNames.indices.map { index ->
-        visibleEntries.firstOrNull { it.lane == index }?.trackId ?: "custom-$index"
+    val trackNames = if (persistedTracks != null) projection.tracks.map { it.name } else automaticTrackNames + customTracks.map { it.name }
+    val trackIds = if (persistedTracks != null) projection.tracks.map { it.id } else trackNames.indices.map { index ->
+        visibleEntries.firstOrNull { it.lane == index }?.trackId ?: customTracks.getOrNull(index - automaticTrackNames.size)?.id ?: "focus"
     }
     val trackOptions = trackNames.zip(trackIds).map { (name, id) -> TimelineTrackOption(id, name) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -231,6 +239,30 @@ fun TimelineDashboard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        TrackStrip(
+            names = trackNames, eventCount = eventObjects.size,
+            showComposer = showTrackComposer, draftName = newTrackName,
+            errorMessage = trackError,
+            onDraftNameChange = { newTrackName = it; trackError = null },
+            onAddClick = { showTrackComposer = true },
+            onOpenEventLibrary = { showEventLibrary = true },
+            onAddCourse = { showCourseComposer = true },
+            onCancel = { showTrackComposer = false; newTrackName = ""; trackError = null },
+            onConfirm = {
+                val name = newTrackName.trim()
+                trackError = when {
+                    name.isEmpty() || name.length > 24 -> "轨道名称需为 1–24 个字。"
+                    definitions.any { it.name == name } -> "已有同名轨道，请换一个名称。"
+                    else -> null
+                }
+                if (trackError == null) {
+                    val updated = definitions + RhythmTrack("track-${java.util.UUID.randomUUID()}", name)
+                    if (persistedTracks != null) onTracksChanged(updated) else customTracks = updated
+                    newTrackName = ""
+                    showTrackComposer = false
+                }
+            },
+        )
         if (entries.isEmpty()) {
             Card(
                 shape = RoundedCornerShape(24.dp),
@@ -270,25 +302,6 @@ fun TimelineDashboard(
                 }
             }
         } else {
-            TrackStrip(
-                names = trackNames,
-                eventCount = eventObjects.size,
-                showComposer = showTrackComposer,
-                draftName = newTrackName,
-                onDraftNameChange = { newTrackName = it },
-                onAddClick = { showTrackComposer = true },
-                onOpenEventLibrary = { showEventLibrary = true },
-                onAddCourse = { showCourseComposer = true },
-                onCancel = { showTrackComposer = false; newTrackName = "" },
-                onConfirm = {
-                    val name = newTrackName.trim()
-                    if (name.isNotEmpty()) {
-                        customTrackNames = customTrackNames + name
-                        newTrackName = ""
-                        showTrackComposer = false
-                    }
-                },
-            )
             val onEntryClick: (TimelineEntry) -> Unit = { entry ->
                 // A short tap always opens a stable detail sheet. Keeping actions out of the
                 // scrolling canvas avoids an expanded card covering another time block.
@@ -299,6 +312,7 @@ fun TimelineDashboard(
                 DayTimelineGrid(
                     entries = visibleEntries,
                     trackNames = trackNames,
+                    trackIds = trackIds,
                     now = now,
                     motionDuration = if (motionScale == 0f) 0 else 220,
                     pendingCourse = pendingCourse,
@@ -365,7 +379,7 @@ fun TimelineDashboard(
         }
         if (entries.isEmpty() && showCourseComposer) {
             CourseComposerDialog(
-                tracks = listOf(TimelineTrackOption("course", "课程")),
+                tracks = trackOptions.ifEmpty { listOf(TimelineTrackOption("course", "课程")) },
                 occupiedEntries = entries,
                 allowDragPlacement = false,
                 onDismiss = { showCourseComposer = false },
@@ -440,7 +454,7 @@ private fun EventLibrarySheet(
 ) {
     var selectedCategory by remember { mutableStateOf<TaskCategory?>(null) }
     var selectedEvent by remember { mutableStateOf<TimelineEventObject?>(null) }
-    var selectedTrack by remember { mutableStateOf(tracks.first().id) }
+    var selectedTrack by remember { mutableStateOf(tracks.firstOrNull { it.id == "focus" }?.id ?: tracks.first().id) }
     var hourText by remember { mutableStateOf("08") }
     var minuteText by remember { mutableStateOf("00") }
     val selectedMinute = ((hourText.toIntOrNull() ?: -1) * 60 + (minuteText.toIntOrNull() ?: -1))
@@ -536,6 +550,7 @@ private fun EventLibrarySheet(
 private fun DayTimelineGrid(
     entries: List<TimelineEntry>,
     trackNames: List<String>,
+    trackIds: List<String>,
     now: LocalDateTime,
     motionDuration: Int,
     pendingCourse: PendingCourse?,
@@ -553,7 +568,7 @@ private fun DayTimelineGrid(
         Column(Modifier.fillMaxWidth()) {
             if (laneCount > 1) {
                 Text(
-                    "并行时段 · $laneCount 条轨道",
+                    "${if (entries.any { first -> entries.any { second -> first.id != second.id && first.startMinute < second.endMinute && first.endMinute > second.startMinute } }) "并行时段" else "分轨日程"} · $laneCount 条轨道",
                     modifier = Modifier.padding(start = 16.dp, top = 10.dp, end = 16.dp),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -630,9 +645,7 @@ private fun DayTimelineGrid(
                                 PendingCourseBlock(
                                     course = course,
                                     occupiedEntries = entries,
-                                    trackIds = trackNames.indices.map { index ->
-                                        entries.firstOrNull { it.lane == index }?.trackId ?: "custom-$index"
-                                    },
+                                    trackIds = trackIds,
                                     laneWidth = laneWidth,
                                     hourHeight = hourHeight,
                                     onDrop = onPendingCourseDropped,
@@ -892,8 +905,11 @@ private fun TrackStrip(
     onAddCourse: () -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
+    errorMessage: String? = null,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (names.isNotEmpty()) Text(names.distinct().joinToString(" · "), style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -966,6 +982,7 @@ private fun TrackStrip(
                     )
                 }
             }
+            errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
         }
     }
 }

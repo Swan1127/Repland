@@ -25,6 +25,21 @@ import org.junit.runner.RunWith
 class TimelineDashboardUiTest {
     @get:Rule val rule = createComposeRule()
 
+    @Test fun empty_day_can_create_a_named_track_with_a_stable_id() {
+        val tracks = androidx.compose.runtime.mutableStateOf(com.swan1127.repland.domain.model.RhythmTracks.defaults)
+        rule.setContent { ReplandTheme { TimelineDashboard(
+            entries = emptyList(), mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {},
+            persistedTracks = tracks.value, onTracksChanged = { tracks.value = it },
+        ) } }
+        rule.onNodeWithTag("add-track-trigger").performClick()
+        rule.onNodeWithText("新轨道名称").performTextInput("语言学习")
+        rule.onNodeWithTag("add-track").performClick()
+        val added = tracks.value.last()
+        assertEquals("语言学习", added.name)
+        org.junit.Assert.assertTrue(added.id.startsWith("track-"))
+        rule.onNodeWithText("课程 · 专注 · 休息 · 语言学习").assertExists()
+    }
+
     @Test fun tapping_a_track_block_opens_detail_with_note_edit_and_task_actions() {
         val day = LocalDate.now()
         var opened = ""
@@ -105,7 +120,7 @@ class TimelineDashboardUiTest {
         rule.onNodeWithTag("track-name-input").performTextInput("运动")
         rule.onNodeWithTag("add-track").performClick()
         assertEquals(1, rule.onAllNodesWithText("运动").fetchSemanticsNodes().size)
-        rule.onNodeWithText("并行时段 · 2 条轨道").assertExists()
+        rule.onNodeWithText("分轨日程 · 2 条轨道").assertExists()
     }
 
     @Test fun mergedViewGroupsOverlappingEntriesWithoutDiscardingTheirTimes() {

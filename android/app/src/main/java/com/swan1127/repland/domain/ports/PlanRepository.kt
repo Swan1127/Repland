@@ -6,10 +6,16 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
 interface PlanRepository {
+    fun observeTracks(): Flow<List<com.swan1127.repland.domain.model.RhythmTrack>>
+    suspend fun saveTracks(tracks: List<com.swan1127.repland.domain.model.RhythmTrack>)
+    fun observeAssistantWorkspace(): Flow<com.swan1127.repland.domain.model.AssistantWorkspace?>
+    suspend fun saveAssistantWorkspace(value: com.swan1127.repland.domain.model.AssistantWorkspace?)
     fun observeDraft(): Flow<PlanDraft?>
     suspend fun saveDraft(draft: PlanDraft?)
     fun observeTaskOrder(): Flow<List<String>>
     suspend fun saveTaskOrder(ids: List<String>)
+    fun observeCanUndoTaskOrder(): Flow<Boolean>
+    suspend fun undoTaskOrder()
     suspend fun saveTasksAndPlace(tasks: List<com.swan1127.repland.domain.model.TaskDraft>, segments: List<com.swan1127.repland.domain.model.PlannedSegment>)
     fun observeCurrentPlan(): Flow<ConfirmedPlan?>
 

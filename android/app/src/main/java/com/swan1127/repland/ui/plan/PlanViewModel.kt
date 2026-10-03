@@ -21,12 +21,26 @@ data class PlanUiState(
     val taskOrder: List<String> = emptyList(),
 )
 
+data class InteractionWorkspaceUiState(
+    val isLoading: Boolean = true,
+    val tracks: List<RhythmTrack> = RhythmTracks.defaults,
+    val assistant: AssistantWorkspace? = null,
+    val canUndoOrder: Boolean = false,
+)
+
 class PlanViewModel(
     private val planRepository: PlanRepository,
     private val planDraftGenerator: PlanDraftGenerator,
 ) : ViewModel() {
     private val operation = MutableStateFlow<Pair<String?, Boolean>>(null to false)
     private val mutex = Mutex()
+    val workspaceUiState = combine(planRepository.observeTracks(), planRepository.observeAssistantWorkspace(), planRepository.observeCanUndoTaskOrder()) { tracks, assistant, canUndo ->
+        InteractionWorkspaceUiState(false, tracks, assistant, canUndo)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InteractionWorkspaceUiState())
+
+    fun saveTracks(tracks: List<RhythmTrack>) = mutate { planRepository.saveTracks(tracks) }
+    fun saveAssistantWorkspace(value: AssistantWorkspace) = mutate { planRepository.saveAssistantWorkspace(value) }
+    fun undoTaskOrder() = mutate { planRepository.undoTaskOrder() }
     val uiState: StateFlow<PlanUiState> = combine(
         planRepository.observeCurrentPlan(), planRepository.observePlanHistory(),
         planRepository.observeDraft(), operation, planRepository.observeTaskOrder(),

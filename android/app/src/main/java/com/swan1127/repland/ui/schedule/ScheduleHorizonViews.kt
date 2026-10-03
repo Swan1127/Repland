@@ -36,6 +36,7 @@ import com.swan1127.repland.domain.model.TimeBlockValidator
 import com.swan1127.repland.domain.model.TimelineEntry
 import com.swan1127.repland.domain.model.TimelineKind
 import com.swan1127.repland.domain.model.WeeklyTimeBlock
+import com.swan1127.repland.domain.model.RhythmTrack
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -57,6 +58,7 @@ fun WeekScheduleView(
     semesterFirstWeekMonday: LocalDate?,
     mode: EngagementMode,
     onOpenEntry: (String) -> Unit,
+    tracks: List<RhythmTrack> = emptyList(),
 ) {
     val weekStart = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     val days = (0..6).map { weekStart.plusDays(it.toLong()) }
@@ -86,6 +88,7 @@ fun WeekScheduleView(
                 selected = day == date,
                 mode = mode,
                 onOpenEntry = onOpenEntry,
+                tracks = tracks,
             )
         }
     }
@@ -98,6 +101,7 @@ private fun WeekDayColumn(
     selected: Boolean,
     mode: EngagementMode,
     onOpenEntry: (String) -> Unit,
+    tracks: List<RhythmTrack>,
 ) {
     Surface(
         modifier = Modifier.width(152.dp),
@@ -113,7 +117,7 @@ private fun WeekDayColumn(
                 Text("留白", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 entries.take(if (mode == EngagementMode.EXECUTOR) 3 else 5).forEach { entry ->
-                    CompactEvent(entry, onClick = { onOpenEntry(entry.id) })
+                    CompactEvent(entry, onClick = { onOpenEntry(entry.id) }, trackName = tracks.firstOrNull { it.id == entry.trackId }?.name)
                 }
                 if (entries.size > 5) Text("还有 ${entries.size - 5} 项", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
             }
@@ -130,7 +134,7 @@ private fun WeekMetric(value: String, label: String, modifier: Modifier = Modifi
 }
 
 @Composable
-private fun CompactEvent(entry: TimelineEntry, onClick: () -> Unit) {
+private fun CompactEvent(entry: TimelineEntry, onClick: () -> Unit, trackName: String? = null) {
     val accent = eventAccent(entry.kind)
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
@@ -139,6 +143,7 @@ private fun CompactEvent(entry: TimelineEntry, onClick: () -> Unit) {
     ) {
         Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(entry.title, style = MaterialTheme.typography.labelMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            trackName?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             Text(
                 "${TimeBlockValidator.formatTime(entry.startMinute)}–${TimeBlockValidator.formatTime(entry.endMinute)}",
                 style = MaterialTheme.typography.labelSmall,
@@ -158,6 +163,7 @@ fun MonthScheduleView(
     semesterFirstWeekMonday: LocalDate?,
     onSelectDate: (LocalDate) -> Unit,
     onOpenEntry: (String) -> Unit,
+    tracks: List<RhythmTrack> = emptyList(),
 ) {
     var projection by rememberSaveable { androidx.compose.runtime.mutableStateOf(MonthProjection.LOAD) }
     val month = YearMonth.from(date)
@@ -198,7 +204,7 @@ fun MonthScheduleView(
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.large) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("${date.monthValue}月${date.dayOfMonth}日 · ${selectedEntries.size} 项", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            selectedEntries.take(4).forEach { CompactEvent(it, onClick = { onOpenEntry(it.id) }) }
+            selectedEntries.take(4).forEach { entry -> CompactEvent(entry, onClick = { onOpenEntry(entry.id) }, trackName = tracks.firstOrNull { it.id == entry.trackId }?.name) }
             if (selectedEntries.isEmpty()) Text("这一天还没有安排，留白也是一种安排。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

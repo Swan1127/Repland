@@ -7,6 +7,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.ui.agent.AgentCenterScreen
 import com.swan1127.repland.ui.theme.ReplandTheme
@@ -27,6 +29,82 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgentCenterUiTest {
     @get:Rule val rule = createComposeRule()
+
+    @Test fun missing_availability_exposes_a_real_configuration_action() {
+        var opened = 0
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            hasAvailability = false, onConfigureAvailability = { opened++ },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-configure-availability").performClick()
+        assertEquals(1, opened)
+    }
+
+    @Test fun assistant_text_and_proposals_restore_after_page_recreation() {
+        var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
+        val visible = androidx.compose.runtime.mutableStateOf(true)
+        rule.setContent { if (visible.value) ReplandTheme { AgentCenterScreen(
+            initialWorkspace = stored, onWorkspaceChanged = { stored = it },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("15:00 复习英语 30 分钟")
+        rule.onNodeWithTag("agent-preview").performClick()
+        val id = stored!!.proposals.single().id
+        rule.runOnIdle { visible.value = false }
+        rule.runOnIdle { visible.value = true }
+        rule.onNodeWithTag("agent-prompt").assertTextContains("15:00 复习英语 30 分钟", substring = false)
+        rule.onNodeWithTag("agent-confirm-tasks").fetchSemanticsNode()
+        assertEquals(id, stored!!.proposals.single().id)
+    }
+
+    @Test fun stale_restored_workspace_requires_regeneration() {
+        val p = com.swan1127.repland.domain.model.AssistantTaskProposal("id", "英语", TaskCategory.COURSE, 30,
+            ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
+        val stored = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now().minusDays(1), "英语", listOf(p))
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = stored, onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-confirm-tasks").assertIsNotEnabled()
+        rule.onNodeWithTag("agent-refresh-draft").fetchSemanticsNode()
+    }
+
+    @Test fun failed_ai_refresh_does_not_validate_a_stale_workspace() {
+        val p = com.swan1127.repland.domain.model.AssistantTaskProposal("id", "英语", TaskCategory.COURSE, 30,
+            ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
+        val stored = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "英语", listOf(p), sourceRevision = "old")
+        var calls = 0
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = stored, contextRevision = "new", canRefineWithAi = true,
+            onRefineWithAi = { _, _, _ -> calls++; ArrangementAssistantAdviceResult.Unavailable(
+                com.swan1127.repland.domain.model.AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED) },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-refine-with-ai").performScrollTo().performClick()
+        rule.waitUntil { calls == 1 }
+        rule.waitForIdle()
+        rule.onNodeWithTag("agent-confirm-tasks").assertIsNotEnabled()
+        rule.onNodeWithTag("agent-refresh-draft").fetchSemanticsNode()
+    }
+
+    @Test fun late_ai_response_does_not_restore_proposals_after_user_edits() {
+        val response = kotlinx.coroutines.CompletableDeferred<ArrangementAssistantAdviceResult>()
+        var calls = 0
+        var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            canRefineWithAi = true, onRefineWithAi = { _, _, _ -> calls++; response.await() },
+            onWorkspaceChanged = { stored = it }, onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("复习英语")
+        rule.onNodeWithTag("agent-preview").performClick()
+        rule.waitUntil { calls == 1 }
+        rule.onNodeWithTag("agent-prompt").performTextClearance()
+        rule.runOnIdle { response.complete(ArrangementAssistantAdviceResult.Advice(
+            ArrangementAssistantAdvice(confidenceLabel = "旧回复", candidates = listOf(ArrangementCandidate("旧任务", TaskCategory.COURSE, 30,
+                ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.AI_SUGGESTED))))) }
+        rule.waitForIdle()
+        assertEquals("", stored!!.prompt)
+        assertEquals(0, stored!!.proposals.size)
+    }
 
     @Test fun formulate_plan_is_independent_of_composer() {
         var calls = 0
