@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -70,6 +71,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -144,6 +146,7 @@ import com.swan1127.repland.domain.model.TimeBlockValidator
 import com.swan1127.repland.domain.model.ScheduleTimeline
 import com.swan1127.repland.domain.model.TimelineEntry
 import com.swan1127.repland.domain.model.TimelinePhase
+import com.swan1127.repland.domain.model.TodayFocus
 import com.swan1127.repland.domain.model.EngagementMode
 import com.swan1127.repland.domain.model.WeeklyTimeBlock
 import com.swan1127.repland.domain.model.WeeklyTimeBlockDraft
@@ -190,6 +193,7 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private enum class AppTab(
     @param:StringRes val titleRes: Int,
@@ -627,6 +631,7 @@ fun ReplandApp(
                             showTaskCapture = true
                         },
                         onOpenPlan = { selectedTab = AppTab.AGENT },
+                        onOpenTaskLibrary = { selectedTab = AppTab.TASKS },
                         onPlaceEvent = planViewModel::placeTask,
                         onFocusStarted = { segmentId ->
                             showExecutionSession = true
@@ -1276,6 +1281,7 @@ private fun TodayScreen(
     onOpenDailyReview: () -> Unit,
     onAdd: () -> Unit,
     onOpenPlan: () -> Unit,
+    onOpenTaskLibrary: () -> Unit,
     onPlaceEvent: (String, LocalDate, Int, Int, String) -> Unit,
     onFocusStarted: (String) -> Unit,
     onCreateCourse: (com.swan1127.repland.ui.schedule.CourseInsertionRequest, LocalDate) -> Unit,
@@ -1286,10 +1292,37 @@ private fun TodayScreen(
     if (isLoading) return
     var scheduleRange by rememberSaveable { mutableStateOf(ScheduleRange.DAY) }
     var scheduleDate by remember { mutableStateOf(date) }
+    var showPending by rememberSaveable { mutableStateOf(false) }
+    var focusNow by remember { mutableStateOf(LocalDateTime.now()) }
+    LaunchedEffect(Unit) {
+        while (true) { focusNow = LocalDateTime.now(); delay(30_000) }
+    }
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     LaunchedEffect(date) { scheduleDate = date }
     val taskById = allTasks.associateBy(Task::id)
     val timelineEntries = ScheduleTimeline.entries(scheduleDate, weeklyBlocks, dateOverrides, allPlanSegments, allTasks, semesterFirstWeekMonday)
-    val nowMinute = java.time.LocalTime.now().let { it.hour * 60 + it.minute }
+    val nowMinute = focusNow.hour * 60 + focusNow.minute
+    val pendingEntries = TodayFocus.pending(timelineEntries, focusNow, executionSession?.taskId)
+    if (showPending) {
+        AlertDialog(
+            onDismissRequest = { showPending = false },
+            title = { Text("确认任务结果") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("这些任务的安排时段已结束，但还没有确认整项结果。时间经过不会自动完成任务。")
+                    LazyColumn(Modifier.heightIn(max = 320.dp)) {
+                        items(pendingEntries, key = { it.taskId!! }) { entry ->
+                            TextButton(onClick = { taskById[entry.taskId]?.let(onOpen); showPending = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                                Text(entry.title)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showPending = false }) { Text("稍后确认") } },
+        )
+    }
     val currentOrNext = planSegments
         .filter { it.endMinute > nowMinute }
         .minByOrNull { it.startMinute }
@@ -1298,6 +1331,7 @@ private fun TodayScreen(
     val placedTaskIdsForScheduleDate = allPlanSegments.filter { it.date == scheduleDate }.map(PlannedSegment::taskId).toSet()
     val scheduledMinutes = planSegments.sumOf { (it.endMinute - it.startMinute).coerceAtLeast(0) }
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -1336,10 +1370,20 @@ private fun TodayScreen(
         if (scheduleRange == ScheduleRange.DAY) {
             item {
                 TodayFocalOverview(
-                    nextEntries = timelineEntries.filter { it.endMinute > nowMinute }.sortedBy(TimelineEntry::startMinute),
-                    unplacedCount = allTasks.count { it.id !in placedTaskIdsForScheduleDate && it.status.isActive },
-                    onOpenSchedule = { scheduleRange = ScheduleRange.DAY },
-                    onOpenTasks = onOpenPlan,
+                    nextEntries = timelineEntries.filter { !it.taskClosed && it.end.isAfter(focusNow) }.sortedBy(TimelineEntry::startMinute),
+                    now = focusNow,
+                    hasExecution = executionSession != null,
+                    pendingCount = pendingEntries.size,
+                    onOpenPending = { showPending = true },
+                    onStart = onFocusStarted,
+                    unplacedCount = allTasks.count { it.status.isActive && com.swan1127.repland.domain.model.TaskPlanMembership.isInbox(it, allPlanSegments, focusNow.toLocalDate()) },
+                    onOpenSchedule = {
+                        val prefix = (if (executionSession != null) 1 else 0) +
+                            (if (executionError != null) 1 else 0) + (if (executionFinished) 1 else 0) +
+                            (if (planNeedsUpdate && executionSession == null && !executionFinished) 1 else 0)
+                        scope.launch { listState.scrollToItem(prefix + 2) }
+                    },
+                    onOpenTasks = onOpenTaskLibrary,
                 )
             }
         }
@@ -1425,25 +1469,31 @@ private fun TodayScreen(
 }
 
 @Composable
-private fun TodayFocalOverview(
+internal fun TodayFocalOverview(
     nextEntries: List<TimelineEntry>,
     unplacedCount: Int,
     onOpenSchedule: () -> Unit,
     onOpenTasks: () -> Unit,
+    now: LocalDateTime,
+    hasExecution: Boolean,
+    pendingCount: Int,
+    onOpenPending: () -> Unit,
+    onStart: (String) -> Unit,
 ) {
-    val first = nextEntries.firstOrNull()
+    val first = TodayFocus.next(nextEntries, now)
     val sameMoment = first?.let { lead -> nextEntries.count { it.startMinute == lead.startMinute } } ?: 0
-    val phase = first?.let { ScheduleTimeline.clock(it, LocalDateTime.now()).phase }
+    val phase = first?.let { ScheduleTimeline.clock(it, now).phase }
+    val segmentId = TodayFocus.startSegment(first)
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onOpenSchedule).testTag("today-focus"),
+        modifier = Modifier.fillMaxWidth().testTag("today-focus"),
         color = MaterialTheme.colorScheme.primaryContainer,
         shape = RoundedCornerShape(22.dp),
     ) {
-        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     when (phase) {
-                        TimelinePhase.ACTIVE -> "正在进行"
+                        TimelinePhase.ACTIVE -> "当前时段"
                         TimelinePhase.OVERRUN -> "已超时"
                         TimelinePhase.UPCOMING -> "下一项"
                         else -> "今天"
@@ -1451,12 +1501,8 @@ private fun TodayFocalOverview(
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                Spacer(Modifier.weight(1f))
-                if (unplacedCount > 0) {
-                    TextButton(onClick = onOpenTasks) { Text("待安排 $unplacedCount") }
-                }
             }
-            Text(first?.title ?: "今天还没有具体安排", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(first?.title ?: "接下来没有安排", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
             Text(
                 first?.let { "${TimeBlockValidator.formatTime(it.startMinute)}–${TimeBlockValidator.formatTime(it.endMinute)}" } ?: "从任务库选择一件事，再放进日轨道。",
                 style = MaterialTheme.typography.bodyMedium,
@@ -1465,6 +1511,17 @@ private fun TodayFocalOverview(
             if (sameMoment > 1) {
                 Text("同一时段还有 ${sameMoment - 1} 件并行事项", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
+            if (segmentId != null) {
+                Button(onClick = { onStart(segmentId) }, enabled = !hasExecution, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("today-focus-start")) {
+                    Text(if (phase == TimelinePhase.UPCOMING) "提前开始专注" else "开始专注")
+                }
+                if (hasExecution) Text("请先返回并结束当前专注，再开始另一项。", style = MaterialTheme.typography.bodySmall)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = onOpenTasks, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("待安排 $unplacedCount") }
+                TextButton(onClick = onOpenPending, enabled = pendingCount > 0, modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("today-focus-pending")) { Text("待确认 $pendingCount") }
+            }
+            TextButton(onClick = onOpenSchedule, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("today-focus-schedule")) { Text("查看完整日程") }
         }
     }
 }

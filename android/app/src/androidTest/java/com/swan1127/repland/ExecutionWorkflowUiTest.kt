@@ -15,6 +15,32 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExecutionWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
+    @Test fun today_header_starts_confirmed_slot_and_keeps_plan_on_return() {
+        val app = (rule.activity.application as ReplandApplication).appContainer
+        val now = java.time.LocalDateTime.now()
+        val start = now.hour * 60 + now.minute + 2
+        org.junit.Assume.assumeTrue("Requires room for a future slot today", start + 30 <= 1440)
+        val id = "qa-header-${System.currentTimeMillis()}"
+        val slot = runBlocking {
+            app.taskRepository.save(TaskDraft(id, "今日开始入口", "", TaskCategory.COURSE, TaskPriority.HIGH, 1, 30, null))
+            app.planRepository.placeTask(id, now.toLocalDate(), start, start + 30, "focus")
+            app.planRepository.observeCurrentPlan().first()!!.segments.first { it.taskId == id }
+        }
+        val planId = runBlocking { app.planRepository.observeCurrentPlan().first()!!.id }
+        val draftBefore = runBlocking { app.planRepository.observeDraft().first() }
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("today-focus-start").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("today-focus-start").performScrollTo().performClick()
+        runBlocking { withTimeout(5_000) { app.executionSessionRepository.observeActive().first { it?.segmentId == slot.id } } }
+        rule.onNodeWithTag("execution-pause-resume").performClick()
+        rule.onNodeWithText("返回页面 · 保留本轮").performScrollTo().performClick()
+        rule.onNodeWithTag("today-focus-start").performScrollTo().assertIsNotEnabled()
+        rule.onNodeWithTag("resume-execution").performScrollTo().performClick()
+        rule.onNodeWithTag("execution-continue").performScrollTo().performClick()
+        runBlocking { withTimeout(5_000) { app.executionSessionRepository.observeActive().first { it == null } } }
+        assertEquals(planId, runBlocking { app.planRepository.observeCurrentPlan().first()!!.id })
+        assertEquals(draftBefore, runBlocking { app.planRepository.observeDraft().first() })
+        assertEquals(TaskStatus.IN_PROGRESS, runBlocking { app.taskRepository.observeTasks().first().first { it.id == id }.status })
+    }
     @Test fun activity_recreation_restores_round_and_finishing_offers_preview_without_completing_task() {
         val app = (rule.activity.application as ReplandApplication).appContainer
         org.junit.Assume.assumeTrue("This workflow requires a QA device without an unrelated active round.",
