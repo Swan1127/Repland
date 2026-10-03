@@ -29,6 +29,41 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgentCenterUiTest {
     @get:Rule val rule = createComposeRule()
+    @Test fun existing_task_reply_confirms_adjustment_without_creating_a_copy() {
+        var request: com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest? = null
+        var confirmed = false
+        val tasks = (1..55).map { com.swan1127.repland.domain.model.ArrangementExistingTask("task-$it", "原任务$it", TaskCategory.COURSE, 90) }
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            activeDate = LocalDate.now().plusDays(1), existingTasks = tasks, canRefineWithAi = true,
+            onRefineWithContext = { input -> request = input; ArrangementAssistantAdviceResult.Advice(ArrangementAssistantAdvice(listOf(
+                ArrangementCandidate("模型改名", TaskCategory.LEISURE, 30, ArrangementTimeHint(720), emptySet(), ArrangementPlacementSource.AI_SUGGESTED, existingTaskId = "task-1")
+            ), "test")) },
+            onConfirmChanges = { newTasks, segments, ids, day, done ->
+                assertEquals(0, newTasks.size); assertEquals(setOf("task-1"), ids)
+                assertEquals("task-1", segments.single().taskId); assertEquals(LocalDate.now().plusDays(1), day)
+                confirmed = true; done()
+            },
+            onSaveTasks = { error("must not create a copy") }, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("把原任务1改到12点")
+        rule.onNodeWithTag("agent-preview").performClick()
+        rule.waitUntil { request != null }
+        rule.waitForIdle()
+        assertEquals(50, request!!.existingTasks.size)
+        rule.onNodeWithText("确认新增 0 项、调整已有 1 项").performScrollTo().performClick()
+        assertEquals(true, confirmed)
+    }
+    @Test fun incomplete_existing_task_cannot_be_confirmed_as_a_new_task() {
+        val p = com.swan1127.repland.domain.model.AssistantTaskProposal("p", "英语", TaskCategory.COURSE, null,
+            ArrangementTimeHint(), emptySet(), ArrangementPlacementSource.UNSCHEDULED, existingTaskId = "a")
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "调整英语", listOf(p)),
+            existingTasks = listOf(com.swan1127.repland.domain.model.ArrangementExistingTask("a", "英语", TaskCategory.COURSE, 90)),
+            onConfirmChanges = { _, _, _, _, _ -> error("incomplete change") },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-confirm-tasks").assertIsNotEnabled()
+    }
     @Test fun provider_change_invalidates_an_inflight_reply_even_when_ai_remains_enabled() {
         val revision = androidx.compose.runtime.mutableStateOf(1L)
         val response = kotlinx.coroutines.CompletableDeferred<ArrangementAssistantAdviceResult>()

@@ -2,7 +2,7 @@
 
 ## 版本
 
-当前候选为 `0.1.4 (1004)`。debug 使用 `.qa` application ID 隔离测试，internal 使用 `.internal`。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
+当前候选为 `0.1.5 (1005)`。debug 使用 `.qa` application ID 隔离测试，internal 使用 `.internal`。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
 
 版本名使用语义化格式 `MAJOR.MINOR.PATCH`，例如 `0.1.0`。版本号使用整数并必须递增；推荐计算方式为：
 

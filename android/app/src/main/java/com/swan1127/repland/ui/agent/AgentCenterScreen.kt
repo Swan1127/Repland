@@ -72,6 +72,9 @@ import com.swan1127.repland.domain.model.TimelineKind
 import com.swan1127.repland.domain.model.AssistantTaskProposal
 import com.swan1127.repland.domain.model.AssistantWorkspace
 import com.swan1127.repland.domain.model.RhythmTrack
+import com.swan1127.repland.domain.model.ArrangementExistingTask
+import com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest
+import com.swan1127.repland.domain.model.ArrangementOccupiedInterval
 import com.swan1127.repland.ui.components.PlannerIcons
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -110,6 +113,9 @@ fun AgentCenterScreen(
     onAddTask: () -> Unit = {},
     hasAvailability: Boolean = true,
     onConfigureAvailability: () -> Unit = {},
+    existingTasks: List<ArrangementExistingTask> = emptyList(),
+    onRefineWithContext: (suspend (ArrangementAssistantAdviceRequest) -> ArrangementAssistantAdviceResult)? = null,
+    onConfirmChanges: ((List<TaskDraft>, List<PlannedSegment>, Set<String>, LocalDate, () -> Unit) -> Unit)? = null,
 ) {
     var prompt by rememberSaveable { mutableStateOf(initialWorkspace?.prompt.orEmpty()) }
     var proposals by remember { mutableStateOf(initialWorkspace?.proposals.orEmpty()) }
@@ -127,6 +133,16 @@ fun AgentCenterScreen(
     LaunchedEffect(canRefineWithAi, activeDate, occupiedEntries, contextRevision, providerRevision) { requestVersion++; isRefining = false }
     var refinementMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
+    suspend fun refineCurrent(utterance: String): ArrangementAssistantAdviceResult {
+        val request = ArrangementAssistantAdviceRequest(utterance, activeDate, occupiedEntries.map {
+            ArrangementOccupiedInterval(it.title, it.startMinute, it.endMinute, it.trackId,
+                it.kind in setOf(TimelineKind.COURSE, TimelineKind.REST, TimelineKind.COMMITMENT), it.taskId)
+        }, existingTasks.take(50), proposals.map {
+            ArrangementCandidate(it.text, it.category, it.durationMinutes, it.timeHint, it.needsClarification,
+                it.placementSource, it.trackId, it.existingTaskId)
+        })
+        return onRefineWithContext?.invoke(request) ?: onRefineWithAi(utterance, activeDate, occupiedEntries)
+    }
     val speechLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -144,7 +160,9 @@ fun AgentCenterScreen(
         }
     }
     fun previewCandidates(candidates: List<ArrangementCandidate>): List<AgentTaskProposal> =
-        parseProposal(candidates, occupiedEntries).map { proposal ->
+        parseProposal(candidates, occupiedEntries).map { raw ->
+            val existing = existingTasks.firstOrNull { it.id == raw.existingTaskId }
+            val proposal = if (existing == null) raw else raw.copy(text = existing.title, category = existing.category)
             if (selectedIntent != ArrangementIntent.CAPTURE_TASKS) proposal else proposal.copy(
                 timeHint = ArrangementTimeHint(), placementSource = ArrangementPlacementSource.UNSCHEDULED,
                 needsClarification = proposal.needsClarification - ArrangementClarification.TIME,
@@ -164,7 +182,7 @@ fun AgentCenterScreen(
             val requestPrompt = prompt
             scope.launch {
                 isRefining = true
-                val result = onRefineWithAi(requestPrompt, activeDate, occupiedEntries)
+                val result = refineCurrent(requestPrompt)
                 if (version != requestVersion) return@launch
                 when (result) {
                     is ArrangementAssistantAdviceResult.Advice -> {
@@ -245,7 +263,7 @@ fun AgentCenterScreen(
                 occupiedEntries = occupiedEntries,
                 canRefineWithAi = canRefineWithAi,
                 isRefining = isRefining,
-                canConfirm = draftDate == activeDate && draftRevision == contextRevision && !isSaving,
+                canConfirm = draftDate == activeDate && draftRevision == contextRevision && !isSaving && proposals.all { it.existingTaskId == null || (onConfirmChanges != null && intent != ArrangementIntent.CAPTURE_TASKS && existingTasks.any { task -> task.id == it.existingTaskId } && it.timeHint.explicitStartMinute != null && it.durationMinutes != null) },
                 refinementMessage = refinementMessage,
                 onRefine = {
                     requestVersion++
@@ -254,7 +272,7 @@ fun AgentCenterScreen(
                     scope.launch {
                         isRefining = true
                         refinementMessage = null
-                        val result = onRefineWithAi(requestPrompt, activeDate, occupiedEntries)
+                        val result = refineCurrent(requestPrompt)
                         if (version != requestVersion) return@launch
                         when (result) {
                             is ArrangementAssistantAdviceResult.Advice -> {
@@ -280,7 +298,7 @@ fun AgentCenterScreen(
                     val confirmedPrompt = prompt
                     val confirmedProposals = proposals
                     val confirmedIntent = intent
-                    val taskDrafts = proposals.map { item ->
+                    val taskDrafts = proposals.filter { it.existingTaskId == null }.map { item ->
                         TaskDraft(
                             id = item.id,
                             displayName = TaskName.fromDescription(item.text),
@@ -297,7 +315,7 @@ fun AgentCenterScreen(
                     }
                     val segments = proposals.filter { intent != ArrangementIntent.CAPTURE_TASKS && it.timeHint.explicitStartMinute != null && it.durationMinutes != null }.map { item ->
                         val start = requireNotNull(item.timeHint.explicitStartMinute)
-                        PlannedSegment(id = "proposal-${item.id}", taskId = item.id, date = activeDate,
+                        PlannedSegment(id = "proposal-${item.id}", taskId = item.existingTaskId ?: item.id, date = activeDate,
                             startMinute = start, endMinute = start + requireNotNull(item.durationMinutes), trackId = item.trackId)
                     }
                     val clearAfterSave = {
@@ -305,7 +323,8 @@ fun AgentCenterScreen(
                             requestVersion++; isRefining = false; prompt = ""; proposals = emptyList<AgentTaskProposal>(); intent = null
                         }
                     }
-                    if (onConfirmBatch != null) onConfirmBatch(taskDrafts, segments, clearAfterSave)
+                    if (onConfirmChanges != null) onConfirmChanges(taskDrafts, segments, proposals.mapNotNull { it.existingTaskId }.toSet(), activeDate, clearAfterSave)
+                    else if (onConfirmBatch != null) onConfirmBatch(taskDrafts, segments, clearAfterSave)
                     else {
                         onSaveTasks(taskDrafts)
                         segments.forEach { onPlaceTask(it.taskId, it.startMinute, it.endMinute, it.trackId) }
@@ -323,6 +342,7 @@ fun AgentCenterScreen(
             allProposals = proposals,
             occupiedEntries = occupiedEntries,
             availableTracks = availableTracks,
+            existingTasks = existingTasks,
             onDismiss = { editingProposal = null },
             onSave = { updated -> requestVersion++; isRefining = false; proposals = proposals.map { if (it.id == updated.id) updated else it }; editingProposal = null; persistWorkspace() },
         )
@@ -375,6 +395,7 @@ private fun AgentComposer(prompt: String, willUseAi: Boolean, onPromptChange: (S
                 }
             }
             OutlinedTextField(value = prompt, onValueChange = onPromptChange, modifier = Modifier.fillMaxWidth().testTag("agent-prompt"), minLines = 3, maxLines = 5, label = { Text("今天想怎么安排？") }, placeholder = { Text("例如：15:00 复习数据结构 90 分钟；同一时间跑步 40 分钟") })
+            if (willUseAi) Text("生成时会向你配置的模型服务发送：输入、所选日期占用时段、最多 50 项未完成任务的名称/类别/时长及当前草案；不发送任务备注。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ComposerPreset("安排今天") { onSeed("安排今天") }
                 ComposerPreset("新增事项") { onSeed("新增事项") }
@@ -435,7 +456,7 @@ private fun AgentProposalPanel(activeDate: LocalDate, intent: ArrangementIntent?
                         Spacer(Modifier.width(8.dp))
                         Column(Modifier.weight(1f)) {
                             Text(if (isRefining) "正在生成计划…" else "重新用 AI 校对计划", style = MaterialTheme.typography.labelLarge)
-                            Text("仅发送本次输入和今天已占用时段；AI 只提建议，仍需你确认写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("发送本次输入、所选日期占用时段、最多 50 项未完成任务的名称/类别/时长和当前草案；不发送任务备注。仍需确认写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -443,15 +464,20 @@ private fun AgentProposalPanel(activeDate: LocalDate, intent: ArrangementIntent?
                 Text("当前为本地即时拆分；配置密钥并开启规划助手后，会结合今天已占用时段生成建议。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
             refinementMessage?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+            proposals.filter { it.existingTaskId != null }.forEach { proposal ->
+                val before = occupiedEntries.filter { it.taskId == proposal.existingTaskId }.joinToString("、") { "${formatMinute(it.startMinute)}–${formatMinute(it.endMinute)}" }.ifEmpty { "未安排" }
+                Text("调整已有「${proposal.text}」：$before → ${proposal.previewLabel()}。仅替换所选日期的未保护安排，不改任务状态、优先级或总时长。", style = MaterialTheme.typography.bodySmall)
+            }
             AgentDraftTimeline(activeDate, proposals, occupiedEntries, onEdit)
             if (undecided.isNotEmpty()) UndecidedProposalShelf(undecided, onEdit, onRemove)
-            if (missing.isNotEmpty()) Text("还缺：${missing.joinToString("、") { it.label() }}。点“待决定”逐项补全，也可以直接确认把它们留在事项库。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            if (missing.isNotEmpty()) Text("还缺：${missing.joinToString("、") { it.label() }}。点“待决定”逐项补全；新增事项可不排时间，已有任务调整必须补全。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
             Button(onClick = onConfirm, enabled = canConfirm && !isRefining, modifier = Modifier.fillMaxWidth().testTag("agent-confirm-tasks")) {
                 Icon(Icons.Outlined.Add, contentDescription = null)
                 Spacer(Modifier.width(6.dp))
-                Text("确认创建 ${proposals.size} 项${if (placed.isNotEmpty()) "并放入 ${placed.size} 个时段" else ""}")
+                val existingCount = proposals.count { it.existingTaskId != null }
+                Text(if (existingCount > 0) "确认新增 ${proposals.size - existingCount} 项、调整已有 $existingCount 项" else "确认创建 ${proposals.size} 项${if (placed.isNotEmpty()) "并放入 ${placed.size} 个时段" else ""}")
             }
-            Text("确认后才会创建任务；草案中的时间只会写入你看见的彩色块。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text("确认后才会保存；已有任务必须补全时段。冲突或数据变化时整批不写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
 }
@@ -533,17 +559,18 @@ private fun AgentDraftTimeline(activeDate: LocalDate, proposals: List<AgentTaskP
 }
 
 @Composable
-private fun AgentPlacementDialog(proposal: AgentTaskProposal, allProposals: List<AgentTaskProposal>, occupiedEntries: List<TimelineEntry>, onDismiss: () -> Unit, onSave: (AgentTaskProposal) -> Unit, availableTracks: List<RhythmTrack> = emptyList()) {
+private fun AgentPlacementDialog(proposal: AgentTaskProposal, allProposals: List<AgentTaskProposal>, occupiedEntries: List<TimelineEntry>, onDismiss: () -> Unit, onSave: (AgentTaskProposal) -> Unit, availableTracks: List<RhythmTrack> = emptyList(), existingTasks: List<ArrangementExistingTask> = emptyList()) {
     val startingMinute = proposal.timeHint.explicitStartMinute ?: 9 * 60
     var hour by remember(proposal.id) { mutableStateOf((startingMinute / 60).toString()) }
     var minute by remember(proposal.id) { mutableStateOf((startingMinute % 60).toString().padStart(2, '0')) }
     var duration by remember(proposal.id) { mutableStateOf((proposal.durationMinutes ?: 30).toString()) }
     var selectedTrack by remember(proposal.id) { mutableStateOf(proposal.trackId) }
     val tracks = (availableTracks.map { it.id } + occupiedEntries.map(TimelineEntry::trackId) + listOf("focus", "parallel-2", "parallel-3") + allProposals.map(AgentTaskProposal::trackId)).distinct()
-    val start = ((hour.toIntOrNull() ?: -1) * 60 + (minute.toIntOrNull() ?: -1)).takeIf { it in 0 until 1_440 }
+    val start = hour.toIntOrNull()?.takeIf { it in 0..23 }?.let { h -> minute.toIntOrNull()?.takeIf { it in 0..59 }?.let { h * 60 + it } }
     val durationMinutes = duration.toIntOrNull()?.takeIf { it in 5..720 }
     val collision = start != null && durationMinutes != null && (
         occupiedEntries.any { entry ->
+            !(entry.kind == TimelineKind.TASK && entry.taskId != null && entry.taskId == proposal.existingTaskId) &&
             start < entry.endMinute && start + durationMinutes > entry.startMinute &&
                 (entry.kind in setOf(TimelineKind.COURSE, TimelineKind.REST, TimelineKind.COMMITMENT) || entry.trackId == selectedTrack)
         } || allProposals.any { other ->
@@ -556,6 +583,7 @@ private fun AgentPlacementDialog(proposal: AgentTaskProposal, allProposals: List
         title = { Text("安排「${proposal.text}」") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(if (proposal.existingTaskId == null) "新增事项" else "调整已有任务：${existingTasks.firstOrNull { it.id == proposal.existingTaskId }?.title ?: "引用已失效，请重新生成"}。不创建副本。", style = MaterialTheme.typography.bodySmall)
                 Text("可选任意时刻和轨道。课程、固定事项和休息不可重叠；普通任务可换轨并行。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(value = hour, onValueChange = { hour = it.filter(Char::isDigit).take(2) }, modifier = Modifier.weight(1f), singleLine = true, label = { Text("时") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
@@ -580,12 +608,13 @@ private fun AgentPlacementDialog(proposal: AgentTaskProposal, allProposals: List
 private fun parseProposal(candidates: List<ArrangementCandidate>, occupiedEntries: List<TimelineEntry>): List<AgentTaskProposal> {
     val allocated = mutableListOf<AgentTaskProposal>()
     candidates.forEach { candidate ->
+        val remainingEntries = occupiedEntries.filterNot { it.kind == TimelineKind.TASK && it.taskId != null && it.taskId == candidate.existingTaskId }
         var start = candidate.timeHint.explicitStartMinute
         val duration = candidate.durationMinutes
         var source = candidate.placementSource
         var track = candidate.preferredTrackId ?: "focus"
         if (start != null && duration != null && source == ArrangementPlacementSource.AI_SUGGESTED) {
-            val placement = findSafeAiPlacement(start, duration, candidate.preferredTrackId, occupiedEntries, allocated)
+            val placement = findSafeAiPlacement(start, duration, candidate.preferredTrackId, remainingEntries, allocated)
             if (placement == null) {
                 start = null
                 source = ArrangementPlacementSource.UNSCHEDULED
@@ -596,7 +625,7 @@ private fun parseProposal(candidates: List<ArrangementCandidate>, occupiedEntrie
         } else if (start != null && duration != null) {
             // Explicit user times stay where the user said. We only choose a
             // non-overlapping visual lane for ordinary simultaneous work.
-            track = chooseTrackAt(start, duration, candidate.preferredTrackId, occupiedEntries, allocated, rejectHardBusy = false)
+            track = chooseTrackAt(start, duration, candidate.preferredTrackId, remainingEntries, allocated, rejectHardBusy = false)
                 ?: (candidate.preferredTrackId ?: "focus")
             if (source == ArrangementPlacementSource.UNSCHEDULED) source = ArrangementPlacementSource.USER_EXPLICIT
         }
@@ -614,6 +643,7 @@ private fun parseProposal(candidates: List<ArrangementCandidate>, occupiedEntrie
             needsClarification = missing,
             placementSource = source,
             trackId = track,
+            existingTaskId = candidate.existingTaskId,
         )
     }
     return allocated
@@ -667,6 +697,7 @@ private fun chooseTrackAt(
 }
 
 private fun AgentTaskProposal.previewLabel(): String = buildList {
+    add(if (existingTaskId == null) "新增事项" else "已有任务")
     add(timeHint.explicitStartMinute?.let(::formatMinute) ?: timeHint.windowLabel ?: "时间待定")
     add(durationMinutes?.let { "$it 分钟" } ?: "时长待定")
     add(placementSource.label())

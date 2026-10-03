@@ -45,6 +45,7 @@ data class AssistantTaskProposal(
     val needsClarification: Set<ArrangementClarification>,
     val placementSource: ArrangementPlacementSource,
     val trackId: String = "focus",
+    val existingTaskId: String? = null,
 )
 
 /** Local editable data only: never credentials, raw responses, or a running request. */

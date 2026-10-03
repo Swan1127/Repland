@@ -7,7 +7,11 @@ data class ArrangementAssistantAdviceRequest(
     val utterance: String,
     val date: LocalDate,
     val occupiedIntervals: List<ArrangementOccupiedInterval>,
+    val existingTasks: List<ArrangementExistingTask> = emptyList(),
+    val draftCandidates: List<ArrangementCandidate> = emptyList(),
 )
+
+data class ArrangementExistingTask(val id: String, val title: String, val category: TaskCategory, val durationMinutes: Int?)
 
 data class ArrangementOccupiedInterval(
     val title: String,
@@ -16,6 +20,7 @@ data class ArrangementOccupiedInterval(
     val trackId: String,
     /** Courses, commitments and rest are protected when the advisor proposes time. */
     val isHardBusy: Boolean,
+    val taskId: String? = null,
 )
 
 data class ArrangementAssistantAdvice(
@@ -31,7 +36,7 @@ sealed interface ArrangementAssistantAdviceResult {
 
 /**
  * Optional language and placement refinement. It receives only the current
- * utterance and today's occupied intervals, cannot write a plan, and its
+ * utterance, bounded task facts/current draft and the selected day's occupied intervals, cannot write a plan, and its
  * proposed slots still go through the local collision check and confirmation.
  */
 interface ArrangementAssistantAdvisor {
@@ -44,6 +49,11 @@ object NoOpArrangementAssistantAdvisor : ArrangementAssistantAdvisor {
 }
 
 object ArrangementAssistantAdviceValidator {
+    fun validate(advice: ArrangementAssistantAdvice, request: ArrangementAssistantAdviceRequest): ArrangementAssistantAdvice? {
+        val references = advice.candidates.mapNotNull { it.existingTaskId }
+        if (references.distinct().size != references.size || references.any { id -> request.existingTasks.none { it.id == id } }) return null
+        return validate(advice)
+    }
     fun validate(advice: ArrangementAssistantAdvice): ArrangementAssistantAdvice? {
         val validCandidates = advice.candidates
             .filter { candidate ->

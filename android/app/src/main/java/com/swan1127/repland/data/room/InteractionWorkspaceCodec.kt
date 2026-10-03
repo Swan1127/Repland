@@ -23,6 +23,7 @@ object InteractionWorkspaceCodec {
             put("start", p.timeHint.explicitStartMinute); put("window", p.timeHint.windowLabel)
             put("needs", JSONArray(p.needsClarification.map { it.name }))
             put("source", p.placementSource.name); put("track", p.trackId)
+            put("existingTaskId", p.existingTaskId)
         } }))
     }.toString()
 
@@ -35,7 +36,7 @@ object InteractionWorkspaceCodec {
                     if (p.isNull("duration")) null else p.getInt("duration"),
                     ArrangementTimeHint(if (p.isNull("start")) null else p.getInt("start"), if (p.isNull("window")) null else p.getString("window")),
                     p.getJSONArray("needs").let { needs -> (0 until needs.length()).map { ArrangementClarification.valueOf(needs.getString(it)) }.toSet() },
-                    ArrangementPlacementSource.valueOf(p.getString("source")), p.getString("track"))
+                    ArrangementPlacementSource.valueOf(p.getString("source")), p.getString("track"), if (p.isNull("existingTaskId")) null else p.getString("existingTaskId"))
             } } }, intent("intent"), intent("selectedIntent"), if (j.isNull("revision")) null else j.getString("revision"))
     }
 }

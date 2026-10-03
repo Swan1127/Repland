@@ -68,20 +68,36 @@ class RoomPlanRepository(
         planDao.getCurrentPlanWithSegments()?.toDomain(),
         workspace.get("order")?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty())
 
-    override suspend fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>) = database.withTransaction {
-        val sourceRevision = workspace.get("assistant")?.let { InteractionWorkspaceCodec.decodeAssistant(it.payload).sourceRevision }
+    override suspend fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>) =
+        saveAssistantChanges(tasks, segments, emptySet(), segments.firstOrNull()?.date ?: LocalDate.now())
+
+    override suspend fun saveAssistantChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingTaskIds: Set<String>, date: LocalDate) = database.withTransaction {
+        val assistant = workspace.get("assistant")?.let { InteractionWorkspaceCodec.decodeAssistant(it.payload) }
+        val sourceRevision = assistant?.sourceRevision
+        require(existingTaskIds.isEmpty() || sourceRevision != null) { "已有任务调整需要有效草案，请重新生成后确认。" }
+        require(existingTaskIds.isEmpty() || (assistant?.date == date && assistant.proposals.mapNotNull { it.existingTaskId }.toSet() == existingTaskIds)) { "调整目标与草案不一致，请重新生成。" }
         require(sourceRevision == null || sourceRevision == revision()) { "任务、设置或计划已变化，请重新生成助手草案后确认。" }
-        require(tasks.isNotEmpty() && tasks.all { TaskDraftValidator.isValid(it) && !it.id.isNullOrBlank() }) { "请检查事项名称和时长。" }
+        require((tasks.isNotEmpty() || existingTaskIds.isNotEmpty()) && tasks.all { TaskDraftValidator.isValid(it) && !it.id.isNullOrBlank() }) { "请检查事项名称和时长。" }
         require(tasks.map { it.id }.distinct().size == tasks.size) { "事项重复，请重新生成。" }
-        val ids = tasks.map { requireNotNull(it.id) }.toSet()
+        val newIds = tasks.map { requireNotNull(it.id) }.toSet()
+        require(newIds.intersect(existingTaskIds).isEmpty()) { "新建与已有事项引用重复。" }
+        val ids = newIds + existingTaskIds
+        require(existingTaskIds.all { id -> database.taskDao().getById(id)?.toDomain()?.status?.isActive == true && segments.any { it.taskId == id && it.date == date } }) { "已有任务不存在、已结束或缺少明确时段，请重新生成。" }
+        require(segments.filter { it.taskId in existingTaskIds }.all { it.date == date }) { "已有任务调整只能操作选定日期。" }
         require(segments.all { it.taskId in ids }) { "安排中的事项引用无效。" }
-        require(ids.none { database.taskDao().getById(it) != null }) { "这些事项已经保存，请查看任务列表。" }
+        require(newIds.none { database.taskDao().getById(it) != null }) { "这些事项已经保存，请查看任务列表。" }
         val current = planDao.getCurrentPlanWithSegments()?.toDomain()
-        for (segment in segments) validatePlacement(segment, current?.segments.orEmpty() + segments)
+        val replaced = current?.segments.orEmpty().filter { it.taskId in existingTaskIds && it.date == date }
+        val now = java.time.LocalDateTime.now()
+        require(segments.filter { it.taskId in existingTaskIds }.all { it.date > now.toLocalDate() || (it.date == now.toLocalDate() && it.startMinute > now.hour * 60 + now.minute) }) { "助手不能把已有任务调整到过去的时段。" }
+        require(existingTaskIds.all { id -> segments.count { it.taskId == id } == 1 }) { "每个已有任务本次只能指定一个时段。" }
+        require(replaced.none { it.isLocked || it.date < now.toLocalDate() || (it.date == now.toLocalDate() && it.startMinute <= now.hour * 60 + now.minute) }) { "锁定或已开始的安排不能由助手替换，请先在日程中处理。" }
+        val preserved = current?.segments.orEmpty() - replaced.toSet()
+        for (segment in segments) validatePlacement(segment, preserved + segments)
         val taskRepository = RoomTaskRepository(database)
         tasks.forEach { taskRepository.save(it) }
         if (segments.isNotEmpty()) {
-            accept(PlanDraft(java.time.LocalDateTime.now(), current?.segments.orEmpty() + segments, emptyList(), emptyList(),
+            accept(PlanDraft(java.time.LocalDateTime.now(), preserved + segments, emptyList(), emptyList(),
                 orderedTaskIds = (current?.orderedTaskIds.orEmpty() + ids).distinct(), hasManualTaskOrder = true))
         }
         workspace.remove("assistant")

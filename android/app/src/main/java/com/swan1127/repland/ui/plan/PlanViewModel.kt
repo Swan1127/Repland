@@ -97,6 +97,8 @@ class PlanViewModel(
 
     fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>, onSaved: () -> Unit) =
         mutate { planRepository.saveTasksAndPlace(tasks, segments); onSaved() }
+    fun saveAssistantChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingIds: Set<String>, date: LocalDate, onSaved: () -> Unit) =
+        mutate { planRepository.saveAssistantChanges(tasks, segments, existingIds, date); onSaved() }
 
     fun restore(planId: String) = mutate { planRepository.restore(planId) }
     fun clearCurrentPlan() = mutate { planRepository.clearCurrentPlan() }

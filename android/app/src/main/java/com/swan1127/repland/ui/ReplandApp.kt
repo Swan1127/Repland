@@ -754,6 +754,11 @@ fun ReplandApp(
                         canRefineWithAi = arrangementAssistantAccess.isEnabled &&
                             arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey && aiProviderConfigUiState.supportsRemote,
                         onRefineWithAi = arrangementAssistantViewModel::refine,
+                        existingTasks = uiState.tasks.filter { it.status.isActive }.take(50).map {
+                            com.swan1127.repland.domain.model.ArrangementExistingTask(it.id, it.displayName, it.category, it.totalDurationMinutes)
+                        },
+                        onRefineWithContext = arrangementAssistantViewModel::refine,
+                        onConfirmChanges = planViewModel::saveAssistantChanges,
                         onSaveTasks = { drafts -> drafts.forEach(taskViewModel::saveTask) },
                         onConfirmBatch = planViewModel::saveTasksAndPlace,
                         initialWorkspace = workspaceUiState.assistant,

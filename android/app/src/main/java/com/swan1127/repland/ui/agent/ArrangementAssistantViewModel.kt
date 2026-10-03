@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
+import com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidator
 
 data class ArrangementAssistantAccessState(
     val isEnabled: Boolean = false,
@@ -35,25 +37,25 @@ class ArrangementAssistantViewModel(
         date: LocalDate,
         occupiedEntries: List<TimelineEntry>,
     ): ArrangementAssistantAdviceResult {
-        val currentAccess = access.value
+        return refine(ArrangementAssistantAdviceRequest(utterance, date, occupiedEntries.map {
+            ArrangementOccupiedInterval(it.title, it.startMinute, it.endMinute, it.trackId,
+                it.kind in setOf(TimelineKind.COURSE, TimelineKind.REST, TimelineKind.COMMITMENT), it.taskId)
+        }))
+    }
+
+    suspend fun refine(request: ArrangementAssistantAdviceRequest): ArrangementAssistantAdviceResult {
+        val currentAccess = settingsRepository.observe().first()
         if (!currentAccess.isEnabled || !currentAccess.hasExplicitConsent) {
             return ArrangementAssistantAdviceResult.Unavailable(AiAdvisorFailureReason.DISABLED)
         }
-        return advisor.refine(
-            ArrangementAssistantAdviceRequest(
-                utterance = utterance,
-                date = date,
-                occupiedIntervals = occupiedEntries.map {
-                    ArrangementOccupiedInterval(
-                        title = it.title,
-                        startMinute = it.startMinute,
-                        endMinute = it.endMinute,
-                        trackId = it.trackId,
-                        isHardBusy = it.kind in setOf(TimelineKind.COURSE, TimelineKind.REST, TimelineKind.COMMITMENT),
-                    )
-                },
-            ),
-        )
+        if (request.existingTasks.size > 50 || request.draftCandidates.size > 8) return ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        val result = advisor.refine(request)
+        val latest = settingsRepository.observe().first()
+        if (!latest.isEnabled || !latest.hasExplicitConsent) return ArrangementAssistantAdviceResult.Unavailable(AiAdvisorFailureReason.DISABLED)
+        return if (result is ArrangementAssistantAdviceResult.Advice) {
+            ArrangementAssistantAdviceValidator.validate(result.advice, request)?.let { ArrangementAssistantAdviceResult.Advice(it) }
+                ?: ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        } else result
     }
 
     class Factory(
