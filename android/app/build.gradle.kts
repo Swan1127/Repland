@@ -84,6 +84,7 @@ android {
         getByName("debug") {
             applicationIdSuffix = ".qa"
             versionNameSuffix = "-qa"
+            resValue("string", "app_name", "Repland 测试")
         }
         release {
             isMinifyEnabled = true
@@ -96,8 +97,10 @@ android {
         }
         create("internal") {
             initWith(getByName("release"))
-            applicationIdSuffix = ".internal"
+            // Dedicated current-candidate identity: preserve older differently signed installs.
+            applicationIdSuffix = ".current"
             versionNameSuffix = "-internal"
+            resValue("string", "app_name", "Repland 当前版")
             // An installable internal build is always signed. A supplied release key is
             // preferred; the debug key is strictly a local/closed-test fallback.
             signingConfig = releaseSigningConfig ?: signingConfigs.getByName("debug")
@@ -117,6 +120,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = true
     }
     testOptions {
         animationsDisabled = true

@@ -121,11 +121,15 @@ class RoomPlanRepository(
         planDao.observePlanHistory().map { plans -> plans.map(PlanWithSegments::toDomain) }
 
     override suspend fun accept(draft: PlanDraft) = database.withTransaction {
+        acceptInTransaction(draft)
+    }
+
+    private suspend fun acceptInTransaction(draft: PlanDraft, restoring: Boolean = false) {
         require(draft.sourceRevision == null || draft.sourceRevision == revision()) { "任务、设置或计划已变化，请重新生成预览后确认。" }
         if (draft.orderOnly) {
             saveTaskOrder(draft.orderedTaskIds)
             workspace.remove("draft")
-            return@withTransaction
+            return
         }
         val current = planDao.getCurrentPlanWithSegments()?.toDomain()?.segments.orEmpty()
         val activeIds = database.taskDao().getAll().map { it.toDomain() }.filter { it.status.isActive }.map { it.id }.toSet()
@@ -145,7 +149,9 @@ class RoomPlanRepository(
         for (segment in draft.segments) {
             val preserved = current.any { it.taskId == segment.taskId && it.date == segment.date &&
                 it.startMinute == segment.startMinute && it.endMinute == segment.endMinute && it.trackId == segment.trackId }
-            if (!preserved) validatePlacement(segment, draft.segments)
+            val future = segment.date > validationTime.toLocalDate() ||
+                (segment.date == validationTime.toLocalDate() && segment.endMinute > validationTime.hour * 60 + validationTime.minute)
+            if ((!restoring && !preserved) || (restoring && future)) validatePlacement(segment, draft.segments)
         }
         val planId = UUID.randomUUID().toString()
         val now = nextPlanCreatedAt(System.currentTimeMillis())
@@ -180,35 +186,15 @@ class RoomPlanRepository(
         workspace.remove("draft")
     }
 
-    override suspend fun restore(planId: String) {
-        val source = requireNotNull(planDao.getPlanWithSegments(planId)) {
-            "The plan version to restore does not exist."
-        }
-        val restoredPlanId = UUID.randomUUID().toString()
-        val now = nextPlanCreatedAt(System.currentTimeMillis())
-        planDao.replaceCurrentPlan(
-            plan = PlanEntity(
-                id = restoredPlanId,
-                createdAtEpochMillis = now,
-                isCurrent = true,
-            ),
-            segments = source.segments.map { segment ->
-                segment.copy(id = UUID.randomUUID().toString(), planId = restoredPlanId)
-            },
-            taskOrder = source.taskOrder
-                .ifEmpty {
-                    source.segments
-                        .sortedWith(compareBy(PlanSegmentEntity::dateEpochDay, PlanSegmentEntity::startMinute))
-                        .map(PlanSegmentEntity::taskId)
-                        .distinct()
-                        .mapIndexed { position, taskId ->
-                            PlanTaskOrderEntity(planId = source.plan.id, taskId = taskId, position = position)
-                        }
-                }
-                .map { item -> item.copy(planId = restoredPlanId) },
-        )
-        saveTaskOrder(source.toDomain().orderedTaskIds)
-        workspace.remove("draft")
+    override suspend fun restore(planId: String) = database.withTransaction {
+        val source = requireNotNull(planDao.getPlanWithSegments(planId)) { "要恢复的计划版本不存在。" }.toDomain()
+        val now = java.time.LocalDateTime.now()
+        val activeIds = database.taskDao().getAll().map { it.toDomain() }.filter { it.status.isActive }.map { it.id }.toSet()
+        // Preserve past history, but never resurrect future work for closed or deleted tasks.
+        val segments = source.segments.filter { it.taskId in activeIds || it.date < now.toLocalDate() ||
+            (it.date == now.toLocalDate() && it.endMinute <= now.hour * 60 + now.minute) }
+        acceptInTransaction(PlanDraft(now, segments, emptyList(), emptyList(),
+            orderedTaskIds = source.orderedTaskIds, hasManualTaskOrder = source.hasManualTaskOrder), restoring = true)
     }
 
     override suspend fun clearCurrentPlan() = planDao.archiveCurrentPlan()

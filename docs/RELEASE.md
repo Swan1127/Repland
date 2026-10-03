@@ -2,7 +2,7 @@
 
 ## 版本
 
-当前候选为 `0.1.6 (1006)`。debug 使用 `.qa` application ID 隔离测试，internal 使用 `.internal`。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
+当前候选为 `0.1.8 (1008)`。debug 使用 `.qa` application ID 隔离测试，图标名“Repland 测试”；internal 从本版本起使用 `.current`，图标名“Repland 当前版”。模拟器旧 `.internal` 签名与当前签名不同，不能保留数据覆盖；因此采用新身份，不卸载、不清空旧包，不提取旧包密钥。用户需在当前版自行重新配置。后续当前版保持同一签名以支持原位升级。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
 
 版本名使用语义化格式 `MAJOR.MINOR.PATCH`，例如 `0.1.0`。版本号使用整数并必须递增；推荐计算方式为：
 
@@ -31,7 +31,7 @@ cd android
 .\gradlew.bat :app:bundleRelease
 ```
 
-`internal` 是带 `.internal` application ID 的封闭内测构建，启用压缩和资源收缩。配置正式签名后复用正式密钥；未配置时仅使用 Android debug key 便于本地和 CI 验证，不能用于公开发布：
+`internal` 是带 `.current` application ID 的封闭内测构建，启用压缩和资源收缩。配置正式签名后复用正式密钥；未配置时仅使用 Android debug key 便于本地和 CI 验证，不能用于公开发布：
 
 ```powershell
 .\gradlew.bat :app:assembleInternal

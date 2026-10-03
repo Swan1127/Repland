@@ -4012,7 +4012,7 @@ private fun AiSettingsSection(
 }
 
 @Composable
-private fun AiProviderSettingsDialog(
+internal fun AiProviderSettingsDialog(
     config: AiProviderConfig,
     errorMessage: String?,
     connectionTest: AiProviderConnectionTest,
@@ -4026,15 +4026,15 @@ private fun AiProviderSettingsDialog(
     var apiKey by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Agnes API 配置") },
+        title = { Text("模型服务配置") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
                     "用于需要更深层语义理解的可选建议。安排写入仍然必须经过轨道草案与手动确认。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Text("服务区", style = MaterialTheme.typography.labelLarge)
+                Text("地址预设（切换服务需重新输入对应密钥）", style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(
                         selected = baseUrl.contains("apihub.agnes-ai.com"),
@@ -4047,12 +4047,18 @@ private fun AiProviderSettingsDialog(
                         label = { Text("中国服务") },
                     )
                 }
+                FilterChip(
+                    selected = baseUrl.trimEnd('/') == "https://api.deepseek.com",
+                    onClick = { baseUrl = "https://api.deepseek.com"; model = "deepseek-flash"; apiKey = "" },
+                    label = { Text("DeepSeek 官方") },
+                    modifier = Modifier.testTag("ai-provider-deepseek"),
+                )
                 OutlinedTextField(
                     value = baseUrl,
                     onValueChange = { baseUrl = it },
                     modifier = Modifier.fillMaxWidth().testTag("ai-provider-endpoint"),
                     label = { Text("服务地址") },
-                    supportingText = { Text("默认 Agnes OpenAI 兼容地址") },
+                    supportingText = { Text("填写 HTTPS API 基础地址，不是聊天网站地址；请以服务商文档为准。") },
                     singleLine = true,
                 )
                 OutlinedTextField(
@@ -4060,7 +4066,7 @@ private fun AiProviderSettingsDialog(
                     onValueChange = { model = it },
                     modifier = Modifier.fillMaxWidth().testTag("ai-provider-model"),
                     label = { Text("模型") },
-                    supportingText = { Text("默认 agnes-2.5-flash") },
+                    supportingText = { Text("填写服务商 API 模型 ID，不一定等于产品展示名称。") },
                     singleLine = true,
                 )
                 OutlinedTextField(
@@ -4088,7 +4094,7 @@ private fun AiProviderSettingsDialog(
             }
         },
         confirmButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column {
                 TextButton(onClick = { onSave(baseUrl, model, apiKey) }, modifier = Modifier.testTag("ai-provider-save")) { Text("加密保存") }
                 TextButton(
                     onClick = onTestConnection,
