@@ -188,3 +188,12 @@ APK 检查确认 internal 的两个 Provider 类/构造入口保留；release Ma
 - 旧 `.internal` 与当前签名不同，原位安装被 Android 拒绝。没有卸载或清空旧包；从本版本改用 `.current`，图标名“Repland 当前版”，debug 名“Repland 测试”。最新候选安装/冷启动成功；旧正式、旧 internal、QA 全部停止。凭据不跨包提取，用户需在当前版重新配置后做真实联调。
 
 85 项单元、internal 构建与离线边界通过。M1 页面协调层、M3 完整操作契约与真实联调、复杂容量策略及 M5 真机/连续试用仍未完成；本批不等于全计划交付。
+
+最终构建来源 `8d37cb7bfbb568484f717a7df1667a30ee272b69`，internal/QA 重新构建成功。模拟器安装的是当前版 internal（1008），设置页确认来源 `8d37cb7bfbb5`，仅当前版有运行 PID。此处不是跨包数据迁移验收；旧数据没有搬入新身份，也没有删除。
+
+| 文件 | 包名 | SHA-256 |
+| --- | --- | --- |
+| app-internal.apk | com.swan1127.repland.current | `3b079658d4e9d0fe938b290d65916cd770b51774d12e64997effb9989b313628` |
+| app-debug.apk | com.swan1127.repland.qa | `2a27a687d9c59ed1692e0dcbbbfc3eebdd68f2f4be9a050e67a39efbd3bf2271` |
+
+最终构建没有重新生成 androidTest APK，也没有重跑全部设备测试；不将产物清单中旧测试 APK 当成该提交同源回归结果。
