@@ -125,6 +125,7 @@ fun AgentCenterScreen(
     onDismissReceipt: () -> Unit = {},
     onViewTasks: () -> Unit = {},
     onViewSchedule: (LocalDate) -> Unit = {},
+    availableIntervals: List<com.swan1127.repland.domain.model.ArrangementAvailableInterval> = emptyList(),
 ) {
     var prompt by rememberSaveable { mutableStateOf(initialWorkspace?.prompt.orEmpty()) }
     var proposals by remember { mutableStateOf(initialWorkspace?.proposals.orEmpty()) }
@@ -151,14 +152,14 @@ fun AgentCenterScreen(
             pageScroll.scrollTo(0)
         }
     }
-    suspend fun refineCurrent(utterance: String, instruction: String? = null): ArrangementAssistantAdviceResult {
+    suspend fun refineCurrent(utterance: String, instruction: String? = null, includeDraft: Boolean = true): ArrangementAssistantAdviceResult {
         val request = ArrangementAssistantAdviceRequest(utterance, activeDate, occupiedEntries.map {
             ArrangementOccupiedInterval(it.title, it.startMinute, it.endMinute, it.trackId,
                 it.kind in setOf(TimelineKind.COURSE, TimelineKind.REST, TimelineKind.COMMITMENT), it.taskId)
-        }, existingTasks.take(50), proposals.map {
+        }, existingTasks.take(50), (if (includeDraft) proposals else emptyList()).map {
             ArrangementCandidate(it.text, it.category, it.durationMinutes, it.timeHint, it.needsClarification,
                 it.placementSource, it.trackId, it.existingTaskId, it.id)
-        }, instruction)
+        }, instruction, availableIntervals)
         return onRefineWithContext?.invoke(request) ?: if (instruction != null) ArrangementAssistantAdviceResult.Unavailable(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED) else onRefineWithAi(utterance, activeDate, occupiedEntries)
     }
     val speechLauncher = rememberLauncherForActivityResult(
@@ -202,7 +203,7 @@ fun AgentCenterScreen(
             val requestPrompt = prompt
             scope.launch {
                 isRefining = true
-                val result = refineCurrent(requestPrompt)
+                val result = refineCurrent(requestPrompt, includeDraft = false)
                 if (version != requestVersion) return@launch
                 when (result) {
                     is ArrangementAssistantAdviceResult.Advice -> {
@@ -435,7 +436,7 @@ private fun AgentComposer(prompt: String, willUseAi: Boolean, onPromptChange: (S
                 }
             }
             OutlinedTextField(value = prompt, onValueChange = onPromptChange, modifier = Modifier.fillMaxWidth().testTag("agent-prompt"), minLines = 3, maxLines = 5, label = { Text("今天想怎么安排？") }, placeholder = { Text("例如：15:00 复习数据结构 90 分钟；同一时间跑步 40 分钟") })
-            if (willUseAi) Text("生成时会向你配置的模型服务发送：输入、所选日期占用时段、最多 50 项未完成任务的名称/类别/时长及当前草案；不发送任务备注。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (willUseAi) Text("生成时发送输入、所选日期的占用与明确可用时段、最多 50 项未完成任务的名称/类别/时长及当前草案；不发送任务备注。未提供可用时间时不自动选时段。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ComposerPreset("安排今天") { onSeed("安排今天") }
                 ComposerPreset("新增事项") { onSeed("新增事项") }
@@ -496,7 +497,7 @@ private fun AgentProposalPanel(activeDate: LocalDate, intent: ArrangementIntent?
                         Spacer(Modifier.width(8.dp))
                         Column(Modifier.weight(1f)) {
                             Text(if (isRefining) "正在生成计划…" else "重新用 AI 校对计划", style = MaterialTheme.typography.labelLarge)
-                            Text("发送本次输入、所选日期占用时段、最多 50 项未完成任务的名称/类别/时长和当前草案；不发送任务备注。仍需确认写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("发送输入、所选日期的占用与明确可用时段、最多 50 项未完成任务的名称/类别/时长和当前草案；不发送任务备注。仍需确认写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }

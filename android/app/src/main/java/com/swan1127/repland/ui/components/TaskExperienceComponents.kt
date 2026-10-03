@@ -87,6 +87,7 @@ fun TaskRow(
     onStart: () -> Unit,
     modifier: Modifier = Modifier,
     emphasis: TaskRowEmphasis = TaskRowEmphasis.NORMAL,
+    planningSummary: String? = null,
 ) {
     val statusColor = when {
         task.status == TaskStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -96,7 +97,7 @@ fun TaskRow(
         emphasis == TaskRowEmphasis.ATTENTION -> MaterialTheme.colorScheme.tertiary
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val summary = task.summaryLabel()
+    val summary = planningSummary ?: task.summaryLabel()
     Row(
         modifier = modifier
             .fillMaxWidth()

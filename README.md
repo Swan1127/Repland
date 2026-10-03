@@ -2,7 +2,7 @@
 
 Repland 是 Android 本地优先任务规划工具：收集事项、依据真实时间约束制定计划、执行后重新安排剩余工作。首批验证用户为大学新生。
 
-当前候选版本：**0.1.8 (1008)**，模拟器使用“Repland 当前版”（`com.swan1127.repland.current`），自动化隔离包叫“Repland 测试”。旧同名包保留数据但不继续使用。产品方向以 [主思路](REPLAND_IDEA.md) 为准，实施顺序及验收以 [产品交付计划](docs/PRODUCT_DELIVERY_PLAN_2026-10-03.md) 为准；已完成情况见 [交付进度](docs/DELIVERY_PROGRESS.md)。文档中的目标功能不等于已实现功能。
+当前候选版本：**0.1.9 (1009)**，模拟器使用“Repland 当前版”（`com.swan1127.repland.current`），自动化隔离包叫“Repland 测试”。旧同名包保留数据但不继续使用。产品方向以 [主思路](REPLAND_IDEA.md) 为准，实施顺序及验收以 [产品交付计划](docs/PRODUCT_DELIVERY_PLAN_2026-10-03.md) 为准；已完成情况见 [交付进度](docs/DELIVERY_PROGRESS.md)。文档中的目标功能不等于已实现功能。
 
 ## 实现基线
 

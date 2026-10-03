@@ -732,6 +732,7 @@ fun ReplandApp(
                     )
 
                     AppTab.TASKS -> TasksScreen(
+                        confirmedSegments = planUiState.currentPlan?.segments.orEmpty(),
                         tasks = uiState.tasks.sortedBy { task -> planUiState.taskOrder.indexOf(task.id).takeIf { it >= 0 } ?: Int.MAX_VALUE },
                         isLoading = uiState.isLoading,
                         onOpen = { selectedTaskId = it.id },
@@ -752,6 +753,9 @@ fun ReplandApp(
                             com.swan1127.repland.domain.model.ArrangementExistingTask(it.id, it.displayName, it.category, it.totalDurationMinutes)
                         },
                         onRefineWithContext = arrangementAssistantViewModel::refine,
+                        availableIntervals = com.swan1127.repland.domain.model.ArrangementAvailability.forDay(
+                            com.swan1127.repland.domain.model.PlanGenerationInput(uiState.tasks, timeUiState.weeklyBlocks,
+                                timeUiState.dateOverrides, timeUiState.semesterFirstWeekMonday), activeDate, LocalDateTime.now()),
                         onConfirmChanges = planViewModel::saveAssistantChanges,
                         saveReceipt = planUiState.assistantReceipt,
                         onDismissReceipt = planViewModel::dismissAssistantReceipt,
@@ -1692,20 +1696,28 @@ private fun PlannedTaskCard(
 }
 
 @Composable
-private fun TasksScreen(
+internal fun TasksScreen(
     tasks: List<Task>,
     isLoading: Boolean,
     onOpen: (Task) -> Unit,
     onStart: (String) -> Unit,
     onAdd: () -> Unit,
+    confirmedSegments: List<PlannedSegment> = emptyList(),
 ) {
     var view by rememberSaveable { mutableStateOf(TaskCenterView.OVERVIEW) }
     val activeTasks = tasks.filter { it.status.isActive }
     val today = LocalDate.now()
+    val activeIds = activeTasks.map { it.id }.toSet()
+    val placementLabels = confirmedSegments.filter { it.date >= today && it.taskId in activeIds }.sortedWith(compareBy({ it.date }, { it.startMinute }))
+        .groupBy { it.taskId }.mapValues { (_, placements) ->
+            val slot = placements.first()
+            fun time(minute: Int) = String.format(Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)
+            "已安排 · ${slot.date.monthValue}月${slot.date.dayOfMonth}日 ${time(slot.startMinute)}–${time(slot.endMinute)}"
+        }
     val visibleTasks = when (view) {
         TaskCenterView.OVERVIEW -> activeTasks
-        TaskCenterView.INBOX -> activeTasks.filter { it.dueDate == null && it.scheduledForDate == null }
-        TaskCenterView.TODAY -> activeTasks.filter { it.dueDate == today || it.scheduledForDate == today }
+        TaskCenterView.INBOX -> activeTasks.filter { com.swan1127.repland.domain.model.TaskPlanMembership.isInbox(it, confirmedSegments, today) }
+        TaskCenterView.TODAY -> activeTasks.filter { com.swan1127.repland.domain.model.TaskPlanMembership.isToday(it, confirmedSegments, today) }
         TaskCenterView.OVERDUE -> activeTasks.filter { it.dueDate?.isBefore(today) == true }
         TaskCenterView.COMPLETED -> tasks.filter { !it.status.isActive }
     }
@@ -1735,9 +1747,9 @@ private fun TasksScreen(
             )
         } else if (!isLoading) {
             if (view == TaskCenterView.OVERVIEW) {
-                TaskControlCenter(tasks = activeTasks, onOpen = onOpen, onStart = onStart)
+                TaskControlCenter(tasks = activeTasks, onOpen = onOpen, onStart = onStart, confirmedSegments = confirmedSegments, placementLabels = placementLabels)
             } else {
-                TaskList(tasks = visibleTasks, onOpen = onOpen, onStart = onStart)
+                TaskList(tasks = visibleTasks, onOpen = onOpen, onStart = onStart, placementLabels = placementLabels)
             }
         }
     }
@@ -1752,6 +1764,8 @@ private fun TaskControlCenter(
     tasks: List<Task>,
     onOpen: (Task) -> Unit,
     onStart: (String) -> Unit,
+    confirmedSegments: List<PlannedSegment> = emptyList(),
+    placementLabels: Map<String, String> = emptyMap(),
 ) {
     val today = LocalDate.now()
     val attention = tasks.filter {
@@ -1759,8 +1773,8 @@ private fun TaskControlCenter(
             it.scheduledForDate?.isBefore(today) == true ||
             it.status == TaskStatus.POSTPONED
     }
-    val todayTasks = tasks.filter { (it.dueDate == today || it.scheduledForDate == today) && it !in attention }
-    val inbox = tasks.filter { it.dueDate == null && it.scheduledForDate == null && it !in attention && it !in todayTasks }
+    val todayTasks = tasks.filter { com.swan1127.repland.domain.model.TaskPlanMembership.isToday(it, confirmedSegments, today) && it !in attention }
+    val inbox = tasks.filter { com.swan1127.repland.domain.model.TaskPlanMembership.isInbox(it, confirmedSegments, today) && it !in attention && it !in todayTasks }
     val later = tasks.filter { it !in attention && it !in todayTasks && it !in inbox }
     var expandedGroup by rememberSaveable { mutableStateOf<String?>(null) }
     LazyColumn(
@@ -1792,7 +1806,8 @@ private fun TaskControlCenter(
                 }
                 items(if (expandedGroup == title) group else group.take(3), key = Task::id) { task ->
                     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
-                        TaskRow(task, { onOpen(task) }, { onStart(task.id) }, emphasis = if (title == "需要处理") TaskRowEmphasis.ATTENTION else TaskRowEmphasis.NORMAL)
+                        TaskRow(task, { onOpen(task) }, { onStart(task.id) }, emphasis = if (title == "需要处理") TaskRowEmphasis.ATTENTION else TaskRowEmphasis.NORMAL,
+                            planningSummary = placementLabels[task.id])
                     }
                 }
             }
@@ -1806,6 +1821,7 @@ private fun TaskList(
     tasks: List<Task>,
     onOpen: (Task) -> Unit,
     onStart: (String) -> Unit,
+    placementLabels: Map<String, String> = emptyMap(),
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -1813,7 +1829,7 @@ private fun TaskList(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         items(tasks, key = Task::id) { task ->
-            TaskRow(task = task, onOpen = { onOpen(task) }, onStart = { onStart(task.id) })
+            TaskRow(task = task, onOpen = { onOpen(task) }, onStart = { onStart(task.id) }, planningSummary = placementLabels[task.id])
         }
     }
 }
@@ -2401,7 +2417,7 @@ private fun AiConsentDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.ai_consent_title)) },
         text = {
-            Text(stringResource(R.string.ai_consent_message))
+            Text(stringResource(R.string.ai_consent_message), modifier = Modifier.verticalScroll(rememberScrollState()))
         },
         confirmButton = {
             TextButton(

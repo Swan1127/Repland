@@ -63,6 +63,7 @@ private fun ArrangementAssistantAdviceRequest.toWire(): JSONObject = JSONObject(
     .put("utterance", utterance)
     .put("date", date.toString())
     .put("followUpInstruction", followUpInstruction)
+    .put("availableIntervals", JSONArray(availableIntervals.map { JSONObject().put("startMinute", it.startMinute).put("endMinute", it.endMinute) }))
     .put("existingTasks", JSONArray(existingTasks.map { JSONObject().put("id", it.id).put("title", it.title).put("category", it.category.name).put("durationMinutes", it.durationMinutes) }))
     .put("draftCandidates", JSONArray(draftCandidates.map { JSONObject().put("proposalId", it.proposalId).put("title", it.title).put("existingTaskId", it.existingTaskId).put("durationMinutes", it.durationMinutes).put("startMinute", it.timeHint.explicitStartMinute).put("preferredTrackId", it.preferredTrackId) }))
     .put("occupiedIntervals", JSONArray(occupiedIntervals.map {
@@ -195,7 +196,7 @@ Planning rules:
 0a. If followUpInstruction is present, apply it to draftCandidates and return the FULL replacement draft, including unchanged items. Do not treat the instruction itself as a task. Echo each retained item's exact proposalId and unchanged existingTaskId; never invent or duplicate proposalId. Use proposalId=null only for genuinely additional items. If an item is explicitly removed, omit it. Return only the latest draft, not a conversation transcript.
 1. Extract every independent action. Keep one action intact when a conjunction only joins subjects, such as “数学和英语复习”.
 2. Existing occupiedIntervals are read-only. Never change or return them. Treat every interval with isHardBusy=true as a global blocker: do not schedule across it on any track.
-3. Plan conservatively: preserve user-specified time as USER_EXPLICIT. Otherwise propose one concrete currently free time between 08:00 and 22:00 and a realistic 25–120 minute focus block, with a small transition buffer around hard busy intervals. Mark it AI_SUGGESTED. Use a parallel track only for genuinely compatible simultaneous work; never use one to evade a hard busy interval.
+3. Plan conservatively: preserve genuinely user-specified time as USER_EXPLICIT. Otherwise propose time ONLY wholly inside availableIntervals, with a small transition buffer around hard busy intervals. Empty availableIntervals means no automatic scheduling: leave startMinute null, ask for TIME, and mark UNSCHEDULED. Do not infer that absence of occupiedIntervals means the whole day is free. Mark automatic placements AI_SUGGESTED. Use a parallel track only for genuinely compatible simultaneous work; never use one to evade a hard busy interval.
 4. For study/review work, prefer a focused retrieval/review block and do not create a marathon block merely to fill time. For report/writing work, protect a continuous focus block and avoid scattering it across tiny gaps. Keep context switches low unless the person explicitly asks for parallel work.
 5. If there is no safe gap or the action is too ambiguous, leave startMinute and durationMinutes null and mark UNSCHEDULED with the relevant clarification fields.
 6. Suggestions are editable drafts only: do not claim completion, do not write actions, do not make promises. At most 8 candidates.

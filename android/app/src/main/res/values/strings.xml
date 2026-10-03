@@ -209,7 +209,7 @@
     <string name="ai_advisor_consent_recorded">已开启授权，发送前仍可查看内容。</string>
     <string name="ai_advisor_not_configured">当前 APK 未配置联网 AI 服务；请求会明确提示不可用，本地确定性规划不受影响。</string>
     <string name="ai_consent_title">启用受限 AI 建议</string>
-    <string name="ai_consent_message">你同意后，Repland 才允许你在每次数据预览确认后请求 AI 建议。请求只包含当前任务内容、该任务最近最多 5 条反馈和该任务的已确认时间段；不会默认发送其他任务、完整历史、画像或账户数据。AI 只能返回建议，不能直接改变任务状态或当前计划。当前版本未配置联网服务，因此不会实际传输数据。</string>
+    <string name="ai_consent_message">开启本身不会发送数据。具备远程能力且已配置模型服务时，你明确请求建议才会联网。任务建议只发送当前任务、最近最多 5 条反馈及相关安排；安排助手发送本次输入、所选日期占用时段、最多 50 项未完成任务的名称/类别/时长及当前草案。具体发送范围会在各功能中说明，不默认发送完整历史或账户数据。AI 只能提出建议，任务状态和正式计划仍由你确认。</string>
     <string name="ai_consent_confirm">同意并开启</string>
     <string name="request_ai_advice">请求 AI 建议</string>
     <string name="request_agent_difficulty">评估难度与时长</string>

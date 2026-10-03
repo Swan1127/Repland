@@ -152,6 +152,8 @@ class AgentCenterUiTest {
         rule.waitUntil { request != null }
         rule.waitForIdle()
         assertEquals(50, request!!.existingTasks.size)
+        // The parser's provisional new-item IDs are not yet user-approved proposal identities.
+        assertEquals(emptyList<ArrangementCandidate>(), request!!.draftCandidates)
         rule.onNodeWithText("确认新增 0 项、调整已有 1 项").performScrollTo().performClick()
         assertEquals(true, confirmed)
     }

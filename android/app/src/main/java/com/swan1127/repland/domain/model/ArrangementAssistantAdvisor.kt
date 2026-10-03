@@ -10,7 +10,27 @@ data class ArrangementAssistantAdviceRequest(
     val existingTasks: List<ArrangementExistingTask> = emptyList(),
     val draftCandidates: List<ArrangementCandidate> = emptyList(),
     val followUpInstruction: String? = null,
+    val availableIntervals: List<ArrangementAvailableInterval> = emptyList(),
 )
+
+data class ArrangementAvailableInterval(val startMinute: Int, val endMinute: Int)
+
+/** Only explicitly declared free time; an empty day is not an all-day availability claim. */
+object ArrangementAvailability {
+    fun forDay(input: PlanGenerationInput, date: LocalDate, now: java.time.LocalDateTime): List<ArrangementAvailableInterval> {
+        if (date < now.toLocalDate()) return emptyList()
+        val first = if (date == now.toLocalDate()) now.hour * 60 + now.minute + 1 else 0
+        val result = mutableListOf<ArrangementAvailableInterval>()
+        var start: Int? = null
+        for (minute in first..1440) {
+            val free = minute < 1440 && PlanningConstraintValidator.isAvailable(date, minute, minute + 1,
+                input.weeklyBlocks, input.dateOverrides, input.semesterFirstWeekMonday)
+            if (free && start == null) start = minute
+            if (!free && start != null) { result += ArrangementAvailableInterval(start, minute); start = null }
+        }
+        return result
+    }
+}
 
 data class ArrangementExistingTask(val id: String, val title: String, val category: TaskCategory, val durationMinutes: Int?)
 
@@ -59,7 +79,23 @@ object ArrangementAssistantAdviceValidator {
         }) return null
         val checked = validate(advice) ?: return null
         if (!request.followUpInstruction.isNullOrBlank() && checked.candidates.size != advice.candidates.size) return null
-        return checked
+        val explicitStarts = ArrangementAssistantInterpreter.interpret(
+            listOfNotNull(request.utterance, request.followUpInstruction).joinToString("；")
+        ).candidates.mapNotNull { it.timeHint.explicitStartMinute }.toSet()
+        return checked.copy(candidates = checked.candidates.map { candidate ->
+            val start = candidate.timeHint.explicitStartMinute
+            val duration = candidate.durationMinutes
+            val explicit = candidate.placementSource == ArrangementPlacementSource.USER_EXPLICIT &&
+                (start in explicitStarts || request.draftCandidates.any { candidate.proposalId != null && it.proposalId == candidate.proposalId &&
+                    it.placementSource == ArrangementPlacementSource.USER_EXPLICIT && it.timeHint.explicitStartMinute == start })
+            if (!explicit && start != null &&
+                (duration == null || request.availableIntervals.none { start >= it.startMinute && start + duration <= it.endMinute })) {
+                candidate.copy(timeHint = ArrangementTimeHint(windowLabel = candidate.timeHint.windowLabel),
+                    placementSource = ArrangementPlacementSource.UNSCHEDULED,
+                    needsClarification = candidate.needsClarification + ArrangementClarification.TIME)
+            } else if (start != null && !explicit) candidate.copy(placementSource = ArrangementPlacementSource.AI_SUGGESTED)
+            else candidate
+        })
     }
     fun validate(advice: ArrangementAssistantAdvice): ArrangementAssistantAdvice? {
         val validCandidates = advice.candidates
