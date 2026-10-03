@@ -162,6 +162,7 @@ sealed interface AiAdvisorResult {
 }
 
 enum class AiAdvisorFailureReason {
+    CONFIGURATION_CHANGED,
     DISABLED,
     SERVICE_NOT_CONFIGURED,
     TRANSPORT_FAILURE,

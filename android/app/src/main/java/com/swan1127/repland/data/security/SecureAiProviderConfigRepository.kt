@@ -23,19 +23,20 @@ import kotlinx.coroutines.flow.asStateFlow
  * encrypted key bytes and an IV; the plain API key never enters Room, exports,
  * logs, or Compose UI state.
  */
-class SecureAiProviderConfigRepository(context: Context) : AiProviderConfigRepository {
-    private val preferences = context.applicationContext.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+class SecureAiProviderConfigRepository(context: Context, preferenceName: String = "secure_ai_provider_config") : AiProviderConfigRepository {
+    private val preferences = context.applicationContext.getSharedPreferences(preferenceName, Context.MODE_PRIVATE)
     private val state = MutableStateFlow(readConfig())
 
     override fun observe(): Flow<AiProviderConfig> = state.asStateFlow()
 
     override suspend fun save(baseUrl: String, model: String, apiKey: String) {
         val normalizedUrl = normalizeBaseUrl(baseUrl)
+        require(apiKey.isNotBlank() || !state.value.hasApiKey || normalizedUrl == state.value.baseUrl) { "更换服务地址时请重新输入该服务的密钥，避免把原密钥发送到另一服务。" }
         val normalizedModel = model.trim().also { require(it.isNotBlank()) { "请选择或填写模型名称。" } }
         val editor = preferences.edit()
             .putString(KEY_BASE_URL, normalizedUrl)
             .putString(KEY_MODEL, normalizedModel)
-            .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
+            .putLong(KEY_UPDATED_AT, maxOf(System.currentTimeMillis(), (state.value.updatedAtEpochMillis ?: 0L) + 1))
         if (apiKey.isNotBlank()) {
             val encrypted = encrypt(apiKey.trim())
             editor.putString(KEY_ENCRYPTED_API_KEY, encrypted.cipherText)
@@ -49,7 +50,7 @@ class SecureAiProviderConfigRepository(context: Context) : AiProviderConfigRepos
         preferences.edit()
             .remove(KEY_ENCRYPTED_API_KEY)
             .remove(KEY_API_KEY_IV)
-            .putLong(KEY_UPDATED_AT, System.currentTimeMillis())
+            .putLong(KEY_UPDATED_AT, maxOf(System.currentTimeMillis(), (state.value.updatedAtEpochMillis ?: 0L) + 1))
             .apply()
         state.value = readConfig()
     }
@@ -72,7 +73,7 @@ class SecureAiProviderConfigRepository(context: Context) : AiProviderConfigRepos
     private fun normalizeBaseUrl(raw: String): String {
         val normalized = raw.trim().trimEnd('/')
         val uri = runCatching { URI(normalized) }.getOrNull()
-        require(uri?.scheme == "https" && !uri.host.isNullOrBlank()) {
+        require(uri?.scheme == "https" && !uri.host.isNullOrBlank() && uri.userInfo == null && uri.rawQuery == null && uri.rawFragment == null) {
             "服务地址必须是以 https:// 开头的完整地址。"
         }
         return normalized

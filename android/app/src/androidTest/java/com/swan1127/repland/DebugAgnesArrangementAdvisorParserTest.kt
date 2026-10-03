@@ -1,7 +1,7 @@
 package com.swan1127.repland
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.swan1127.repland.debug.decodeArrangementAdvice
+import com.swan1127.repland.data.ai.decodeArrangementAdvice
 import com.swan1127.repland.domain.model.ArrangementPlacementSource
 import com.swan1127.repland.domain.model.TaskCategory
 import org.junit.Assert.assertEquals

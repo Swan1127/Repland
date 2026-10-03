@@ -750,6 +750,7 @@ fun ReplandApp(
                     AppTab.AGENT -> if (!workspaceUiState.isLoading) AgentCenterScreen(
                         activeDate = activeDate,
                         occupiedEntries = agentTimelineEntries,
+                        providerRevision = aiProviderConfigUiState.config.updatedAtEpochMillis,
                         canRefineWithAi = arrangementAssistantAccess.isEnabled &&
                             arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey && aiProviderConfigUiState.supportsRemote,
                         onRefineWithAi = arrangementAssistantViewModel::refine,
@@ -4084,6 +4085,7 @@ private fun AiProviderSettingsDialog(
 }
 
 private fun AiAdvisorFailureReason.connectionTestMessage(): String = when (this) {
+    AiAdvisorFailureReason.CONFIGURATION_CHANGED -> "配置已变化，请使用新配置重新测试。"
     AiAdvisorFailureReason.AUTHENTICATION_FAILURE -> "鉴权失败：请检查密钥是否属于当前服务区，以及账户是否可用。"
     AiAdvisorFailureReason.RATE_LIMITED -> "服务已连通，但当前触发请求额度或频率限制。"
     AiAdvisorFailureReason.REMOTE_FAILURE -> "已到达服务网关，但模型服务暂时异常；请稍后再试。"
@@ -5169,6 +5171,7 @@ private fun ProfileEvidenceScope.labelRes(): Int = when (this) {
 
 @StringRes
 private fun AiAdvisorFailureReason.labelRes(): Int = when (this) {
+    AiAdvisorFailureReason.CONFIGURATION_CHANGED -> R.string.ai_failure_configuration_changed
     AiAdvisorFailureReason.DISABLED -> R.string.ai_failure_disabled
     AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED -> R.string.ai_failure_not_configured
     AiAdvisorFailureReason.TRANSPORT_FAILURE -> R.string.ai_failure_transport

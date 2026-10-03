@@ -1,4 +1,4 @@
-package com.swan1127.repland.debug
+package com.swan1127.repland.data.ai
 
 import com.swan1127.repland.domain.model.AiAdvisor
 import com.swan1127.repland.domain.model.AiAdvisorFailureReason
@@ -25,6 +25,7 @@ import java.net.URL
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -33,58 +34,34 @@ import org.json.JSONObject
  * this adapter is loaded reflectively and reads a Keystore-protected key only at
  * the moment an already-confirmed advice request is made.
  */
-class DebugAgnesAdvisor(
+class CompatibleAiAdvisor(
     private val providerConfigRepository: AiProviderConfigRepository,
 ) : AiAdvisor {
     override suspend fun request(request: AiAdvisorRequest): AiAdvisorResult = withContext(Dispatchers.IO) {
-        val provider = providerConfigRepository.readSecret()
-            ?: return@withContext AiAdvisorResult.Unavailable(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED)
         try {
-            val connection = URL(provider.baseUrl.trimEnd('/') + "/chat/completions").openConnection() as HttpURLConnection
-            try {
-                connection.requestMethod = "POST"
-                connection.connectTimeout = 5_000
-                connection.readTimeout = 35_000
-                connection.doOutput = true
-                connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-                connection.setRequestProperty("Authorization", "Bearer ${provider.apiKey}")
-                connection.outputStream.use {
-                    it.write(
-                        JSONObject()
-                            .put("model", provider.model)
-                            .put("temperature", 0.1)
-                            .put(
-                                "messages",
-                                JSONArray()
-                                    .put(JSONObject().put("role", "system").put("content", AI_SYSTEM_INSTRUCTION))
-                                    .put(JSONObject().put("role", "user").put("content", request.toWire().toString())),
-                            )
-                            .toString()
-                            .toByteArray(Charsets.UTF_8),
-                    )
-                }
-                if (connection.responseCode !in 200..299) {
-                    AiAdvisorResult.Failed(AiAdvisorFailureReason.TRANSPORT_FAILURE)
-                } else {
-                    val payload = connection.inputStream.bufferedReader().use { it.readText() }
-                    val content = JSONObject(payload)
-                        .getJSONArray("choices")
-                        .getJSONObject(0)
-                        .getJSONObject("message")
-                        .getString("content")
-                        .removeMarkdownFence()
-                    val response = request.decode(JSONObject(content))
-                    AiAdvisorResult.Advice(response)
-                }
-            } finally {
-                connection.disconnect()
+            val revision = providerConfigRepository.observe().first()
+            val provider = providerConfigRepository.readSecret()
+                ?: return@withContext AiAdvisorResult.Unavailable(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED)
+            val content = CompatibleChatTransport().complete(provider, AI_SYSTEM_INSTRUCTION, request.toWire())
+            if (providerConfigRepository.observe().first() != revision)
+                return@withContext AiAdvisorResult.Failed(AiAdvisorFailureReason.CONFIGURATION_CHANGED)
+            val response = request.decode(JSONObject(content.removeMarkdownFence()))
+            when (val validation = com.swan1127.repland.domain.model.AiAdviceValidator.validate(request, response)) {
+                is com.swan1127.repland.domain.model.AiAdviceValidation.Valid -> AiAdvisorResult.Advice(validation.response)
+                is com.swan1127.repland.domain.model.AiAdviceValidation.Invalid -> AiAdvisorResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
             }
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (failure: ProviderHttpFailure) {
+            AiAdvisorResult.Failed(failure.reason)
         } catch (_: SocketTimeoutException) {
             AiAdvisorResult.Failed(AiAdvisorFailureReason.TIMEOUT)
         } catch (_: org.json.JSONException) {
             AiAdvisorResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        } catch (_: java.time.format.DateTimeParseException) {
+            AiAdvisorResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
         } catch (_: Exception) {
-            AiAdvisorResult.Unavailable(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED)
+            AiAdvisorResult.Failed(AiAdvisorFailureReason.TRANSPORT_FAILURE)
         }
     }
 }

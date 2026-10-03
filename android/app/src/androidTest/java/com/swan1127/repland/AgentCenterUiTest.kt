@@ -29,6 +29,27 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgentCenterUiTest {
     @get:Rule val rule = createComposeRule()
+    @Test fun provider_change_invalidates_an_inflight_reply_even_when_ai_remains_enabled() {
+        val revision = androidx.compose.runtime.mutableStateOf(1L)
+        val response = kotlinx.coroutines.CompletableDeferred<ArrangementAssistantAdviceResult>()
+        var calls = 0
+        var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            providerRevision = revision.value, canRefineWithAi = true,
+            onRefineWithAi = { _, _, _ -> calls++; response.await() }, onWorkspaceChanged = { stored = it },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("复习英语")
+        rule.onNodeWithTag("agent-preview").performClick()
+        rule.waitUntil { calls == 1 }
+        val expected = stored
+        rule.runOnIdle { revision.value = 2L }
+        rule.waitForIdle()
+        rule.runOnIdle { response.complete(ArrangementAssistantAdviceResult.Advice(
+            ArrangementAssistantAdvice(listOf(ArrangementCandidate("旧任务", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.AI_SUGGESTED)), "旧配置"))) }
+        rule.waitForIdle()
+        assertEquals(expected, stored)
+    }
 
     @Test fun missing_availability_exposes_a_real_configuration_action() {
         var opened = 0

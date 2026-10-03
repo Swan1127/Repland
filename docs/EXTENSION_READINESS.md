@@ -4,7 +4,7 @@
 
 任务 10 的能力不属于当前本地 MVP。本文将它们拆成可独立审查、可逐步启用的工作流，避免“接入服务”反过来削弱离线可用性、用户确认和数据最小化。
 
-当前状态：正式版和 internal 版没有联网权限、账号、云同步、崩溃/分析 SDK 或服务密钥；Android **debug 版**增加了仅供本机开发代理使用的联网能力，密钥仍不进入 APK。`verifyOfflineMvpBoundary` 继续检查 `src/main`；debug 例外及其限度记录于 [ADR 0002](adr/0002-debug-ai-gateway-and-execution-evidence.md)。正式联网准入条件仍未完成，不得据调试可用性宣称已具备生产网关。
+当前状态：release 保持离线；debug/internal 从 src/remote 共用 HTTPS BYOK 适配器和联网权限，密钥不内嵌到 APK。所有构建均无账号、云同步、崩溃/分析 SDK。`verifyOfflineMvpBoundary` 继续检查 `src/main`；debug 例外及其限度记录于 [ADR 0002](adr/0002-debug-ai-gateway-and-execution-evidence.md)。正式联网准入条件仍未完成，不得据调试可用性宣称已具备生产网关。
 
 ## 受控 AI 后端或边缘函数
 

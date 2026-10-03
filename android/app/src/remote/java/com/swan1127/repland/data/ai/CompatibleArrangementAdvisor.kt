@@ -1,4 +1,4 @@
-package com.swan1127.repland.debug
+package com.swan1127.repland.data.ai
 
 import com.swan1127.repland.domain.model.AiAdvisorFailureReason
 import com.swan1127.repland.domain.model.ArrangementAssistantAdvice
@@ -17,62 +17,39 @@ import java.net.SocketTimeoutException
 import java.net.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
 
 /** Debug-only OpenAI-compatible refinement for an explicit arrangement request. */
-class DebugAgnesArrangementAdvisor(
+class CompatibleArrangementAdvisor(
     private val providerConfigRepository: AiProviderConfigRepository,
 ) : ArrangementAssistantAdvisor {
-    override suspend fun refine(request: ArrangementAssistantAdviceRequest): ArrangementAssistantAdviceResult =
-        withContext(Dispatchers.IO) {
+    override suspend fun refine(request: ArrangementAssistantAdviceRequest): ArrangementAssistantAdviceResult = withContext(Dispatchers.IO) {
+        try {
+            val revision = providerConfigRepository.observe().first()
             val provider = providerConfigRepository.readSecret()
                 ?: return@withContext ArrangementAssistantAdviceResult.Unavailable(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED)
-            try {
-                val connection = URL(provider.baseUrl.trimEnd('/') + "/chat/completions").openConnection() as HttpURLConnection
-                try {
-                    connection.requestMethod = "POST"
-                    connection.connectTimeout = 12_000
-                    connection.readTimeout = 45_000
-                    connection.doOutput = true
-                    connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-                    connection.setRequestProperty("Authorization", "Bearer ${provider.apiKey}")
-                    connection.outputStream.use {
-                        it.write(
-                            JSONObject()
-                                .put("model", provider.model)
-                                .put("temperature", 0.1)
-                                .put(
-                                    "messages",
-                                    JSONArray()
-                                        .put(JSONObject().put("role", "system").put("content", ARRANGEMENT_SYSTEM_PROMPT))
-                                        .put(JSONObject().put("role", "user").put("content", request.toWire().toString())),
-                                )
-                                .toString()
-                                .toByteArray(Charsets.UTF_8),
-                        )
-                    }
-                    if (connection.responseCode !in 200..299) {
-                        ArrangementAssistantAdviceResult.Failed(connection.responseCode.toFailureReason())
-                    } else {
-                        val content = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
-                            .completionText()
-                        val advice = decodeArrangementAdvice(content)
-                        ArrangementAssistantAdviceValidator.validate(advice)
-                            ?.let { ArrangementAssistantAdviceResult.Advice(it) }
-                            ?: ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
-                    }
-                } finally {
-                    connection.disconnect()
-                }
-            } catch (_: SocketTimeoutException) {
-                ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.TIMEOUT)
-            } catch (_: org.json.JSONException) {
-                ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
-            } catch (_: Exception) {
-                ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.TRANSPORT_FAILURE)
-            }
+            val content = CompatibleChatTransport().complete(provider, ARRANGEMENT_SYSTEM_PROMPT, request.toWire())
+            if (providerConfigRepository.observe().first() != revision)
+                return@withContext ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.CONFIGURATION_CHANGED)
+            val advice = decodeArrangementAdvice(content)
+            ArrangementAssistantAdviceValidator.validate(advice)?.let { ArrangementAssistantAdviceResult.Advice(it) }
+                ?: ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (failure: ProviderHttpFailure) {
+            ArrangementAssistantAdviceResult.Failed(failure.reason)
+        } catch (_: SocketTimeoutException) {
+            ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.TIMEOUT)
+        } catch (_: org.json.JSONException) {
+            ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        } catch (_: java.time.format.DateTimeParseException) {
+            ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        } catch (_: Exception) {
+            ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.TRANSPORT_FAILURE)
         }
+    }
 }
 
 private fun Int.toFailureReason(): AiAdvisorFailureReason = when (this) {

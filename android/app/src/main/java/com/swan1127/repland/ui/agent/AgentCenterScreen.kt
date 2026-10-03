@@ -104,6 +104,7 @@ fun AgentCenterScreen(
     onWorkspaceChanged: (AssistantWorkspace) -> Unit = {},
     isSaving: Boolean = false,
     contextRevision: String? = null,
+    providerRevision: Long? = null,
     availableTracks: List<RhythmTrack> = emptyList(),
     hasExistingTasks: Boolean = true,
     onAddTask: () -> Unit = {},
@@ -123,7 +124,7 @@ fun AgentCenterScreen(
     var transcriptError by rememberSaveable { mutableStateOf(false) }
     var editingProposal by remember { mutableStateOf<AgentTaskProposal?>(null) }
     var isRefining by remember { mutableStateOf(false) }
-    LaunchedEffect(canRefineWithAi, activeDate, occupiedEntries, contextRevision) { requestVersion++; isRefining = false }
+    LaunchedEffect(canRefineWithAi, activeDate, occupiedEntries, contextRevision, providerRevision) { requestVersion++; isRefining = false }
     var refinementMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val speechLauncher = rememberLauncherForActivityResult(
@@ -678,6 +679,7 @@ private fun ArrangementPlacementSource.label(): String = when (this) {
 }
 
 private fun AiAdvisorFailureReason.userMessage(fallback: String): String = when (this) {
+    AiAdvisorFailureReason.CONFIGURATION_CHANGED -> "模型配置已变化，请重新生成；$fallback"
     AiAdvisorFailureReason.INVALID_RESPONSE -> "AI 的回复格式不完整，已自动保留本地草案；可点“重新用 AI 校对计划”重试。"
     AiAdvisorFailureReason.TIMEOUT -> "AI 响应超时，$fallback"
     AiAdvisorFailureReason.TRANSPORT_FAILURE -> "无法连接 AI 服务，请检查网络、接口地址和模型名；$fallback"

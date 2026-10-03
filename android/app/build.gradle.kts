@@ -109,6 +109,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
         isCoreLibraryDesugaringEnabled = true
     }
+    // Explicit BYOK network boundary: QA + closed internal builds only.
+    sourceSets {
+        getByName("debug") { kotlin.directories.add("src/remote/java"); manifest.srcFile("src/remote/AndroidManifest.xml") }
+        getByName("internal") { kotlin.directories.add("src/remote/java"); manifest.srcFile("src/remote/AndroidManifest.xml") }
+    }
     buildFeatures {
         compose = true
         buildConfig = true

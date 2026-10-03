@@ -82,14 +82,14 @@ class AppContainer(context: Context) {
     val aiSettingsRepository: AiSettingsRepository = RoomAiSettingsRepository(database.aiSettingsDao())
     val aiProviderConfigRepository: AiProviderConfigRepository = SecureAiProviderConfigRepository(context)
     val engagementRepository = RoomEngagementRepository(database)
-    /** Debug builds may use the user-configured provider. Release builds remain local-only. */
+    /** QA/internal share the optional BYOK provider; release stays local-only. */
     val aiAdvisor: AiAdvisor = runCatching {
-        Class.forName("com.swan1127.repland.debug.DebugAgnesAdvisor")
+        Class.forName("com.swan1127.repland.data.ai.CompatibleAiAdvisor")
             .getDeclaredConstructor(AiProviderConfigRepository::class.java)
             .newInstance(aiProviderConfigRepository) as AiAdvisor
     }.getOrDefault(NoOpAiAdvisor)
     val arrangementAssistantAdvisor: ArrangementAssistantAdvisor = runCatching {
-        Class.forName("com.swan1127.repland.debug.DebugAgnesArrangementAdvisor")
+        Class.forName("com.swan1127.repland.data.ai.CompatibleArrangementAdvisor")
             .getDeclaredConstructor(AiProviderConfigRepository::class.java)
             .newInstance(aiProviderConfigRepository) as ArrangementAssistantAdvisor
     }.getOrDefault(NoOpArrangementAssistantAdvisor)
