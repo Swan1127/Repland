@@ -22,6 +22,14 @@ object LocalDataJsonExporter {
         "generatedAtEpochMillis" to snapshot.generatedAtEpochMillis.toString(),
         "tasks" to jsonArray(snapshot.tasks.map(::taskJson)),
         "executionLogs" to jsonArray(snapshot.executionLogs.map(::executionLogJson)),
+        "executionSessions" to jsonArray(snapshot.executionSessions.map { s -> jsonObject(
+            "id" to jsonString(s.id), "taskId" to jsonString(s.taskId), "taskTitle" to jsonString(s.taskTitle),
+            "planId" to jsonString(s.planId), "segmentId" to jsonString(s.segmentId),
+            "targetSeconds" to s.targetSeconds.toString(), "startedAtEpochMillis" to s.startedAtEpochMillis.toString(),
+            "accumulatedMillis" to s.accumulatedMillis.toString(),
+            "runningSinceEpochMillis" to (s.runningSinceEpochMillis?.toString() ?: "null"),
+            "endedAtEpochMillis" to (s.endedAtEpochMillis?.toString() ?: "null"), "outcome" to jsonString(s.outcome?.name),
+        ) }),
         "weeklyTimeBlocks" to jsonArray(snapshot.weeklyTimeBlocks.map(::weeklyBlockJson)),
         "dateOverrides" to jsonArray(snapshot.dateOverrides.map(::dateOverrideJson)),
         "timeConstraintSettings" to jsonObject(

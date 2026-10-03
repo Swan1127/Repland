@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ReplandTheme {
                 val taskViewModel: TaskViewModel = viewModel(
-                    factory = TaskViewModel.Factory(appContainer.taskRepository),
+                    factory = TaskViewModel.Factory(appContainer.taskRepository, appContainer.executionSessionRepository),
                 )
                 val timeViewModel: TimeViewModel = viewModel(
                     factory = TimeViewModel.Factory(
@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
                     factory = PlanViewModel.Factory(
                         appContainer.planRepository,
                         appContainer.planDraftGenerator,
+                        appContainer.timeRepository,
+                        appContainer.taskRepository,
                     ),
                 )
                 val categoryPreferenceViewModel: CategoryPreferenceViewModel = viewModel(

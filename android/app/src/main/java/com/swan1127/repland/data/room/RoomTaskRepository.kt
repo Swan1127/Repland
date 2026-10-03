@@ -83,11 +83,9 @@ class RoomTaskRepository(
             require(TaskLifecycleValidator.isValidFeedback(feedback)) { "Invalid feedback values." }
         }
         val now = System.currentTimeMillis()
-        val effectiveFeedback = if (status == TaskStatus.COMPLETED && feedback.actualDurationMinutes == null) {
-            feedback.copy(actualDurationMinutes = inferActualDurationMinutes(existing, taskId, now))
-        } else {
-            feedback
-        }
+        // Missing duration remains unknown. Planned duration and time since a status
+        // change are not evidence of actual work (they include breaks/background).
+        val effectiveFeedback = feedback
         val logCreatedAt = nextLogCreatedAt(taskId, now)
         taskDao.update(existing.withConfirmedStatus(status, effectiveFeedback, now))
         executionLogDao.insert(
@@ -216,14 +214,6 @@ class RoomTaskRepository(
 
     private suspend fun requireTask(taskId: String): TaskEntity =
         requireNotNull(taskDao.getById(taskId)) { "Task does not exist." }
-
-    private suspend fun inferActualDurationMinutes(existing: TaskEntity, taskId: String, now: Long): Int? {
-        val startedAt = executionLogDao.getForTask(taskId)
-            .lastOrNull { it.confirmedStatus == TaskStatus.IN_PROGRESS.name }
-            ?.createdAtEpochMillis
-        val elapsed = startedAt?.let { ((now - it) / 60_000L).toInt().coerceIn(1, 1_440) }
-        return elapsed ?: existing.totalDurationMinutes?.coerceIn(1, 1_440)
-    }
 
     /** Makes chronological ordering deterministic even for confirmations in one clock millisecond. */
     private suspend fun nextLogCreatedAt(taskId: String, now: Long): Long {

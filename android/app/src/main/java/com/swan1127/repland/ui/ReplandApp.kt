@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -221,6 +222,11 @@ fun ReplandApp(
     engagementViewModel: EngagementViewModel,
 ) {
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
+    val executionSession by taskViewModel.activeSession.collectAsStateWithLifecycle()
+    val executionBusy by taskViewModel.sessionBusy.collectAsStateWithLifecycle()
+    val executionError by taskViewModel.sessionError.collectAsStateWithLifecycle()
+    val executionFinished by taskViewModel.sessionFinished.collectAsStateWithLifecycle()
+    var showExecutionSession by rememberSaveable { mutableStateOf(false) }
     val timeUiState by timeViewModel.uiState.collectAsStateWithLifecycle()
     val planUiState by planViewModel.uiState.collectAsStateWithLifecycle()
     val workspaceUiState by planViewModel.workspaceUiState.collectAsStateWithLifecycle()
@@ -280,6 +286,7 @@ fun ReplandApp(
     var selectedTaskId by rememberSaveable { mutableStateOf<String?>(null) }
     var taskEditorTarget by remember { mutableStateOf<Task?>(null) }
     var showTaskEditor by rememberSaveable { mutableStateOf(false) }
+    var showQuickAvailability by rememberSaveable { mutableStateOf(false) }
     var showTaskCapture by rememberSaveable { mutableStateOf(false) }
     var taskEditorSeed by rememberSaveable { mutableStateOf("") }
     var completingTask by remember { mutableStateOf<Task?>(null) }
@@ -329,7 +336,7 @@ fun ReplandApp(
             semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
             lockedSegments = planUiState.currentPlan?.segments
                 ?.filter { segment ->
-                    segment.isLocked && !segment.hasEndedBefore(LocalDateTime.now())
+                    (segment.isLocked || executionSession?.taskId == segment.taskId) && !segment.hasEndedBefore(LocalDateTime.now())
                 }
                 .orEmpty(),
             categoryPreferences = categoryPreferenceUiState.weights,
@@ -575,6 +582,12 @@ fun ReplandApp(
             ) {
                 when (selectedTab) {
                     AppTab.TODAY -> TodayScreen(
+                        executionSession = executionSession,
+                        executionError = executionError,
+                        onResumeExecution = { showExecutionSession = true },
+                        executionFinished = executionFinished,
+                        onReplanRemaining = { taskViewModel.dismissSessionResult(); generatePlanDraft() },
+                        onDismissExecutionResult = taskViewModel::dismissSessionResult,
                         date = activeDate,
                         tasks = uiState.tasks.filter(Task::isTodayRelevant),
                         allTasks = uiState.tasks,
@@ -628,15 +641,9 @@ fun ReplandApp(
                         },
                         onOpenPlan = { selectedTab = AppTab.AGENT },
                         onPlaceEvent = planViewModel::placeTask,
-                        onFocusStarted = taskViewModel::startTask,
-                        onFocusCompleted = { taskId, minutes ->
-                            taskViewModel.completeTask(taskId, actualDurationMinutes = minutes)
-                        },
-                        onFocusNotCompleted = { taskId, minutes ->
-                            taskViewModel.recordFeedback(
-                                taskId,
-                                TaskFeedback(actualDurationMinutes = minutes, completionResult = "focus_incomplete"),
-                            )
+                        onFocusStarted = { segmentId ->
+                            showExecutionSession = true
+                            taskViewModel.startSession(segmentId)
                         },
                         onCreateCourse = { request, courseDate ->
                             timeViewModel.saveWeeklyBlock(
@@ -771,7 +778,7 @@ fun ReplandApp(
                         onAddTask = { selectedTab = AppTab.TASKS; showTaskCapture = true },
                         hasAvailability = timeUiState.weeklyBlocks.any { it.kind == TimeBlockKind.AVAILABLE } ||
                             timeUiState.dateOverrides.any { it.type == DateOverrideType.AVAILABLE && !it.date.isBefore(LocalDate.now()) },
-                        onConfigureAvailability = { weeklyBlockEditorTarget = null; weeklyBlockInitialKind = TimeBlockKind.AVAILABLE; showWeeklyBlockEditor = true },
+                        onConfigureAvailability = { planViewModel.dismissError(); showQuickAvailability = true },
                         contextRevision = PlanningRevision.of(com.swan1127.repland.domain.model.PlanGenerationInput(
                             uiState.tasks, timeUiState.weeklyBlocks, timeUiState.dateOverrides, timeUiState.semesterFirstWeekMonday,
                             categoryPreferences = categoryPreferenceUiState.weights), planUiState.currentPlan, planUiState.taskOrder),
@@ -832,6 +839,17 @@ fun ReplandApp(
         }
     }
 
+    if (showExecutionSession && executionSession != null) {
+        com.swan1127.repland.ui.schedule.ExecutionSessionDialog(
+            session = executionSession!!,
+            busy = executionBusy,
+            error = executionError,
+            onDismiss = { showExecutionSession = false },
+            onPause = { taskViewModel.pauseSession(executionSession!!.id) },
+            onResume = { taskViewModel.resumeSession(executionSession!!.id) },
+            onFinish = { outcome, feedback -> taskViewModel.finishSession(executionSession!!.id, outcome, feedback) },
+        )
+    }
     if (showTaskCapture) {
         TaskCaptureSheet(
             initialText = taskEditorSeed,
@@ -1071,7 +1089,14 @@ fun ReplandApp(
             confirmButton = { TextButton(onClick = planViewModel::dismissError) { Text("知道了") } },
         )
     }
-    planUiState.draft?.let { draft ->
+    if (showQuickAvailability) {
+        com.swan1127.repland.ui.plan.QuickAvailabilityDialog(
+            busy = planUiState.isWorking, error = planUiState.errorMessage,
+            onDismiss = { showQuickAvailability = false },
+            onSave = { value -> planViewModel.saveAvailabilityAndGenerate(value, categoryPreferenceUiState.weights) { showQuickAvailability = false } },
+        )
+    }
+    planUiState.draft?.takeIf { !showQuickAvailability }?.let { draft ->
         PlanDraftDialog(
             draft = draft,
             currentPlan = planUiState.currentPlan,
@@ -1079,7 +1104,7 @@ fun ReplandApp(
             isSaving = planUiState.isWorking,
             tracks = workspaceUiState.tracks,
             onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskEditorTarget = task; showTaskEditor = true },
-            onConfigureAvailability = { planViewModel.discardDraft(); weeklyBlockEditorTarget = null; weeklyBlockInitialKind = TimeBlockKind.AVAILABLE; showWeeklyBlockEditor = true },
+            onConfigureAvailability = { planViewModel.dismissError(); showQuickAvailability = true },
             tasks = uiState.tasks,
             weeklyBlocks = timeUiState.weeklyBlocks,
             dateOverrides = timeUiState.dateOverrides,
@@ -1231,6 +1256,12 @@ private fun TabIcon(tab: AppTab) {
 
 @Composable
 private fun TodayScreen(
+    executionSession: com.swan1127.repland.domain.model.ExecutionSession?,
+    executionError: String?,
+    onResumeExecution: () -> Unit,
+    executionFinished: Boolean,
+    onReplanRemaining: () -> Unit,
+    onDismissExecutionResult: () -> Unit,
     date: LocalDate,
     tasks: List<Task>,
     allTasks: List<Task>,
@@ -1254,8 +1285,6 @@ private fun TodayScreen(
     onOpenPlan: () -> Unit,
     onPlaceEvent: (String, LocalDate, Int, Int, String) -> Unit,
     onFocusStarted: (String) -> Unit,
-    onFocusCompleted: (String, Int) -> Unit,
-    onFocusNotCompleted: (String, Int) -> Unit,
     onCreateCourse: (com.swan1127.repland.ui.schedule.CourseInsertionRequest, LocalDate) -> Unit,
     onRemovePlacement: (String) -> Unit,
     onMoveEntry: (TimelineEntry, Int) -> Unit,
@@ -1280,6 +1309,27 @@ private fun TodayScreen(
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        if (executionSession != null) {
+            item {
+                OutlinedButton(onClick = onResumeExecution, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("resume-execution")) {
+                    Text("${if (executionSession.isPaused) "已暂停" else "专注中"} · ${executionSession.taskTitle} · 返回本轮")
+                }
+            }
+        }
+        if (executionError != null) {
+            item { Text(executionError, color = MaterialTheme.colorScheme.error) }
+        }
+        if (executionFinished) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("本轮记录已保存。可依据你确认的进度重新安排剩余任务；确认预览前，原计划不变。")
+                    OutlinedButton(onClick = onReplanRemaining, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-replan")) {
+                        Text("预览剩余任务的新安排")
+                    }
+                    TextButton(onClick = onDismissExecutionResult, modifier = Modifier.heightIn(min = 48.dp)) { Text("保留原计划") }
+                }
+            }
+        }
         if (scheduleRange == ScheduleRange.DAY) {
             item {
                 TodayFocalOverview(
@@ -1317,8 +1367,6 @@ private fun TodayScreen(
                     scheduleDate = scheduleDate,
                     onCreateCourse = { request -> onCreateCourse(request, scheduleDate) },
                     onFocusStarted = onFocusStarted,
-                    onFocusCompleted = onFocusCompleted,
-                    onFocusNotCompleted = onFocusNotCompleted,
                     onRemovePlacement = onRemovePlacement,
                     onMoveEntry = onMoveEntry,
                     onUpdateEntryTime = onUpdateEntryTime,
@@ -2977,7 +3025,7 @@ internal fun PlanDraftDialog(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Text(
-                    stringResource(R.string.plan_draft_notice),
+                    if (draft.orderOnly) "只调整任务列表顺序，不改变日程时段。" else stringResource(R.string.plan_draft_notice),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -3718,7 +3766,9 @@ private fun MineScreen(
         Text("版本 ${com.swan1127.repland.BuildConfig.VERSION_NAME} (${com.swan1127.repland.BuildConfig.VERSION_CODE}) · ${com.swan1127.repland.BuildConfig.BUILD_SOURCE}",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("app-version"))
         Text("日常使用", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-        EngagementModeSection(engagementMode, onEngagementModeChange)
+        Text("统一工作方式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text("所有安排始终可见，详细信息按需展开。旧版参与方式记录保留在本地历史中，不再改变页面功能。",
+            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Surface(
             color = MaterialTheme.colorScheme.surfaceContainerLow,
             shape = RoundedCornerShape(20.dp),
@@ -3844,47 +3894,6 @@ private fun SettingsDisclosure(title: String, description: String, expanded: Boo
             }
             Spacer(Modifier.width(12.dp))
             Text(if (expanded) "收起" else "展开", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-        }
-    }
-}
-
-@Composable
-private fun EngagementModeSection(
-    selected: EngagementMode,
-    onSelect: (EngagementMode) -> Unit,
-) {
-    Text("你的参与方式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-    Text("随时切换；只改变信息密度与建议方式，不替你做决定。",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant)
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(18.dp)) {
-        Column {
-            listOf(
-                Triple(EngagementMode.CO_PLANNER, "重度参与", "看完整时间轨道，主动编排与复盘"),
-                Triple(EngagementMode.GUIDED, "适度引导", "保留全局视图，在关键节点接受建议"),
-                Triple(EngagementMode.EXECUTOR, "轻量执行", "先看到接下来三项，需要时展开全局"),
-            ).forEachIndexed { index, (mode, label, detail) ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(mode) }
-                        .testTag("engagement-${mode.name.lowercase()}")
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
-                        Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    if (selected == mode) {
-                        Surface(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(50)) {
-                            Text("当前", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary)
-                        }
-                    }
-                }
-                if (index < 2) Spacer(Modifier.height(1.dp))
-            }
         }
     }
 }

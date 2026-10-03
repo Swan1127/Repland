@@ -94,6 +94,45 @@ class TimeConstraintPlannerTest {
         assertTrue(plan.segments.any { it.startMinute == 8 * 60 + 30 && !it.isLocked })
     }
 
+    @Test fun replan_preserves_past_without_deducting_it_twice_from_confirmed_remaining_work() {
+        val past = PlannedSegment("past", "task", monday.minusDays(1), 540, 600)
+        val future = PlannedSegment("old-future", "task", monday, 540, 600)
+        val completedPast = PlannedSegment("finished-history", "done", monday.minusDays(1), 600, 630)
+        val completedFuture = PlannedSegment("finished-future", "done", monday, 600, 630, isLocked = true)
+        val input = com.swan1127.repland.domain.model.PlanGenerationInput(
+            listOf(task(120).copy(progressPercent = 50), task().copy(id = "done", status = TaskStatus.COMPLETED)),
+            listOf(block(TimeBlockKind.AVAILABLE, 480, 660)), emptyList(), null,
+            manualTaskOrder = listOf("task"))
+        val current = com.swan1127.repland.domain.model.ConfirmedPlan("p", 1, true,
+            listOf(past, future, completedPast, completedFuture))
+        val result = PlanGenerator.generateRemaining(input, current, clock)
+        assertTrue(past in result.segments); assertTrue(completedPast in result.segments)
+        assertFalse(completedFuture in result.segments)
+        assertEquals(60, result.segments.filter { it.date == monday && it.taskId == "task" }.sumOf { it.endMinute - it.startMinute })
+        assertEquals(listOf("task"), result.orderedTaskIds)
+    }
+
+    @Test fun started_segment_is_preserved_without_turning_it_into_a_user_lock() {
+        val started = PlannedSegment("started", "task", monday, 480, 540)
+        val atHalfPast = Clock.fixed(Instant.parse("2026-09-14T08:30:00Z"), ZoneOffset.UTC)
+        val input = com.swan1127.repland.domain.model.PlanGenerationInput(listOf(task(120)),
+            listOf(block(TimeBlockKind.AVAILABLE, 480, 660)), emptyList(), null)
+        val current = com.swan1127.repland.domain.model.ConfirmedPlan("p", 1, true, listOf(started))
+        val result = PlanGenerator.generateRemaining(input, current, atHalfPast)
+        assertTrue(started in result.segments)
+        assertFalse(result.segments.first { it.id == "started" }.isLocked)
+        assertFalse(result.segments.filter { it.id != "started" }.any { it.startMinute < 540 })
+    }
+
+    @Test fun missing_availability_keeps_existing_manual_placements_instead_of_silently_clearing_them() {
+        val placed = PlannedSegment("manual", "task", monday, 540, 600)
+        val input = com.swan1127.repland.domain.model.PlanGenerationInput(listOf(task(60)), emptyList(), emptyList(), null)
+        val current = com.swan1127.repland.domain.model.ConfirmedPlan("p", 1, true, listOf(placed))
+        val result = PlanGenerator.generateRemaining(input, current, clock)
+        assertEquals(listOf(placed), result.segments)
+        assertEquals(listOf("task"), result.orderedTaskIds)
+    }
+
     private fun task(duration: Int = 30) = Task(
         id = "task",
         description = "",

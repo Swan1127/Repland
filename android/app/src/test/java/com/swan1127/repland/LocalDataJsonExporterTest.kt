@@ -47,6 +47,7 @@ class LocalDataJsonExporterTest {
                 reminderPreferences = ReminderPreferences(),
                 aiPreferences = AiPreferences(),
                 profileEvidence = emptyList(),
+                executionSessions = listOf(com.swan1127.repland.domain.model.ExecutionSession("s", "task-1", "任务", "p", "segment", 1500, 1)),
             ),
         )
 
@@ -54,5 +55,7 @@ class LocalDataJsonExporterTest {
         assertTrue(json.contains("包含\\\"引号\\\"\\n换行"))
         assertTrue(json.contains("\"executionLogs\":[]"))
         assertTrue(json.contains("\"profileEvidence\":[]"))
+        assertTrue(json.contains("\"executionSessions\":[{\"id\":\"s\""))
+        assertTrue(json.contains("\"segmentId\":\"segment\""))
     }
 }

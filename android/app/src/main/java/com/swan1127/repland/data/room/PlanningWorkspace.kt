@@ -13,6 +13,8 @@ data class PlanningWorkspaceEntity(@PrimaryKey val key: String, val payload: Str
 
 @Dao
 interface PlanningWorkspaceDao {
+    @Query("SELECT * FROM planning_workspace WHERE `key` = 'active-execution-session' OR `key` LIKE 'execution-session-history:%' ORDER BY `key`")
+    suspend fun getExecutionSessions(): List<PlanningWorkspaceEntity>
     @Query("SELECT * FROM planning_workspace WHERE `key` = :key")
     fun observe(key: String): Flow<PlanningWorkspaceEntity?>
     @Query("SELECT * FROM planning_workspace WHERE `key` = :key")

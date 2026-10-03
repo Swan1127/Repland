@@ -116,7 +116,7 @@ private fun WeekDayColumn(
             if (entries.isEmpty()) {
                 Text("留白", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
-                entries.take(if (mode == EngagementMode.EXECUTOR) 3 else 5).forEach { entry ->
+                entries.take(5).forEach { entry ->
                     CompactEvent(entry, onClick = { onOpenEntry(entry.id) }, trackName = tracks.firstOrNull { it.id == entry.trackId }?.name)
                 }
                 if (entries.size > 5) Text("还有 ${entries.size - 5} 项", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)

@@ -130,6 +130,12 @@ class RoomPlanRepository(
         val current = planDao.getCurrentPlanWithSegments()?.toDomain()?.segments.orEmpty()
         val activeIds = database.taskDao().getAll().map { it.toDomain() }.filter { it.status.isActive }.map { it.id }.toSet()
         val validationTime = java.time.LocalDateTime.now()
+        val runningTaskId = workspace.get(RoomExecutionSessionRepository.KEY)?.let { ExecutionSessionCodec.decode(it.payload).taskId }
+        require(current.filter { it.taskId == runningTaskId && (it.date > validationTime.toLocalDate() ||
+            (it.date == validationTime.toLocalDate() && it.endMinute > validationTime.hour * 60 + validationTime.minute)) }.all { executing ->
+            draft.segments.any { proposed -> proposed.taskId == executing.taskId && proposed.date == executing.date &&
+                proposed.startMinute == executing.startMinute && proposed.endMinute == executing.endMinute && proposed.trackId == executing.trackId }
+        }) { "当前专注尚未结束，草案不能移动或删除该任务的安排；请结束本轮后重新生成。" }
         require(current.filter { it.isLocked && it.taskId in activeIds &&
             (it.date.isAfter(validationTime.toLocalDate()) || (it.date == validationTime.toLocalDate() && it.endMinute > validationTime.hour * 60 + validationTime.minute))
         }.all { locked -> draft.segments.any { proposed ->

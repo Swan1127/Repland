@@ -36,6 +36,7 @@ class RoomDataManagementRepository(
                 ?.let(com.swan1127.repland.domain.model.EngagementMode::valueOf)
                 ?: com.swan1127.repland.domain.model.EngagementMode.GUIDED,
             usageEvents = database.engagementDao().getEvents().map(UsageEventEntity::toDomain),
+            executionSessions = database.planningWorkspaceDao().getExecutionSessions().map { ExecutionSessionCodec.decode(it.payload) },
         )
     }
 

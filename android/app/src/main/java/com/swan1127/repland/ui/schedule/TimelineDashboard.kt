@@ -123,8 +123,6 @@ fun TimelineDashboard(
     scheduleDate: LocalDate = entries.firstOrNull()?.date ?: LocalDate.now(),
     onCreateCourse: (CourseInsertionRequest) -> Unit = {},
     onFocusStarted: (String) -> Unit = {},
-    onFocusCompleted: (String, Int) -> Unit = { _, _ -> },
-    onFocusNotCompleted: (String, Int) -> Unit = { _, _ -> },
     onRemovePlacement: (String) -> Unit = {},
     onMoveEntry: (TimelineEntry, Int) -> Unit = { _, _ -> },
     onUpdateEntryTime: (TimelineEntry, Int, Int) -> Unit = { entry, startMinute, _ ->
@@ -142,7 +140,6 @@ fun TimelineDashboard(
         Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
     }
     var now by remember { mutableStateOf(LocalDateTime.now()) }
-    var showAll by remember { mutableStateOf(false) }
     var showTrackComposer by remember { mutableStateOf(false) }
     var newTrackName by remember { mutableStateOf("") }
     var trackError by remember { mutableStateOf<String?>(null) }
@@ -156,12 +153,10 @@ fun TimelineDashboard(
             }
         }
     }
-    var focusEntry by remember { mutableStateOf<TimelineEntry?>(null) }
     var viewMode by rememberSaveable { mutableStateOf(TimelineViewMode.SPLIT) }
     var showCourseComposer by rememberSaveable { mutableStateOf(false) }
     var pendingCourse by remember { mutableStateOf<PendingCourse?>(null) }
     var selectedEntry by remember { mutableStateOf<TimelineEntry?>(null) }
-    LaunchedEffect(mode) { showAll = false }
     LaunchedEffect(Unit) {
         while (true) {
             now = LocalDateTime.now()
@@ -182,9 +177,8 @@ fun TimelineDashboard(
         val startMinute = requestedStartMinute.coerceIn(0, 1_440 - duration)
         tryUpdateEntryTime(entry, startMinute, startMinute + duration)
     }
-    val visibleEntries = if (mode == EngagementMode.EXECUTOR && !showAll) {
-        projectedEntries.filter { !it.end.isBefore(now) }.take(3).ifEmpty { projectedEntries.takeLast(3) }
-    } else projectedEntries
+    // Legacy participation preference stays readable for exports, but no longer hides schedule rows.
+    val visibleEntries = projectedEntries
     val automaticTrackNames = if (visibleEntries.isEmpty()) {
         emptyList()
     } else {
@@ -358,12 +352,6 @@ fun TimelineDashboard(
                     },
                 )
             }
-            if (mode == EngagementMode.EXECUTOR && entries.size > visibleEntries.size) {
-                Text("${if (showAll) "收起" else "查看完整日程"} →",
-                    modifier = Modifier.clickable { showAll = !showAll }.padding(vertical = 10.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelLarge)
-            }
         }
         if (entries.isEmpty() && showEventLibrary) {
             EventLibrarySheet(
@@ -405,10 +393,10 @@ fun TimelineDashboard(
                         onOpenTask(taskId)
                     }
                 },
-                onFocus = entry.taskId?.let {
+                onFocus = entry.taskId?.takeIf { !entry.taskClosed && entry.id.startsWith("segment:") }?.let {
                     {
                         selectedEntry = null
-                        focusEntry = entry
+                        onFocusStarted(entry.id.removePrefix("segment:"))
                     }
                 },
                 onMove = { startMinute ->
@@ -429,15 +417,6 @@ fun TimelineDashboard(
                             onRemovePlacement(segmentId)
                         }
                     },
-            )
-        }
-        focusEntry?.let { entry ->
-            FocusSessionScreen(
-                entry = entry,
-                onDismiss = { focusEntry = null },
-                onStart = onFocusStarted,
-                onComplete = onFocusCompleted,
-                onNotCompleted = onFocusNotCompleted,
             )
         }
     }
@@ -1276,83 +1255,6 @@ private fun TimelineKind.displayLabel(): String = when (this) {
     TimelineKind.REST -> "休息"
     TimelineKind.COMMITMENT -> "固定事项"
     TimelineKind.TASK -> "任务"
-}
-
-@Composable
-private fun FocusSessionScreen(
-    entry: TimelineEntry,
-    onDismiss: () -> Unit,
-    onStart: (String) -> Unit,
-    onComplete: (String, Int) -> Unit,
-    onNotCompleted: (String, Int) -> Unit,
-) {
-    // A focus round is intentionally a small, calm state: one 25-minute Pomodoro or the
-    // remaining scheduled slot, whichever is shorter. The counter itself does not animate.
-    val totalSeconds = minOf(25 * 60, (entry.endMinute - entry.startMinute).coerceAtLeast(1) * 60)
-    var elapsedSeconds by remember(entry.id) { mutableStateOf(0) }
-    LaunchedEffect(entry.id) {
-        entry.taskId?.let(onStart)
-        while (elapsedSeconds < totalSeconds) {
-            delay(1_000)
-            elapsedSeconds += 1
-        }
-    }
-    val remainingSeconds = (totalSeconds - elapsedSeconds).coerceAtLeast(0)
-    val actualMinutes = ((elapsedSeconds + 59) / 60).coerceAtLeast(1)
-    val progress = elapsedSeconds.toFloat() / totalSeconds.toFloat()
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.surface,
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 36.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    "专注中 · ${TimeBlockValidator.formatTime(entry.startMinute)}–${TimeBlockValidator.formatTime(entry.endMinute)}",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(244.dp)) {
-                        CircularProgressIndicator(
-                            progress = { progress },
-                            modifier = Modifier.fillMaxSize(),
-                            strokeWidth = 10.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                        )
-                        Text(
-                            String.format("%02d:%02d", remainingSeconds / 60, remainingSeconds % 60),
-                            style = MaterialTheme.typography.displayLarge,
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Medium,
-                        )
-                    }
-                    Text(entry.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    Text("这一轮只处理这一件事", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    entry.taskId?.let { taskId ->
-                        Button(
-                            onClick = { onComplete(taskId, actualMinutes); onDismiss() },
-                            modifier = Modifier.fillMaxWidth().height(56.dp).testTag("focus-complete"),
-                        ) { Text("本轮完成") }
-                        OutlinedButton(
-                            onClick = { onNotCompleted(taskId, actualMinutes); onDismiss() },
-                            modifier = Modifier.fillMaxWidth().height(52.dp).testTag("focus-not-complete"),
-                        ) { Text("暂未完成，继续进行中") }
-                    } ?: TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("结束本轮") }
-                    TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(48.dp)) { Text("退出专注") }
-                }
-            }
-        }
-    }
 }
 
 private fun TaskCategory.shortLabel(): String = when (this) {

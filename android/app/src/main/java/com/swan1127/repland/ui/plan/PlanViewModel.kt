@@ -32,6 +32,8 @@ data class InteractionWorkspaceUiState(
 class PlanViewModel(
     private val planRepository: PlanRepository,
     private val planDraftGenerator: PlanDraftGenerator,
+    private val timeRepository: com.swan1127.repland.domain.ports.TimeRepository? = null,
+    private val taskRepository: com.swan1127.repland.domain.ports.TaskRepository? = null,
 ) : ViewModel() {
     private val operation = MutableStateFlow<Pair<String?, Boolean>>(null to false)
     private val mutex = Mutex()
@@ -67,7 +69,7 @@ class PlanViewModel(
             lockedSegments, categoryPreferences, manualTaskOrder)
         val revision = PlanningRevision.of(input, uiState.value.currentPlan, uiState.value.taskOrder)
         mutate {
-            val result = if (todayOnly == null) planDraftGenerator.generate(input) else {
+            val result = if (todayOnly == null) planDraftGenerator.generateReplan(input, uiState.value.currentPlan) else {
                 require(todayOnly == LocalDate.now()) { "安排今天只操作今天，请切换到今天后重试。" }
                 PlanGenerator.generateToday(input, uiState.value.currentPlan)
             }
@@ -80,6 +82,41 @@ class PlanViewModel(
     }
 
     fun discardDraft() = mutate { planRepository.saveDraft(null) }
+
+    fun saveAvailabilityAndGenerate(value: QuickAvailability, categoryPreferences: Map<TaskCategory, Int>, onSaved: () -> Unit) {
+        if (operation.value.second) return
+        operation.value = null to true
+        mutate {
+            require(value.isValid()) { "请填写今天或未来的日期及有效起止时间。" }
+            val time = requireNotNull(timeRepository)
+            if (value.repeatWeekly) {
+                val exists = time.observeWeeklyBlocks().first().any { it.kind == TimeBlockKind.AVAILABLE && it.weekPattern == null &&
+                    it.dayOfWeek == value.date.dayOfWeek && it.startMinute == value.startMinute && it.endMinute == value.endMinute }
+                if (!exists) time.saveWeeklyBlock(WeeklyTimeBlockDraft(title = "每周可用时间", kind = TimeBlockKind.AVAILABLE,
+                    dayOfWeek = value.date.dayOfWeek, startMinute = value.startMinute, endMinute = value.endMinute, trackId = "focus"))
+            } else {
+                val exists = time.observeDateOverrides().first().any { it.type == DateOverrideType.AVAILABLE && it.date == value.date &&
+                    it.startMinute == value.startMinute && it.endMinute == value.endMinute }
+                if (!exists) time.saveDateOverride(DateOverrideDraft(title = "本次可用时间", type = DateOverrideType.AVAILABLE,
+                    date = value.date, startMinute = value.startMinute, endMinute = value.endMinute))
+            }
+            // Re-read after saving; generated revision uses persisted IDs, not temporary UI placeholders.
+            val current = planRepository.observeCurrentPlan().first()
+            val order = planRepository.observeTaskOrder().first()
+            val input = PlanGenerationInput(requireNotNull(taskRepository).observeTasks().first(), time.observeWeeklyBlocks().first(),
+                time.observeDateOverrides().first(), time.observeTimeConstraintSettings().first().semesterFirstWeekMonday,
+                categoryPreferences = categoryPreferences)
+            try {
+                val result = planDraftGenerator.generateReplan(input, current)
+                planRepository.saveDraft(result.copy(sourceRevision = PlanningRevision.of(input, current, order)))
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                throw IllegalArgumentException("可用时间已保存，但预览未生成；请重试，原计划保持不变。", error)
+            }
+            onSaved()
+        }
+    }
 
     fun showAgentDraft(agentDraft: PlanDraft) = mutate {
         if (uiState.value.draft == null) planRepository.saveDraft(agentDraft)
@@ -138,11 +175,13 @@ class PlanViewModel(
         }
     }
 
-    class Factory(private val repository: PlanRepository, private val generator: PlanDraftGenerator) : ViewModelProvider.Factory {
+    class Factory(private val repository: PlanRepository, private val generator: PlanDraftGenerator,
+        private val timeRepository: com.swan1127.repland.domain.ports.TimeRepository? = null,
+        private val taskRepository: com.swan1127.repland.domain.ports.TaskRepository? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             check(modelClass.isAssignableFrom(PlanViewModel::class.java))
-            return PlanViewModel(repository, generator) as T
+            return PlanViewModel(repository, generator, timeRepository, taskRepository) as T
         }
     }
 }

@@ -24,6 +24,14 @@ import org.junit.Test
 class PlanDraftPreviewUiTest {
     @get:Rule val rule = createComposeRule()
 
+    @Test fun order_only_preview_explains_that_schedule_is_unchanged() {
+        val draft = PlanDraft(LocalDateTime.now(), emptyList(), emptyList(), emptyList(), listOf("a"), orderOnly = true)
+        rule.setContent { ReplandTheme { PlanDraftDialog(draft, listOf(task("a", "英语")), emptyList(), emptyList(), null,
+            onDismiss = {}, onUpdateDraft = {}, onAccept = {}) } }
+        rule.onNodeWithText("只调整任务列表顺序，不改变日程时段。").assertExists()
+        rule.onNodeWithTag("plan-draft-preview").assertDoesNotExist()
+    }
+
     @Test fun review_discloses_old_and_new_times() {
         val old = PlannedSegment("old", "a", LocalDate.now().plusDays(1), 600, 660)
         val draft = PlanDraft(LocalDateTime.now(), listOf(old.copy(id = "new", startMinute = 660, endMinute = 720)), emptyList(), emptyList(), listOf("a"))

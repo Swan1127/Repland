@@ -44,6 +44,7 @@ data class PlanGenerationInput(
 
 interface PlanDraftGenerator {
     fun generate(input: PlanGenerationInput): PlanDraft
+    fun generateReplan(input: PlanGenerationInput, current: ConfirmedPlan?): PlanDraft = generate(input)
 }
 
 /**
@@ -262,17 +263,31 @@ object PlanGenerator : PlanDraftGenerator {
 
     /** Rebuild only the unprotected remainder of today, keeping all other placements. */
     fun generateToday(input: PlanGenerationInput, current: ConfirmedPlan?, clock: Clock = Clock.systemDefaultZone()): PlanDraft {
+        return generateRemaining(input, current, clock, todayOnly = true)
+    }
+
+    override fun generateReplan(input: PlanGenerationInput, current: ConfirmedPlan?) = generateRemaining(input, current)
+
+    /** Past placements are history, not proof of progress and not deductions from confirmed remaining work. */
+    fun generateRemaining(input: PlanGenerationInput, current: ConfirmedPlan?, clock: Clock = Clock.systemDefaultZone(), todayOnly: Boolean = false): PlanDraft {
         val now = LocalDateTime.now(clock)
-        val preserved = current?.segments.orEmpty().filter {
-            it.date != now.toLocalDate() || it.startMinute < now.hour * 60 + now.minute || it.isLocked
-        }
+        val day = now.toLocalDate()
+        val minute = now.hour * 60 + now.minute
+        val activeIds = input.tasks.filter { it.status.isActive }.map { it.id }.toSet()
+        fun ended(s: PlannedSegment) = s.date < day || (s.date == day && s.endMinute <= minute)
+        val hasAvailability = PlanningConstraintValidator.hasExplicitAvailability(input)
+        val history = current?.segments.orEmpty().filter(::ended)
+        val retained = current?.segments.orEmpty().filter { s -> !ended(s) && s.taskId in activeIds &&
+            (!hasAvailability || s.isLocked || (s.date == day && s.startMinute <= minute) || (todayOnly && s.date != day)) }
+        val effectiveLocks = (retained + input.lockedSegments.filter { !ended(it) && it.taskId in activeIds })
+            .distinctBy { listOf(it.taskId, it.date, it.startMinute, it.endMinute, it.trackId) }
         val generated = generate(input.tasks, input.weeklyBlocks, input.dateOverrides, input.semesterFirstWeekMonday,
-            preserved.map { it.copy(isLocked = true) }, input.categoryPreferences, input.manualTaskOrder,
-            clock = clock, horizonDays = 1)
-        return generated.copy(segments = generated.segments.filter { segment -> preserved.none {
-            it.taskId == segment.taskId && it.date == segment.date && it.startMinute == segment.startMinute &&
-                it.endMinute == segment.endMinute && it.trackId == segment.trackId
-        } } + preserved)
+            effectiveLocks.map { it.copy(isLocked = true) }, input.categoryPreferences, input.manualTaskOrder,
+            clock, horizonDays = if (todayOnly) 1 else HORIZON_DAYS)
+        val restored = generated.segments.map { s -> effectiveLocks.firstOrNull {
+            it.taskId == s.taskId && it.date == s.date && it.startMinute == s.startMinute && it.endMinute == s.endMinute && it.trackId == s.trackId
+        } ?: s }
+        return generated.copy(segments = (history + restored).sortedWith(compareBy(PlannedSegment::date, PlannedSegment::startMinute)))
     }
 
     override fun generate(input: PlanGenerationInput): PlanDraft = generate(
