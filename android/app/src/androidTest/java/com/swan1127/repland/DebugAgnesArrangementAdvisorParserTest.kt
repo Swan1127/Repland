@@ -12,6 +12,19 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DebugAgnesArrangementAdvisorParserTest {
+    @Test fun structured_queries_and_explanations_decode_without_candidate_creation() {
+        val query = decodeArrangementAdvice("""{"operation":"QUERY_TASKS","queryScope":"TODAY","candidates":[]}""")
+        assertEquals(com.swan1127.repland.domain.model.ArrangementAdviceOperation.QUERY_TASKS, query.operation)
+        assertEquals(com.swan1127.repland.domain.model.TaskQueryScope.TODAY, query.queryScope)
+        assertEquals(0, query.candidates.size)
+        val explain = decodeArrangementAdvice("""{"operation":"EXPLAIN_ORDER","taskReference":"a","candidates":[]}""")
+        assertEquals("a", explain.taskReference)
+    }
+    @Test fun unknown_operations_scopes_and_mixed_writes_are_rejected() {
+        org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { decodeArrangementAdvice("""{"operation":"DELETE_ALL","candidates":[]}""") }
+        org.junit.Assert.assertThrows(IllegalArgumentException::class.java) { decodeArrangementAdvice("""{"operation":"QUERY_TASKS","queryScope":"DELETE","candidates":[]}""") }
+        org.junit.Assert.assertThrows(org.json.JSONException::class.java) { decodeArrangementAdvice("""{"operation":"QUERY_TASKS","queryScope":"TODAY","tasks":[{"title":"新建"}]}""") }
+    }
     @Test fun context_wire_contains_bounded_facts_but_no_local_revision_or_notes() {
         val request = com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest("英语", java.time.LocalDate.of(2026, 10, 3), emptyList(),
             listOf(com.swan1127.repland.domain.model.ArrangementExistingTask("a", "英语", com.swan1127.repland.domain.model.TaskCategory.COURSE, 60,

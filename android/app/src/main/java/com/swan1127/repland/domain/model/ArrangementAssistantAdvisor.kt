@@ -15,6 +15,7 @@ data class ArrangementAssistantAdviceRequest(
     val taskFeedback: List<ArrangementTaskFeedback> = emptyList(),
     /** Local-only stale-source guard; never serialized to the provider. */
     val sourceRevision: String? = null,
+    val allowedOperations: Set<ArrangementAdviceOperation> = setOf(ArrangementAdviceOperation.PROPOSE_CHANGES),
 )
 
 data class ArrangementAvailableInterval(val startMinute: Int, val endMinute: Int)
@@ -55,7 +56,12 @@ data class ArrangementOccupiedInterval(
 data class ArrangementAssistantAdvice(
     val candidates: List<ArrangementCandidate>,
     val confidenceLabel: String,
+    val operation: ArrangementAdviceOperation = ArrangementAdviceOperation.PROPOSE_CHANGES,
+    val queryScope: TaskQueryScope? = null,
+    val taskReference: String? = null,
 )
+
+enum class ArrangementAdviceOperation { PROPOSE_CHANGES, QUERY_TASKS, FORMULATE_PLAN, EXPLAIN_ORDER }
 
 sealed interface ArrangementAssistantAdviceResult {
     data class Advice(val advice: ArrangementAssistantAdvice) : ArrangementAssistantAdviceResult
@@ -79,6 +85,16 @@ object NoOpArrangementAssistantAdvisor : ArrangementAssistantAdvisor {
 
 object ArrangementAssistantAdviceValidator {
     fun validate(advice: ArrangementAssistantAdvice, request: ArrangementAssistantAdviceRequest): ArrangementAssistantAdvice? {
+        if (advice.operation !in request.allowedOperations) return null
+        if (advice.operation != ArrangementAdviceOperation.PROPOSE_CHANGES) {
+            if (advice.candidates.isNotEmpty() || !request.followUpInstruction.isNullOrBlank() || request.draftCandidates.isNotEmpty()) return null
+            return when (advice.operation) {
+                ArrangementAdviceOperation.QUERY_TASKS -> advice.takeIf { it.queryScope != null && it.taskReference == null }
+                ArrangementAdviceOperation.FORMULATE_PLAN -> advice.takeIf { it.queryScope == null && it.taskReference == null }
+                ArrangementAdviceOperation.EXPLAIN_ORDER -> advice.takeIf { it.queryScope == null && request.existingTasks.any { task -> task.id == it.taskReference } }
+                else -> null
+            }
+        }
         val references = advice.candidates.mapNotNull { it.existingTaskId }
         if (references.distinct().size != references.size || references.any { id -> request.existingTasks.none { it.id == id } }) return null
         val proposalIds = advice.candidates.mapNotNull { it.proposalId }

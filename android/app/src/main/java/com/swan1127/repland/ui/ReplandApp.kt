@@ -350,6 +350,7 @@ fun ReplandApp(
                 .orEmpty() },
             orderOnly = orderOnly,
             todayOnly = todayOnly,
+            reorder = reorder,
         )
     }
     // The arrangement assistant previews against exactly the same projected day
@@ -758,6 +759,9 @@ fun ReplandApp(
                             com.swan1127.repland.domain.model.ArrangementExistingTask(it.id, it.displayName, it.category, it.totalDurationMinutes)
                         },
                         onRefineWithContext = arrangementAssistantViewModel::refine,
+                        onQueryTasks = { scope -> planViewModel.queryTasks(scope, activeDate) },
+                        onExplainOrder = planViewModel::explainOrder,
+                        onOpenTask = { selectedTaskId = it },
                         availableIntervals = com.swan1127.repland.domain.model.ArrangementAvailability.forDay(
                             com.swan1127.repland.domain.model.PlanGenerationInput(uiState.tasks, timeUiState.weeklyBlocks,
                                 timeUiState.dateOverrides, timeUiState.semesterFirstWeekMonday), activeDate, LocalDateTime.now()),
@@ -5288,7 +5292,7 @@ private fun formatExecutionLogTime(epochMillis: Long): String =
         .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
 @Composable
-private fun priorityReasonText(reason: PriorityReason): String = when (reason.kind) {
+internal fun priorityReasonText(reason: PriorityReason): String = when (reason.kind) {
     PriorityReasonKind.INITIAL_PRIORITY -> stringResource(
         R.string.priority_reason_initial,
         reason.value ?: 0,

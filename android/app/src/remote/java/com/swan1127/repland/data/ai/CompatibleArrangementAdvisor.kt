@@ -11,6 +11,8 @@ import com.swan1127.repland.domain.model.ArrangementClarification
 import com.swan1127.repland.domain.model.ArrangementPlacementSource
 import com.swan1127.repland.domain.model.ArrangementTimeHint
 import com.swan1127.repland.domain.model.TaskCategory
+import com.swan1127.repland.domain.model.ArrangementAdviceOperation
+import com.swan1127.repland.domain.model.TaskQueryScope
 import com.swan1127.repland.domain.ports.AiProviderConfigRepository
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
@@ -46,6 +48,8 @@ class CompatibleArrangementAdvisor(
             ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
         } catch (_: java.time.format.DateTimeParseException) {
             ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
+        } catch (_: IllegalArgumentException) {
+            ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.INVALID_RESPONSE)
         } catch (_: Exception) {
             ArrangementAssistantAdviceResult.Failed(AiAdvisorFailureReason.TRANSPORT_FAILURE)
         }
@@ -63,6 +67,8 @@ internal fun ArrangementAssistantAdviceRequest.toWire(): JSONObject = JSONObject
     .put("utterance", utterance)
     .put("date", date.toString())
     .put("followUpInstruction", followUpInstruction)
+    .put("contractVersion", "repland-arrangement/v2")
+    .put("allowedOperations", JSONArray(allowedOperations.map { it.name }))
     .put("availableIntervals", JSONArray(availableIntervals.map { JSONObject().put("startMinute", it.startMinute).put("endMinute", it.endMinute) }))
     .put("existingTasks", JSONArray(existingTasks.map { JSONObject().put("id", it.id).put("title", it.title).put("category", it.category.name).put("durationMinutes", it.durationMinutes)
         .put("status", it.status?.name).put("priority", it.priority?.name).put("dueDate", it.dueDate?.toString())
@@ -83,6 +89,12 @@ internal fun ArrangementAssistantAdviceRequest.toWire(): JSONObject = JSONObject
 internal fun decodeArrangementAdvice(rawResponse: String): ArrangementAssistantAdvice = parseAdvice(rawResponse.responseJson())
 
 private fun parseAdvice(json: JSONObject): ArrangementAssistantAdvice {
+    val operation = if (json.has("operation")) ArrangementAdviceOperation.valueOf(json.getString("operation")) else ArrangementAdviceOperation.PROPOSE_CHANGES
+    if (operation != ArrangementAdviceOperation.PROPOSE_CHANGES) {
+        if ((json.optJSONArray("candidates")?.length() ?: 0) > 0 || json.has("tasks") || json.has("items")) throw org.json.JSONException("Mixed operations")
+        return ArrangementAssistantAdvice(emptyList(), "只读操作或规划预览", operation,
+            json.firstText("queryScope")?.let(TaskQueryScope::valueOf), json.firstText("taskReference"))
+    }
     val plan = listOf(json, json.optJSONObject("plan"), json.optJSONObject("data"), json.optJSONObject("result"))
         .filterNotNull()
         .firstOrNull { it.optJSONArray("candidates") != null || it.optJSONArray("tasks") != null || it.optJSONArray("items") != null }
@@ -197,6 +209,9 @@ You are Repland's Planning Master: a careful Chinese/English personal-planning a
 
 Return exactly one JSON object and no Markdown:
 {"confidenceLabel":"short Chinese phrase","candidates":[{"title":"string","proposalId":"exact draftCandidates ID or null","existingTaskId":"exact existingTasks ID or null","category":"COURSE|EXTRACURRICULAR|OFFICE|LEISURE","startMinute":number or null,"windowLabel":string or null,"durationMinutes":number or null,"needsClarification":["TIME","DURATION"],"placementSource":"AI_SUGGESTED|UNSCHEDULED|USER_EXPLICIT","preferredTrackId":"focus|parallel-2|null"}]}.
+
+Choose only an operation listed in allowedOperations. For proposals (batch new tasks or local adjustment), use operation=PROPOSE_CHANGES and the candidate schema above. For a read-only question listing existing work, return {"operation":"QUERY_TASKS","queryScope":"ALL_ACTIVE|TODAY|INBOX|OVERDUE","candidates":[]}; do not invent answers or tasks. For explicitly asking to generate a new plan from existing tasks, return {"operation":"FORMULATE_PLAN","candidates":[]}; the local planner will propose a new order and schedule for confirmation. For asking why an existing task is ranked, return {"operation":"EXPLAIN_ORDER","taskReference":"exact existingTasks ID","candidates":[]}; the local engine will show actual reasons, never invent scores. Do not mix operations. A follow-up to an editable draft must remain PROPOSE_CHANGES. QUERY_TASKS lists active tasks only; it never searches or resurrects closed tasks. None of these operations writes task state or confirms a plan.
+TODAY refers only to the selected request date. Do not silently answer a question about another date using it; an unsupported scope must not be converted into newly captured tasks. Only use the finite scopes supplied above, not arbitrary filters or SQL.
 
 Planning rules:
 0. existingTasks are read-only facts. To reschedule an existing task, return its exact existingTaskId; never invent IDs or silently duplicate it as a new task. For genuinely new work use existingTaskId=null. Do not edit task status, priority or total duration. draftCandidates describe the current editable proposal; refinement can replace that proposal, not create another database copy. Existing task output title must identify the referenced task; durationMinutes is only the proposed placement length.

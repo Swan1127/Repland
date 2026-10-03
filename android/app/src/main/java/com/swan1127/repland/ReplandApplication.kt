@@ -96,6 +96,7 @@ class AppContainer(context: Context) {
     }.getOrDefault(NoOpArrangementAssistantAdvisor)
     val planDraftGenerator: PlanDraftGenerator = PlanGenerator
     val planningReadService = com.swan1127.repland.domain.model.PlanningReadService(taskRepository, timeRepository, planRepository, categoryPreferenceRepository)
+    val planningOperationService = com.swan1127.repland.domain.model.PlanningOperationService(planningReadService, planRepository, planDraftGenerator, executionSessionRepository)
     /** Local bounded workflow; it has no repository write capability. */
     val planningAgentWorkflow = PlanningAgentWorkflow(
         planningAgent = PlanningAgent(aiAdvisor, planDraftGenerator),

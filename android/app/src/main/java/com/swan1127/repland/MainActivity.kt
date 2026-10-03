@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
                         appContainer.planDraftGenerator,
                         appContainer.timeRepository,
                         appContainer.taskRepository,
+                        appContainer.planningOperationService,
                     ),
                 )
                 val categoryPreferenceViewModel: CategoryPreferenceViewModel = viewModel(

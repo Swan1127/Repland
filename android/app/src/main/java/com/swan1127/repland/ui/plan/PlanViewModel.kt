@@ -34,11 +34,14 @@ class PlanViewModel(
     private val planDraftGenerator: PlanDraftGenerator,
     private val timeRepository: com.swan1127.repland.domain.ports.TimeRepository? = null,
     private val taskRepository: com.swan1127.repland.domain.ports.TaskRepository? = null,
+    private val operations: PlanningOperationService? = null,
 ) : ViewModel() {
     private val operation = MutableStateFlow<Pair<String?, Boolean>>(null to false)
     private val mutex = Mutex()
     private val assistantReceipt = MutableStateFlow<AssistantSaveReceipt?>(null)
     fun dismissAssistantReceipt() { assistantReceipt.value = null }
+    suspend fun queryTasks(scope: TaskQueryScope, date: LocalDate): List<Task> = requireNotNull(operations).query(scope, date)
+    suspend fun explainOrder(taskId: String): LocalPriorityAssessment = requireNotNull(operations).explainOrder(taskId)
     val workspaceUiState = combine(planRepository.observeTracks(), planRepository.observeAssistantWorkspace(), planRepository.observeCanUndoTaskOrder()) { tracks, assistant, canUndo ->
         InteractionWorkspaceUiState(false, tracks, assistant, canUndo)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InteractionWorkspaceUiState())
@@ -64,11 +67,22 @@ class PlanViewModel(
         manualTaskOrder: List<String>,
         orderOnly: Boolean = false,
         todayOnly: LocalDate? = null,
+        reorder: Boolean = false,
     ) {
         val input = PlanGenerationInput(tasks, weeklyBlocks, dateOverrides, semesterFirstWeekMonday,
             lockedSegments, categoryPreferences, manualTaskOrder)
         val revision = PlanningRevision.of(input, uiState.value.currentPlan, uiState.value.taskOrder)
         mutate {
+            if (operations != null) {
+                require(todayOnly == null || todayOnly == LocalDate.now()) { "安排今天只操作今天，请切换到今天后重试。" }
+                operations.preview(when {
+                    orderOnly -> PlanningPreviewKind.SORT_ONLY
+                    todayOnly != null -> PlanningPreviewKind.ARRANGE_TODAY
+                    reorder -> PlanningPreviewKind.FORMULATE
+                    else -> PlanningPreviewKind.REPLAN_REMAINING
+                })
+                return@mutate
+            }
             val result = if (todayOnly == null) planDraftGenerator.generateReplan(input, uiState.value.currentPlan) else {
                 require(todayOnly == LocalDate.now()) { "安排今天只操作今天，请切换到今天后重试。" }
                 PlanGenerator.generateToday(input, uiState.value.currentPlan)
@@ -107,8 +121,10 @@ class PlanViewModel(
                 time.observeDateOverrides().first(), time.observeTimeConstraintSettings().first().semesterFirstWeekMonday,
                 categoryPreferences = categoryPreferences)
             try {
-                val result = planDraftGenerator.generateReplan(input, current)
-                planRepository.saveDraft(result.copy(sourceRevision = PlanningRevision.of(input, current, order)))
+                if (operations != null) operations.preview(PlanningPreviewKind.FORMULATE) else {
+                    val result = planDraftGenerator.generateReplan(input, current)
+                    planRepository.saveDraft(result.copy(sourceRevision = PlanningRevision.of(input, current, order)))
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -131,17 +147,22 @@ class PlanViewModel(
         mutate {
             // A queued second click must not apply an already confirmed draft again.
             if (uiState.value.draft != accepted) return@mutate
-            planRepository.accept(accepted)
+            if (operations != null) operations.confirm(accepted) else planRepository.accept(accepted)
             onAccepted?.invoke()
         }
     }
 
     fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>, onSaved: () -> Unit) =
-        mutate { planRepository.saveTasksAndPlace(tasks, segments); onSaved() }
+        mutate {
+            if (operations != null) operations.confirmChanges(tasks, segments, emptySet(), segments.firstOrNull()?.date ?: LocalDate.now())
+            else planRepository.saveTasksAndPlace(tasks, segments)
+            onSaved()
+        }
     fun saveAssistantChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingIds: Set<String>, date: LocalDate, onSaved: () -> Unit) =
         mutate {
             assistantReceipt.value = null
-            val result = planRepository.saveAssistantChanges(tasks, segments, existingIds, date)
+            val result = operations?.confirmChanges(tasks, segments, existingIds, date)
+                ?: planRepository.saveAssistantChanges(tasks, segments, existingIds, date)
             assistantReceipt.value = AssistantSaveReceipt(java.util.UUID.randomUUID().toString(), result)
             onSaved()
         }
@@ -177,11 +198,12 @@ class PlanViewModel(
 
     class Factory(private val repository: PlanRepository, private val generator: PlanDraftGenerator,
         private val timeRepository: com.swan1127.repland.domain.ports.TimeRepository? = null,
-        private val taskRepository: com.swan1127.repland.domain.ports.TaskRepository? = null) : ViewModelProvider.Factory {
+        private val taskRepository: com.swan1127.repland.domain.ports.TaskRepository? = null,
+        private val operations: PlanningOperationService? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             check(modelClass.isAssignableFrom(PlanViewModel::class.java))
-            return PlanViewModel(repository, generator, timeRepository, taskRepository) as T
+            return PlanViewModel(repository, generator, timeRepository, taskRepository, operations) as T
         }
     }
 }
