@@ -1,119 +1,32 @@
 # Repland
 
-> 将任务、现实约束和真实反馈转化为用户确认后才能执行的计划。
+Repland 是 Android 本地优先任务规划工具：收集事项、依据真实时间约束制定计划、执行后重新安排剩余工作。首批验证用户为大学新生。
 
-Repland 是面向中文用户的 Android 本地优先任务规划应用。它服务于需要在课程、学习、事务与休闲之间做取舍的人，尤其是刚进入大学、任务多而难以开始的用户。
+当前候选版本：**0.1.1 (1001)**。产品方向以 [主思路](REPLAND_IDEA.md) 为准，实施顺序及验收以 [产品交付计划](docs/PRODUCT_DELIVERY_PLAN_2026-10-03.md) 为准；已完成情况见 [交付进度](docs/DELIVERY_PROGRESS.md)。文档中的目标功能不等于已实现功能。
 
-当前版本为 **0.1.0**。它是单设备 MVP：无账号、无云同步、无分析 SDK，默认不发起联网 AI 请求。
+## 实现基线
 
-## 当前状态
+- 已有：本地任务与执行反馈、课程/时间约束、日/周/月时间轴、本地规划与历史、提醒、导出和数据清除。
+- 待交付：跨页持久化草案、独立任务排序、一键制定计划、批量原子确认和正式 AI 适配器。按交付进度逐项更新状态。
+- 当前网络能力：debug 含用户配置的模型服务适配器；internal/release 当前仍使用本地 Advisor。配置密钥不代表所在构建支持联网，页面须显示实际能力。
+- 目标 AI 路线：用户配置兼容 HTTPS 模型服务及自己的 API Key（BYOK），通过可检查请求与本地输出校验使用。账号、网关和云同步暂不属于本轮。
 
-| 能力 | 状态 |
-| --- | --- |
-| 任务、执行反馈、更正日志 | 已实现，本地 Room 持久化 |
-| 时间约束、课程 PDF 导入与预览 | 已实现 |
-| 本地计划草案、编辑、确认、历史与回退 | 已实现 |
-| 本地提醒、每日回顾、画像证据、JSON 导出与清除 | 已实现 |
-| 受限 PlanningAgent、请求预览、输出校验、本地降级 | 已实现，使用 NoOp Advisor |
-| 真实模型、网关、账号、同步 | 未实现 |
-| DeepSeek BYOK 个人测试构建 | 已决策，尚未实现；绝不进入 `internal` 或 `release` |
+## 产品规则
 
-完整交接、验证记录与下一步请读 [AI 开发交接](docs/AI_DEVELOPMENT_HANDOVER.md)。
+任务排序与具体排程分离。课程、固定事项、休息和锁定段受到保护。制定计划生成预览，用户确认后才应用新排序和计划；状态和执行反馈由用户明确操作。缺少可用时间或时长时不虚构日程。AI 不可用时本地功能继续可用。
 
-## 用户闭环
+## 开发与验证
 
-```mermaid
-flowchart LR
-    A[录入任务] --> B[补充时间与硬约束]
-    B --> C[生成本地计划草案或建议]
-    C --> D{用户编辑、确认或丢弃}
-    D -->|确认| E[当前计划与本地提醒]
-    D -->|丢弃| A
-    E --> F[用户执行并记录反馈]
-    F --> G[新的可编辑调整草案]
-    G --> D
-```
-
-系统可以帮助分析、排序和排程；用户始终决定任务状态和计划是否生效。
-
-## 产品防线
-
-- AI、规则与系统不会自动完成、延期、取消、替换任务，或静默修改用户初始优先级。
-- AI 输出只能是建议或未确认草案；草案不会替换当前计划、创建提醒或删除历史。
-- 课程、休息、固定任务、锁定时间段和不可避免任务是硬约束。
-- 更正后的反馈优先用于后续规划，但原日志保留。
-- AI 被关闭、服务未配置、断网、超时或输出无效时，继续使用确定性的本地规划。
-- 当前 APK 没有 `INTERNET` 权限；不包含模型 Key、网络客户端或远程 AI 调用。
-
-更完整的术语和规则以 [CONTEXT.md](CONTEXT.md) 为准。
-
-## 本地 Agent
-
-本地 `PlanningAgent` 仅支持类型化请求：任务理解、难度/时长、拆分、排序解释、重规划和每日总结。
-
-```text
-PreparingContext → AwaitingConsent → PreviewingRequest
-→ RequestingAdvice → ValidatingAdvice
-→ ShowingAdvice / ShowingDraft / FailedFallback
-```
-
-Compose 只显示和驱动工作流，不构建网络请求。`AiAdvisor` 是可替换的边界；当前注入 `NoOpAiAdvisor`，因此所有功能仍在设备本地完成。契约、最小化和校验要求见 [ADR 0001](docs/adr/0001-bounded-ai-advisor.md) 与 [主思路与执行计划](REPLAND_IDEA.md)。
-
-## 未来 AI 的两条路径
-
-1. **正式产品路径**：Android 仅调用中国大陆受控网关；模型 Key 只存服务端。网关负责鉴权、限流、预算、审计和供应商隔离。进入开发前必须满足 [扩展准入门槛](docs/EXTENSION_READINESS.md)。
-2. **个人开发测试例外**：计划中的 `byokDebug` 可使用用户自己的 DeepSeek Key，并且严格与正式构建隔离。它尚未实现，必须先满足交接文档列出的条款核验、Keystore、隐私同意、固定域名和测试门槛。
-
-两条路径都不能绕过请求预览、输出校验、用户确认或本地失败降级。
-
-## 代码结构
-
-```text
-android/
-└── app/src/main/java/com/swan1127/repland/
-    ├── data/       # Room、导出、PDF 课表导入
-    ├── domain/     # 任务、时间、计划、AI 契约与 PlanningAgent
-    ├── reminders/  # 已确认计划的本地提醒
-    └── ui/         # Compose 页面和 ViewModel
-docs/
-├── AI_DEVELOPMENT_HANDOVER.md
-├── EXTENSION_READINESS.md
-├── PRIVACY.md
-└── adr/0001-bounded-ai-advisor.md
-```
-
-## 构建与测试
-
-### 开发环境要求
-
-| 项目 | 要求 |
-| --- | --- |
-| 操作系统 | 当前已在 Windows 11 x64 验证；其他系统可使用 Gradle Wrapper，但尚未纳入回归。 |
-| JDK | **JDK 17**。Gradle/Android Gradle Plugin 运行在 JDK 17；应用源码仍以 Java 11 作为编译目标。 |
-| Android Studio | 使用支持 Android Gradle Plugin 9.0.1、Kotlin 2.0.21 与 Compose 的稳定版 Android Studio。 |
-| Android SDK | 安装 Android SDK Platform 36；项目 `compileSdk` 与 `targetSdk` 均为 36。 |
-| Gradle | 使用仓库自带的 Gradle Wrapper（9.1.0），不要自行替换为系统 Gradle。首次同步需要网络下载 Wrapper 与 Maven 依赖。 |
-| 测试设备 | 单元测试不需要设备；仪器测试需要 API 26 或更高版本的模拟器/专用测试设备。发布候选还应在 API 36 模拟器和真实设备回归。 |
-
-不要提交 `local.properties`、`keystore.properties`、`.jks`/`.keystore` 文件或任何 API Key。正式 `release` 构建还需要按 [docs/RELEASE.md](docs/RELEASE.md) 配置独立的签名凭据。
-
-使用 Android Studio 打开 `android/`，或在仓库根目录运行：
+使用 Android Studio 打开 `android/`；命令从仓库根目录运行时显式指定项目目录：
 
 ```powershell
-.\android\gradlew.bat :app:assembleDebug
-.\android\gradlew.bat :app:assembleInternal
-.\android\gradlew.bat :app:testDebugUnitTest
-.\android\gradlew.bat :app:connectedDebugAndroidTest
-.\android\gradlew.bat :app:verifyOfflineMvpBoundary
+.\android\gradlew.bat -p android :app:testDebugUnitTest
+.\android\gradlew.bat -p android :app:assembleDebug :app:assembleInternal
+.\android\gradlew.bat -p android :app:connectedDebugAndroidTest
 ```
 
-最低支持 Android 7.0（API 24），目标 SDK 为 API 36。真实设备发布前回归清单见 [docs/TESTING.md](docs/TESTING.md)，签名和版本规则见 [docs/RELEASE.md](docs/RELEASE.md)。
+仪器测试只在专用测试设备/隔离包执行，不覆盖用户正式数据。构建来源、安装包哈希和验收记录见交付进度。最低 API 24，发布前须验证升级迁移与真实设备通知。
 
-## 文档导航
+不要提交 API Key、签名文件、密码、`local.properties` 或本地数据；不使用破坏性数据库迁移。
 
-- [CONTEXT.md](CONTEXT.md)：产品术语、状态、边界条件的最高优先级来源。
-- [AI 开发交接](docs/AI_DEVELOPMENT_HANDOVER.md)：当前进度、已解问题、验证和下一步。
-- [主思路与执行计划](REPLAND_IDEA.md)：当前产品范围与分阶段执行顺序。
-- [隐私说明](docs/PRIVACY.md)：当前离线内测构建的数据边界。
-
-开发时保持最小改动，不覆盖工作树中与当前任务无关的改动，也不要使用破坏性 Room migration。
+参见 [术语](CONTEXT.md)、[隐私](docs/PRIVACY.md)、[测试](docs/TESTING.md)、[发布](docs/RELEASE.md)、[缺陷记录](docs/BUG_TRACKER_2026-10-03.md)。

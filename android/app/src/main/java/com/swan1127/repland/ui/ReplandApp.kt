@@ -736,7 +736,7 @@ fun ReplandApp(
                         activeDate = activeDate,
                         occupiedEntries = agentTimelineEntries,
                         canRefineWithAi = arrangementAssistantAccess.isEnabled &&
-                            arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey,
+                            arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey && aiProviderConfigUiState.supportsRemote,
                         onRefineWithAi = arrangementAssistantViewModel::refine,
                         onSaveTasks = { drafts -> drafts.forEach(taskViewModel::saveTask) },
                         onPlaceTask = { taskId, startMinute, endMinute, trackId ->
@@ -777,6 +777,7 @@ fun ReplandApp(
                         aiConsented = planningAgentUiState.preferences.hasExplicitConsent,
                         onAiEnabledChange = onAiEnabledChange,
                         aiProviderConfig = aiProviderConfigUiState.config,
+                        remoteAiSupported = aiProviderConfigUiState.supportsRemote,
                         aiProviderConfigError = aiProviderConfigUiState.errorMessage,
                         aiProviderConnectionTest = aiProviderConfigUiState.connectionTest,
                         onSaveAiProviderConfig = aiProviderConfigViewModel::save,
@@ -1018,6 +1019,14 @@ fun ReplandApp(
         )
     }
 
+    planUiState.errorMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = planViewModel::dismissError,
+            title = { Text("安排未保存") },
+            text = { Text(message) },
+            confirmButton = { TextButton(onClick = planViewModel::dismissError) { Text("知道了") } },
+        )
+    }
     planUiState.draft?.let { draft ->
         PlanDraftDialog(
             draft = draft,
@@ -3555,6 +3564,7 @@ private fun MineScreen(
     aiConsented: Boolean,
     onAiEnabledChange: (Boolean) -> Unit,
     aiProviderConfig: AiProviderConfig,
+    remoteAiSupported: Boolean,
     aiProviderConfigError: String?,
     aiProviderConnectionTest: AiProviderConnectionTest,
     onSaveAiProviderConfig: (String, String, String) -> Unit,
@@ -3582,6 +3592,8 @@ private fun MineScreen(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        Text("版本 ${com.swan1127.repland.BuildConfig.VERSION_NAME} (${com.swan1127.repland.BuildConfig.VERSION_CODE}) · ${com.swan1127.repland.BuildConfig.BUILD_SOURCE}",
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("app-version"))
         Text("日常使用", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
         EngagementModeSection(engagementMode, onEngagementModeChange)
         Surface(
@@ -3634,6 +3646,7 @@ private fun MineScreen(
             onSaveProviderConfig = onSaveAiProviderConfig,
             onClearProviderKey = onClearAiProviderKey,
             onTestConnection = onTestAiProviderConnection,
+            remoteSupported = remoteAiSupported,
         )
         SettingsDisclosure("类别偏好", "调整不同事情在计划中的权重", showPreferences, { showPreferences = !showPreferences })
         if (showPreferences) {
@@ -3764,6 +3777,7 @@ private fun AiSettingsSection(
     onSaveProviderConfig: (String, String, String) -> Unit,
     onClearProviderKey: () -> Unit,
     onTestConnection: () -> Unit,
+    remoteSupported: Boolean,
 ) {
     var showProviderSettings by rememberSaveable { mutableStateOf(false) }
     Surface(
@@ -3774,6 +3788,8 @@ private fun AiSettingsSection(
             modifier = Modifier.padding(18.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (!remoteSupported) Text("当前构建使用本地规划，尚不支持远程 AI；保存密钥不会启用联网能力。",
+                style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("ai-build-capability"))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -3828,7 +3844,7 @@ private fun AiSettingsSection(
                     }
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("Agnes API", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text("模型服务", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                         Text(
                             if (providerConfig.hasApiKey) "密钥已加密保存在本设备 · ${providerConfig.model}"
                             else "尚未添加密钥 · 本地结构化解析仍可使用",

@@ -1,5 +1,7 @@
 # Repland 下一产品阶段：扩展能力准入设计
 
+> 2026-10-03：网关及账号部分为历史扩展设想，已延后。当前 AI 路线是用户 BYOK，密钥由设备 Keystore 支持的加密存储管理；请求最小化、输出校验、用户确认和本地降级仍适用。当前能力见 README 和 DELIVERY_PROGRESS，不把服务端网关作为本轮前置条件。
+
 任务 10 的能力不属于当前本地 MVP。本文将它们拆成可独立审查、可逐步启用的工作流，避免“接入服务”反过来削弱离线可用性、用户确认和数据最小化。
 
 当前状态：正式版和 internal 版没有联网权限、账号、云同步、崩溃/分析 SDK 或服务密钥；Android **debug 版**增加了仅供本机开发代理使用的联网能力，密钥仍不进入 APK。`verifyOfflineMvpBoundary` 继续检查 `src/main`；debug 例外及其限度记录于 [ADR 0002](adr/0002-debug-ai-gateway-and-execution-evidence.md)。正式联网准入条件仍未完成，不得据调试可用性宣称已具备生产网关。

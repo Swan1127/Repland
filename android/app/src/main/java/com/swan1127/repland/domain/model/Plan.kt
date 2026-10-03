@@ -95,6 +95,12 @@ object PlanningConstraintValidator {
                 override.type == DateOverrideType.AVAILABLE &&
                 covers(override.startMinute, override.endMinute, startMinute, endMinute)
         }
+        val weeklyBlocked = weeklyBlocks.any { block ->
+            block.kind != TimeBlockKind.AVAILABLE && block.dayOfWeek == date.dayOfWeek &&
+                CourseWeekPattern.appliesOn(block.weekPattern, date, semesterFirstWeekMonday) &&
+                overlaps(block.startMinute, block.endMinute, startMinute, endMinute)
+        }
+        if (weeklyBlocked) return false
         if (availableOverride) return true
         val weeklyAvailable = weeklyBlocks.any { block ->
             block.kind == TimeBlockKind.AVAILABLE &&

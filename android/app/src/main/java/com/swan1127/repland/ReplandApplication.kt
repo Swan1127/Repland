@@ -71,7 +71,7 @@ class AppContainer(context: Context) {
 
     val taskRepository: TaskRepository = RoomTaskRepository(database)
     val timeRepository: TimeRepository = RoomTimeRepository(database.timeDao())
-    val planRepository: PlanRepository = RoomPlanRepository(database.planDao())
+    val planRepository: PlanRepository = RoomPlanRepository(database)
     val categoryPreferenceRepository: CategoryPreferenceRepository =
         RoomCategoryPreferenceRepository(database.categoryPreferenceDao())
     val reminderSettingsRepository: ReminderSettingsRepository =

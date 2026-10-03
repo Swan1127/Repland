@@ -6,17 +6,34 @@ import java.util.UUID
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import androidx.room.withTransaction
+import com.swan1127.repland.domain.model.PlacementValidator
+import com.swan1127.repland.domain.model.PlannedSegment
 
 class RoomPlanRepository(
-    private val planDao: PlanDao,
+    private val database: ReplandDatabase,
 ) : PlanRepository {
+    private val planDao = database.planDao()
+
+    private suspend fun validatePlacement(candidate: PlannedSegment, existing: List<PlannedSegment>) {
+        PlacementValidator.requireValid(candidate, existing,
+            database.timeDao().getAllWeeklyBlocks().map { it.toDomain() },
+            database.timeDao().getAllDateOverrides().map { it.toDomain() },
+            database.timeDao().getSemesterSettings()?.firstWeekMondayEpochDay?.let(LocalDate::ofEpochDay))
+    }
     override fun observeCurrentPlan(): Flow<com.swan1127.repland.domain.model.ConfirmedPlan?> =
         planDao.observeCurrentPlan().map { it?.toDomain() }
 
     override fun observePlanHistory(): Flow<List<com.swan1127.repland.domain.model.ConfirmedPlan>> =
         planDao.observePlanHistory().map { plans -> plans.map(PlanWithSegments::toDomain) }
 
-    override suspend fun accept(draft: PlanDraft) {
+    override suspend fun accept(draft: PlanDraft) = database.withTransaction {
+        val current = planDao.getCurrentPlanWithSegments()?.toDomain()?.segments.orEmpty()
+        for (segment in draft.segments) {
+            val preserved = current.any { it.taskId == segment.taskId && it.date == segment.date &&
+                it.startMinute == segment.startMinute && it.endMinute == segment.endMinute && it.trackId == segment.trackId }
+            if (!preserved) validatePlacement(segment, draft.segments)
+        }
         val planId = UUID.randomUUID().toString()
         val now = nextPlanCreatedAt(System.currentTimeMillis())
         planDao.replaceCurrentPlan(
@@ -88,9 +105,10 @@ class RoomPlanRepository(
         startMinute: Int,
         endMinute: Int,
         trackId: String,
-    ) {
-        require(startMinute in 0 until 1440 && endMinute in 1..1440 && startMinute < endMinute)
+    ) = database.withTransaction {
         val source = planDao.getCurrentPlanWithSegments()
+        validatePlacement(PlannedSegment(taskId = taskId, date = date, startMinute = startMinute,
+            endMinute = endMinute, trackId = trackId), source?.toDomain()?.segments.orEmpty())
         val nextPlanId = UUID.randomUUID().toString()
         val now = nextPlanCreatedAt(System.currentTimeMillis())
         val existingOrder = source?.taskOrder
@@ -122,10 +140,11 @@ class RoomPlanRepository(
         startMinute: Int,
         endMinute: Int,
         trackId: String,
-    ) {
-        require(startMinute in 0 until 1440 && endMinute in 1..1440 && startMinute < endMinute)
-        val source = planDao.getCurrentPlanWithSegments() ?: return
-        if (source.segments.none { it.id == segmentId }) return
+    ) = database.withTransaction {
+        val source = planDao.getCurrentPlanWithSegments() ?: return@withTransaction
+        val target = source.toDomain().segments.firstOrNull { it.id == segmentId } ?: return@withTransaction
+        require(!target.isLocked) { "请先解除锁定，再移动这个安排。" }
+        validatePlacement(target.copy(startMinute = startMinute, endMinute = endMinute, trackId = trackId), source.toDomain().segments)
         val nextPlanId = UUID.randomUUID().toString()
         val now = nextPlanCreatedAt(System.currentTimeMillis())
         planDao.replaceCurrentPlan(

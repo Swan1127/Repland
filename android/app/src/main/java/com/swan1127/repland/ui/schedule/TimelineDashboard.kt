@@ -438,7 +438,7 @@ private fun EventLibrarySheet(
         .takeIf { it in 0 until 1_440 }
     val selectedDuration = selectedEvent?.durationMinutes?.coerceIn(5, 720) ?: 30
     val sameTrackCollision = selectedMinute != null && selectedEvent != null && occupiedEntries.any { entry ->
-        entry.trackId == selectedTrack &&
+        (entry.trackId == selectedTrack || entry.kind != TimelineKind.TASK) &&
             selectedMinute < entry.endMinute &&
             selectedMinute + selectedDuration > entry.startMinute
     }
@@ -507,14 +507,14 @@ private fun EventLibrarySheet(
                     )
                 }
                 if (selectedMinute == null) Text("请输入 00:00–23:59。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-                if (sameTrackCollision) Text("该轨道这个时段已有事件；选择另一条轨道即可并行。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                if (sameTrackCollision) Text("这个时间与已有任务、课程或休息冲突，请调整时间。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 Text("轨道", style = MaterialTheme.typography.titleSmall)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     tracks.distinctBy(TimelineTrackOption::id).forEach { track ->
                         FilterChip(selected = selectedTrack == track.id, onClick = { selectedTrack = track.id }, label = { Text(track.label) })
                     }
                 }
-                Button(onClick = { onPlace(event, selectedTrack, requireNotNull(selectedMinute)) }, enabled = selectedMinute != null && !sameTrackCollision, modifier = Modifier.fillMaxWidth().testTag("event-place-confirm")) {
+                Button(onClick = { onPlace(event, selectedTrack, requireNotNull(selectedMinute)) }, enabled = selectedMinute != null && selectedMinute + selectedDuration <= 1440 && !sameTrackCollision, modifier = Modifier.fillMaxWidth().testTag("event-place-confirm")) {
                     Text("安排到 ${selectedMinute?.let(TimeBlockValidator::formatTime) ?: "--:--"}")
                 }
                 TextButton(onClick = { selectedEvent = null }) { Text("返回事件库") }

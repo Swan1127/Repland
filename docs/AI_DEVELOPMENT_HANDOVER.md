@@ -1,5 +1,7 @@
 # Repland AI 开发交接
 
+> 2026-10-03 更新：以下为 2026-09-18 历史实现快照，不作为当前产品规格。当前路线为用户 BYOK，debug 已含兼容模型适配器；最新构建能力与进度见 [DELIVERY_PROGRESS.md](DELIVERY_PROGRESS.md)，产品规格见 [REPLAND_IDEA.md](../REPLAND_IDEA.md)。旧的权重、固定 DeepSeek/网关路线及绝对离线描述不再定义当前目标。
+
 更新日期：2026-09-18
 适用范围：后续维护本仓库的开发者或 AI Agent。
 

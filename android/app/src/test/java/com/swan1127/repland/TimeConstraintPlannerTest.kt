@@ -39,7 +39,7 @@ class TimeConstraintPlannerTest {
     }
 
     @Test
-    fun `weekly availability respects recurring blockers and a one-day available override`() {
+    fun `an available override cannot silently cancel a recurring course`() {
         val plan = PlanGenerator.generate(
             tasks = listOf(task(duration = 60)),
             weeklyBlocks = listOf(
@@ -63,10 +63,12 @@ class TimeConstraintPlannerTest {
         )
 
         assertEquals(
-            listOf(8 * 60, 9 * 60),
+            listOf(9 * 60),
             plan.segments.map(PlannedSegment::startMinute),
         )
         assertFalse(plan.segments.any { it.startMinute == 8 * 60 + 30 })
+        assertFalse(plan.segments.any { it.startMinute == 8 * 60 })
+        assertEquals(30, plan.unscheduledTasks.single().remainingMinutes)
     }
 
     @Test

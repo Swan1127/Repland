@@ -8,6 +8,7 @@ import com.swan1127.repland.domain.model.AiAdvisorFailureReason
 import com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest
 import com.swan1127.repland.domain.model.ArrangementAssistantAdviceResult
 import com.swan1127.repland.domain.model.ArrangementAssistantAdvisor
+import com.swan1127.repland.domain.model.NoOpArrangementAssistantAdvisor
 import com.swan1127.repland.domain.ports.AiProviderConfigRepository
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,7 @@ data class AiProviderConfigUiState(
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     val connectionTest: AiProviderConnectionTest = AiProviderConnectionTest.Idle,
+    val supportsRemote: Boolean = false,
 )
 
 sealed interface AiProviderConnectionTest {
@@ -38,7 +40,8 @@ class AiProviderConfigViewModel(
     private val errorMessage = MutableStateFlow<String?>(null)
     private val connectionTest = MutableStateFlow<AiProviderConnectionTest>(AiProviderConnectionTest.Idle)
     val uiState: StateFlow<AiProviderConfigUiState> = combine(repository.observe(), errorMessage, connectionTest) { config, error, test ->
-        AiProviderConfigUiState(config = config, isLoading = false, errorMessage = error, connectionTest = test)
+        AiProviderConfigUiState(config = config, isLoading = false, errorMessage = error, connectionTest = test,
+            supportsRemote = arrangementAdvisor !== NoOpArrangementAssistantAdvisor)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),

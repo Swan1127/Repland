@@ -19,11 +19,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
 
 data class PlanUiState(
     val currentPlan: ConfirmedPlan? = null,
     val planHistory: List<ConfirmedPlan> = emptyList(),
     val draft: PlanDraft? = null,
+    val errorMessage: String? = null,
 )
 
 class PlanViewModel(
@@ -31,13 +33,15 @@ class PlanViewModel(
     private val planDraftGenerator: PlanDraftGenerator,
 ) : ViewModel() {
     private val draft = MutableStateFlow<PlanDraft?>(null)
+    private val errorMessage = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<PlanUiState> = combine(
         planRepository.observeCurrentPlan(),
         planRepository.observePlanHistory(),
         draft,
-    ) { currentPlan, planHistory, planDraft ->
-        PlanUiState(currentPlan = currentPlan, planHistory = planHistory, draft = planDraft)
+        errorMessage,
+    ) { currentPlan, planHistory, planDraft, error ->
+        PlanUiState(currentPlan = currentPlan, planHistory = planHistory, draft = planDraft, errorMessage = error)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -53,6 +57,7 @@ class PlanViewModel(
         categoryPreferences: Map<TaskCategory, Int>,
         manualTaskOrder: List<String>,
     ) {
+        try {
         draft.value = planDraftGenerator.generate(PlanGenerationInput(
             tasks = tasks,
             weeklyBlocks = weeklyBlocks,
@@ -62,6 +67,9 @@ class PlanViewModel(
             categoryPreferences = categoryPreferences,
             manualTaskOrder = manualTaskOrder,
         ))
+        } catch (error: IllegalArgumentException) {
+            errorMessage.value = error.message ?: "无法生成计划，请检查任务和时间设置。"
+        }
     }
 
     fun discardDraft() {
@@ -80,37 +88,51 @@ class PlanViewModel(
 
     fun acceptDraft(onAccepted: (() -> Unit)? = null) {
         val acceptedDraft = draft.value ?: return
-        viewModelScope.launch {
-            runCatching { planRepository.accept(acceptedDraft) }
-                .onSuccess {
-                    draft.value = null
-                    onAccepted?.invoke()
-                }
+        mutate {
+            planRepository.accept(acceptedDraft)
+            draft.value = null
+            onAccepted?.invoke()
         }
     }
 
     fun restore(planId: String) {
-        viewModelScope.launch { planRepository.restore(planId) }
+        mutate { planRepository.restore(planId) }
     }
 
     fun clearCurrentPlan() {
-        viewModelScope.launch { planRepository.clearCurrentPlan() }
+        mutate { planRepository.clearCurrentPlan() }
     }
 
     fun setSegmentLocked(segmentId: String, isLocked: Boolean) {
-        viewModelScope.launch { planRepository.setSegmentLocked(segmentId, isLocked) }
+        mutate { planRepository.setSegmentLocked(segmentId, isLocked) }
     }
 
     fun placeTask(taskId: String, date: LocalDate, startMinute: Int, endMinute: Int, trackId: String) {
-        viewModelScope.launch { planRepository.placeTask(taskId, date, startMinute, endMinute, trackId) }
+        mutate { planRepository.placeTask(taskId, date, startMinute, endMinute, trackId) }
     }
 
     fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String) {
-        viewModelScope.launch { planRepository.movePlacement(segmentId, startMinute, endMinute, trackId) }
+        mutate { planRepository.movePlacement(segmentId, startMinute, endMinute, trackId) }
     }
 
     fun removePlacement(segmentId: String) {
-        viewModelScope.launch { planRepository.removePlacement(segmentId) }
+        mutate { planRepository.removePlacement(segmentId) }
+    }
+
+    fun dismissError() { errorMessage.value = null }
+
+    private fun mutate(action: suspend () -> Unit) {
+        viewModelScope.launch {
+            try {
+                action()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                errorMessage.value = if (error is IllegalArgumentException) {
+                    error.message ?: "这次安排无效，请调整时间后重试。"
+                } else "安排未保存，请重试；原计划保持不变。"
+            }
+        }
     }
 
     class Factory(

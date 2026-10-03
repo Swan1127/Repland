@@ -230,6 +230,6 @@ class TimelineDashboardUiTest {
         rule.onNodeWithTag("event-minute-input").performTextClearance()
         rule.onNodeWithTag("event-minute-input").performTextInput("00")
         rule.onNodeWithTag("event-place-confirm").assertIsNotEnabled()
-        rule.onNodeWithText("该轨道这个时段已有事件；选择另一条轨道即可并行。", substring = true).assertExists()
+        rule.onNodeWithText("这个时间与已有任务、课程或休息冲突，请调整时间。", substring = true).assertExists()
     }
 }

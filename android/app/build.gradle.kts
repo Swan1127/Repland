@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.security.MessageDigest
 
 plugins {
     alias(libs.plugins.android.application)
@@ -61,6 +62,9 @@ android {
         targetSdk = 36
         versionCode = replandVersionCode
         versionName = replandVersionName
+        val sourceRevision = providers.exec { commandLine("git", "rev-parse", "--short=12", "HEAD") }
+            .standardOutput.asText.get().trim()
+        buildConfigField("String", "BUILD_SOURCE", "\"$sourceRevision\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -77,6 +81,10 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".qa"
+            versionNameSuffix = "-qa"
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -103,12 +111,32 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     testOptions {
         animationsDisabled = true
         unitTests {
             isIncludeAndroidResources = true
         }
+    }
+}
+
+tasks.register("recordBuildArtifacts") {
+    mustRunAfter("assembleDebug", "assembleInternal", "connectedDebugAndroidTest")
+    group = "verification"
+    description = "Records version, source revision and SHA-256 of candidate APKs."
+    doLast {
+        val revision = providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.get().trim()
+        val report = layout.buildDirectory.file("outputs/build-manifest.txt").get().asFile
+        val artifacts = fileTree(layout.buildDirectory.dir("outputs/apk")) { include("**/*.apk") }.files.sortedBy { it.path }
+        report.parentFile.mkdirs()
+        report.writeText("version=$replandVersionName\nversionCode=$replandVersionCode\nsource=$revision\n" +
+            artifacts.joinToString("\n") { file ->
+                val hash = MessageDigest.getInstance("SHA-256").digest(file.readBytes())
+                    .joinToString("") { "%02x".format(it) }
+                "${file.name}: $hash"
+            } + "\n")
+        logger.lifecycle("Build manifest: ${report.absolutePath}")
     }
 }
 

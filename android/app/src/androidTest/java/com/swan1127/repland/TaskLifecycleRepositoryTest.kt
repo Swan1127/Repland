@@ -123,7 +123,7 @@ class TaskLifecycleRepositoryTest {
     fun replacement_creates_new_task_and_preserves_original_plan_and_log_history() = runBlocking {
         val originalId = createTask()
         repository.recordFeedback(originalId, TaskFeedback(progressPercent = 10))
-        val plans = RoomPlanRepository(database.planDao())
+        val plans = RoomPlanRepository(database)
         plans.accept(
             PlanDraft(
                 generatedAt = LocalDateTime.of(2026, 9, 17, 9, 0),
@@ -194,7 +194,7 @@ class TaskLifecycleRepositoryTest {
     @Test
     fun user_lock_on_current_confirmed_segment_is_persisted() = runBlocking {
         val taskId = createTask()
-        val plans = RoomPlanRepository(database.planDao())
+        val plans = RoomPlanRepository(database)
         plans.accept(
             PlanDraft(
                 generatedAt = LocalDateTime.of(2026, 9, 17, 9, 0),
@@ -220,7 +220,7 @@ class TaskLifecycleRepositoryTest {
     @Test
     fun restoring_history_creates_a_new_current_version_without_rewriting_the_source() = runBlocking {
         val taskId = createTask()
-        val plans = RoomPlanRepository(database.planDao())
+        val plans = RoomPlanRepository(database)
         plans.accept(
             PlanDraft(
                 generatedAt = LocalDateTime.of(2026, 9, 17, 9, 0),

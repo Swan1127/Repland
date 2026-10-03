@@ -48,6 +48,10 @@ _Avoid_: Applying an AI plan on save, waiting for a complete form
 A generated planning proposal that has not yet become the current plan. It has two outputs: a task list ordered for execution and, when enough time information exists, a plan with dated time segments. Tasks without enough time information can still participate in basic list ordering but remain pending for exact placement. It can be reviewed, edited, accepted, or discarded by the user.
 _Avoid_: Applied plan, automatic change
 
+**Formulate plan**:
+The explicit user request to rank existing unfinished tasks and propose a dated plan without requiring a message in the arrangement composer. The proposed order and time placements take effect together only after confirmation; this request does not unlock protected time.
+_Avoid_: Reusing old order only, unsent message as instruction, automatically applied plan
+
 **Plan confirmation**:
 The user action that turns a draft into the current plan. The user may accept the whole draft or edit selected parts before confirming; the confirmed result becomes a new plan version.
 Selecting “由 AI 决定” for a current conflict is an explicit authorization and may count as confirmation for that decision scope, allowing AI to apply the choice directly while recording a reversible new version.
@@ -183,7 +187,7 @@ A user change to a deadline, expected cycle, category, priority, timetable, rest
 _Avoid_: Rewriting history, retroactive schedule mutation
 
 **Dynamic priority**:
-The changing priority shown for ordering tasks in the plan. Its soft-ranking structure is currently 25% user initial priority, 15% category preference, 45% AI task-planning suitability, and 15% AI context judgment. The 15% AI context judgment includes deadline proximity, accumulated postponements, the general profile, the learning profile, course/grade impact, and other relevant context. Hard constraints and feasibility rules are handled before or outside this score; the user's initial priority remains visible and is not silently rewritten.
+The explainable, changing priority used to consider candidate tasks for planning, based on user priority, deadlines, planned dates, execution evidence and category preferences. It never rewrites initial priority or overrides protected time; its versioned scoring rules belong to the product specification.
 _Avoid_: Overwritten user priority, fixed lifetime score
 
 **Execution-time proximity**:
