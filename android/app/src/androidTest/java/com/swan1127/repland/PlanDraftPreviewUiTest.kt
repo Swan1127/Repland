@@ -103,6 +103,21 @@ class PlanDraftPreviewUiTest {
         rule.onNodeWithText("轨道").fetchSemanticsNode()
     }
 
+    @Test fun early_and_late_explicit_segments_are_visible_in_the_preview() {
+        val date = LocalDate.now().plusDays(1)
+        val draft = PlanDraft(LocalDateTime.now(), listOf(
+            PlannedSegment("early", "a", date, 360, 390), PlannedSegment("late", "b", date, 1410, 1440)),
+            emptyList(), emptyList(), listOf("a", "b"))
+        rule.setContent { ReplandTheme { PlanDraftDialog(draft, listOf(task("a", "清晨事项"), task("b", "深夜事项")),
+            emptyList(), emptyList(), null, onDismiss = {}, onUpdateDraft = {}, onAccept = {}) } }
+        rule.onNodeWithTag("draft-segment-early").assertExists()
+        rule.onNodeWithTag("draft-segment-late").assertExists()
+        rule.onNodeWithText("清晨事项 · 06:00–06:30 · 主线").assertExists()
+        rule.onNodeWithText("深夜事项 · 23:30–24:00 · 主线").assertExists()
+        rule.onNodeWithTag("draft-segment-summary-late").performScrollTo().performClick()
+        rule.onNodeWithText("轨道").assertExists()
+    }
+
     private fun task(id: String, title: String) = Task(
         id = id,
         description = title,

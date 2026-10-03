@@ -3330,6 +3330,15 @@ private fun PlanDraftTimelinePreview(
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
                 )
                 DraftDayTrackPreview(entries = entries, onEditSegment = onEditSegment, tracks = tracks)
+                entries.filter { it.id.startsWith("segment:") }.sortedBy { it.startMinute }.forEach { entry ->
+                    TextButton(
+                        onClick = { onEditSegment(entry.id.removePrefix("segment:")) },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                            .testTag("draft-segment-summary-${entry.id.removePrefix("segment:")}"),
+                    ) {
+                        Text("${entry.title} · ${TimeBlockValidator.formatTime(entry.startMinute)}–${TimeBlockValidator.formatTime(entry.endMinute)} · ${draftTrackLabel(entry.trackId, tracks)}")
+                    }
+                }
             }
         }
     }
@@ -3348,10 +3357,10 @@ private fun DraftDayTrackPreview(
     val rulerWidth = 38.dp
     val laneWidth = 112.dp
     val headerHeight = 28.dp
-    val dayStart = 7 * 60
-    val dayEnd = 23 * 60
+    val dayStart = minOf(7 * 60, (entries.minOfOrNull { it.startMinute } ?: 7 * 60) / 60 * 60).coerceAtLeast(0)
+    val dayEnd = maxOf(23 * 60, ((entries.maxOfOrNull { it.endMinute } ?: 23 * 60) + 59) / 60 * 60).coerceAtMost(24 * 60)
     val hourHeight = 14.dp
-    val contentHeight = headerHeight + hourHeight * ((dayEnd - dayStart) / 60)
+    val contentHeight = headerHeight + hourHeight * ((dayEnd - dayStart) / 60) + 24.dp
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
