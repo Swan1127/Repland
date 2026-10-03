@@ -186,6 +186,7 @@ fun AgentCenterScreen(
                 if (version != requestVersion) return@launch
                 when (result) {
                     is ArrangementAssistantAdviceResult.Advice -> {
+                        if (selectedIntent == null && result.advice.candidates.any { it.existingTaskId != null }) intent = ArrangementIntent.ARRANGE_TODAY
                         proposals = previewCandidates(result.advice.candidates)
                         refinementMessage = "AI 已生成可编辑计划：${result.advice.confidenceLabel}"
                     }
@@ -278,6 +279,7 @@ fun AgentCenterScreen(
                             is ArrangementAssistantAdviceResult.Advice -> {
                                 draftDate = activeDate
                                 draftRevision = contextRevision
+                                if (selectedIntent == null && result.advice.candidates.any { it.existingTaskId != null }) intent = ArrangementIntent.ARRANGE_TODAY
                                 proposals = previewCandidates(result.advice.candidates)
                                 refinementMessage = "AI 已校对草案：${result.advice.confidenceLabel}"
                             }
