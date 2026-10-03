@@ -9,11 +9,53 @@ import kotlinx.coroutines.flow.map
 import androidx.room.withTransaction
 import com.swan1127.repland.domain.model.PlacementValidator
 import com.swan1127.repland.domain.model.PlannedSegment
+import com.swan1127.repland.domain.model.*
+import org.json.JSONArray
 
 class RoomPlanRepository(
     private val database: ReplandDatabase,
 ) : PlanRepository {
     private val planDao = database.planDao()
+    private val workspace = database.planningWorkspaceDao()
+
+    override fun observeDraft(): Flow<PlanDraft?> = workspace.observe("draft").map { row ->
+        row?.let { PlanDraftCodec.decode(it.payload) }
+    }
+    override suspend fun saveDraft(draft: PlanDraft?) {
+        if (draft == null) workspace.remove("draft")
+        else workspace.put(PlanningWorkspaceEntity("draft", PlanDraftCodec.encode(draft)))
+    }
+    override fun observeTaskOrder(): Flow<List<String>> = workspace.observe("order").map { row ->
+        row?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty()
+    }
+    override suspend fun saveTaskOrder(ids: List<String>) {
+        workspace.put(PlanningWorkspaceEntity("order", JSONArray(ids.distinct()).toString()))
+    }
+
+    private suspend fun revision(): String = PlanningRevision.of(
+        PlanGenerationInput(database.taskDao().getAll().map { it.toDomain() },
+            database.timeDao().getAllWeeklyBlocks().map { it.toDomain() },
+            database.timeDao().getAllDateOverrides().map { it.toDomain() },
+            database.timeDao().getSemesterSettings()?.firstWeekMondayEpochDay?.let(LocalDate::ofEpochDay),
+            categoryPreferences = CategoryPreferences.normalized(database.categoryPreferenceDao().getAll().associate { it.toDomainPair() })),
+        planDao.getCurrentPlanWithSegments()?.toDomain(),
+        workspace.get("order")?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty())
+
+    override suspend fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>) = database.withTransaction {
+        require(tasks.isNotEmpty() && tasks.all { TaskDraftValidator.isValid(it) && !it.id.isNullOrBlank() }) { "请检查事项名称和时长。" }
+        require(tasks.map { it.id }.distinct().size == tasks.size) { "事项重复，请重新生成。" }
+        val ids = tasks.map { requireNotNull(it.id) }.toSet()
+        require(segments.all { it.taskId in ids }) { "安排中的事项引用无效。" }
+        require(ids.none { database.taskDao().getById(it) != null }) { "这些事项已经保存，请查看任务列表。" }
+        val current = planDao.getCurrentPlanWithSegments()?.toDomain()
+        for (segment in segments) validatePlacement(segment, current?.segments.orEmpty() + segments)
+        val taskRepository = RoomTaskRepository(database)
+        tasks.forEach { taskRepository.save(it) }
+        if (segments.isNotEmpty()) {
+            accept(PlanDraft(java.time.LocalDateTime.now(), current?.segments.orEmpty() + segments, emptyList(), emptyList(),
+                orderedTaskIds = (current?.orderedTaskIds.orEmpty() + ids).distinct(), hasManualTaskOrder = true))
+        }
+    }
 
     private suspend fun validatePlacement(candidate: PlannedSegment, existing: List<PlannedSegment>) {
         PlacementValidator.requireValid(candidate, existing,
@@ -28,7 +70,21 @@ class RoomPlanRepository(
         planDao.observePlanHistory().map { plans -> plans.map(PlanWithSegments::toDomain) }
 
     override suspend fun accept(draft: PlanDraft) = database.withTransaction {
+        require(draft.sourceRevision == null || draft.sourceRevision == revision()) { "任务、设置或计划已变化，请重新生成预览后确认。" }
+        if (draft.orderOnly) {
+            saveTaskOrder(draft.orderedTaskIds)
+            workspace.remove("draft")
+            return@withTransaction
+        }
         val current = planDao.getCurrentPlanWithSegments()?.toDomain()?.segments.orEmpty()
+        val activeIds = database.taskDao().getAll().map { it.toDomain() }.filter { it.status.isActive }.map { it.id }.toSet()
+        val validationTime = java.time.LocalDateTime.now()
+        require(current.filter { it.isLocked && it.taskId in activeIds &&
+            (it.date.isAfter(validationTime.toLocalDate()) || (it.date == validationTime.toLocalDate() && it.endMinute > validationTime.hour * 60 + validationTime.minute))
+        }.all { locked -> draft.segments.any { proposed ->
+            proposed.taskId == locked.taskId && proposed.date == locked.date && proposed.startMinute == locked.startMinute &&
+                proposed.endMinute == locked.endMinute && proposed.trackId == locked.trackId && proposed.isLocked
+        } }) { "草案不能覆盖已锁定的安排，请先明确解锁后重新生成。" }
         for (segment in draft.segments) {
             val preserved = current.any { it.taskId == segment.taskId && it.date == segment.date &&
                 it.startMinute == segment.startMinute && it.endMinute == segment.endMinute && it.trackId == segment.trackId }
@@ -63,6 +119,8 @@ class RoomPlanRepository(
                 )
             },
         )
+        saveTaskOrder(draft.orderedTaskIds)
+        workspace.remove("draft")
     }
 
     override suspend fun restore(planId: String) {
@@ -92,6 +150,8 @@ class RoomPlanRepository(
                 }
                 .map { item -> item.copy(planId = restoredPlanId) },
         )
+        saveTaskOrder(source.toDomain().orderedTaskIds)
+        workspace.remove("draft")
     }
 
     override suspend fun clearCurrentPlan() = planDao.archiveCurrentPlan()

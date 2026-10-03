@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.assertTextContains
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.ui.agent.AgentCenterScreen
 import com.swan1127.repland.ui.theme.ReplandTheme
@@ -26,6 +27,32 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgentCenterUiTest {
     @get:Rule val rule = createComposeRule()
+
+    @Test fun formulate_plan_is_independent_of_composer() {
+        var calls = 0
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            onFormulatePlan = { calls++ }, onSaveTasks = {},
+            onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-formulate-plan").performClick()
+        assertEquals(1, calls)
+        rule.onNodeWithTag("agent-prompt-安排今天").performClick()
+        rule.onNodeWithTag("agent-prompt").assertTextContains("", substring = false)
+    }
+
+    @Test fun capture_workflow_keeps_text_and_saves_no_placements() {
+        var saved = 0
+        var placed = 0
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            onSaveTasks = { saved += it.size }, onPlaceTask = { _, _, _, _ -> placed++ }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("15:00 复习英语 30 分钟")
+        rule.onNodeWithTag("agent-prompt-新增事项").performClick()
+        rule.onNodeWithTag("agent-prompt").assertTextContains("15:00 复习英语 30 分钟", substring = false)
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo().performClick()
+        assertEquals(1, saved)
+        assertEquals(0, placed)
+    }
 
     @Test fun text_is_only_saved_after_explicit_confirmation() {
         var saved = 0

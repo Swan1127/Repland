@@ -55,6 +55,7 @@ class Migration5To6Test {
                     ReplandDatabase.MIGRATION_16_17,
                     ReplandDatabase.MIGRATION_17_18,
                     ReplandDatabase.MIGRATION_18_19,
+                    ReplandDatabase.MIGRATION_19_20,
                 )
                 .allowMainThreadQueries()
                 .build()

@@ -6,6 +6,11 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
 interface PlanRepository {
+    fun observeDraft(): Flow<PlanDraft?>
+    suspend fun saveDraft(draft: PlanDraft?)
+    fun observeTaskOrder(): Flow<List<String>>
+    suspend fun saveTaskOrder(ids: List<String>)
+    suspend fun saveTasksAndPlace(tasks: List<com.swan1127.repland.domain.model.TaskDraft>, segments: List<com.swan1127.repland.domain.model.PlannedSegment>)
     fun observeCurrentPlan(): Flow<ConfirmedPlan?>
 
     fun observePlanHistory(): Flow<List<ConfirmedPlan>>

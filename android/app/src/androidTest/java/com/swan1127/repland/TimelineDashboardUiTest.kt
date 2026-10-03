@@ -161,16 +161,21 @@ class TimelineDashboardUiTest {
         val day = LocalDate.now()
         var placedId = ""
         var createdTitle = ""
+        val placedEntries = androidx.compose.runtime.mutableStateOf(emptyList<TimelineEntry>())
         rule.setContent {
             ReplandTheme {
                 TimelineDashboard(
-                    entries = emptyList(),
+                    entries = placedEntries.value,
                     mode = EngagementMode.GUIDED,
                     onOpenEntry = {},
                     onOpenTask = {},
                     scheduleDate = day,
                     eventObjects = listOf(TimelineEventObject("event-1", "跑步", 30)),
-                    onPlaceEvent = { event, _, _ -> placedId = event.id },
+                    onPlaceEvent = { event, track, minute ->
+                        placedId = event.id
+                        placedEntries.value = listOf(TimelineEntry("placed", event.title, TimelineKind.TASK, day,
+                            minute, minute + 30, taskId = event.id, trackId = track))
+                    },
                     onCreateCourse = { request -> createdTitle = request.title },
                 )
             }
@@ -180,8 +185,9 @@ class TimelineDashboardUiTest {
         rule.onNodeWithTag("event-place-confirm", useUnmergedTree = true).performClick()
         assertEquals("event-1", placedId)
 
-        rule.onNodeWithTag("empty-add-course-trigger").performClick()
+        rule.onNodeWithTag("add-course-trigger").performClick()
         rule.onNodeWithTag("course-title-input").performTextInput("数据库")
+        rule.onNodeWithText("手动设时间").performClick()
         rule.onNodeWithText("保存课程").performClick()
         assertEquals("数据库", createdTitle)
     }

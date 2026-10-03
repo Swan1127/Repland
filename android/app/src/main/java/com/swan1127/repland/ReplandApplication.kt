@@ -67,6 +67,7 @@ class AppContainer(context: Context) {
         ReplandDatabase.MIGRATION_16_17,
         ReplandDatabase.MIGRATION_17_18,
         ReplandDatabase.MIGRATION_18_19,
+        ReplandDatabase.MIGRATION_19_20,
     ).build()
 
     val taskRepository: TaskRepository = RoomTaskRepository(database)

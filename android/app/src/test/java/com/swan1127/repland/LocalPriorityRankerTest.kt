@@ -23,6 +23,31 @@ import org.junit.Test
 class LocalPriorityRankerTest {
     private val today = LocalDate.of(2026, 9, 14)
 
+    @Test fun `planned day affects rank while unconnected AI contributes zero`() {
+        val later = task("a", TaskCategory.OFFICE, TaskPriority.MEDIUM, null).copy(scheduledForDate = today.plusDays(20))
+        val now = later.copy(id = "b", scheduledForDate = today)
+        val ranked = LocalPriorityRanker.rank(listOf(later, now), today = today)
+        assertEquals("b", ranked.first().taskId)
+        assertTrue(ranked.first().reasons.any { it.kind == PriorityReasonKind.PLANNED_DATE && it.value == 0 })
+        assertTrue(ranked.all { it.reasons.any { reason -> reason.kind == PriorityReasonKind.LOCAL_AI_NEUTRAL && reason.value == 0 } })
+    }
+
+    @Test fun `today scheduling preserves other days and lock state`() {
+        val tomorrow = com.swan1127.repland.domain.model.PlannedSegment("tomorrow", "a", today.plusDays(1), 600, 630)
+        val locked = com.swan1127.repland.domain.model.PlannedSegment("locked", "a", today, 540, 570, true)
+        val current = com.swan1127.repland.domain.model.ConfirmedPlan("current", 1, true, listOf(tomorrow, locked))
+        val input = com.swan1127.repland.domain.model.PlanGenerationInput(
+            listOf(task("a", TaskCategory.COURSE, TaskPriority.HIGH, null, duration = 120)),
+            listOf(WeeklyTimeBlock("free", "可用", TimeBlockKind.AVAILABLE, DayOfWeek.MONDAY, 480, 720, null, 1, 1)),
+            emptyList(), null)
+        val draft = PlanGenerator.generateToday(input, current,
+            Clock.fixed(Instant.parse("2026-09-14T06:00:00Z"), ZoneOffset.UTC))
+        assertTrue(draft.segments.contains(tomorrow))
+        assertTrue(draft.segments.contains(locked))
+        assertTrue(draft.segments.filter { it != tomorrow }.all { it.date == today })
+        assertEquals(120, draft.segments.sumOf { it.endMinute - it.startMinute })
+    }
+
     @Test
     fun `same inputs rank identically regardless of incoming list order`() {
         val tasks = listOf(

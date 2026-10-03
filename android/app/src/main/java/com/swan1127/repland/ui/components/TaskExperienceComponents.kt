@@ -270,6 +270,7 @@ fun TaskCaptureSheet(
     initialText: String,
     onDismiss: () -> Unit,
     onSave: (TaskDraft) -> Unit,
+    onVoice: (() -> Unit)? = null,
 ) {
     var text by rememberSaveable(initialText) { mutableStateOf(initialText) }
     var stage by rememberSaveable { mutableStateOf(CaptureStage.CAPTURE) }
@@ -310,6 +311,9 @@ fun TaskCaptureSheet(
                 .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            onVoice?.let { action ->
+                TextButton(onClick = action, modifier = Modifier.testTag("voice-capture")) { Text("语音输入") }
+            }
             AnimatedContent(
                 targetState = stage,
                 transitionSpec = {

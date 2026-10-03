@@ -22,6 +22,7 @@ enum class PriorityReasonKind {
     OVERDUE,
     DEADLINE,
     POSTPONEMENTS,
+    PLANNED_DATE,
     LOCAL_AI_NEUTRAL,
 }
 
@@ -40,15 +41,12 @@ data class LocalPriorityAssessment(
 /**
  * Deterministic local fallback for dynamic priority.
  *
- * The AI-fit portion (45%) is deliberately fixed at neutral 50. The context portion
- * (15%) is instead calculated only from observable deadline and postponement evidence.
+ * V1 uses only observable evidence: priority 35%, deadline 25%, intended day 15%,
+ * postponements 10%, category 10%. AI contributes zero until an audited correction exists.
  */
 object LocalPriorityRanker {
-    private const val AI_NEUTRAL_SCORE = 50.0
-    private const val AI_FIT_WEIGHT = 0.45
-    private const val INITIAL_PRIORITY_WEIGHT = 0.25
-    private const val CATEGORY_WEIGHT = 0.15
-    private const val CONTEXT_WEIGHT = 0.15
+    private const val INITIAL_PRIORITY_WEIGHT = 0.35
+    private const val CATEGORY_WEIGHT = 0.10
 
     fun rank(
         tasks: List<Task>,
@@ -86,12 +84,11 @@ object LocalPriorityRanker {
         val categoryScore = categoryScore(task.category, categoryPreferences)
         val deadlineScore = deadlineScore(task.dueDate, today)
         val postponementScore = (50 + task.postponeCount * 15).coerceAtMost(100)
-        val contextScore = maxOf(deadlineScore, postponementScore)
+        val plannedDayScore = deadlineScore(task.scheduledForDate, today)
         val score = (
-            AI_NEUTRAL_SCORE * AI_FIT_WEIGHT +
-                task.userPriority.score * INITIAL_PRIORITY_WEIGHT +
+            task.userPriority.score * INITIAL_PRIORITY_WEIGHT +
                 categoryScore * CATEGORY_WEIGHT +
-                contextScore * CONTEXT_WEIGHT
+                deadlineScore * 0.25 + plannedDayScore * 0.15 + postponementScore * 0.10
             ).roundToInt().coerceIn(0, 100)
 
         return LocalPriorityAssessment(
@@ -110,7 +107,9 @@ object LocalPriorityRanker {
                     )
                 }
                 if (task.postponeCount > 0) add(PriorityReason(PriorityReasonKind.POSTPONEMENTS, task.postponeCount))
-                add(PriorityReason(PriorityReasonKind.LOCAL_AI_NEUTRAL))
+                task.scheduledForDate?.let { add(PriorityReason(PriorityReasonKind.PLANNED_DATE,
+                    java.time.temporal.ChronoUnit.DAYS.between(today, it).toInt())) }
+                add(PriorityReason(PriorityReasonKind.LOCAL_AI_NEUTRAL, 0))
             },
         )
     }

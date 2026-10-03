@@ -3,146 +3,121 @@ package com.swan1127.repland.ui.plan
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.swan1127.repland.domain.model.ConfirmedPlan
-import com.swan1127.repland.domain.model.DateOverride
-import com.swan1127.repland.domain.model.PlanDraft
-import com.swan1127.repland.domain.model.PlanDraftGenerator
-import com.swan1127.repland.domain.model.PlanGenerationInput
-import com.swan1127.repland.domain.model.Task
-import com.swan1127.repland.domain.model.TaskCategory
-import com.swan1127.repland.domain.model.WeeklyTimeBlock
+import com.swan1127.repland.domain.model.*
 import com.swan1127.repland.domain.ports.PlanRepository
 import java.time.LocalDate
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 data class PlanUiState(
     val currentPlan: ConfirmedPlan? = null,
     val planHistory: List<ConfirmedPlan> = emptyList(),
     val draft: PlanDraft? = null,
     val errorMessage: String? = null,
+    val isWorking: Boolean = false,
+    val taskOrder: List<String> = emptyList(),
 )
 
 class PlanViewModel(
     private val planRepository: PlanRepository,
     private val planDraftGenerator: PlanDraftGenerator,
 ) : ViewModel() {
-    private val draft = MutableStateFlow<PlanDraft?>(null)
-    private val errorMessage = MutableStateFlow<String?>(null)
-
+    private val operation = MutableStateFlow<Pair<String?, Boolean>>(null to false)
+    private val mutex = Mutex()
     val uiState: StateFlow<PlanUiState> = combine(
-        planRepository.observeCurrentPlan(),
-        planRepository.observePlanHistory(),
-        draft,
-        errorMessage,
-    ) { currentPlan, planHistory, planDraft, error ->
-        PlanUiState(currentPlan = currentPlan, planHistory = planHistory, draft = planDraft, errorMessage = error)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = PlanUiState(),
-    )
+        planRepository.observeCurrentPlan(), planRepository.observePlanHistory(),
+        planRepository.observeDraft(), operation, planRepository.observeTaskOrder(),
+    ) { current, history, draft, state, order ->
+        PlanUiState(current, history, draft, state.first, state.second, order)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
     fun generateDraft(
         tasks: List<Task>,
         weeklyBlocks: List<WeeklyTimeBlock>,
         dateOverrides: List<DateOverride>,
         semesterFirstWeekMonday: LocalDate?,
-        lockedSegments: List<com.swan1127.repland.domain.model.PlannedSegment>,
+        lockedSegments: List<PlannedSegment>,
         categoryPreferences: Map<TaskCategory, Int>,
         manualTaskOrder: List<String>,
+        orderOnly: Boolean = false,
+        todayOnly: LocalDate? = null,
     ) {
-        try {
-        draft.value = planDraftGenerator.generate(PlanGenerationInput(
-            tasks = tasks,
-            weeklyBlocks = weeklyBlocks,
-            dateOverrides = dateOverrides,
-            semesterFirstWeekMonday = semesterFirstWeekMonday,
-            lockedSegments = lockedSegments,
-            categoryPreferences = categoryPreferences,
-            manualTaskOrder = manualTaskOrder,
-        ))
-        } catch (error: IllegalArgumentException) {
-            errorMessage.value = error.message ?: "无法生成计划，请检查任务和时间设置。"
+        val input = PlanGenerationInput(tasks, weeklyBlocks, dateOverrides, semesterFirstWeekMonday,
+            lockedSegments, categoryPreferences, manualTaskOrder)
+        val revision = PlanningRevision.of(input, uiState.value.currentPlan, uiState.value.taskOrder)
+        mutate {
+            val result = if (todayOnly == null) planDraftGenerator.generate(input) else {
+                require(todayOnly == LocalDate.now()) { "安排今天只操作今天，请切换到今天后重试。" }
+                PlanGenerator.generateToday(input, uiState.value.currentPlan)
+            }
+            planRepository.saveDraft(result.copy(
+                sourceRevision = revision, orderOnly = orderOnly,
+                segments = if (orderOnly) emptyList() else result.segments,
+                unscheduledTasks = if (orderOnly) emptyList() else result.unscheduledTasks,
+            ))
         }
     }
 
-    fun discardDraft() {
-        draft.value = null
+    fun discardDraft() = mutate { planRepository.saveDraft(null) }
+
+    fun showAgentDraft(agentDraft: PlanDraft) = mutate {
+        if (uiState.value.draft == null) planRepository.saveDraft(agentDraft)
     }
 
-    /** An Agent result stays a draft and never overwrites a draft the user is already editing. */
-    fun showAgentDraft(agentDraft: PlanDraft) {
-        if (draft.value == null) draft.value = agentDraft
-    }
-
-    /** Keeps edits in an unconfirmed draft only; the current plan is never mutated here. */
-    fun updateDraft(updatedDraft: PlanDraft) {
-        if (draft.value != null) draft.value = updatedDraft
+    fun updateDraft(updatedDraft: PlanDraft) = mutate {
+        if (uiState.value.draft != null) planRepository.saveDraft(updatedDraft)
     }
 
     fun acceptDraft(onAccepted: (() -> Unit)? = null) {
-        val acceptedDraft = draft.value ?: return
+        val accepted = uiState.value.draft ?: return
         mutate {
-            planRepository.accept(acceptedDraft)
-            draft.value = null
+            // A queued second click must not apply an already confirmed draft again.
+            if (uiState.value.draft != accepted) return@mutate
+            planRepository.accept(accepted)
             onAccepted?.invoke()
         }
     }
 
-    fun restore(planId: String) {
-        mutate { planRepository.restore(planId) }
-    }
+    fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>, onSaved: () -> Unit) =
+        mutate { planRepository.saveTasksAndPlace(tasks, segments); onSaved() }
 
-    fun clearCurrentPlan() {
-        mutate { planRepository.clearCurrentPlan() }
-    }
-
-    fun setSegmentLocked(segmentId: String, isLocked: Boolean) {
-        mutate { planRepository.setSegmentLocked(segmentId, isLocked) }
-    }
-
-    fun placeTask(taskId: String, date: LocalDate, startMinute: Int, endMinute: Int, trackId: String) {
+    fun restore(planId: String) = mutate { planRepository.restore(planId) }
+    fun clearCurrentPlan() = mutate { planRepository.clearCurrentPlan() }
+    fun setSegmentLocked(segmentId: String, isLocked: Boolean) = mutate { planRepository.setSegmentLocked(segmentId, isLocked) }
+    fun placeTask(taskId: String, date: LocalDate, startMinute: Int, endMinute: Int, trackId: String) =
         mutate { planRepository.placeTask(taskId, date, startMinute, endMinute, trackId) }
-    }
-
-    fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String) {
+    fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String) =
         mutate { planRepository.movePlacement(segmentId, startMinute, endMinute, trackId) }
-    }
-
-    fun removePlacement(segmentId: String) {
-        mutate { planRepository.removePlacement(segmentId) }
-    }
-
-    fun dismissError() { errorMessage.value = null }
+    fun removePlacement(segmentId: String) = mutate { planRepository.removePlacement(segmentId) }
+    fun dismissError() { operation.value = null to operation.value.second }
 
     private fun mutate(action: suspend () -> Unit) {
         viewModelScope.launch {
-            try {
-                action()
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                errorMessage.value = if (error is IllegalArgumentException) {
-                    error.message ?: "这次安排无效，请调整时间后重试。"
-                } else "安排未保存，请重试；原计划保持不变。"
+            mutex.withLock {
+                operation.value = null to true
+                try {
+                    action()
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: Exception) {
+                    operation.value = (if (error is IllegalArgumentException) {
+                        error.message ?: "请检查这次安排后重试。"
+                    } else "操作未保存，请重试；原计划保持不变。") to true
+                } finally {
+                    operation.value = operation.value.first to false
+                }
             }
         }
     }
 
-    class Factory(
-        private val planRepository: PlanRepository,
-        private val planDraftGenerator: PlanDraftGenerator,
-    ) : ViewModelProvider.Factory {
+    class Factory(private val repository: PlanRepository, private val generator: PlanDraftGenerator) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             check(modelClass.isAssignableFrom(PlanViewModel::class.java))
-            return PlanViewModel(planRepository, planDraftGenerator) as T
+            return PlanViewModel(repository, generator) as T
         }
     }
 }

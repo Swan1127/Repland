@@ -139,6 +139,15 @@ fun TimelineDashboard(
     var showTrackComposer by remember { mutableStateOf(false) }
     var newTrackName by remember { mutableStateOf("") }
     var showEventLibrary by rememberSaveable { mutableStateOf(false) }
+    var pendingPlacement by remember { mutableStateOf<Triple<String, String, Int>?>(null) }
+    LaunchedEffect(entries, pendingPlacement) {
+        pendingPlacement?.let { requested ->
+            if (entries.any { it.taskId == requested.first && it.trackId == requested.second && it.startMinute == requested.third }) {
+                showEventLibrary = false
+                pendingPlacement = null
+            }
+        }
+    }
     var focusEntry by remember { mutableStateOf<TimelineEntry?>(null) }
     var viewMode by rememberSaveable { mutableStateOf(TimelineViewMode.SPLIT) }
     var showCourseComposer by rememberSaveable { mutableStateOf(false) }
@@ -314,8 +323,8 @@ fun TimelineDashboard(
                     occupiedEntries = entries,
                     onDismiss = { showEventLibrary = false },
                     onPlace = { event, trackId, minute ->
+                        pendingPlacement = Triple(event.id, trackId, minute)
                         onPlaceEvent(event, trackId, minute)
-                        showEventLibrary = false
                     },
                 )
             }
@@ -349,8 +358,8 @@ fun TimelineDashboard(
                 occupiedEntries = entries,
                 onDismiss = { showEventLibrary = false },
                 onPlace = { event, trackId, minute ->
+                    pendingPlacement = Triple(event.id, trackId, minute)
                     onPlaceEvent(event, trackId, minute)
-                    showEventLibrary = false
                 },
             )
         }

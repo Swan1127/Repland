@@ -27,6 +27,8 @@ data class PlanDraft(
     /** Local, explainable score associated with every task in orderedTaskIds. */
     val priorityAssessments: List<LocalPriorityAssessment> = emptyList(),
     val hasManualTaskOrder: Boolean = false,
+    val sourceRevision: String? = null,
+    val orderOnly: Boolean = false,
 )
 
 /** The explicit request/response boundary for the local planner and a future AI suggestion adapter. */
@@ -258,6 +260,21 @@ object PlanGenerator : PlanDraftGenerator {
     private const val DAY_START_MINUTE = 8 * 60
     private const val DAY_END_MINUTE = 22 * 60
 
+    /** Rebuild only the unprotected remainder of today, keeping all other placements. */
+    fun generateToday(input: PlanGenerationInput, current: ConfirmedPlan?, clock: Clock = Clock.systemDefaultZone()): PlanDraft {
+        val now = LocalDateTime.now(clock)
+        val preserved = current?.segments.orEmpty().filter {
+            it.date != now.toLocalDate() || it.startMinute < now.hour * 60 + now.minute || it.isLocked
+        }
+        val generated = generate(input.tasks, input.weeklyBlocks, input.dateOverrides, input.semesterFirstWeekMonday,
+            preserved.map { it.copy(isLocked = true) }, input.categoryPreferences, input.manualTaskOrder,
+            clock = clock, horizonDays = 1)
+        return generated.copy(segments = generated.segments.filter { segment -> preserved.none {
+            it.taskId == segment.taskId && it.date == segment.date && it.startMinute == segment.startMinute &&
+                it.endMinute == segment.endMinute && it.trackId == segment.trackId
+        } } + preserved)
+    }
+
     override fun generate(input: PlanGenerationInput): PlanDraft = generate(
         tasks = input.tasks,
         weeklyBlocks = input.weeklyBlocks,
@@ -277,7 +294,9 @@ object PlanGenerator : PlanDraftGenerator {
         categoryPreferences: Map<TaskCategory, Int> = CategoryPreferences.defaults,
         manualTaskOrder: List<String> = emptyList(),
         clock: Clock = Clock.systemDefaultZone(),
+        horizonDays: Int = HORIZON_DAYS,
     ): PlanDraft {
+        require(horizonDays in 1..HORIZON_DAYS)
         val now = LocalDateTime.now(clock)
         val activeTasks = tasks.filter { it.status.isActive }
         val activeTaskIds = activeTasks.mapTo(mutableSetOf(), Task::id)
@@ -314,7 +333,7 @@ object PlanGenerator : PlanDraftGenerator {
             )
         }
         // Hard constraints produce the candidate slot set before any soft ranking occurs.
-        val allSlots = freeSlots(now, weeklyBlocks, dateOverrides, semesterFirstWeekMonday)
+        val allSlots = freeSlots(now, weeklyBlocks, dateOverrides, semesterFirstWeekMonday, horizonDays)
         val assignedSlots = allSlots.filterTo(mutableSetOf()) { slot ->
             preservedLocks.any { locked -> locked.covers(slot) }
         }
@@ -336,7 +355,7 @@ object PlanGenerator : PlanDraftGenerator {
             val remainingMinutes = (remainingWorkMinutes(task) - (lockedMinutesByTask[task.id] ?: 0))
                 .coerceAtLeast(0)
             val requiredSlots = ceil(remainingMinutes / QUANTUM_MINUTES.toDouble()).toInt()
-            val cutoff = task.dueDate ?: now.toLocalDate().plusDays(HORIZON_DAYS - 1L)
+            val cutoff = task.dueDate ?: now.toLocalDate().plusDays(horizonDays - 1L)
             val selected = allSlots.asSequence()
                 .filter { slot -> slot !in assignedSlots && !slot.date.isAfter(cutoff) }
                 .take(requiredSlots)
@@ -378,8 +397,9 @@ object PlanGenerator : PlanDraftGenerator {
         weeklyBlocks: List<WeeklyTimeBlock>,
         dateOverrides: List<DateOverride>,
         semesterFirstWeekMonday: LocalDate?,
+        horizonDays: Int,
     ): List<Slot> = buildList {
-        repeat(HORIZON_DAYS) { dayOffset ->
+        repeat(horizonDays) { dayOffset ->
             val date = now.toLocalDate().plusDays(dayOffset.toLong())
             val firstMinute = if (dayOffset == 0) {
                 maxOf(DAY_START_MINUTE, roundUpToQuantum(now.hour * 60 + now.minute))

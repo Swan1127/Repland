@@ -136,6 +136,8 @@ class CoreWorkflowUiTest {
     @Test
     fun editable_voice_capture_can_become_a_task_draft_without_auto_saving() {
         composeRule.onNodeWithTag("navigation-tasks").performClick()
+        waitForTag("add-task")
+        composeRule.onNodeWithTag("add-task").performClick()
         waitForTag("voice-capture")
         composeRule.onNodeWithTag("voice-capture").performClick()
         waitForTag("voice-transcript")

@@ -15,11 +15,11 @@ object PlacementValidator {
         }
         fun overlaps(start: Int, end: Int) = start < candidate.endMinute && end > candidate.startMinute
         require(existing.none {
-            it.id != candidate.id && it.date == candidate.date && it.trackId == candidate.trackId &&
+            it !== candidate && (candidate.id.isBlank() || it.id != candidate.id) && it.date == candidate.date && it.trackId == candidate.trackId &&
                 overlaps(it.startMinute, it.endMinute)
         }) { "该轨道这个时间已有任务，请调整时间。" }
         require(existing.none {
-            it.id != candidate.id && it.isLocked && it.date == candidate.date && overlaps(it.startMinute, it.endMinute)
+            it !== candidate && (candidate.id.isBlank() || it.id != candidate.id) && it.isLocked && it.date == candidate.date && overlaps(it.startMinute, it.endMinute)
         }) { "这个时间有锁定安排，请调整时间。" }
         require(weeklyBlocks.none {
             it.kind != TimeBlockKind.AVAILABLE && it.dayOfWeek == candidate.date.dayOfWeek &&

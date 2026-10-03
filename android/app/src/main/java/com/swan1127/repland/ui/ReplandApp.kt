@@ -316,7 +316,7 @@ fun ReplandApp(
                 override.updatedAtEpochMillis > plan.createdAtEpochMillis
             } || timeUiState.timeConstraintsUpdatedAtEpochMillis > plan.createdAtEpochMillis
     } ?: false
-    val generatePlanDraft = {
+    fun generatePlanDraft(reorder: Boolean = false, orderOnly: Boolean = false, todayOnly: LocalDate? = null) {
         planViewModel.generateDraft(
             tasks = uiState.tasks,
             weeklyBlocks = timeUiState.weeklyBlocks,
@@ -328,10 +328,12 @@ fun ReplandApp(
                 }
                 .orEmpty(),
             categoryPreferences = categoryPreferenceUiState.weights,
-            manualTaskOrder = planUiState.currentPlan
+            manualTaskOrder = if (reorder) emptyList() else planUiState.taskOrder.ifEmpty { planUiState.currentPlan
                 ?.takeIf { it.hasManualTaskOrder }
                 ?.orderedTaskIds
-                .orEmpty(),
+                .orEmpty() },
+            orderOnly = orderOnly,
+            todayOnly = todayOnly,
         )
     }
     val taskRevision = uiState.tasks.maxOfOrNull(Task::updatedAtEpochMillis) ?: 0L
@@ -509,9 +511,10 @@ fun ReplandApp(
                     actions = {
                         if (selectedTab == AppTab.TASKS) {
                             TextButton(
-                                onClick = { showVoiceComposer = true; voiceError = false },
-                                modifier = Modifier.testTag("voice-capture"),
-                            ) { Text("语音添加") }
+                                onClick = { if (planUiState.draft == null) generatePlanDraft(reorder = true, orderOnly = true) },
+                                enabled = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
+                                modifier = Modifier.testTag("auto-sort-tasks"),
+                            ) { Text("自动排序") }
                         }
                     },
                 )
@@ -723,7 +726,7 @@ fun ReplandApp(
                     )
 
                     AppTab.TASKS -> TasksScreen(
-                        tasks = uiState.tasks,
+                        tasks = uiState.tasks.sortedBy { task -> planUiState.taskOrder.indexOf(task.id).takeIf { it >= 0 } ?: Int.MAX_VALUE },
                         isLoading = uiState.isLoading,
                         onOpen = { selectedTaskId = it.id },
                         onStart = taskViewModel::startTask,
@@ -739,6 +742,10 @@ fun ReplandApp(
                             arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey && aiProviderConfigUiState.supportsRemote,
                         onRefineWithAi = arrangementAssistantViewModel::refine,
                         onSaveTasks = { drafts -> drafts.forEach(taskViewModel::saveTask) },
+                        onConfirmBatch = planViewModel::saveTasksAndPlace,
+                        onFormulatePlan = { generatePlanDraft(reorder = true) },
+                        onArrangeExistingToday = { generatePlanDraft(todayOnly = LocalDate.now()) },
+                        canFormulatePlan = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
                         onPlaceTask = { taskId, startMinute, endMinute, trackId ->
                             planViewModel.placeTask(taskId, activeDate, startMinute, endMinute, trackId)
                         },
@@ -794,6 +801,7 @@ fun ReplandApp(
     if (showTaskCapture) {
         TaskCaptureSheet(
             initialText = taskEditorSeed,
+            onVoice = { showTaskCapture = false; showVoiceComposer = true; voiceError = false },
             onDismiss = { showTaskCapture = false; taskEditorSeed = "" },
             onSave = {
                 taskViewModel.saveTask(it)
@@ -2896,10 +2904,10 @@ internal fun PlanDraftDialog(
         .ifEmpty { (draft.segments.map(PlannedSegment::taskId) + draft.pendingTaskIds).distinct() }
     val priorityAssessmentsByTask = draft.priorityAssessments.associateBy(LocalPriorityAssessment::taskId)
     var editingSegmentId by remember { mutableStateOf<String?>(null) }
-    var showTaskOrder by rememberSaveable { mutableStateOf(false) }
+    var showTaskOrder by rememberSaveable { mutableStateOf(draft.orderOnly) }
     EditorSheet(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.plan_draft_title)) },
+        title = { Text(if (draft.orderOnly) "排序预览" else stringResource(R.string.plan_draft_title)) },
         text = {
             Column(
                 modifier = Modifier
@@ -2912,7 +2920,7 @@ internal fun PlanDraftDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                PlanDraftTimelinePreview(
+                if (!draft.orderOnly) PlanDraftTimelinePreview(
                     draft = draft,
                     tasks = tasks,
                     weeklyBlocks = weeklyBlocks,
@@ -2920,7 +2928,7 @@ internal fun PlanDraftDialog(
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
                     onEditSegment = { editingSegmentId = it },
                 )
-                draft.pendingTaskIds.takeIf(List<String>::isNotEmpty)?.let { pendingIds ->
+                draft.pendingTaskIds.takeIf { !draft.orderOnly && it.isNotEmpty() }?.let { pendingIds ->
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceContainerLow,
                         shape = RoundedCornerShape(14.dp),
@@ -2975,7 +2983,7 @@ internal fun PlanDraftDialog(
                         ) {
                             Column(Modifier.weight(1f)) {
                                 Text("候选事项顺序", style = MaterialTheme.typography.titleSmall)
-                                Text("只影响下次自动安排，不会改变上面的时段。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(if (draft.orderOnly) "确认后同步任务列表；不移动已安排的时段。" else "只影响下次自动安排，不会改变上面的时段。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Text(if (showTaskOrder) "收起" else "调整", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
                         }
@@ -3002,9 +3010,9 @@ internal fun PlanDraftDialog(
             Button(
                 onClick = onAccept,
                 modifier = Modifier.testTag("accept-plan-draft"),
-                enabled = draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty(),
+                enabled = draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty() || (draft.orderOnly && orderedTaskIds.isNotEmpty()),
             ) {
-                Text(stringResource(R.string.accept_plan_draft))
+                Text(if (draft.orderOnly) "应用排序" else stringResource(R.string.accept_plan_draft))
             }
         },
         dismissButton = {
@@ -5089,7 +5097,8 @@ private fun priorityReasonText(reason: PriorityReason): String = when (reason.ki
     }
 
     PriorityReasonKind.POSTPONEMENTS -> stringResource(R.string.priority_reason_postponed, reason.value ?: 0)
-    PriorityReasonKind.LOCAL_AI_NEUTRAL -> stringResource(R.string.priority_reason_ai_neutral)
+    PriorityReasonKind.PLANNED_DATE -> "计划日期距今天 ${reason.value ?: 0} 天"
+    PriorityReasonKind.LOCAL_AI_NEUTRAL -> "本地排序：AI 修正为 0"
 }
 
 @StringRes

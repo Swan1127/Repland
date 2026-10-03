@@ -39,7 +39,7 @@ class RoomTaskRepository(
         val now = System.currentTimeMillis()
         val existing = if (draft.id == null) null else taskDao.getById(draft.id)
         val entity = TaskEntity(
-            id = existing?.id ?: UUID.randomUUID().toString(),
+            id = existing?.id ?: draft.id ?: UUID.randomUUID().toString(),
             description = draft.description.trim(),
             displayName = draft.displayName.trim().ifBlank { TaskName.fromDescription(draft.description) },
             category = draft.category.name,

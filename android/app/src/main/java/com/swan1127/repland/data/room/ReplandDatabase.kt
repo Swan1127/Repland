@@ -21,8 +21,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         AiSettingsEntity::class,
         EngagementSettingsEntity::class,
         UsageEventEntity::class,
+        PlanningWorkspaceEntity::class,
     ],
-    version = 19,
+    version = 20,
     exportSchema = false,
 )
 abstract class ReplandDatabase : RoomDatabase() {
@@ -42,8 +43,14 @@ abstract class ReplandDatabase : RoomDatabase() {
 
     abstract fun aiSettingsDao(): AiSettingsDao
     abstract fun engagementDao(): EngagementDao
+    abstract fun planningWorkspaceDao(): PlanningWorkspaceDao
 
     companion object {
+        val MIGRATION_19_20 = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS planning_workspace (`key` TEXT NOT NULL, payload TEXT NOT NULL, PRIMARY KEY(`key`))")
+            }
+        }
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
