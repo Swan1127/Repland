@@ -19,6 +19,7 @@ data class PlanUiState(
     val errorMessage: String? = null,
     val isWorking: Boolean = false,
     val taskOrder: List<String> = emptyList(),
+    val assistantReceipt: AssistantSaveReceipt? = null,
 )
 
 data class InteractionWorkspaceUiState(
@@ -34,6 +35,8 @@ class PlanViewModel(
 ) : ViewModel() {
     private val operation = MutableStateFlow<Pair<String?, Boolean>>(null to false)
     private val mutex = Mutex()
+    private val assistantReceipt = MutableStateFlow<AssistantSaveReceipt?>(null)
+    fun dismissAssistantReceipt() { assistantReceipt.value = null }
     val workspaceUiState = combine(planRepository.observeTracks(), planRepository.observeAssistantWorkspace(), planRepository.observeCanUndoTaskOrder()) { tracks, assistant, canUndo ->
         InteractionWorkspaceUiState(false, tracks, assistant, canUndo)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InteractionWorkspaceUiState())
@@ -46,7 +49,8 @@ class PlanViewModel(
         planRepository.observeDraft(), operation, planRepository.observeTaskOrder(),
     ) { current, history, draft, state, order ->
         PlanUiState(current, history, draft, state.first, state.second, order)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
+    }.combine(assistantReceipt) { state, receipt -> state.copy(assistantReceipt = receipt) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
     fun generateDraft(
         tasks: List<Task>,
@@ -98,7 +102,12 @@ class PlanViewModel(
     fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>, onSaved: () -> Unit) =
         mutate { planRepository.saveTasksAndPlace(tasks, segments); onSaved() }
     fun saveAssistantChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingIds: Set<String>, date: LocalDate, onSaved: () -> Unit) =
-        mutate { planRepository.saveAssistantChanges(tasks, segments, existingIds, date); onSaved() }
+        mutate {
+            assistantReceipt.value = null
+            val result = planRepository.saveAssistantChanges(tasks, segments, existingIds, date)
+            assistantReceipt.value = AssistantSaveReceipt(java.util.UUID.randomUUID().toString(), result)
+            onSaved()
+        }
 
     fun restore(planId: String) = mutate { planRepository.restore(planId) }
     fun clearCurrentPlan() = mutate { planRepository.clearCurrentPlan() }

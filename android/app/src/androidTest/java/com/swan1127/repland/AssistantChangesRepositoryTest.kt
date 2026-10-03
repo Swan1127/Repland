@@ -31,7 +31,8 @@ class AssistantChangesRepositoryTest {
             val before = db.taskDao().getAll()
             bind(db, repo, day)
             val changes = listOf(segment("a", day, 720))
-            repo.saveAssistantChanges(emptyList(), changes, setOf("a"), day)
+            val result = repo.saveAssistantChanges(emptyList(), changes, setOf("a"), day)
+            assertEquals(AssistantSaveResult(0, 1, 1, day), result)
             assertEquals(before, db.taskDao().getAll())
             assertEquals(setOf(day to 720, day.plusDays(1) to 600), repo.observeCurrentPlan().first()!!.segments.map { it.date to it.startMinute }.toSet())
             assertNull(repo.observeAssistantWorkspace().first())
@@ -82,6 +83,28 @@ class AssistantChangesRepositoryTest {
             RoomTaskRepository(db).save(task("a").copy(totalDurationMinutes = 120))
             assertTrue(runCatching { repo.saveAssistantChanges(emptyList(), listOf(segment("a", day, 720)), setOf("a"), day) }.isFailure)
             assertNull(repo.observeCurrentPlan().first()); assertNotNull(repo.observeAssistantWorkspace().first())
+        } finally { db.close() }
+    }
+    @Test fun unchanged_placement_is_not_reported_as_an_adjustment() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
+        try {
+            val repo = RoomPlanRepository(db); val day = LocalDate.now().plusDays(1)
+            RoomTaskRepository(db).save(task("a"))
+            repo.accept(PlanDraft(LocalDateTime.now(), listOf(segment("a", day, 720)), emptyList(), emptyList(), listOf("a")))
+            bind(db, repo, day)
+            assertEquals(AssistantSaveResult(0, 0, 1, day), repo.saveAssistantChanges(emptyList(), listOf(segment("a", day, 720)), setOf("a"), day))
+        } finally { db.close() }
+    }
+    @Test fun unapplied_follow_up_survives_round_trip_and_blocks_confirmation() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
+        try {
+            val repo = RoomPlanRepository(db); val day = LocalDate.now().plusDays(1)
+            RoomTaskRepository(db).save(task("a")); bind(db, repo, day)
+            val draft = repo.observeAssistantWorkspace().first()!!.copy(followUpInstruction = "挪到16点")
+            repo.saveAssistantWorkspace(draft)
+            assertEquals(draft, repo.observeAssistantWorkspace().first())
+            assertTrue(runCatching { repo.saveAssistantChanges(emptyList(), listOf(segment("a", day, 720)), setOf("a"), day) }.isFailure)
+            assertNull(repo.observeCurrentPlan().first()); assertEquals(draft, repo.observeAssistantWorkspace().first())
         } finally { db.close() }
     }
 }

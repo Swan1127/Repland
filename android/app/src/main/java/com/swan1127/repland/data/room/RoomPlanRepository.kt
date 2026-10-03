@@ -68,12 +68,14 @@ class RoomPlanRepository(
         planDao.getCurrentPlanWithSegments()?.toDomain(),
         workspace.get("order")?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty())
 
-    override suspend fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>) =
+    override suspend fun saveTasksAndPlace(tasks: List<TaskDraft>, segments: List<PlannedSegment>) {
         saveAssistantChanges(tasks, segments, emptySet(), segments.firstOrNull()?.date ?: LocalDate.now())
+    }
 
     override suspend fun saveAssistantChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingTaskIds: Set<String>, date: LocalDate) = database.withTransaction {
         val assistant = workspace.get("assistant")?.let { InteractionWorkspaceCodec.decodeAssistant(it.payload) }
         val sourceRevision = assistant?.sourceRevision
+        require(assistant?.followUpInstruction.isNullOrBlank()) { "补充修改尚未应用，请发送或放弃后确认。" }
         require(existingTaskIds.isEmpty() || sourceRevision != null) { "已有任务调整需要有效草案，请重新生成后确认。" }
         require(existingTaskIds.isEmpty() || (assistant?.date == date && assistant.proposals.mapNotNull { it.existingTaskId }.toSet() == existingTaskIds)) { "调整目标与草案不一致，请重新生成。" }
         require(sourceRevision == null || sourceRevision == revision()) { "任务、设置或计划已变化，请重新生成助手草案后确认。" }
@@ -101,6 +103,8 @@ class RoomPlanRepository(
                 orderedTaskIds = (current?.orderedTaskIds.orEmpty() + ids).distinct(), hasManualTaskOrder = true))
         }
         workspace.remove("assistant")
+        fun signature(items: List<PlannedSegment>) = items.map { listOf(it.startMinute, it.endMinute, it.trackId, it.isLocked) }.sortedBy { it.toString() }
+        AssistantSaveResult(tasks.size, existingTaskIds.count { id -> signature(replaced.filter { it.taskId == id }) != signature(segments.filter { it.taskId == id }) }, segments.size, date)
     }
 
     private suspend fun validatePlacement(candidate: PlannedSegment, existing: List<PlannedSegment>) {

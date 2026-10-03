@@ -10,6 +10,26 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ArrangementAssistantAdviceValidatorTest {
+    @Test fun malformed_follow_up_does_not_silently_drop_part_of_the_draft() {
+        val advice = ArrangementAssistantAdvice(listOf(reference("english"), reference("english").copy(existingTaskId = null, durationMinutes = 900)), "test")
+        org.junit.Assert.assertNull(ArrangementAssistantAdviceValidator.validate(advice, request.copy(followUpInstruction = "调整")))
+    }
+    @Test fun draft_reference_is_preserved_during_follow_up() {
+        val item = reference("english").copy(proposalId = "p")
+        val context = request.copy(draftCandidates = listOf(item), followUpInstruction = "挪到16点")
+        assertEquals("p", ArrangementAssistantAdviceValidator.validate(ArrangementAssistantAdvice(listOf(item.copy(timeHint = ArrangementTimeHint(960))), "test"), context)?.candidates?.single()?.proposalId)
+    }
+    @Test fun invented_draft_reference_is_rejected() {
+        org.junit.Assert.assertNull(ArrangementAssistantAdviceValidator.validate(ArrangementAssistantAdvice(listOf(reference("english").copy(proposalId = "fake")), "test"), request))
+    }
+    @Test fun draft_reference_cannot_change_its_existing_task_target() {
+        val context = request.copy(draftCandidates = listOf(reference("english").copy(proposalId = "p")))
+        org.junit.Assert.assertNull(ArrangementAssistantAdviceValidator.validate(ArrangementAssistantAdvice(listOf(reference("english").copy(proposalId = "p", existingTaskId = null)), "test"), context))
+    }
+    @Test fun duplicate_draft_reference_is_rejected() {
+        val item = reference("english").copy(proposalId = "p", existingTaskId = null)
+        org.junit.Assert.assertNull(ArrangementAssistantAdviceValidator.validate(ArrangementAssistantAdvice(listOf(item, item), "test"), request.copy(draftCandidates = listOf(item))))
+    }
     private val request = com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest("调整英语", java.time.LocalDate.now(), emptyList(), listOf(com.swan1127.repland.domain.model.ArrangementExistingTask("english", "英语", TaskCategory.COURSE, 60)))
     private fun reference(id: String) = ArrangementCandidate("英语", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), existingTaskId = id)
     @Test fun known_existing_reference_is_preserved() {

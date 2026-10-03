@@ -6,7 +6,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
 interface PlanRepository {
-    suspend fun saveAssistantChanges(tasks: List<com.swan1127.repland.domain.model.TaskDraft>, segments: List<com.swan1127.repland.domain.model.PlannedSegment>, existingTaskIds: Set<String>, date: java.time.LocalDate)
+    suspend fun saveAssistantChanges(tasks: List<com.swan1127.repland.domain.model.TaskDraft>, segments: List<com.swan1127.repland.domain.model.PlannedSegment>, existingTaskIds: Set<String>, date: java.time.LocalDate): com.swan1127.repland.domain.model.AssistantSaveResult
     fun observeTracks(): Flow<List<com.swan1127.repland.domain.model.RhythmTrack>>
     suspend fun saveTracks(tracks: List<com.swan1127.repland.domain.model.RhythmTrack>)
     fun observeAssistantWorkspace(): Flow<com.swan1127.repland.domain.model.AssistantWorkspace?>

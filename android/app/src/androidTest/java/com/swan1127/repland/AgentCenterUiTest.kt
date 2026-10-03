@@ -29,6 +29,90 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AgentCenterUiTest {
     @get:Rule val rule = createComposeRule()
+    @Test fun consecutive_follow_ups_replace_the_same_draft_without_saving() {
+        val original = com.swan1127.repland.domain.model.AssistantTaskProposal("p", "英语", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.AI_SUGGESTED)
+        var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
+        val requests = mutableListOf<com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest>()
+        var saves = 0
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "学英语30分钟", listOf(original)),
+            canRefineWithAi = true, onWorkspaceChanged = { stored = it },
+            onRefineWithContext = { input ->
+                requests += input
+                ArrangementAssistantAdviceResult.Advice(ArrangementAssistantAdvice(listOf(input.draftCandidates.single().copy(timeHint = ArrangementTimeHint(if (requests.size == 1) 960 else 1080))), "test"))
+            },
+            onSaveTasks = { saves++ }, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-follow-up").performScrollTo().performTextInput("改到16点，其他保留")
+        rule.onNodeWithTag("agent-confirm-tasks").assertIsNotEnabled()
+        rule.onNodeWithTag("agent-apply-follow-up").performScrollTo().performClick()
+        rule.waitForIdle()
+        assertEquals("学英语30分钟", requests.single().utterance)
+        assertEquals("改到16点，其他保留", requests.single().followUpInstruction)
+        assertEquals("p", stored!!.proposals.single().id)
+        assertEquals(960, stored!!.proposals.single().timeHint.explicitStartMinute)
+        rule.onNodeWithTag("agent-follow-up").performScrollTo().performTextInput("再改到18点")
+        rule.onNodeWithTag("agent-apply-follow-up").performScrollTo().performClick()
+        rule.waitForIdle()
+        assertEquals(960, requests.last().draftCandidates.single().timeHint.explicitStartMinute)
+        assertEquals("p", stored!!.proposals.single().id)
+        assertEquals(1080, stored!!.proposals.single().timeHint.explicitStartMinute)
+        assertEquals("", stored!!.followUpInstruction)
+        assertEquals(0, saves)
+    }
+    @Test fun failed_follow_up_keeps_instruction_and_draft_until_explicit_discard() {
+        val original = com.swan1127.repland.domain.model.AssistantTaskProposal("p", "英语", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
+        var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "英语", listOf(original)),
+            canRefineWithAi = true, onWorkspaceChanged = { stored = it },
+            onRefineWithContext = { ArrangementAssistantAdviceResult.Failed(com.swan1127.repland.domain.model.AiAdvisorFailureReason.TIMEOUT) },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-follow-up").performScrollTo().performTextInput("改到16点")
+        rule.onNodeWithTag("agent-apply-follow-up").performScrollTo().performClick()
+        rule.waitForIdle()
+        assertEquals(listOf(original), stored!!.proposals)
+        assertEquals("改到16点", stored!!.followUpInstruction)
+        rule.onNodeWithTag("agent-confirm-tasks").assertIsNotEnabled()
+        rule.onNodeWithTag("agent-clear-follow-up").performScrollTo().performClick()
+        assertEquals("", stored!!.followUpInstruction)
+    }
+    @Test fun late_follow_up_reply_cannot_erase_a_new_instruction() {
+        val original = com.swan1127.repland.domain.model.AssistantTaskProposal("p", "英语", TaskCategory.COURSE, 30, ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
+        val response = kotlinx.coroutines.CompletableDeferred<ArrangementAssistantAdviceResult>()
+        var stored: com.swan1127.repland.domain.model.AssistantWorkspace? = null
+        var calls = 0
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "英语", listOf(original)),
+            canRefineWithAi = true, onWorkspaceChanged = { stored = it },
+            onRefineWithContext = { calls++; response.await() },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-follow-up").performScrollTo().performTextInput("改到16点")
+        rule.onNodeWithTag("agent-apply-follow-up").performScrollTo().performClick()
+        rule.waitUntil { calls == 1 }
+        rule.onNodeWithTag("agent-follow-up").performScrollTo().performTextClearance()
+        rule.onNodeWithTag("agent-follow-up").performTextInput("改到18点")
+        rule.runOnIdle { response.complete(ArrangementAssistantAdviceResult.Advice(ArrangementAssistantAdvice(listOf(ArrangementCandidate("旧回复", TaskCategory.COURSE, 30, ArrangementTimeHint(960), emptySet())), "test"))) }
+        rule.waitForIdle()
+        assertEquals(listOf(original), stored!!.proposals)
+        assertEquals("改到18点", stored!!.followUpInstruction)
+    }
+    @Test fun saved_receipt_exposes_task_and_correct_date_schedule_destinations() {
+        val receipt = androidx.compose.runtime.mutableStateOf<com.swan1127.repland.domain.model.AssistantSaveReceipt?>(null)
+        var tasks = 0; var viewedDate: LocalDate? = null
+        val date = LocalDate.now().plusDays(2)
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            saveReceipt = receipt.value, onViewTasks = { tasks++ }, onViewSchedule = { viewedDate = it },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-save-receipt").assertDoesNotExist()
+        rule.runOnIdle { receipt.value = com.swan1127.repland.domain.model.AssistantSaveReceipt("r", com.swan1127.repland.domain.model.AssistantSaveResult(1, 2, 3, date)) }
+        rule.onNodeWithTag("agent-view-saved-tasks").performClick()
+        rule.onNodeWithTag("agent-view-saved-schedule").performClick()
+        assertEquals(1, tasks); assertEquals(date, viewedDate)
+    }
     @Test fun existing_task_reply_confirms_adjustment_without_creating_a_copy() {
         var request: com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest? = null
         var confirmed = false

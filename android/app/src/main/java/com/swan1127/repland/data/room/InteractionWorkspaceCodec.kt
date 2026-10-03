@@ -18,6 +18,7 @@ object InteractionWorkspaceCodec {
         put("version", 1); put("date", value.date.toString()); put("prompt", value.prompt)
         put("intent", value.intent?.name); put("selectedIntent", value.selectedIntent?.name)
         put("revision", value.sourceRevision)
+        put("followUpInstruction", value.followUpInstruction)
         put("proposals", JSONArray(value.proposals.map { p -> JSONObject().apply {
             put("id", p.id); put("text", p.text); put("category", p.category.name); put("duration", p.durationMinutes)
             put("start", p.timeHint.explicitStartMinute); put("window", p.timeHint.windowLabel)
@@ -37,6 +38,6 @@ object InteractionWorkspaceCodec {
                     ArrangementTimeHint(if (p.isNull("start")) null else p.getInt("start"), if (p.isNull("window")) null else p.getString("window")),
                     p.getJSONArray("needs").let { needs -> (0 until needs.length()).map { ArrangementClarification.valueOf(needs.getString(it)) }.toSet() },
                     ArrangementPlacementSource.valueOf(p.getString("source")), p.getString("track"), if (p.isNull("existingTaskId")) null else p.getString("existingTaskId"))
-            } } }, intent("intent"), intent("selectedIntent"), if (j.isNull("revision")) null else j.getString("revision"))
+            } } }, intent("intent"), intent("selectedIntent"), if (j.isNull("revision")) null else j.getString("revision"), j.optString("followUpInstruction", ""))
     }
 }

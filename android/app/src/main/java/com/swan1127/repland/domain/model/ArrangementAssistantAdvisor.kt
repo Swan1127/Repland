@@ -9,6 +9,7 @@ data class ArrangementAssistantAdviceRequest(
     val occupiedIntervals: List<ArrangementOccupiedInterval>,
     val existingTasks: List<ArrangementExistingTask> = emptyList(),
     val draftCandidates: List<ArrangementCandidate> = emptyList(),
+    val followUpInstruction: String? = null,
 )
 
 data class ArrangementExistingTask(val id: String, val title: String, val category: TaskCategory, val durationMinutes: Int?)
@@ -52,7 +53,13 @@ object ArrangementAssistantAdviceValidator {
     fun validate(advice: ArrangementAssistantAdvice, request: ArrangementAssistantAdviceRequest): ArrangementAssistantAdvice? {
         val references = advice.candidates.mapNotNull { it.existingTaskId }
         if (references.distinct().size != references.size || references.any { id -> request.existingTasks.none { it.id == id } }) return null
-        return validate(advice)
+        val proposalIds = advice.candidates.mapNotNull { it.proposalId }
+        if (proposalIds.distinct().size != proposalIds.size || advice.candidates.any { candidate ->
+            candidate.proposalId != null && request.draftCandidates.none { it.proposalId == candidate.proposalId && it.existingTaskId == candidate.existingTaskId }
+        }) return null
+        val checked = validate(advice) ?: return null
+        if (!request.followUpInstruction.isNullOrBlank() && checked.candidates.size != advice.candidates.size) return null
+        return checked
     }
     fun validate(advice: ArrangementAssistantAdvice): ArrangementAssistantAdvice? {
         val validCandidates = advice.candidates

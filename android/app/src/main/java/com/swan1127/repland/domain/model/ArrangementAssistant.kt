@@ -48,6 +48,7 @@ data class ArrangementCandidate(
     val placementSource: ArrangementPlacementSource = ArrangementPlacementSource.UNSCHEDULED,
     val preferredTrackId: String? = null,
     val existingTaskId: String? = null,
+    val proposalId: String? = null,
 )
 
 data class ArrangementInterpretation(

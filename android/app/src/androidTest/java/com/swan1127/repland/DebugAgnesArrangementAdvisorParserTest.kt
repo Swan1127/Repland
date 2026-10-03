@@ -10,6 +10,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DebugAgnesArrangementAdvisorParserTest {
+    @Test fun proposal_id_is_decoded_for_continuous_refinement() {
+        val result = decodeArrangementAdvice("""{"confidenceLabel":"test","candidates":[{"title":"英语","proposalId":"p","category":"COURSE","startMinute":960,"durationMinutes":30}]}""")
+        assertEquals("p", result.candidates.single().proposalId)
+    }
     @Test fun existing_task_id_is_decoded_without_converting_it_to_a_new_task() {
         val result = decodeArrangementAdvice("""{"confidenceLabel":"test","candidates":[{"title":"英语","existingTaskId":"task-a","category":"COURSE","startMinute":720,"durationMinutes":30}]}""")
         assertEquals("task-a", result.candidates.single().existingTaskId)

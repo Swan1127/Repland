@@ -62,8 +62,9 @@ private fun Int.toFailureReason(): AiAdvisorFailureReason = when (this) {
 private fun ArrangementAssistantAdviceRequest.toWire(): JSONObject = JSONObject()
     .put("utterance", utterance)
     .put("date", date.toString())
+    .put("followUpInstruction", followUpInstruction)
     .put("existingTasks", JSONArray(existingTasks.map { JSONObject().put("id", it.id).put("title", it.title).put("category", it.category.name).put("durationMinutes", it.durationMinutes) }))
-    .put("draftCandidates", JSONArray(draftCandidates.map { JSONObject().put("title", it.title).put("existingTaskId", it.existingTaskId).put("durationMinutes", it.durationMinutes).put("startMinute", it.timeHint.explicitStartMinute).put("preferredTrackId", it.preferredTrackId) }))
+    .put("draftCandidates", JSONArray(draftCandidates.map { JSONObject().put("proposalId", it.proposalId).put("title", it.title).put("existingTaskId", it.existingTaskId).put("durationMinutes", it.durationMinutes).put("startMinute", it.timeHint.explicitStartMinute).put("preferredTrackId", it.preferredTrackId) }))
     .put("occupiedIntervals", JSONArray(occupiedIntervals.map {
         JSONObject().put("title", it.title).put("startMinute", it.startMinute)
             .put("endMinute", it.endMinute).put("trackId", it.trackId)
@@ -109,6 +110,7 @@ private fun parseAdvice(json: JSONObject): ArrangementAssistantAdvice {
                 }.getOrDefault(if (start != null && duration != null) ArrangementPlacementSource.AI_SUGGESTED else ArrangementPlacementSource.UNSCHEDULED),
                 preferredTrackId = item.firstText("preferredTrackId", "trackId", "track"),
                 existingTaskId = item.firstText("existingTaskId"),
+                proposalId = item.firstText("proposalId"),
             )
         }
         },
@@ -186,10 +188,11 @@ private const val ARRANGEMENT_SYSTEM_PROMPT = """
 You are Repland's Planning Master: a careful Chinese/English personal-planning assistant. Turn the utterance into separate, actionable candidates using meaning rather than keyword or punctuation matching. For example, “我想复习英语和写报告” is two candidates: “复习英语” and “写报告”.
 
 Return exactly one JSON object and no Markdown:
-{"confidenceLabel":"short Chinese phrase","candidates":[{"title":"string","existingTaskId":"exact existingTasks ID or null","category":"COURSE|EXTRACURRICULAR|OFFICE|LEISURE","startMinute":number or null,"windowLabel":string or null,"durationMinutes":number or null,"needsClarification":["TIME","DURATION"],"placementSource":"AI_SUGGESTED|UNSCHEDULED|USER_EXPLICIT","preferredTrackId":"focus|parallel-2|null"}]}.
+{"confidenceLabel":"short Chinese phrase","candidates":[{"title":"string","proposalId":"exact draftCandidates ID or null","existingTaskId":"exact existingTasks ID or null","category":"COURSE|EXTRACURRICULAR|OFFICE|LEISURE","startMinute":number or null,"windowLabel":string or null,"durationMinutes":number or null,"needsClarification":["TIME","DURATION"],"placementSource":"AI_SUGGESTED|UNSCHEDULED|USER_EXPLICIT","preferredTrackId":"focus|parallel-2|null"}]}.
 
 Planning rules:
 0. existingTasks are read-only facts. To reschedule an existing task, return its exact existingTaskId; never invent IDs or silently duplicate it as a new task. For genuinely new work use existingTaskId=null. Do not edit task status, priority or total duration. draftCandidates describe the current editable proposal; refinement can replace that proposal, not create another database copy. Existing task output title must identify the referenced task; durationMinutes is only the proposed placement length.
+0a. If followUpInstruction is present, apply it to draftCandidates and return the FULL replacement draft, including unchanged items. Do not treat the instruction itself as a task. Echo each retained item's exact proposalId and unchanged existingTaskId; never invent or duplicate proposalId. Use proposalId=null only for genuinely additional items. If an item is explicitly removed, omit it. Return only the latest draft, not a conversation transcript.
 1. Extract every independent action. Keep one action intact when a conjunction only joins subjects, such as “数学和英语复习”.
 2. Existing occupiedIntervals are read-only. Never change or return them. Treat every interval with isHardBusy=true as a global blocker: do not schedule across it on any track.
 3. Plan conservatively: preserve user-specified time as USER_EXPLICIT. Otherwise propose one concrete currently free time between 08:00 and 22:00 and a realistic 25–120 minute focus block, with a small transition buffer around hard busy intervals. Mark it AI_SUGGESTED. Use a parallel track only for genuinely compatible simultaneous work; never use one to evade a hard busy interval.

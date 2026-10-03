@@ -56,4 +56,8 @@ data class AssistantWorkspace(
     val intent: ArrangementIntent? = null,
     val selectedIntent: ArrangementIntent? = null,
     val sourceRevision: String? = null,
+    val followUpInstruction: String = "",
 )
+
+data class AssistantSaveResult(val createdTasks: Int, val adjustedTasks: Int, val writtenSegments: Int, val date: LocalDate)
+data class AssistantSaveReceipt(val id: String, val result: AssistantSaveResult)
