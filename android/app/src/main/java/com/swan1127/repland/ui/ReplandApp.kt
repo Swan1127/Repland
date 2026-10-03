@@ -348,12 +348,6 @@ fun ReplandApp(
             todayOnly = todayOnly,
         )
     }
-    val taskRevision = uiState.tasks.maxOfOrNull(Task::updatedAtEpochMillis) ?: 0L
-    val timeConstraintRevision = maxOf(
-        timeUiState.weeklyBlocks.maxOfOrNull(WeeklyTimeBlock::updatedAtEpochMillis) ?: 0L,
-        timeUiState.dateOverrides.maxOfOrNull(DateOverride::updatedAtEpochMillis) ?: 0L,
-        timeUiState.timeConstraintsUpdatedAtEpochMillis,
-    )
     // The arrangement assistant previews against exactly the same projected day
     // that the user sees on the home timeline; it never schedules into a vacuum.
     val agentTimelineEntries = ScheduleTimeline.entries(
@@ -368,16 +362,7 @@ fun ReplandApp(
     // Feedback and future-constraint changes can propose a new plan, but only the user
     // can accept it. The draft itself is deliberately not a key: dismissing a draft
     // must not cause the system to immediately recreate it without a new user change.
-    LaunchedEffect(planUiState.currentPlan?.id, taskRevision, timeConstraintRevision) {
-        if (
-            planNeedsUpdate &&
-            planUiState.draft == null &&
-            !uiState.isLoading &&
-            !timeUiState.isLoading
-        ) {
-            generatePlanDraft()
-        }
-    }
+    // Changed facts show a review affordance, never an unsolicited modal over execution/editing.
 
     LaunchedEffect(
         reminderSettingsUiState.preferences.isEnabled,
@@ -588,6 +573,8 @@ fun ReplandApp(
                         executionFinished = executionFinished,
                         onReplanRemaining = { taskViewModel.dismissSessionResult(); generatePlanDraft() },
                         onDismissExecutionResult = taskViewModel::dismissSessionResult,
+                        planNeedsUpdate = planNeedsUpdate,
+                        onReviewPlanChanges = { if (planUiState.draft == null) generatePlanDraft() },
                         date = activeDate,
                         tasks = uiState.tasks.filter(Task::isTodayRelevant),
                         allTasks = uiState.tasks,
@@ -1096,7 +1083,7 @@ fun ReplandApp(
             onSave = { value -> planViewModel.saveAvailabilityAndGenerate(value, categoryPreferenceUiState.weights) { showQuickAvailability = false } },
         )
     }
-    planUiState.draft?.takeIf { !showQuickAvailability }?.let { draft ->
+    planUiState.draft?.takeIf { !showQuickAvailability && !(showExecutionSession && executionSession != null) }?.let { draft ->
         PlanDraftDialog(
             draft = draft,
             currentPlan = planUiState.currentPlan,
@@ -1262,6 +1249,8 @@ private fun TodayScreen(
     executionFinished: Boolean,
     onReplanRemaining: () -> Unit,
     onDismissExecutionResult: () -> Unit,
+    planNeedsUpdate: Boolean,
+    onReviewPlanChanges: () -> Unit,
     date: LocalDate,
     tasks: List<Task>,
     allTasks: List<Task>,
@@ -1327,6 +1316,16 @@ private fun TodayScreen(
                         Text("预览剩余任务的新安排")
                     }
                     TextButton(onClick = onDismissExecutionResult, modifier = Modifier.heightIn(min = 48.dp)) { Text("保留原计划") }
+                }
+            }
+        }
+        if (planNeedsUpdate && executionSession == null && !executionFinished) {
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("任务或时间信息已变化，当前计划仍保持不变。需要时可重新预览安排。")
+                    OutlinedButton(onClick = onReviewPlanChanges, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("review-changed-plan")) {
+                        Text("预览更新后的安排")
+                    }
                 }
             }
         }
