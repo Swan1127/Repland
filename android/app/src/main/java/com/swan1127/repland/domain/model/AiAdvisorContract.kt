@@ -162,6 +162,8 @@ sealed interface AiAdvisorResult {
 }
 
 enum class AiAdvisorFailureReason {
+    SOURCE_CHANGED,
+    CONTEXT_UNAVAILABLE,
     CONFIGURATION_CHANGED,
     DISABLED,
     SERVICE_NOT_CONFIGURED,

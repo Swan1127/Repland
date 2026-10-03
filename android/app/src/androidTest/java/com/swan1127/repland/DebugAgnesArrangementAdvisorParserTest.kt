@@ -2,14 +2,29 @@ package com.swan1127.repland
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.data.ai.decodeArrangementAdvice
+import com.swan1127.repland.data.ai.toWire
 import com.swan1127.repland.domain.model.ArrangementPlacementSource
 import com.swan1127.repland.domain.model.TaskCategory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DebugAgnesArrangementAdvisorParserTest {
+    @Test fun context_wire_contains_bounded_facts_but_no_local_revision_or_notes() {
+        val request = com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest("英语", java.time.LocalDate.of(2026, 10, 3), emptyList(),
+            listOf(com.swan1127.repland.domain.model.ArrangementExistingTask("a", "英语", com.swan1127.repland.domain.model.TaskCategory.COURSE, 60,
+                com.swan1127.repland.domain.model.TaskStatus.IN_PROGRESS, com.swan1127.repland.domain.model.TaskPriority.HIGH, progressPercent = 40)),
+            categoryPreferences = mapOf(com.swan1127.repland.domain.model.TaskCategory.COURSE to 70),
+            taskFeedback = listOf(com.swan1127.repland.domain.model.ArrangementTaskFeedback("a", listOf(com.swan1127.repland.domain.model.AiFeedbackContext(10, 40, "第一章", null, null)))), sourceRevision = "local-revision")
+        val wire = request.toWire()
+        assertEquals("IN_PROGRESS", wire.getJSONArray("existingTasks").getJSONObject(0).getString("status"))
+        assertEquals(40, wire.getJSONArray("existingTasks").getJSONObject(0).getInt("progressPercent"))
+        assertEquals("第一章", wire.getJSONArray("taskFeedback").getJSONObject(0).getJSONArray("feedback").getJSONObject(0).getString("completedContent"))
+        assertFalse(wire.has("sourceRevision")); assertFalse(wire.toString().contains("local-revision"))
+        assertFalse(wire.has("apiKey")); assertFalse(wire.getJSONArray("existingTasks").getJSONObject(0).has("description"))
+    }
     @Test fun proposal_id_is_decoded_for_continuous_refinement() {
         val result = decodeArrangementAdvice("""{"confidenceLabel":"test","candidates":[{"title":"英语","proposalId":"p","category":"COURSE","startMinute":960,"durationMinutes":30}]}""")
         assertEquals("p", result.candidates.single().proposalId)

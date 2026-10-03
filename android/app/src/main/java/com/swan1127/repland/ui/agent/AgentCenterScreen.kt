@@ -159,7 +159,7 @@ fun AgentCenterScreen(
         }, existingTasks.take(50), (if (includeDraft) proposals else emptyList()).map {
             ArrangementCandidate(it.text, it.category, it.durationMinutes, it.timeHint, it.needsClarification,
                 it.placementSource, it.trackId, it.existingTaskId, it.id)
-        }, instruction, availableIntervals)
+        }, instruction, availableIntervals, sourceRevision = contextRevision)
         return onRefineWithContext?.invoke(request) ?: if (instruction != null) ArrangementAssistantAdviceResult.Unavailable(AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED) else onRefineWithAi(utterance, activeDate, occupiedEntries)
     }
     val speechLauncher = rememberLauncherForActivityResult(
@@ -436,7 +436,7 @@ private fun AgentComposer(prompt: String, willUseAi: Boolean, onPromptChange: (S
                 }
             }
             OutlinedTextField(value = prompt, onValueChange = onPromptChange, modifier = Modifier.fillMaxWidth().testTag("agent-prompt"), minLines = 3, maxLines = 5, label = { Text("今天想怎么安排？") }, placeholder = { Text("例如：15:00 复习数据结构 90 分钟；同一时间跑步 40 分钟") })
-            if (willUseAi) Text("生成时发送输入、所选日期的占用与明确可用时段、最多 50 项未完成任务的名称/类别/时长及当前草案；不发送任务备注。未提供可用时间时不自动选时段。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (willUseAi) Text("生成时发送输入、当日占用/明确可用时段、当前草案、类别偏好，以及最多 50 项未完成任务的名称、类别、时长、状态、优先级、日期和进度。仅提及或草案引用的最多 5 项任务附最近 3 条有效反馈（文字各限 200 字）；不发送任务备注或密钥。无可用时间不自动选时段。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ComposerPreset("安排今天") { onSeed("安排今天") }
                 ComposerPreset("新增事项") { onSeed("新增事项") }
@@ -497,7 +497,7 @@ private fun AgentProposalPanel(activeDate: LocalDate, intent: ArrangementIntent?
                         Spacer(Modifier.width(8.dp))
                         Column(Modifier.weight(1f)) {
                             Text(if (isRefining) "正在生成计划…" else "重新用 AI 校对计划", style = MaterialTheme.typography.labelLarge)
-                            Text("发送输入、所选日期的占用与明确可用时段、最多 50 项未完成任务的名称/类别/时长和当前草案；不发送任务备注。仍需确认写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("发送输入、当日占用/可用时段、当前草案、类别偏好与最多 50 项未完成任务事实；仅提及或草案引用的最多 5 项任务附最近 3 条有效反馈，文字各限 200 字。不发送任务备注或密钥；仍需确认写入。", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -758,6 +758,8 @@ private fun ArrangementPlacementSource.label(): String = when (this) {
 }
 
 private fun AiAdvisorFailureReason.userMessage(fallback: String): String = when (this) {
+    AiAdvisorFailureReason.SOURCE_CHANGED -> "任务、时间或偏好已变化，请重新生成；$fallback"
+    AiAdvisorFailureReason.CONTEXT_UNAVAILABLE -> "暂时无法读取规划数据，请重试；$fallback"
     AiAdvisorFailureReason.CONFIGURATION_CHANGED -> "模型配置已变化，请重新生成；$fallback"
     AiAdvisorFailureReason.INVALID_RESPONSE -> "AI 的回复格式不完整，已自动保留本地草案；可点“重新用 AI 校对计划”重试。"
     AiAdvisorFailureReason.TIMEOUT -> "AI 响应超时，$fallback"

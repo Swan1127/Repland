@@ -4181,6 +4181,8 @@ internal fun AiProviderSettingsDialog(
 }
 
 private fun AiAdvisorFailureReason.connectionTestMessage(): String = when (this) {
+    AiAdvisorFailureReason.SOURCE_CHANGED -> "规划数据已变化，请重试。"
+    AiAdvisorFailureReason.CONTEXT_UNAVAILABLE -> "暂时无法读取规划数据，请重试。"
     AiAdvisorFailureReason.CONFIGURATION_CHANGED -> "配置已变化，请使用新配置重新测试。"
     AiAdvisorFailureReason.AUTHENTICATION_FAILURE -> "鉴权失败：请检查密钥是否属于当前服务区，以及账户是否可用。"
     AiAdvisorFailureReason.RATE_LIMITED -> "服务已连通，但当前触发请求额度或频率限制。"
@@ -5267,6 +5269,8 @@ private fun ProfileEvidenceScope.labelRes(): Int = when (this) {
 
 @StringRes
 private fun AiAdvisorFailureReason.labelRes(): Int = when (this) {
+    AiAdvisorFailureReason.SOURCE_CHANGED -> R.string.ai_failure_source_changed
+    AiAdvisorFailureReason.CONTEXT_UNAVAILABLE -> R.string.ai_failure_context_unavailable
     AiAdvisorFailureReason.CONFIGURATION_CHANGED -> R.string.ai_failure_configuration_changed
     AiAdvisorFailureReason.DISABLED -> R.string.ai_failure_disabled
     AiAdvisorFailureReason.SERVICE_NOT_CONFIGURED -> R.string.ai_failure_not_configured

@@ -11,6 +11,10 @@ data class ArrangementAssistantAdviceRequest(
     val draftCandidates: List<ArrangementCandidate> = emptyList(),
     val followUpInstruction: String? = null,
     val availableIntervals: List<ArrangementAvailableInterval> = emptyList(),
+    val categoryPreferences: Map<TaskCategory, Int> = emptyMap(),
+    val taskFeedback: List<ArrangementTaskFeedback> = emptyList(),
+    /** Local-only stale-source guard; never serialized to the provider. */
+    val sourceRevision: String? = null,
 )
 
 data class ArrangementAvailableInterval(val startMinute: Int, val endMinute: Int)
@@ -32,7 +36,11 @@ object ArrangementAvailability {
     }
 }
 
-data class ArrangementExistingTask(val id: String, val title: String, val category: TaskCategory, val durationMinutes: Int?)
+data class ArrangementExistingTask(val id: String, val title: String, val category: TaskCategory, val durationMinutes: Int?,
+    val status: TaskStatus? = null, val priority: TaskPriority? = null, val dueDate: LocalDate? = null,
+    val scheduledForDate: LocalDate? = null, val progressPercent: Int? = null, val postponeCount: Int? = null)
+
+data class ArrangementTaskFeedback(val taskId: String, val feedback: List<AiFeedbackContext>)
 
 data class ArrangementOccupiedInterval(
     val title: String,

@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
                     factory = ArrangementAssistantViewModel.Factory(
                         appContainer.aiSettingsRepository,
                         appContainer.arrangementAssistantAdvisor,
+                        appContainer.planningReadService,
                     ),
                 )
                 val engagementViewModel: EngagementViewModel = viewModel(

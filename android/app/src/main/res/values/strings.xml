@@ -1,4 +1,6 @@
 <resources>
+    <string name="ai_failure_source_changed">任务、时间或偏好已变化，请重新生成。</string>
+    <string name="ai_failure_context_unavailable">暂时无法读取规划数据，请重试。</string>
     <string name="app_name">Repland</string>
     <string name="tab_today">今日</string>
     <string name="tab_tasks">任务</string>
