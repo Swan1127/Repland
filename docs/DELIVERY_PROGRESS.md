@@ -6,7 +6,7 @@
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
 - 实施分支：`codex/product-delivery`。
-- 候选版本：`0.1.14 (1014)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 候选版本：`0.1.15 (1015)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
 
@@ -197,6 +197,20 @@ APK 检查确认 internal 的两个 Provider 类/构造入口保留；release Ma
 | app-debug.apk | com.swan1127.repland.qa | `2a27a687d9c59ed1692e0dcbbbfc3eebdd68f2f4be9a050e67a39efbd3bf2271` |
 
 最终构建没有重新生成 androidTest APK，也没有重跑全部设备测试；不将产物清单中旧测试 APK 当成该提交同源回归结果。
+
+## 第十六批：全天预览边界（0.1.15，2026-10-04）
+
+QA-031 先在设备上复现：06:00–06:30 节点不存在，1 项测试失败。修正预览轴按实际事项向 00:00–24:00 内扩展，保留默认 07:00–23:00；末端增加绘制空间。增加完整标题、准确时间与轨道的至少 48dp 可点击摘要，与时间轴共用编辑入口。没有改任务顺序、实际计划、生成器或确认事务。
+
+来源 `c831aea43e668897994345d277de233c32cceacb`：110 项单元、23 项同源 API 36.1 专项设备测试全部通过，失败/错误/跳过均为零。包括预览 6 项、共享规划操作 8 项、助手只读/取消 9 项；清晨和深夜节点存在、准确摘要显示、深夜摘要可打开编辑器。debug/androidTest/internal 构建、release Kotlin/Manifest 和离线边界通过，未生成 release APK；本批没有重跑全部 153 项，不能沿用 0.1.14 的 152 项全套通过或真实 API 联调作为本版证据。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `0de70b741eb562ca1c5070fda0ae679daf3850a2d0fca8837c0837971b4c2e09` |
+| app-debug.apk | `8df03bce6e3cb5e2c83d51b86b439ebbb8a52ce65582b319ff35d474a54ff2dd` |
+| app-debug-androidTest.apk | `6f99b81416aedf8b71085db45d961ddce436dc78770eb9bc616a55e5d8603729` |
+
+QA-032 大字号标题裁切、QA-033 横屏 FAB 安全区仍待修复。真机 PDF、实际通知和连续七天试用仍未验收；不宣称整个计划完成。
 
 ## 第十五批：请求取消和查询降级（0.1.14）
 
