@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -143,8 +144,12 @@ fun AgentCenterScreen(
     var refinementMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val pageScroll = rememberScrollState()
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(saveReceipt?.id) {
-        if (saveReceipt != null && proposals.isEmpty() && prompt.isBlank()) pageScroll.scrollTo(0)
+        if (saveReceipt != null && proposals.isEmpty() && prompt.isBlank()) {
+            focusManager.clearFocus()
+            pageScroll.scrollTo(0)
+        }
     }
     suspend fun refineCurrent(utterance: String, instruction: String? = null): ArrangementAssistantAdviceResult {
         val request = ArrangementAssistantAdviceRequest(utterance, activeDate, occupiedEntries.map {

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.ui.agent.AgentCenterScreen
 import com.swan1127.repland.ui.theme.ReplandTheme
@@ -39,8 +40,10 @@ class AgentCenterUiTest {
             onConfirmChanges = { _, _, _, day, done -> receipt.value = com.swan1127.repland.domain.model.AssistantSaveReceipt("r", com.swan1127.repland.domain.model.AssistantSaveResult(1, 0, 1, day)); done() },
             onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
+        rule.onNodeWithTag("agent-prompt").performScrollTo().performClick()
         rule.onNodeWithTag("agent-confirm-tasks").performScrollTo().performClick()
         rule.waitForIdle()
+        rule.onNodeWithTag("agent-prompt").assertIsNotFocused()
         rule.onNodeWithTag("agent-save-receipt").assertIsDisplayed()
         rule.onNodeWithTag("agent-view-saved-tasks").assertIsDisplayed()
     }
