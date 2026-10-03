@@ -5,13 +5,15 @@
 在仓库根目录执行：
 
 ```powershell
-.\android\gradlew.bat -p android :app:assembleDebug
-.\android\gradlew.bat -p android :app:assembleInternal
-.\android\gradlew.bat -p android :app:testDebugUnitTest
-.\android\gradlew.bat -p android :app:connectedDebugAndroidTest
+.\android\gradlew.bat -p android '-Pkotlin.compiler.execution.strategy=in-process' :app:assembleDebug
+.\android\gradlew.bat -p android '-Pkotlin.compiler.execution.strategy=in-process' :app:assembleInternal
+.\android\gradlew.bat -p android '-Pkotlin.compiler.execution.strategy=in-process' :app:testDebugUnitTest
+.\android\gradlew.bat -p android '-Pkotlin.compiler.execution.strategy=in-process' :app:connectedDebugAndroidTest
 ```
 
 CI 使用 API 26 模拟器覆盖最低兼容范围。每个候选内测包还应在 API 36 模拟器启动并完成核心流程。
+
+Windows 本轮多次观察 Kotlin 编译守护进程保留 compile classes.jar 的文件占用：停止 Gradle 后仍锁定，停止已确认属于本轮 Gradle 的 Kotlin 子进程后独占读取立即成功。上方命令使用进程内编译避免复用此守护进程，PowerShell 必须完整引用包含点号的 `-P` 参数。串行运行，勿并行重建输出；恢复旧锁时只处理已确认本轮进程，不全局终止 Java 或删除用户工作区。此问题属于构建环境，不作为 Repland 运行时崩溃记录。
 
 ## 真实设备发布前清单
 

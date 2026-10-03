@@ -198,13 +198,25 @@ APK 检查确认 internal 的两个 Provider 类/构造入口保留；release Ma
 
 最终构建没有重新生成 androidTest APK，也没有重跑全部设备测试；不将产物清单中旧测试 APK 当成该提交同源回归结果。
 
-## 第十五批：请求取消和查询降级（0.1.14，验证中）
+## 第十五批：请求取消和查询降级（0.1.14）
 
 安排助手持有请求 Job，显式取消或输入/工作流/上下文/服务变化取消旧请求，并保留版本保护。传输层已有取消断连机制，此批补上界面到传输的链路。取消保留输入/已有草案，不声称已发送内容撤回或供应商未计费。明确查询的网络失败/服务不可用使用相同本地只读结果，不生成可确认的新任务，不自动重试网络。
 
 修正 QA-028 过期耗时断言：没有专注会话或用户输入的开始/完成路径应保留未知耗时，任务及执行日志均断言 null，不回退产品到墙钟推算。增加显式取消/编辑取消以及深色 2 倍字号下查询与详情入口测试。
 
-开发验证中 40 项一组因模拟器系统崩溃中断（报告 SYSTEM CRASH，非完成全部测试），当时 activity 服务缺失，crash buffer 显示系统进程/默认 display 初始化超时。不能认定 Repland 产品崩溃或忽略该失败；重启同一 AVD，不清除应用/密钥，activity/display/boot restored 后重跑 22 项通过，含原中断样例。再跑 9 项助手和全部单元通过。开发测试首次编译因新增日志断言误用扁平字段失败，改为 feedback.actualDurationMinutes 后通过，非产品缺陷。最终来源 152 项整套、构建和矩阵待记录。
+开发验证中 40 项一组因模拟器系统崩溃中断（报告 SYSTEM CRASH，非完成全部测试），当时 activity 服务缺失，crash buffer 显示系统进程/默认 display 初始化超时。不能认定 Repland 产品崩溃或忽略该失败；重启同一 AVD，不清除应用/密钥，activity/display/boot restored 后重跑 22 项通过，含原中断样例。再跑 9 项助手和全部单元通过。开发测试首次编译因新增日志断言误用扁平字段失败，改为 feedback.actualDurationMinutes 后通过，非产品缺陷。
+
+最终来源 `cbaef7fd576c90248682d75b872f21ecab546cfd`：110 项单元、152 项同源全套 API 36.1 设备测试全部通过，无失败/跳过，含修正的未知耗时路径、实际计时证据、历史恢复、迁移链、模拟 PDF 解析和日周月界面。debug/androidTest/internal 构建、release Kotlin/Manifest、离线边界通过；未生成 release APK。完整仪器 XML 复制留存在忽略输出 `android/app/build/reports/repland-014-full.xml`。本次再遇 compile jar 锁，独占读取检查证实停止 Gradle 后仍锁，停止其已确认 Kotlin 子进程后解除；最终使用完整引用的进程内编译参数成功，命令见 TESTING。第一次未引用参数被 PowerShell 拆成任务名失败，也不计通过。
+
+原位升级 0.1.14-internal/1014 后保留原事项及 20:00–20:45。首次检查出现 System UI 无响应弹窗（非 Repland 包名），选择等待后当前版界面恢复；lastanr 返回本次启动无记录，因此只记可见弹窗和恢复，不认定应用 ANR 已解决。真实 DeepSeek 再次查询 Show my tasks today 成功返回本地任务 1 项/45 分钟，非失败降级文案；处理中可见独立取消入口。没有确认任何任务或计划改动，未读取密钥。
+
+浅色查询截图 repland-query-014.png，深色系统 2 倍字号助手/任务页和横屏任务页截图已查看（忽略输出 reports/ui）。发现 QA-032 标题裁切、QA-033 FAB 右侧系统栏重叠，未将此矩阵认定全部通过；源码发现 QA-031 预览轴隐藏清晨/深夜段，留待下一批复现。系统主题/字号/方向恢复，不跨版本沿用本批真 API 或全套通过结果。真机 PDF、实际通知和连续七天试用仍未验收。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `62c7c7b793d0f7a599de9ef3afc4ebfb53c2b748fa13eeb71f7c3b43ad0c9141` |
+| app-debug.apk | `02c5a4ec48b03107aee2c8e738bf022b84e667a75e6d6cdbff69f5c94b4cdcae` |
+| app-debug-androidTest.apk | `1d011b9c46f208e2cdb2c7f1abc040d82c00e845a6ce6c404853ef4b1d25d856` |
 
 ## 第十四批：容量和锁定边界（0.1.13）
 
