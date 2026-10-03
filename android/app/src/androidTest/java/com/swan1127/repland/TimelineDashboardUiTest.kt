@@ -188,6 +188,8 @@ class TimelineDashboardUiTest {
         rule.onNodeWithTag("add-course-trigger").performClick()
         rule.onNodeWithTag("course-title-input").performTextInput("数据库")
         rule.onNodeWithText("手动设时间").performClick()
+        rule.onNodeWithText("时").performTextClearance()
+        rule.onNodeWithText("时").performTextInput("09")
         rule.onNodeWithText("保存课程").performClick()
         assertEquals("数据库", createdTitle)
     }
