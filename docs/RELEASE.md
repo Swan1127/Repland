@@ -2,7 +2,7 @@
 
 ## 版本
 
-当前候选为 `0.1.8 (1008)`。debug 使用 `.qa` application ID 隔离测试，图标名“Repland 测试”；internal 从本版本起使用 `.current`，图标名“Repland 当前版”。模拟器旧 `.internal` 签名与当前签名不同，不能保留数据覆盖；因此采用新身份，不卸载、不清空旧包，不提取旧包密钥。用户需在当前版自行重新配置。后续当前版保持同一签名以支持原位升级。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
+当前候选为 `0.1.9 (1009)`。debug 使用 `.qa` application ID 隔离测试，图标名“Repland 测试”；internal 从 0.1.8 起使用 `.current`，图标名“Repland 当前版”。模拟器旧 `.internal` 签名与当前签名不同，不能保留数据覆盖；因此采用新身份，不卸载、不清空旧包，不提取旧包密钥。用户已在当前版重新配置，0.1.8→0.1.9 原位升级保留密钥和业务数据。后续当前版保持同一签名以支持原位升级。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
 
 版本名使用语义化格式 `MAJOR.MINOR.PATCH`，例如 `0.1.0`。版本号使用整数并必须递增；推荐计算方式为：
 
