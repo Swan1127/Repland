@@ -144,11 +144,18 @@ fun AgentCenterScreen(
     var transcriptError by rememberSaveable { mutableStateOf(false) }
     var editingProposal by remember { mutableStateOf<AgentTaskProposal?>(null) }
     var isRefining by remember { mutableStateOf(false) }
+    var requestJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    fun invalidateRequest() {
+        requestVersion++
+        requestJob?.cancel()
+        requestJob = null
+        isRefining = false
+    }
     var queryTasks by remember { mutableStateOf<List<com.swan1127.repland.domain.model.Task>?>(null) }
     var queryScope by remember { mutableStateOf<com.swan1127.repland.domain.model.TaskQueryScope?>(null) }
     var explanation by remember { mutableStateOf<com.swan1127.repland.domain.model.LocalPriorityAssessment?>(null) }
-    LaunchedEffect(canRefineWithAi, activeDate, occupiedEntries, contextRevision, providerRevision) { requestVersion++; isRefining = false; queryTasks = null; explanation = null }
     var refinementMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(canRefineWithAi, activeDate, occupiedEntries, contextRevision, providerRevision) { invalidateRequest(); queryTasks = null; explanation = null; refinementMessage = null }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val pageScroll = rememberScrollState()
     val focusManager = LocalFocusManager.current
@@ -182,7 +189,7 @@ fun AgentCenterScreen(
             result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
         } else null
         if (words.isNullOrBlank()) transcriptError = true else {
-            requestVersion++
+            invalidateRequest()
             prompt = words
             followUpInstruction = ""
             proposals = emptyList()
@@ -228,8 +235,19 @@ fun AgentCenterScreen(
             }
         }
     }
+    suspend fun applyFailure(reason: AiAdvisorFailureReason, localQuery: com.swan1127.repland.domain.model.TaskQueryScope?, expectedVersion: Long) {
+        if (localQuery == null) {
+            refinementMessage = reason.userMessage("已保留拆分后的本地草案。")
+            return
+        }
+        try {
+            applyAdvice(com.swan1127.repland.domain.model.ArrangementAssistantAdvice(emptyList(), "", com.swan1127.repland.domain.model.ArrangementAdviceOperation.QUERY_TASKS, localQuery), expectedVersion)
+            if (expectedVersion == requestVersion) refinementMessage = reason.userMessage("已改用本地查询；没有新增事项或改动计划。")
+        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch (_: Exception) { refinementMessage = "AI 请求失败，本地任务也暂时无法读取；保留输入，请重试，没有确认任何更改。" }
+    }
     val createPreview: () -> Unit = {
-        requestVersion++
+        invalidateRequest()
         followUpInstruction = ""
         queryTasks = null; explanation = null
         draftDate = activeDate
@@ -243,7 +261,7 @@ fun AgentCenterScreen(
         if (canRefineWithAi) {
             val version = requestVersion
             val requestPrompt = prompt
-            scope.launch {
+            requestJob = scope.launch {
                 isRefining = true
                 val result = refineCurrent(requestPrompt, includeDraft = false)
                 if (version != requestVersion) return@launch
@@ -254,10 +272,10 @@ fun AgentCenterScreen(
                         catch (_: Exception) { refinementMessage = "无法读取本次操作结果，请重试；没有确认任何更改。" }
                     }
                     is ArrangementAssistantAdviceResult.Unavailable -> {
-                        refinementMessage = result.reason.userMessage("已保留拆分后的本地草案。")
+                        applyFailure(result.reason, localQuery, version)
                     }
                     is ArrangementAssistantAdviceResult.Failed -> {
-                        refinementMessage = result.reason.userMessage("已保留拆分后的本地草案。")
+                        applyFailure(result.reason, localQuery, version)
                     }
                 }
                 if (version != requestVersion) return@launch
@@ -266,7 +284,7 @@ fun AgentCenterScreen(
             }
         } else if (localQuery != null) {
             val version = requestVersion
-            scope.launch {
+            requestJob = scope.launch {
                 isRefining = true
                 try { applyAdvice(com.swan1127.repland.domain.model.ArrangementAssistantAdvice(emptyList(), "", com.swan1127.repland.domain.model.ArrangementAdviceOperation.QUERY_TASKS, localQuery), version) }
                 catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
@@ -277,7 +295,8 @@ fun AgentCenterScreen(
         }
     }
     val selectWorkflow: (String) -> Unit = { label ->
-        requestVersion++
+        invalidateRequest()
+        refinementMessage = null
         followUpInstruction = ""
         isRefining = false
         queryTasks = null; explanation = null
@@ -324,7 +343,7 @@ fun AgentCenterScreen(
             prompt = prompt,
             willUseAi = canRefineWithAi,
             isWorking = isRefining,
-            onPromptChange = { requestVersion++; isRefining = false; prompt = it; proposals = emptyList(); intent = null; followUpInstruction = ""; queryTasks = null; explanation = null; refinementMessage = null; persistWorkspace() },
+            onPromptChange = { invalidateRequest(); prompt = it; proposals = emptyList(); intent = null; followUpInstruction = ""; queryTasks = null; explanation = null; refinementMessage = null; persistWorkspace() },
             onSeed = selectWorkflow,
             onVoice = {
                 transcriptError = false
@@ -337,6 +356,12 @@ fun AgentCenterScreen(
             },
             onPreview = createPreview,
         )
+        if (isRefining) {
+            TextButton(onClick = {
+                invalidateRequest()
+                refinementMessage = if (canRefineWithAi) "已取消本次请求，保留输入和本地草案；已发送的数据无法撤回，未确认任何更改。" else "已取消本次读取，保留输入，未确认任何更改。"
+            }, modifier = Modifier.heightIn(min = 48.dp).testTag("agent-cancel-request")) { Text("取消本次请求") }
+        }
         selectedIntent?.let { selected -> Text(if (selected == ArrangementIntent.CAPTURE_TASKS) "新增事项：确认后只保存任务，不自动排入时段。" else "安排今天：描述要做的事项，先预览再确认。", style = MaterialTheme.typography.bodySmall) }
         if ((draftDate != activeDate || draftRevision != contextRevision) && proposals.isNotEmpty()) {
             Text("日期、任务或时间设置已变化，请重新生成草案后确认。", color = MaterialTheme.colorScheme.error)
@@ -383,14 +408,14 @@ fun AgentCenterScreen(
                 isRefining = isRefining,
                 canConfirm = draftDate == activeDate && draftRevision == contextRevision && !isSaving && !isRefining && followUpInstruction.isBlank() && proposals.all { it.existingTaskId == null || (onConfirmChanges != null && intent != ArrangementIntent.CAPTURE_TASKS && existingTasks.any { task -> task.id == it.existingTaskId } && it.timeHint.explicitStartMinute != null && it.durationMinutes != null) },
                 followUpInstruction = followUpInstruction,
-                onFollowUpChange = { requestVersion++; isRefining = false; followUpInstruction = it; persistWorkspace() },
+                onFollowUpChange = { invalidateRequest(); followUpInstruction = it; persistWorkspace() },
                 refinementMessage = refinementMessage,
                 onRefine = {
-                    requestVersion++
+                    invalidateRequest()
                     val version = requestVersion
                     val requestPrompt = prompt
                     val instruction = followUpInstruction.trim().takeIf { it.isNotEmpty() }
-                    scope.launch {
+                    requestJob = scope.launch {
                         isRefining = true
                         refinementMessage = null
                         val result = refineCurrent(requestPrompt, instruction)
@@ -415,7 +440,7 @@ fun AgentCenterScreen(
                         persistWorkspace()
                     }
                 },
-                onRemove = { item -> requestVersion++; isRefining = false; proposals = proposals - item; persistWorkspace() },
+                onRemove = { item -> invalidateRequest(); proposals = proposals - item; persistWorkspace() },
                 onEdit = { editingProposal = it },
                 onConfirm = {
                     val confirmedPrompt = prompt
@@ -444,7 +469,7 @@ fun AgentCenterScreen(
                     }
                     val clearAfterSave = {
                         if (prompt == confirmedPrompt && proposals == confirmedProposals && intent == confirmedIntent && followUpInstruction == confirmedInstruction) {
-                            requestVersion++; isRefining = false; prompt = ""; proposals = emptyList<AgentTaskProposal>(); intent = null; followUpInstruction = ""
+                            invalidateRequest(); prompt = ""; proposals = emptyList<AgentTaskProposal>(); intent = null; followUpInstruction = ""
                         }
                     }
                     if (onConfirmChanges != null) onConfirmChanges(taskDrafts, segments, proposals.mapNotNull { it.existingTaskId }.toSet(), activeDate, clearAfterSave)
@@ -468,7 +493,7 @@ fun AgentCenterScreen(
             availableTracks = availableTracks,
             existingTasks = existingTasks,
             onDismiss = { editingProposal = null },
-            onSave = { updated -> requestVersion++; isRefining = false; proposals = proposals.map { if (it.id == updated.id) updated else it }; editingProposal = null; persistWorkspace() },
+            onSave = { updated -> invalidateRequest(); proposals = proposals.map { if (it.id == updated.id) updated else it }; editingProposal = null; persistWorkspace() },
         )
     }
 }

@@ -102,7 +102,7 @@ class CoreWorkflowUiTest {
     }
 
     @Test
-    fun start_then_complete_is_one_tap_and_duration_is_recorded_without_feedback_form() {
+    fun status_start_then_complete_without_timer_keeps_actual_duration_unknown() {
         val taskName = "直接完成 ${System.currentTimeMillis()}"
         openTaskCapture()
         composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
@@ -130,7 +130,10 @@ class CoreWorkflowUiTest {
         }
         assertEquals(null, completed.completionSummary)
         assertEquals(100, completed.progressPercent)
-        assertEquals(true, completed.actualDurationMinutes != null)
+        assertEquals(null, completed.actualDurationMinutes)
+        val logs = runBlocking { repository.observeExecutionLogs(completed.id).first() }
+        assertEquals(true, logs.isNotEmpty())
+        assertEquals(true, logs.all { it.feedback.actualDurationMinutes == null })
     }
 
     @Test
