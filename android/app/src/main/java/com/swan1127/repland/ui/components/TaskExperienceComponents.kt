@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -287,7 +289,7 @@ private val CaptureDraftSaver = listSaver<TaskCaptureDraft, String>(
         TaskPriority.valueOf(it[7]), it[8].toBoolean(), it[9]) },
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaskCaptureSheet(
     initialText: String,
@@ -312,8 +314,16 @@ fun TaskCaptureSheet(
         if (initialText.isNotBlank() && initialText != current.text) update(current.copy(text = initialText, stage = TaskCaptureStage.CAPTURE))
     }
     val latestSaving by rememberUpdatedState(saving)
+    val latestImeVisible by rememberUpdatedState(WindowInsets.isImeVisible)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.Hidden || !latestSaving })
+        confirmValueChange = { target ->
+            when {
+                target != SheetValue.Hidden -> true
+                latestSaving -> false
+                latestImeVisible -> { focus.clearFocus(); keyboard?.hide(); false }
+                else -> true
+            }
+        })
 
     fun save(value: TaskCaptureDraft = current) {
         if (saving || value.text.isBlank()) return
