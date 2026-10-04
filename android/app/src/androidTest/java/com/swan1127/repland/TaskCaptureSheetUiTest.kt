@@ -27,6 +27,10 @@ class TaskCaptureSheetUiTest {
             rule.onNodeWithTag(it).assertIsNotEnabled()
         }
         assertEquals(0, saves); assertEquals(0, closes)
+        rule.onNodeWithTag("task-capture-sheet").performTouchInput { swipeDown() }
+        rule.waitForIdle()
+        rule.onNodeWithTag("task-capture-close").assertIsDisplayed()
+        assertEquals(0, closes)
     }
 
     @Test fun save_failure_retains_custom_input_and_exposes_retry() {

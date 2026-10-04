@@ -1228,7 +1228,10 @@ fun ReplandApp(
                             planHistory = planUiState.planHistory,
                             tasks = uiState.tasks,
                         )
-                        dataManagementViewModel.clearAllLocalData()
+                        dataManagementViewModel.clearAllLocalData(
+                            beforeClear = taskCaptureViewModel::prepareForDataClear,
+                            afterClear = taskCaptureViewModel::finishDataClear,
+                        )
                         showClearLocalDataConfirmation = false
                     },
                 ) {

@@ -23,6 +23,11 @@ class TaskCaptureRepositoryTest {
             db.close()
             db = Room.databaseBuilder(context, ReplandDatabase::class.java, name).build()
             assertEquals(draft, RoomTaskCaptureRepository(db).observeDraft().first())
+            val snapshot = RoomDataManagementRepository(db).snapshot()
+            assertEquals(draft, snapshot.taskCaptureDraft)
+            val exported = org.json.JSONObject(com.swan1127.repland.data.export.LocalDataJsonExporter.export(snapshot)).getJSONObject("taskCaptureDraft")
+            assertEquals(draft.text, exported.getString("text"))
+            assertEquals("45", exported.getString("customDurationText"))
             assertTrue(db.taskDao().getAll().isEmpty())
         } finally { db.close(); context.deleteDatabase(name) }
     }

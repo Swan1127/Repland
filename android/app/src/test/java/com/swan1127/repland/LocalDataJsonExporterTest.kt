@@ -48,6 +48,7 @@ class LocalDataJsonExporterTest {
                 aiPreferences = AiPreferences(),
                 profileEvidence = emptyList(),
                 executionSessions = listOf(com.swan1127.repland.domain.model.ExecutionSession("s", "task-1", "任务", "p", "segment", 1500, 1)),
+                taskCaptureDraft = com.swan1127.repland.domain.model.TaskCaptureDraft(text = "草稿\n\"引号\"", isCustomDuration = true, customDurationText = "45"),
             ),
         )
 
@@ -57,5 +58,7 @@ class LocalDataJsonExporterTest {
         assertTrue(json.contains("\"profileEvidence\":[]"))
         assertTrue(json.contains("\"executionSessions\":[{\"id\":\"s\""))
         assertTrue(json.contains("\"segmentId\":\"segment\""))
+        assertTrue(json.contains("草稿\\n\\\"引号\\\""))
+        assertTrue(json.contains("\"customDurationText\":\"45\""))
     }
 }

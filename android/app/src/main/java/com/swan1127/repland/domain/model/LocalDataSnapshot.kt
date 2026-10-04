@@ -16,4 +16,5 @@ data class LocalDataSnapshot(
     val engagementMode: EngagementMode = EngagementMode.GUIDED,
     val usageEvents: List<UsageEvent> = emptyList(),
     val executionSessions: List<ExecutionSession> = emptyList(),
+    val taskCaptureDraft: TaskCaptureDraft? = null,
 )

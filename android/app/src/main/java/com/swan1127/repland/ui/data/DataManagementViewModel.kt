@@ -49,10 +49,12 @@ class DataManagementViewModel(
         }
     }
 
-    fun clearAllLocalData() {
+    fun clearAllLocalData(beforeClear: suspend () -> Unit = {}, afterClear: (Boolean) -> Unit = {}) {
+        if (mutableUiState.value.isWorking) return
+        mutableUiState.value = DataManagementUiState(isWorking = true)
         viewModelScope.launch {
-            mutableUiState.value = DataManagementUiState(isWorking = true)
-            val result = runCatching { repository.clearAllLocalData() }
+            val result = runCatching { beforeClear(); repository.clearAllLocalData() }
+            afterClear(result.isSuccess)
             mutableUiState.value = DataManagementUiState(
                 result = if (result.isSuccess) {
                     DataManagementResult.CLEAR_SUCCEEDED

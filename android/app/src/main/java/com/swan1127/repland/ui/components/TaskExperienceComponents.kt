@@ -53,6 +53,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -61,6 +62,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.LaunchedEffect
@@ -309,7 +311,9 @@ fun TaskCaptureSheet(
     LaunchedEffect(initialText) {
         if (initialText.isNotBlank() && initialText != current.text) update(current.copy(text = initialText, stage = TaskCaptureStage.CAPTURE))
     }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val latestSaving by rememberUpdatedState(saving)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true,
+        confirmValueChange = { it != SheetValue.Hidden || !latestSaving })
 
     fun save(value: TaskCaptureDraft = current) {
         if (saving || value.text.isBlank()) return
@@ -319,6 +323,7 @@ fun TaskCaptureSheet(
     }
 
     ModalBottomSheet(
+        modifier = Modifier.testTag("task-capture-sheet"),
         onDismissRequest = { if (!saving) onDismiss() },
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,

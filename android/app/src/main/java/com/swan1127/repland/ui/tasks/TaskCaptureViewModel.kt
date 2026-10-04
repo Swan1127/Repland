@@ -25,6 +25,7 @@ class TaskCaptureViewModel(private val repository: TaskCaptureRepository) : View
     val uiState = MutableStateFlow(TaskCaptureUiState())
     private val mutex = Mutex()
     private var autosave: Job? = null
+    private var pausedForDataClear = false
 
     init { load() }
     fun retryLoad() { if (!uiState.value.loading) { uiState.value = uiState.value.copy(loading = true); load() } }
@@ -96,6 +97,19 @@ class TaskCaptureViewModel(private val repository: TaskCaptureRepository) : View
     }
 
     fun dismissReceipt() { uiState.value = uiState.value.copy(receipt = null) }
+    suspend fun prepareForDataClear() {
+        check(!uiState.value.saving) { "请等待任务保存完成。" }
+        pausedForDataClear = true
+        uiState.value = uiState.value.copy(loading = true)
+        autosave?.cancelAndJoin()
+        mutex.withLock { /* Wait until any queued draft write has finished. */ }
+    }
+    fun finishDataClear(succeeded: Boolean) {
+        if (!pausedForDataClear) return
+        pausedForDataClear = false
+        uiState.value = if (succeeded) TaskCaptureUiState(loading = false)
+            else uiState.value.copy(loading = false, error = "清除未成功，原草稿仍保留。")
+    }
     class Factory(private val repository: TaskCaptureRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST") override fun <T : ViewModel> create(modelClass: Class<T>): T = TaskCaptureViewModel(repository) as T
     }

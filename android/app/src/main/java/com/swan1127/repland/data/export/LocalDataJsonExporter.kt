@@ -21,6 +21,12 @@ object LocalDataJsonExporter {
         "format" to jsonString(FORMAT),
         "generatedAtEpochMillis" to snapshot.generatedAtEpochMillis.toString(),
         "tasks" to jsonArray(snapshot.tasks.map(::taskJson)),
+        "taskCaptureDraft" to (snapshot.taskCaptureDraft?.let { d -> jsonObject(
+            "id" to jsonString(d.id), "text" to jsonString(d.text), "stage" to jsonString(d.stage.name),
+            "dueDate" to jsonString(d.dueDate?.toString()), "scheduledForDate" to jsonString(d.scheduledForDate?.toString()),
+            "duration" to d.duration.toString(), "category" to jsonString(d.category.name), "priority" to jsonString(d.priority.name),
+            "isCustomDuration" to d.isCustomDuration.toString(), "customDurationText" to jsonString(d.customDurationText),
+        ) } ?: "null"),
         "executionLogs" to jsonArray(snapshot.executionLogs.map(::executionLogJson)),
         "executionSessions" to jsonArray(snapshot.executionSessions.map { s -> jsonObject(
             "id" to jsonString(s.id), "taskId" to jsonString(s.taskId), "taskTitle" to jsonString(s.taskTitle),

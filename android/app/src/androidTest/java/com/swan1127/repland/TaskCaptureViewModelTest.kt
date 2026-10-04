@@ -86,4 +86,35 @@ class TaskCaptureViewModelTest {
             assertNull(vm.uiState.value.receipt)
         }
     }
+    @Test fun successful_data_clear_cancels_pending_autosave_and_forgets_in_memory_draft() {
+        val repo = Fake()
+        withVm(repo) { vm ->
+            val original = vm.uiState.value.draft.copy(text = "将清除的草稿")
+            withContext(Dispatchers.Main) {
+                vm.update(original)
+                vm.prepareForDataClear()
+                repo.saved.value = null // Same boundary as a successful repository wipe.
+                vm.finishDataClear(true)
+                vm.retain()
+            }
+            vm.uiState.first { it.persisted }
+            assertEquals("", vm.uiState.value.draft.text)
+            assertNotEquals(original.id, vm.uiState.value.draft.id)
+            assertEquals("", repo.saved.value!!.text)
+            assertEquals(0, repo.commits)
+        }
+    }
+    @Test fun failed_data_clear_keeps_original_draft_and_allows_editing_again() {
+        withVm(Fake()) { vm ->
+            val original = vm.uiState.value.draft.copy(text = "清除失败后保留", isCustomDuration = true, customDurationText = "45")
+            withContext(Dispatchers.Main) {
+                vm.update(original); vm.prepareForDataClear(); vm.finishDataClear(false)
+            }
+            assertEquals(original, vm.uiState.value.draft)
+            assertFalse(vm.uiState.value.loading)
+            assertNotNull(vm.uiState.value.error)
+            withContext(Dispatchers.Main) { vm.update(original.copy(text = "仍可编辑")) }
+            assertEquals("仍可编辑", vm.uiState.value.draft.text)
+        }
+    }
 }
