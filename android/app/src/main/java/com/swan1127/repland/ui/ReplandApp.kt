@@ -1,5 +1,9 @@
 package com.swan1127.repland.ui
 
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
+
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -303,7 +307,8 @@ fun ReplandApp(
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.TODAY) }
     var timeReturnTab by rememberSaveable { mutableStateOf(AppTab.TODAY) }
     var selectedTaskId by rememberSaveable { mutableStateOf<String?>(null) }
-    var taskEditorTarget by remember { mutableStateOf<Task?>(null) }
+    var taskEditorTargetId by rememberSaveable { mutableStateOf<String?>(null) }
+    val taskEditorTarget = taskEditorTargetId?.let { id -> uiState.tasks.firstOrNull { it.id == id } }
     var showTaskEditor by rememberSaveable { mutableStateOf(false) }
     var showQuickAvailability by rememberSaveable { mutableStateOf(false) }
     var showTaskCapture by rememberSaveable { mutableStateOf(false) }
@@ -422,7 +427,8 @@ fun ReplandApp(
             onBack = { selectedTaskId = null },
             onStart = taskViewModel::startTask,
             onEdit = {
-                taskEditorTarget = selectedTask
+                taskViewModel.resetEditorResult()
+                taskEditorTargetId = selectedTask.id
                 showTaskEditor = true
             },
             onPostpone = { postponingTask = selectedTask },
@@ -601,7 +607,8 @@ fun ReplandApp(
                         onEditTimelineEntry = { entry ->
                             when {
                                 entry.id.startsWith("segment:") -> entry.taskId?.let { taskId ->
-                                    taskEditorTarget = uiState.tasks.firstOrNull { it.id == taskId }
+                                    taskViewModel.resetEditorResult()
+                                    taskEditorTargetId = taskId.takeIf { id -> uiState.tasks.any { it.id == id } }
                                     showTaskEditor = taskEditorTarget != null
                                 }
 
@@ -888,16 +895,30 @@ fun ReplandApp(
         )
     }
 
-    if (showTaskEditor) {
+    val editorSaveState by taskViewModel.editorSaveState.collectAsStateWithLifecycle()
+    LaunchedEffect(editorSaveState.receipt) {
+        editorSaveState.receipt?.let {
+            showTaskEditor = false
+            taskEditorSeed = ""
+            selectedTaskId = null
+            selectedTab = AppTab.TASKS
+            captureSnackbar.showSnackbar(it)
+            taskViewModel.resetEditorResult()
+        }
+    }
+    if (showTaskEditor && taskEditorTargetId != null && !uiState.isLoading && taskEditorTarget == null) {
+        AlertDialog(onDismissRequest = { showTaskEditor = false }, title = { Text("这件任务已不在任务库") },
+            text = { Text("不会把这次编辑当成新任务保存。请返回任务页检查。") },
+            confirmButton = { TextButton(onClick = { showTaskEditor = false; taskViewModel.resetEditorResult() }) { Text("返回任务页") } })
+    }
+    if (showTaskEditor && (taskEditorTargetId == null || taskEditorTarget != null)) {
         TaskEditorDialog(
             task = taskEditorTarget,
             initialText = taskEditorSeed,
-            onDismiss = { showTaskEditor = false; taskEditorSeed = "" },
-            onSave = {
-                taskViewModel.saveTask(it)
-                showTaskEditor = false
-                taskEditorSeed = ""
-            },
+            saving = editorSaveState.saving,
+            saveError = editorSaveState.error,
+            onDismiss = { if (!editorSaveState.saving) { showTaskEditor = false; taskEditorSeed = ""; taskViewModel.resetEditorResult() } },
+            onSave = taskViewModel::saveTask,
         )
     }
 
@@ -925,7 +946,7 @@ fun ReplandApp(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        taskEditorTarget = null
+                        taskEditorTargetId = null
                         taskEditorSeed = voiceTranscript.trim()
                         showVoiceComposer = false
                         showTaskCapture = true
@@ -1128,7 +1149,7 @@ fun ReplandApp(
             currentTaskOrder = planUiState.taskOrder,
             isSaving = planUiState.isWorking,
             tracks = workspaceUiState.tracks,
-            onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskEditorTarget = task; showTaskEditor = true },
+            onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskViewModel.resetEditorResult(); taskEditorTargetId = task.id; showTaskEditor = true },
             onConfigureAvailability = { planViewModel.dismissError(); showQuickAvailability = true },
             tasks = uiState.tasks,
             weeklyBlocks = timeUiState.weeklyBlocks,
@@ -1867,7 +1888,7 @@ private fun TaskControlCenter(
     val later = tasks.filter { it !in attention && it !in todayTasks && it !in inbox }
     var expandedGroup by rememberSaveable { mutableStateOf<String?>(null) }
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("task-groups-scroll"),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -4495,23 +4516,25 @@ private fun TaskEditorDialog(
     @StringRes dialogTitle: Int? = null,
     @StringRes confirmLabel: Int = R.string.save,
     allowPriorityChange: Boolean = task == null,
+    saving: Boolean = false,
+    saveError: String? = null,
     onDismiss: () -> Unit,
     onSave: (TaskDraft) -> Unit,
 ) {
-    var displayName by remember(task, initialText) {
+    var displayName by rememberSaveable(task?.id, initialText) {
         mutableStateOf(task?.displayName ?: TaskName.fromDescription(initialText))
     }
-    var description by remember(task, initialText) {
+    var description by rememberSaveable(task?.id, initialText) {
         mutableStateOf(task?.description.takeIf { it != task?.displayName } ?: initialText)
     }
-    var category by remember(task) { mutableStateOf(task?.category ?: TaskCategory.COURSE) }
-    var priority by remember(task) { mutableStateOf(task?.userPriority ?: TaskPriority.MEDIUM) }
-    var estimatedDaysText by remember(task) { mutableStateOf(task?.estimatedDays?.toString() ?: "1") }
-    var durationText by remember(task) { mutableStateOf(task?.totalDurationMinutes?.toString().orEmpty()) }
-    var scheduledForDate by remember(task) { mutableStateOf(task?.scheduledForDate) }
-    var dueDate by remember(task) { mutableStateOf(task?.dueDate) }
-    var datePickerTarget by remember { mutableStateOf<TaskEditorDateTarget?>(null) }
-    var showValidationError by remember { mutableStateOf(false) }
+    var category by rememberSaveable(task?.id) { mutableStateOf(task?.category ?: TaskCategory.COURSE) }
+    var priority by rememberSaveable(task?.id) { mutableStateOf(task?.userPriority ?: TaskPriority.MEDIUM) }
+    var estimatedDaysText by rememberSaveable(task?.id) { mutableStateOf(task?.estimatedDays?.toString() ?: "1") }
+    var durationText by rememberSaveable(task?.id) { mutableStateOf(task?.totalDurationMinutes?.toString().orEmpty()) }
+    var scheduledForDate by rememberSaveable(task?.id) { mutableStateOf(task?.scheduledForDate) }
+    var dueDate by rememberSaveable(task?.id) { mutableStateOf(task?.dueDate) }
+    var datePickerTarget by rememberSaveable { mutableStateOf<TaskEditorDateTarget?>(null) }
+    var showValidationError by rememberSaveable { mutableStateOf(false) }
     val estimatedDays = estimatedDaysText.toIntOrNull()
     val durationMinutes = durationText.takeIf(String::isNotBlank)?.toIntOrNull()
     val estimatedDaysInvalid = estimatedDays !in 1..30
@@ -4522,6 +4545,7 @@ private fun TaskEditorDialog(
 
     EditorSheet(
         onDismissRequest = onDismiss,
+        saving = saving,
         title = {
             Text(stringResource(dialogTitle ?: if (task == null) R.string.add_task else R.string.edit_task))
         },
@@ -4532,6 +4556,7 @@ private fun TaskEditorDialog(
             ) {
                 OutlinedTextField(
                     value = displayName,
+                    enabled = !saving,
                     onValueChange = { displayName = it },
                     modifier = Modifier.fillMaxWidth().testTag("task-editor-name"),
                     label = { Text(stringResource(R.string.task_name)) },
@@ -4540,6 +4565,7 @@ private fun TaskEditorDialog(
                 )
                 OutlinedTextField(
                     value = description,
+                    enabled = !saving,
                     onValueChange = { description = it },
                     modifier = Modifier.fillMaxWidth().testTag("task-editor-description"),
                     label = { Text("备注 / 说明（可选）") },
@@ -4551,7 +4577,8 @@ private fun TaskEditorDialog(
                     values = TaskCategory.entries.toList(),
                     selected = category,
                     label = { stringResource(it.labelRes()) },
-                    onSelected = { category = it },
+                    onSelected = { if (!saving) category = it },
+                    enabled = !saving,
                 )
                 Text(stringResource(R.string.priority), style = MaterialTheme.typography.labelLarge)
                 if (allowPriorityChange) {
@@ -4559,7 +4586,8 @@ private fun TaskEditorDialog(
                         values = TaskPriority.entries.toList(),
                         selected = priority,
                         label = { stringResource(it.labelRes()) },
-                        onSelected = { priority = it },
+                        onSelected = { if (!saving) priority = it },
+                        enabled = !saving,
                     )
                 } else {
                     Text(
@@ -4570,6 +4598,7 @@ private fun TaskEditorDialog(
                 }
                 OutlinedTextField(
                     value = estimatedDaysText,
+                    enabled = !saving,
                     onValueChange = { estimatedDaysText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.estimated_days)) },
@@ -4582,6 +4611,7 @@ private fun TaskEditorDialog(
                 )
                 OutlinedTextField(
                     value = durationText,
+                    enabled = !saving,
                     onValueChange = { durationText = it.filter(Char::isDigit) },
                     modifier = Modifier.fillMaxWidth().testTag("task-editor-duration"),
                     label = { Text(stringResource(R.string.duration_minutes_optional)) },
@@ -4596,19 +4626,21 @@ private fun TaskEditorDialog(
                     label = "安排在哪一天？",
                     description = "只决定它在“今天 / 待安排”中的位置；不会被当作截止时间。",
                     selectedDate = scheduledForDate,
-                    onSelectDate = { scheduledForDate = it },
-                    onChooseDate = { datePickerTarget = TaskEditorDateTarget.SCHEDULED_FOR },
-                    onClear = { scheduledForDate = null },
+                    onSelectDate = { if (!saving) scheduledForDate = it },
+                    onChooseDate = { if (!saving) datePickerTarget = TaskEditorDateTarget.SCHEDULED_FOR },
+                    onClear = { if (!saving) scheduledForDate = null },
                     tag = "task-editor-scheduled-date",
+                    enabled = !saving,
                 )
                 TaskDateField(
                     label = stringResource(R.string.due_date_optional),
                     description = "用于截止提醒、优先级和逾期判断；可自由选择任意日期。",
                     selectedDate = dueDate,
-                    onSelectDate = { dueDate = it },
-                    onChooseDate = { datePickerTarget = TaskEditorDateTarget.DEADLINE },
-                    onClear = { dueDate = null },
+                    onSelectDate = { if (!saving) dueDate = it },
+                    onChooseDate = { if (!saving) datePickerTarget = TaskEditorDateTarget.DEADLINE },
+                    onClear = { if (!saving) dueDate = null },
                     tag = "task-editor-due-date",
+                    enabled = !saving,
                 )
                 if (scheduleAfterDeadline) {
                     Text(
@@ -4623,6 +4655,8 @@ private fun TaskEditorDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+                saveError?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("task-editor-error").semantics { liveRegion = LiveRegionMode.Polite }) }
             }
         },
         confirmButton = {
@@ -4639,13 +4673,14 @@ private fun TaskEditorDialog(
                         dueDate = dueDate,
                         scheduledForDate = scheduledForDate,
                     )
-                    if (TaskDraftValidator.isValid(draft)) onSave(draft) else showValidationError = true
+                    if (!estimatedDaysInvalid && !durationInvalid && TaskDraftValidator.isValid(draft)) onSave(draft) else showValidationError = true
                 },
+                enabled = !saving,
                 modifier = Modifier.testTag("task-editor-save"),
-            ) { Text(stringResource(confirmLabel)) }
+            ) { Text(if (saving) "保存中…" else stringResource(confirmLabel)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss, enabled = !saving) { Text(stringResource(R.string.cancel)) }
         },
     )
     datePickerTarget?.let { target ->
@@ -4677,6 +4712,7 @@ private fun TaskDateField(
     onChooseDate: () -> Unit,
     onClear: () -> Unit,
     tag: String,
+    enabled: Boolean = true,
 ) {
     val today = LocalDate.now()
     Surface(
@@ -4694,7 +4730,7 @@ private fun TaskDateField(
                     Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 selectedDate?.let {
-                    TextButton(onClick = onClear, modifier = Modifier.testTag("$tag-clear")) { Text("清除") }
+                    TextButton(onClick = onClear, enabled = enabled, modifier = Modifier.testTag("$tag-clear")) { Text("清除") }
                 }
             }
             Text(
@@ -4708,16 +4744,19 @@ private fun TaskDateField(
             ) {
                 FilterChip(
                     selected = selectedDate == today,
+                    enabled = enabled,
                     onClick = { onSelectDate(today) },
                     label = { Text("今天") },
                 )
                 FilterChip(
                     selected = selectedDate == today.plusDays(1),
+                    enabled = enabled,
                     onClick = { onSelectDate(today.plusDays(1)) },
                     label = { Text("明天") },
                 )
                 OutlinedButton(
                     onClick = onChooseDate,
+                    enabled = enabled,
                     modifier = Modifier.testTag("$tag-picker"),
                 ) {
                     Icon(Icons.Outlined.DateRange, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -4735,6 +4774,7 @@ private fun <T> ChoiceRow(
     selected: T,
     label: @Composable (T) -> String,
     onSelected: (T) -> Unit,
+    enabled: Boolean = true,
 ) {
     Row(
         modifier = Modifier
@@ -4745,6 +4785,7 @@ private fun <T> ChoiceRow(
         values.forEach { value ->
             FilterChip(
                 selected = value == selected,
+                enabled = enabled,
                 onClick = { onSelected(value) },
                 label = { Text(label(value)) },
             )

@@ -17,6 +17,9 @@ interface TaskRepository {
 
     suspend fun save(draft: TaskDraft)
 
+    /** Editing must never recreate an identity deleted after the editor opened. */
+    suspend fun updateExisting(draft: TaskDraft)
+
     /** Records a user-confirmed lifecycle change and appends immutable evidence. */
     suspend fun confirmStatus(
         taskId: String,

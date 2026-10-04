@@ -37,11 +37,20 @@ enum class TaskError {
     SAVE_FAILED,
 }
 
+data class TaskEditorSaveState(
+    val saving: Boolean = false,
+    val error: String? = null,
+    val receipt: String? = null,
+)
+
 class TaskViewModel(
     private val taskRepository: TaskRepository,
     private val sessions: ExecutionSessionRepository? = null,
 ) : ViewModel() {
     private val actionError = MutableStateFlow<TaskError?>(null)
+    private val editorState = MutableStateFlow(TaskEditorSaveState())
+    val editorSaveState: StateFlow<TaskEditorSaveState> = editorState
+    fun resetEditorResult() { if (!editorState.value.saving) editorState.value = TaskEditorSaveState() }
     private val sessionMutex = Mutex()
     val sessionBusy = MutableStateFlow(false)
     val sessionError = MutableStateFlow<String?>(null)
@@ -84,14 +93,25 @@ class TaskViewModel(
         )
 
     fun saveTask(draft: TaskDraft) {
+        if (editorState.value.saving || editorState.value.receipt != null) return
         if (!TaskDraftValidator.isValid(draft)) {
             actionError.value = TaskError.INVALID_DRAFT
+            editorState.value = TaskEditorSaveState(error = "请检查名称、天数和时长，填写内容仍保留。")
             return
         }
+        editorState.value = TaskEditorSaveState(saving = true)
         viewModelScope.launch {
-            runCatching { taskRepository.save(draft) }
-                .onSuccess { actionError.value = null }
-                .onFailure { actionError.value = TaskError.SAVE_FAILED }
+            try {
+                if (draft.id == null) taskRepository.save(draft) else taskRepository.updateExisting(draft)
+                actionError.value = null
+                editorState.value = TaskEditorSaveState(receipt = "已保存“${draft.displayName.trim().ifBlank { draft.description.trim() }}”的任务信息；现有时段未重新安排。")
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                editorState.value = TaskEditorSaveState()
+                throw cancelled
+            } catch (error: Exception) {
+                actionError.value = TaskError.SAVE_FAILED
+                editorState.value = TaskEditorSaveState(error = "保存未成功，填写内容仍保留。请重试；若任务已被移除，请返回任务页。")
+            }
         }
     }
 

@@ -35,6 +35,12 @@ class RoomTaskRepository(
         return executionLogDao.observeBetween(start, end).map { logs -> logs.map(ExecutionLogEntity::toDomain) }
     }
 
+    override suspend fun updateExisting(draft: TaskDraft) = database.withTransaction {
+        require(TaskDraftValidator.isValid(draft)) { "Invalid task draft." }
+        requireTask(requireNotNull(draft.id) { "Editing requires a task identity." })
+        save(draft)
+    }
+
     override suspend fun save(draft: TaskDraft) {
         val now = System.currentTimeMillis()
         val existing = if (draft.id == null) null else taskDao.getById(draft.id)
