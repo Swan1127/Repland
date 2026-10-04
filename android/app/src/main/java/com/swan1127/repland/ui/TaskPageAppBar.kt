@@ -36,7 +36,7 @@ internal fun TaskPageAppBar(
             .padding(horizontal = 16.dp)) {
             if (LocalDensity.current.fontScale >= 1.3f || maxWidth < 360.dp) {
                 Column(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.testTag("task-page-title"))
+                    Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.fillMaxWidth().testTag("task-page-title"))
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) { actions() }
                 }
             } else {
@@ -56,7 +56,7 @@ internal fun TaskCaptureButton(
     onClick: () -> Unit,
     insets: WindowInsets = WindowInsets.safeDrawing,
 ) {
-    Box(Modifier.windowInsetsPadding(insets.only(WindowInsetsSides.Horizontal)).testTag("task-add-safe-area")) {
+    Box(Modifier.testTag("task-add-safe-area").windowInsetsPadding(insets.only(WindowInsetsSides.Horizontal))) {
         androidx.compose.material3.FloatingActionButton(onClick = onClick, modifier = Modifier.testTag("add-task")) {
             androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Outlined.Add, contentDescription = "添加任务")
         }
