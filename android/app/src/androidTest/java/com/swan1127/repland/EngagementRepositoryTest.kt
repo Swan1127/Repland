@@ -25,8 +25,13 @@ class EngagementRepositoryTest {
             assertEquals(EngagementMode.EXECUTOR, repository.observeMode().first())
             val events = database.engagementDao().getEvents()
             assertEquals(2, events.size)
-            assertEquals("MODE_CHANGED", events[0].type)
-            assertEquals("TIMELINE_OPENED", events[1].type)
+            // Millisecond ties are sorted by UUID, not by call order.
+            val changed = events.single { it.type == "MODE_CHANGED" }
+            val opened = events.single { it.type == "TIMELINE_OPENED" }
+            assertEquals("EXECUTOR", changed.mode)
+            assertEquals(null, changed.subjectId)
+            assertEquals("EXECUTOR", opened.mode)
+            assertEquals("segment:one", opened.subjectId)
         } finally {
             database.close()
         }
