@@ -1,5 +1,9 @@
 # Repland 缺陷记录（2026-10-03）
 
+### QA-048 — 模拟器系统 watchdog 中断全套回归
+
+状态：环境排查中，不能据此判定产品崩溃，也不能判定全套通过。来源 528e3cf 的 188 项全套只执行 38 项，仪器报告 `INSTRUMENTATION_ABORTED: System has crashed`；ActivityScenario 在清理时停留 PAUSED，未到 DESTROYED。原报告保留为 `android/app/build/reports/repland-019-system-crash-failure.xml`。系统 dropbox 的 2026-10-04 17:30:07 UTC watchdog 记录窗口管理/显示/动画线程阻塞约 70 秒，android.anim 持有窗口锁并等待 SurfaceComposer 的 captureLayersSync（任务窗口快照），图形服务高内核占用。此为运行环境证据，不把 GPU 驱动原因当成已证实事实。拟同一 AVD 保留 userdata、禁用快照冷启动，临时软件渲染对照复测；不删除/跳过任何用例，不清用户数据或密钥。
+
 ### QA-047 — 组件宿主原生返回/IME 回归不稳定
 
 状态：0.1.19 全套重跑 185/188 后定位与复测中；本次原生 3 项专项已通过，最终全套待重跑。EditorSheetUiTest 第一次原生 Back 后找不到 Compose 层级；另两个真实 IME 在键盘显示前超时。新焦点等待初版也失败：需启用交互窗口检索，且 Compose 虚拟节点用树遍历而非提供者文本搜索。重启后另观察到 System UI 无响应弹窗/系统弹窗占焦点，点击 Wait 恢复；activity lastanr 返回未记录，不能断定 GPU 或 Repland 原因。修正测试驱动并恢复环境后，原生返回/保存保护/真实 IME 三项 ADB 专项通过（17.164 秒），所有原断言保留，产品抽屉代码未修改。两个全套失败 XML、专项失败 XML、黑屏/系统弹窗截图均保留；系统弹窗遮挡的导入截图不作视觉通过证据。不清用户数据、不删除/跳过用例，最终验收仍绑定后续同源全套与清晰截图。
