@@ -13,6 +13,7 @@ import android.net.Uri
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.BackHandler
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -375,6 +376,11 @@ fun ReplandApp(
     val dailyLogsFlow = remember(reviewDate) { taskViewModel.observeExecutionLogsForDate(reviewDate) }
     val dailyLogs by dailyLogsFlow.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedTask = selectedTaskId?.let { id -> uiState.tasks.firstOrNull { it.id == id } }
+    // Dialog/sheet handlers are composed later and retain their IME/save protection.
+    // At page level, native Back has the same destination as the visible arrow.
+    BackHandler(enabled = selectedTaskId != null || selectedTab == AppTab.TIME) {
+        if (selectedTaskId != null) selectedTaskId = null else selectedTab = timeReturnTab
+    }
     val selectedTaskLogs = remember(selectedTaskId) {
         selectedTaskId?.let(taskViewModel::observeExecutionLogs) ?: flowOf(emptyList())
     }
