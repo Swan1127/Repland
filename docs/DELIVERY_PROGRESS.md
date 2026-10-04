@@ -6,9 +6,23 @@
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
 - 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`；编辑可靠性 `codex/editor-integrity`；课表确认 `codex/time-integrity`；时间设置 `codex/time-settings`。各保留标签不移动。
-- 已安装候选：`0.1.19 (1019)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；0.1.20 时间设置实施/验证中，不作为已安装版。各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 已安装候选：`0.1.20 (1020)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；时间设置已完成同源本地验证。各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
+
+## 0.1.20：时间设置联动与保存可靠性（2026-10-05）
+
+来源 `8149a8ed66356c061094e144b801bb35dce7c5c5`，115 单元、196 设备全套全部通过（失败/错误/跳过 0），internal、release Kotlin/Manifest、离线边界通过。最终 XML `android/app/build/reports/repland-020-final-full.xml`，APK/清单保留 `android/app/build/reports/retained/0.1.20`。首跑专项 18/20 暴露 Snackbar 遮挡真实编辑点击，失败 XML/截图保留；实际高度避让后专项 11/11 与全套通过。
+
+“我的”入口复用时间页；课程/例外/学期稳定编辑、字段重建、保存/删除忙碌保护、失败保留与真实回执已接入。时间数据和约束版本在同一事务提交；丢失编辑目标禁止复活，结束单独支持 24:00，开始规则不放宽。修改约束不自动覆盖正式任务计划。QA-039/042/043/050 在本批范围关闭，关闭后或强杀的磁盘编辑草稿不作承诺。
+
+同 APK 正常及深色 2 倍字号横屏各 3 项原生 Activity 补测通过，设置/编辑/失败截图已查看；横屏错误仍需正文滚动，不冒称所有内容同时显示或完整无障碍矩阵。当前包原位升级 1020，页面显示来源 8149a8ed6635，时间入口实查可达；原用户约束/密钥不读取或修改，无新增真实 API 请求。系统返回键离开应用单独记录 QA-051，不以页内箭头测试代替系统返回。下一批执行反馈 QA-044/045，M5 外部验收仍待测。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `a19dd8f10585686baea03c879a2df76e61ab38bae6b168a12954e0304db5b1c3` |
+| app-debug.apk | `5bbaed705d1e7755721c40057814e7b4ee50fce093afd67050c3e36af934c635` |
+| app-debug-androidTest.apk | `953e1381e07f17eb8eb1057b4a31fdb4bdcf8e04aa317aa54acb7d041d60ffa0` |
 
 ## 0.1.19：课表预览确认（2026-10-05）
 
