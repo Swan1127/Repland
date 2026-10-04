@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.espresso.Espresso
 import com.swan1127.repland.ui.components.EditorSheet
 import com.swan1127.repland.ui.theme.ReplandTheme
 import org.junit.Assert.*
@@ -15,6 +14,12 @@ import org.junit.Test
 
 class EditorSheetUiTest {
     @get:Rule val rule = createComposeRule()
+    private fun pressSystemBack() {
+        // The sheet is a separate dialog window; don't select the unfocused Activity root.
+        val automation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
+        android.os.ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand("input keyevent 4"))
+            .bufferedReader().use { it.readText() }
+    }
 
     @Test fun pending_save_blocks_back_and_drag_then_returns_normally() {
         val saving = mutableStateOf(true)
@@ -24,13 +29,14 @@ class EditorSheetUiTest {
                 text = { Text("保留输入", Modifier.testTag("editor-body")) },
                 confirmButton = { Button(onClick = {}, enabled = !saving.value) { Text("保存") } }, saving = saving.value)
         } }
-        Espresso.pressBackUnconditionally()
+        rule.onNodeWithTag("editor-body").assertIsDisplayed()
+        pressSystemBack()
         rule.onNodeWithTag("editor-body").assertIsDisplayed()
         rule.onNodeWithTag("editor-sheet").performTouchInput { swipeDown() }
         rule.waitForIdle(); assertEquals(0, closes)
         rule.onNodeWithTag("editor-body").assertIsDisplayed()
         rule.runOnIdle { saving.value = false }
-        Espresso.pressBackUnconditionally()
+        pressSystemBack()
         rule.waitUntil(10_000) { closes == 1 }
     }
 
@@ -49,10 +55,10 @@ class EditorSheetUiTest {
             } }
             rule.onNodeWithTag("editor-input").performClick()
             rule.waitUntil(10_000) { shell("dumpsys input_method").contains("mWindowVisible=true") }
-            Espresso.pressBackUnconditionally()
+            pressSystemBack()
             rule.waitUntil(10_000) { !shell("dumpsys input_method").contains("mWindowVisible=true") }
             rule.onNodeWithTag("editor-input").assertIsDisplayed(); assertEquals(0, closes)
-            Espresso.pressBackUnconditionally(); rule.waitUntil(10_000) { closes == 1 }
+            pressSystemBack(); rule.waitUntil(10_000) { closes == 1 }
         } finally {
             shell(if (previous == "null") "settings delete secure show_ime_with_hard_keyboard"
                 else "settings put secure show_ime_with_hard_keyboard $previous")
