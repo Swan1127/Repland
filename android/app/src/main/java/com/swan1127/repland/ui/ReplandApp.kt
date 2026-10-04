@@ -179,6 +179,8 @@ import com.swan1127.repland.ui.ai.AiProviderConnectionTest
 import com.swan1127.repland.ui.agent.AgentCenterScreen
 import com.swan1127.repland.ui.agent.ArrangementAssistantViewModel
 import com.swan1127.repland.ui.tasks.TaskViewModel
+import com.swan1127.repland.ui.tasks.TaskMutationKind
+import com.swan1127.repland.ui.tasks.FeedbackFormValidation
 import com.swan1127.repland.ui.schedule.TimelineDashboard
 import com.swan1127.repland.ui.schedule.WeekScheduleView
 import com.swan1127.repland.ui.schedule.MonthScheduleView
@@ -205,8 +207,16 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import kotlin.math.abs
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private data class LifecycleLogLookup(
+    val logs: List<TaskExecutionLog> = emptyList(),
+    val isLoading: Boolean = true,
+    val failed: Boolean = false,
+)
 
 private enum class AppTab(
     @param:StringRes val titleRes: Int,
@@ -249,9 +259,12 @@ fun ReplandApp(
         onDispose { captureLifecycle.removeObserver(observer) }
     }
     val captureSnackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    val feedbackSnackbarScope = rememberCoroutineScope()
     var snackbarHeightPx by remember { mutableStateOf(0) }
     val snackbarBottomInset = with(LocalDensity.current) { snackbarHeightPx.toDp() }
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
+    val taskMutation by taskViewModel.mutationState.collectAsStateWithLifecycle()
+    val taskActionLocked = taskMutation.busy || taskMutation.receipt != null
     val executionSession by taskViewModel.activeSession.collectAsStateWithLifecycle()
     val executionBusy by taskViewModel.sessionBusy.collectAsStateWithLifecycle()
     val executionError by taskViewModel.sessionError.collectAsStateWithLifecycle()
@@ -321,13 +334,22 @@ fun ReplandApp(
     var showQuickAvailability by rememberSaveable { mutableStateOf(false) }
     var showTaskCapture by rememberSaveable { mutableStateOf(false) }
     var taskEditorSeed by rememberSaveable { mutableStateOf("") }
-    var completingTask by remember { mutableStateOf<Task?>(null) }
-    var partiallyCompletingTask by remember { mutableStateOf<Task?>(null) }
-    var feedbackTask by remember { mutableStateOf<Task?>(null) }
-    var postponingTask by remember { mutableStateOf<Task?>(null) }
-    var cancellingTask by remember { mutableStateOf<Task?>(null) }
-    var replacingTask by remember { mutableStateOf<Task?>(null) }
-    var correctingLog by remember { mutableStateOf<TaskExecutionLog?>(null) }
+    var taskMutationEditorKind by rememberSaveable { mutableStateOf<TaskMutationKind?>(null) }
+    var taskMutationEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    var taskMutationLogId by rememberSaveable { mutableStateOf<String?>(null) }
+    val taskMutationTarget = uiState.tasks.firstOrNull { it.id == taskMutationEditorId }
+    fun openTaskMutation(kind: TaskMutationKind, taskId: String, logId: String? = null) {
+        if (!taskActionLocked) {
+            taskViewModel.resetMutation()
+            taskMutationEditorKind = kind; taskMutationEditorId = taskId; taskMutationLogId = logId
+        }
+    }
+    val closeTaskMutation: () -> Unit = {
+        if (!taskMutation.busy) {
+            taskMutationEditorKind = null; taskMutationEditorId = null; taskMutationLogId = null
+            taskViewModel.resetMutation()
+        }
+    }
     var weeklyBlockEditorId by rememberSaveable { mutableStateOf<String?>(null) }
     val weeklyBlockEditorTarget = weeklyBlockEditorId?.let { id -> timeUiState.weeklyBlocks.firstOrNull { it.id == id } }
     var showWeeklyBlockEditor by rememberSaveable { mutableStateOf(false) }
@@ -357,6 +379,14 @@ fun ReplandApp(
         selectedTaskId?.let(taskViewModel::observeExecutionLogs) ?: flowOf(emptyList())
     }
     val executionLogs by selectedTaskLogs.collectAsStateWithLifecycle(initialValue = emptyList())
+    val correctionLogsFlow = remember(taskMutationEditorId) {
+        taskMutationEditorId?.let { id -> taskViewModel.observeExecutionLogs(id)
+            .map { LifecycleLogLookup(logs = it, isLoading = false) }
+            .catch { emit(LifecycleLogLookup(isLoading = false, failed = true)) }
+        } ?: flowOf(LifecycleLogLookup())
+    }
+    val correctionLogs by correctionLogsFlow.collectAsStateWithLifecycle(initialValue = LifecycleLogLookup())
+    val correctionTarget = correctionLogs.logs.firstOrNull { it.id == taskMutationLogId }
     val planNeedsUpdate = planUiState.currentPlan?.let { plan ->
         uiState.tasks.any { task -> task.updatedAtEpochMillis > plan.createdAtEpochMillis } ||
             timeUiState.weeklyBlocks.any { block -> block.updatedAtEpochMillis > plan.createdAtEpochMillis } ||
@@ -436,6 +466,11 @@ fun ReplandApp(
         TaskDetailScreen(
             task = selectedTask,
             executionLogs = executionLogs,
+            actionsLocked = taskActionLocked,
+            savingRecord = taskMutation.busy,
+            snackbarHostState = captureSnackbar,
+            snackbarBottomInset = snackbarBottomInset,
+            onSnackbarSize = { snackbarHeightPx = it },
             onBack = { selectedTaskId = null },
             onStart = taskViewModel::startTask,
             onEdit = {
@@ -443,18 +478,18 @@ fun ReplandApp(
                 taskEditorTargetId = selectedTask.id
                 showTaskEditor = true
             },
-            onPostpone = { postponingTask = selectedTask },
-            onCancel = { cancellingTask = selectedTask },
+            onPostpone = { openTaskMutation(TaskMutationKind.POSTPONE, selectedTask.id) },
+            onCancel = { openTaskMutation(TaskMutationKind.CANCEL, selectedTask.id) },
             onComplete = { taskViewModel.completeTask(selectedTask.id) },
-            onPartialCompletion = { partiallyCompletingTask = selectedTask },
-            onFeedback = { feedbackTask = selectedTask },
+            onPartialCompletion = { openTaskMutation(TaskMutationKind.PARTIAL, selectedTask.id) },
+            onFeedback = { openTaskMutation(TaskMutationKind.FEEDBACK, selectedTask.id) },
             onOpenAssistant = { assistantTaskId = selectedTask.id; showAssistant = true },
-            onReplace = { replacingTask = selectedTask },
+            onReplace = { openTaskMutation(TaskMutationKind.REPLACE, selectedTask.id) },
             onRestore = { taskViewModel.restoreTask(selectedTask.id) },
-            onCorrectLog = { correctingLog = it },
+            onCorrectLog = { openTaskMutation(TaskMutationKind.CORRECT, it.taskId, it.id) },
             onReviewAdjustmentDraft = {
                 selectedTaskId = null
-                selectedTab = AppTab.TIME
+                selectedTab = AppTab.AGENT
                 if (planUiState.draft == null) generatePlanDraft()
             },
             isAiEnabled = planningAgentUiState.preferences.isEnabled,
@@ -1026,72 +1061,105 @@ fun ReplandApp(
         }
     }
 
-    partiallyCompletingTask?.let { task ->
+    LaunchedEffect(taskMutation.receipt) {
+        taskMutation.receipt?.let { receipt ->
+            if (taskMutationEditorKind == taskMutation.kind && taskMutationEditorId == taskMutation.taskId &&
+                taskMutationLogId == taskMutation.logId) {
+                taskMutationEditorKind = null; taskMutationEditorId = null; taskMutationLogId = null
+            }
+            // Enqueue the actual receipt before consuming it, without locking every
+            // task action for the duration of a transient Snackbar.
+            feedbackSnackbarScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
+                captureSnackbar.showSnackbar(receipt)
+            }
+            taskViewModel.resetMutation()
+        }
+    }
+    val missingFeedbackTarget = taskMutationEditorKind != null && !uiState.isLoading && uiState.error != com.swan1127.repland.ui.tasks.TaskError.SAVE_FAILED &&
+        (taskMutationTarget == null || (taskMutationEditorKind == TaskMutationKind.CORRECT &&
+            !correctionLogs.isLoading && !correctionLogs.failed && correctionTarget == null))
+    if (missingFeedbackTarget && !taskMutation.busy && taskMutation.receipt == null) {
+        AlertDialog(onDismissRequest = closeTaskMutation, title = { Text("原任务或记录已不存在") },
+            text = { Text("请关闭后重新选择。本次输入不会保存到其他事项，也不会复活原任务。") },
+            confirmButton = { TextButton(onClick = closeTaskMutation) { Text("关闭") } })
+    }
+    if (taskMutationEditorKind == TaskMutationKind.CORRECT && correctionLogs.failed) {
+        AlertDialog(onDismissRequest = closeTaskMutation, title = { Text("原记录读取失败") },
+            text = { Text("未修改记录，请关闭后重新打开。") },
+            confirmButton = { TextButton(onClick = closeTaskMutation) { Text("关闭") } })
+    }
+    if (taskMutation.error != null && taskMutationEditorKind == null) {
+        AlertDialog(onDismissRequest = taskViewModel::resetMutation, title = { Text("操作未保存") },
+            text = { Text(taskMutation.error!!) },
+            confirmButton = { TextButton(onClick = taskViewModel::retryMutation) { Text("重试") } },
+            dismissButton = { TextButton(onClick = taskViewModel::resetMutation) { Text("取消") } })
+    }
+    taskMutationTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.PARTIAL && !missingFeedbackTarget }?.let { task ->
         PartialCompletionDialog(
             task = task,
-            onDismiss = { partiallyCompletingTask = null },
+            busy = taskMutation.busy, error = taskMutation.error,
+            onDismiss = closeTaskMutation,
             onConfirm = { feedback ->
                 taskViewModel.recordPartialCompletion(task.id, feedback)
-                partiallyCompletingTask = null
             },
         )
     }
 
-    feedbackTask?.let { task ->
+    taskMutationTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.FEEDBACK && !missingFeedbackTarget }?.let { task ->
         ExecutionFeedbackDialog(
             task = task,
-            onDismiss = { feedbackTask = null },
+            busy = taskMutation.busy, error = taskMutation.error,
+            onDismiss = closeTaskMutation,
             onConfirm = { feedback ->
                 taskViewModel.recordFeedback(task.id, feedback)
-                feedbackTask = null
             },
         )
     }
 
-    postponingTask?.let { task ->
+    taskMutationTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.POSTPONE && !missingFeedbackTarget }?.let { task ->
         PostponeTaskDialog(
-            onDismiss = { postponingTask = null },
+            taskId = task.id, busy = taskMutation.busy, error = taskMutation.error,
+            onDismiss = closeTaskMutation,
             onConfirm = { reason ->
                 taskViewModel.postponeTask(task.id, reason)
-                postponingTask = null
             },
         )
     }
 
-    cancellingTask?.let { task ->
+    taskMutationTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.CANCEL && !missingFeedbackTarget }?.let { task ->
         ConfirmTaskStatusDialog(
             title = stringResource(R.string.task_cancel),
             message = stringResource(R.string.cancel_task_message),
             confirmLabel = stringResource(R.string.task_cancel),
-            onDismiss = { cancellingTask = null },
+            busy = taskMutation.busy, error = taskMutation.error,
+            onDismiss = closeTaskMutation,
             onConfirm = {
                 taskViewModel.cancelTask(task.id)
-                cancellingTask = null
             },
         )
     }
 
-    replacingTask?.let { task ->
+    taskMutationTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.REPLACE && !missingFeedbackTarget }?.let { task ->
         TaskEditorDialog(
             task = task,
             dialogTitle = R.string.replace_task,
             confirmLabel = R.string.replace_task,
             allowPriorityChange = true,
-            onDismiss = { replacingTask = null },
+            saving = taskMutation.busy, saveError = taskMutation.error,
+            onDismiss = closeTaskMutation,
             onSave = { replacement ->
                 taskViewModel.replaceTask(task.id, replacement.copy(id = null))
-                replacingTask = null
             },
         )
     }
 
-    correctingLog?.let { log ->
+    correctionTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.CORRECT && !missingFeedbackTarget }?.let { log ->
         CorrectExecutionLogDialog(
             log = log,
-            onDismiss = { correctingLog = null },
+            busy = taskMutation.busy, error = taskMutation.error,
+            onDismiss = closeTaskMutation,
             onConfirm = { feedback ->
                 taskViewModel.correctExecutionLog(log.taskId, log.id, feedback)
-                correctingLog = null
             },
         )
     }
@@ -2015,11 +2083,11 @@ private fun TaskCard(
 }
 
 @Composable
-private fun TaskStatusButton(task: Task, onStart: () -> Unit) {
+private fun TaskStatusButton(task: Task, onStart: () -> Unit, actionsLocked: Boolean = false) {
     val canStart = task.status == TaskStatus.NOT_STARTED || task.status == TaskStatus.POSTPONED
     OutlinedButton(
         onClick = onStart,
-        enabled = canStart,
+        enabled = canStart && !actionsLocked,
         modifier = Modifier.testTag("start-task"),
         shape = RoundedCornerShape(12.dp),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
@@ -2033,6 +2101,11 @@ private fun TaskStatusButton(task: Task, onStart: () -> Unit) {
 private fun TaskDetailScreen(
     task: Task,
     executionLogs: List<TaskExecutionLog>,
+    actionsLocked: Boolean,
+    savingRecord: Boolean,
+    snackbarHostState: androidx.compose.material3.SnackbarHostState,
+    snackbarBottomInset: androidx.compose.ui.unit.Dp,
+    onSnackbarSize: (Int) -> Unit,
     onBack: () -> Unit,
     onStart: (String) -> Unit,
     onEdit: () -> Unit,
@@ -2052,6 +2125,8 @@ private fun TaskDetailScreen(
     onReviewAgentDraft: (PlanDraft) -> Unit,
 ) {
     Scaffold(
+        snackbarHost = { androidx.compose.material3.SnackbarHost(snackbarHostState,
+            modifier = Modifier.onSizeChanged { onSnackbarSize(it.height) }) },
         topBar = {
             TopAppBar(
                 title = {
@@ -2076,10 +2151,14 @@ private fun TaskDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(bottom = snackbarBottomInset)
                 .testTag("task-detail-scroll"),
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            if (savingRecord) item { Text("正在保存本次记录…", modifier = Modifier.semantics {
+                liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
+            }) }
             item {
                 Surface(
                     shape = RoundedCornerShape(24.dp),
@@ -2099,7 +2178,7 @@ private fun TaskDetailScreen(
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                             )
                             Spacer(Modifier.width(12.dp))
-                            TaskStatusButton(task = task, onStart = { onStart(task.id) })
+                            TaskStatusButton(task = task, onStart = { onStart(task.id) }, actionsLocked = actionsLocked)
                         }
                         Spacer(Modifier.height(14.dp))
                         Text(
@@ -2182,6 +2261,7 @@ private fun TaskDetailScreen(
                 item {
                     PostponementGuidance(
                         postponeCount = task.postponeCount,
+                        actionsLocked = actionsLocked,
                         onReviewAdjustmentDraft = onReviewAdjustmentDraft,
                         onEdit = onEdit,
                     )
@@ -2196,7 +2276,7 @@ private fun TaskDetailScreen(
                         )
                     } else {
                         executionLogs.forEach { log ->
-                            ExecutionLogCard(log = log, onCorrect = { onCorrectLog(log) })
+                            ExecutionLogCard(log = log, actionsLocked = actionsLocked, onCorrect = { onCorrectLog(log) })
                         }
                     }
                 }
@@ -2204,6 +2284,7 @@ private fun TaskDetailScreen(
             item {
                 DetailActions(
                     task = task,
+                    actionsLocked = actionsLocked,
                     onEdit = onEdit,
                     onPostpone = onPostpone,
                     onCancel = onCancel,
@@ -2262,6 +2343,7 @@ private fun DetailMetaPill(text: String) {
 @Composable
 private fun PostponementGuidance(
     postponeCount: Int,
+    actionsLocked: Boolean,
     onReviewAdjustmentDraft: () -> Unit,
     onEdit: () -> Unit,
 ) {
@@ -2284,10 +2366,11 @@ private fun PostponementGuidance(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer,
             )
-            Button(onClick = onReviewAdjustmentDraft, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onReviewAdjustmentDraft, enabled = !actionsLocked,
+                modifier = Modifier.fillMaxWidth().testTag("postpone-review-plan")) {
                 Text(stringResource(R.string.review_adjustment_draft))
             }
-            OutlinedButton(onClick = onEdit, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onEdit, enabled = !actionsLocked, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.adjust_task_scope_or_date))
             }
         }
@@ -2310,7 +2393,7 @@ private fun DetailLine(label: String, value: String) {
 }
 
 @Composable
-private fun ExecutionLogCard(log: TaskExecutionLog, onCorrect: () -> Unit) {
+private fun ExecutionLogCard(log: TaskExecutionLog, onCorrect: () -> Unit, actionsLocked: Boolean = false) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -2369,7 +2452,8 @@ private fun ExecutionLogCard(log: TaskExecutionLog, onCorrect: () -> Unit) {
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-            TextButton(onClick = onCorrect) { Text(stringResource(R.string.correct_log)) }
+            TextButton(onClick = onCorrect, enabled = !actionsLocked,
+                modifier = Modifier.testTag("execution-log-correct-${log.id}")) { Text(stringResource(R.string.correct_log)) }
         }
     }
 }
@@ -2377,6 +2461,7 @@ private fun ExecutionLogCard(log: TaskExecutionLog, onCorrect: () -> Unit) {
 @Composable
 private fun DetailActions(
     task: Task,
+    actionsLocked: Boolean,
     onEdit: () -> Unit,
     onPostpone: () -> Unit,
     onCancel: () -> Unit,
@@ -2393,6 +2478,7 @@ private fun DetailActions(
         if (task.status.isActive) {
             Button(
                 onClick = onComplete,
+                enabled = !actionsLocked,
                 modifier = Modifier.fillMaxWidth().testTag("complete-task"),
             ) {
                 Text(stringResource(R.string.complete))
@@ -2400,26 +2486,28 @@ private fun DetailActions(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onPartialCompletion,
+                    enabled = !actionsLocked,
                     modifier = Modifier.weight(1f).testTag("partial-completion"),
                 ) { Text(stringResource(R.string.partial_completion)) }
-                OutlinedButton(onClick = onPostpone, modifier = Modifier.weight(1f)) {
+                OutlinedButton(onClick = onPostpone, enabled = !actionsLocked, modifier = Modifier.weight(1f).testTag("postpone-task")) {
                     Text(stringResource(R.string.postpone))
                 }
             }
-            TextButton(onClick = onReplace, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onReplace, enabled = !actionsLocked, modifier = Modifier.fillMaxWidth().testTag("replace-task")) {
                 Text(stringResource(R.string.replace_task))
             }
         }
         if (task.status != TaskStatus.REPLACED) {
             OutlinedButton(
                 onClick = onFeedback,
+                enabled = !actionsLocked,
                 modifier = Modifier.fillMaxWidth().testTag("record-feedback"),
             ) {
                 Text(stringResource(R.string.record_feedback))
             }
         }
         if (task.status != TaskStatus.REPLACED) {
-            OutlinedButton(onClick = onEdit, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onEdit, enabled = !actionsLocked, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.edit_task))
             }
         }
@@ -2445,7 +2533,7 @@ private fun DetailActions(
             }
         }
         if (task.status.isActive) {
-            TextButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onCancel, enabled = !actionsLocked, modifier = Modifier.fillMaxWidth().testTag("cancel-task")) {
                 Text(
                     stringResource(R.string.task_cancel),
                     color = MaterialTheme.colorScheme.error,
@@ -2453,7 +2541,7 @@ private fun DetailActions(
             }
         }
         if (task.status == TaskStatus.COMPLETED || task.status == TaskStatus.CANCELLED) {
-            TextButton(onClick = onRestore, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onRestore, enabled = !actionsLocked, modifier = Modifier.fillMaxWidth().testTag("restore-task")) {
                 Text(stringResource(R.string.restore_task))
             }
         }
@@ -5278,11 +5366,14 @@ private fun CompleteTaskDialog(
 @Composable
 private fun PartialCompletionDialog(
     task: Task,
+    busy: Boolean,
+    error: String?,
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) = FeedbackDialog(
     title = stringResource(R.string.partial_completion),
     task = task,
+    busy = busy, error = error,
     requireContent = true,
     requirePartialProgress = true,
     onDismiss = onDismiss,
@@ -5292,11 +5383,14 @@ private fun PartialCompletionDialog(
 @Composable
 private fun ExecutionFeedbackDialog(
     task: Task,
+    busy: Boolean,
+    error: String?,
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) = FeedbackDialog(
     title = stringResource(R.string.record_feedback),
     task = task,
+    busy = busy, error = error,
     requireContent = false,
     requirePartialProgress = false,
     notice = stringResource(R.string.feedback_does_not_change_status),
@@ -5307,11 +5401,14 @@ private fun ExecutionFeedbackDialog(
 @Composable
 private fun CorrectExecutionLogDialog(
     log: TaskExecutionLog,
+    busy: Boolean,
+    error: String?,
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) = FeedbackDialog(
     title = stringResource(R.string.correct_log),
     task = null,
+    identity = log.id, busy = busy, error = error,
     initialFeedback = log.feedback,
     requireContent = false,
     requirePartialProgress = false,
@@ -5325,6 +5422,9 @@ private fun CorrectExecutionLogDialog(
 private fun FeedbackDialog(
     title: String,
     task: Task?,
+    identity: String = task?.id.orEmpty(),
+    busy: Boolean = false,
+    error: String? = null,
     initialFeedback: TaskFeedback = TaskFeedback(),
     requireContent: Boolean,
     requirePartialProgress: Boolean,
@@ -5333,24 +5433,28 @@ private fun FeedbackDialog(
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) {
-    var completedContent by remember(task, initialFeedback) {
+    var completedContent by rememberSaveable(identity) {
         mutableStateOf(initialFeedback.completedContent.orEmpty())
     }
-    var completionResult by remember(task, initialFeedback) {
+    var completionResult by rememberSaveable(identity) {
         mutableStateOf(initialFeedback.completionResult.orEmpty())
     }
-    var actualDurationText by remember(task, initialFeedback) {
+    var actualDurationText by rememberSaveable(identity) {
         mutableStateOf(initialFeedback.actualDurationMinutes?.toString().orEmpty())
     }
-    var progressText by remember(task, initialFeedback) {
+    var progressText by rememberSaveable(identity) {
         mutableStateOf(initialFeedback.progressPercent?.toString().orEmpty())
     }
-    var postponeReason by remember(task, initialFeedback) {
+    var postponeReason by rememberSaveable(identity) {
         mutableStateOf(initialFeedback.postponeReason.orEmpty())
     }
-    var showValidationError by remember { mutableStateOf(false) }
+    var showValidationError by rememberSaveable(identity) { mutableStateOf(false) }
+    val validActual = FeedbackFormValidation.validNumber(actualDurationText, 1..1440)
+    val validProgress = FeedbackFormValidation.validNumber(progressText,
+        if (requirePartialProgress) 1..99 else 0..100, required = requirePartialProgress)
     EditorSheet(
         onDismissRequest = onDismiss,
+        saving = busy,
         title = { Text(title) },
         text = {
             Column(
@@ -5362,6 +5466,9 @@ private fun FeedbackDialog(
                 }
                 OutlinedTextField(
                     value = completedContent,
+                    enabled = !busy,
+                    isError = showValidationError && requireContent && completedContent.isBlank(),
+                    supportingText = { if (showValidationError && requireContent && completedContent.isBlank()) Text("请填写本次完成的内容") },
                     onValueChange = { completedContent = it },
                     modifier = Modifier.fillMaxWidth().testTag("feedback-content"),
                     label = {
@@ -5371,6 +5478,7 @@ private fun FeedbackDialog(
                 )
                 OutlinedTextField(
                     value = completionResult,
+                    enabled = !busy,
                     onValueChange = { completionResult = it },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.completion_result_optional)) },
@@ -5378,7 +5486,10 @@ private fun FeedbackDialog(
                 )
                 OutlinedTextField(
                     value = actualDurationText,
-                    onValueChange = { actualDurationText = it.filter(Char::isDigit) },
+                    enabled = !busy,
+                    onValueChange = { actualDurationText = it },
+                    isError = actualDurationText.isNotBlank() && !validActual,
+                    supportingText = { Text("实际时长应为 1–1440 分钟；留空表示未知") },
                     modifier = Modifier.fillMaxWidth().testTag("feedback-actual-duration"),
                     label = { Text(stringResource(R.string.actual_duration_optional)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -5386,7 +5497,10 @@ private fun FeedbackDialog(
                 )
                 OutlinedTextField(
                     value = progressText,
-                    onValueChange = { progressText = it.filter(Char::isDigit) },
+                    enabled = !busy,
+                    onValueChange = { progressText = it },
+                    isError = (progressText.isNotBlank() || showValidationError) && !validProgress,
+                    supportingText = { Text(if (requirePartialProgress) "部分完成进度应为 1–99%" else "进度应为 0–100%；留空表示未知") },
                     modifier = Modifier.fillMaxWidth().testTag("feedback-progress"),
                     label = {
                         Text(stringResource(if (requirePartialProgress) R.string.partial_progress_required else R.string.progress_optional))
@@ -5397,6 +5511,7 @@ private fun FeedbackDialog(
                 if (showPostponeReason) {
                     OutlinedTextField(
                         value = postponeReason,
+                        enabled = !busy,
                         onValueChange = { postponeReason = it },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(stringResource(R.string.postpone_reason_optional)) },
@@ -5406,13 +5521,15 @@ private fun FeedbackDialog(
                 if (showValidationError) {
                     Text(stringResource(R.string.feedback_validation_error), color = MaterialTheme.colorScheme.error)
                 }
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("feedback-save-error").semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }) }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val actual = actualDurationText.takeIf(String::isNotBlank)?.toIntOrNull()
-                    val progress = progressText.takeIf(String::isNotBlank)?.toIntOrNull()
+                    val actual = actualDurationText.trim().takeIf(String::isNotBlank)?.toIntOrNull()
+                    val progress = progressText.trim().takeIf(String::isNotBlank)?.toIntOrNull()
                     val feedback = TaskFeedback(
                         completedContent = completedContent,
                         completionResult = completionResult,
@@ -5422,38 +5539,43 @@ private fun FeedbackDialog(
                     )
                     val hasFeedback = actual != null || progress != null || completedContent.isNotBlank() ||
                         completionResult.isNotBlank() || postponeReason.isNotBlank()
-                    val validProgress = if (requirePartialProgress) progress in 1..99 else progress == null || progress in 0..100
-                    if (hasFeedback && (actual == null || actual in 1..1_440) && validProgress &&
+                    if (hasFeedback && validActual && validProgress &&
                         (!requireContent || completedContent.isNotBlank())
                     ) onConfirm(feedback) else showValidationError = true
                 },
                 modifier = Modifier.testTag("feedback-confirm"),
-            ) { Text(stringResource(R.string.confirm)) }
+                enabled = !busy,
+            ) { Text(if (busy) "保存中…" else stringResource(R.string.confirm)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
 @Composable
-private fun PostponeTaskDialog(onDismiss: () -> Unit, onConfirm: (String?) -> Unit) {
-    var reason by remember { mutableStateOf("") }
-    AlertDialog(
+private fun PostponeTaskDialog(taskId: String, busy: Boolean, error: String?, onDismiss: () -> Unit, onConfirm: (String?) -> Unit) {
+    var reason by rememberSaveable(taskId) { mutableStateOf("") }
+    EditorSheet(
         onDismissRequest = onDismiss,
+        saving = busy,
         title = { Text(stringResource(R.string.postpone)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(stringResource(R.string.postpone_notice), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedTextField(
                     value = reason,
+                    enabled = !busy,
                     onValueChange = { reason = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("postpone-reason"),
                     label = { Text(stringResource(R.string.postpone_reason_optional)) },
                     minLines = 2,
                 )
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("feedback-save-error").semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }) }
             }
         },
-        confirmButton = { TextButton(onClick = { onConfirm(reason) }) { Text(stringResource(R.string.confirm)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        confirmButton = { TextButton(onClick = { onConfirm(reason) }, enabled = !busy,
+            modifier = Modifier.testTag("postpone-confirm")) { Text(if (busy) "保存中…" else stringResource(R.string.confirm)) } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
@@ -5462,17 +5584,20 @@ private fun ConfirmTaskStatusDialog(
     title: String,
     message: String,
     confirmLabel: String,
+    busy: Boolean = false,
+    error: String? = null,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = !busy, dismissOnClickOutside = !busy),
         title = { Text(title) },
-        text = { Text(message) },
+        text = { Column { Text(message); error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text(confirmLabel, color = MaterialTheme.colorScheme.error) }
+            TextButton(onClick = onConfirm, enabled = !busy, modifier = Modifier.testTag("cancel-task-confirm")) { Text(if (busy) "保存中…" else confirmLabel, color = MaterialTheme.colorScheme.error) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
     )
 }
 

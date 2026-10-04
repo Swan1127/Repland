@@ -43,6 +43,17 @@ data class TaskEditorSaveState(
     val receipt: String? = null,
 )
 
+enum class TaskMutationKind { START, COMPLETE, POSTPONE, CANCEL, RESTORE, PARTIAL, FEEDBACK, CORRECT, REPLACE }
+
+data class TaskMutationState(
+    val kind: TaskMutationKind? = null,
+    val taskId: String? = null,
+    val logId: String? = null,
+    val busy: Boolean = false,
+    val error: String? = null,
+    val receipt: String? = null,
+)
+
 class TaskViewModel(
     private val taskRepository: TaskRepository,
     private val sessions: ExecutionSessionRepository? = null,
@@ -50,6 +61,13 @@ class TaskViewModel(
     private val actionError = MutableStateFlow<TaskError?>(null)
     private val editorState = MutableStateFlow(TaskEditorSaveState())
     val editorSaveState: StateFlow<TaskEditorSaveState> = editorState
+    private val mutation = MutableStateFlow(TaskMutationState())
+    val mutationState: StateFlow<TaskMutationState> = mutation
+    private var retryMutation: (() -> Unit)? = null
+    fun resetMutation() {
+        if (!mutation.value.busy) { mutation.value = TaskMutationState(); retryMutation = null }
+    }
+    fun retryMutation() { if (!mutation.value.busy && mutation.value.receipt == null) retryMutation?.invoke() }
     fun resetEditorResult() { if (!editorState.value.saving) editorState.value = TaskEditorSaveState() }
     private val sessionMutex = Mutex()
     val sessionBusy = MutableStateFlow(false)
@@ -149,19 +167,19 @@ class TaskViewModel(
         )
     }
 
-    fun recordPartialCompletion(taskId: String, feedback: TaskFeedback) = lifecycleAction {
+    fun recordPartialCompletion(taskId: String, feedback: TaskFeedback) = lifecycleAction(TaskMutationKind.PARTIAL, taskId) {
         taskRepository.recordPartialCompletion(taskId, feedback)
     }
 
-    fun recordFeedback(taskId: String, feedback: TaskFeedback) = lifecycleAction {
+    fun recordFeedback(taskId: String, feedback: TaskFeedback) = lifecycleAction(TaskMutationKind.FEEDBACK, taskId) {
         taskRepository.recordFeedback(taskId, feedback)
     }
 
-    fun correctExecutionLog(taskId: String, correctedLogId: String, feedback: TaskFeedback) = lifecycleAction {
+    fun correctExecutionLog(taskId: String, correctedLogId: String, feedback: TaskFeedback) = lifecycleAction(TaskMutationKind.CORRECT, taskId, correctedLogId) {
         taskRepository.correctExecutionLog(taskId, correctedLogId, feedback)
     }
 
-    fun replaceTask(taskId: String, replacement: TaskDraft) = lifecycleAction {
+    fun replaceTask(taskId: String, replacement: TaskDraft) = lifecycleAction(TaskMutationKind.REPLACE, taskId) {
         taskRepository.replaceTask(taskId, replacement)
     }
 
@@ -169,15 +187,46 @@ class TaskViewModel(
         taskId: String,
         status: TaskStatus,
         feedback: TaskFeedback = TaskFeedback(),
-    ) = lifecycleAction {
+    ) = lifecycleAction(when (status) {
+        TaskStatus.IN_PROGRESS -> TaskMutationKind.START
+        TaskStatus.COMPLETED -> TaskMutationKind.COMPLETE
+        TaskStatus.POSTPONED -> TaskMutationKind.POSTPONE
+        TaskStatus.CANCELLED -> TaskMutationKind.CANCEL
+        TaskStatus.NOT_STARTED -> TaskMutationKind.RESTORE
+        TaskStatus.REPLACED -> TaskMutationKind.REPLACE
+    }, taskId) {
         taskRepository.confirmStatus(taskId, status, feedback)
     }
 
-    private fun lifecycleAction(action: suspend () -> Unit) {
+    private fun lifecycleAction(kind: TaskMutationKind, taskId: String, logId: String? = null, action: suspend () -> Unit) {
+        if (mutation.value.busy || mutation.value.receipt != null) return
+        retryMutation = { lifecycleAction(kind, taskId, logId, action) }
+        mutation.value = TaskMutationState(kind, taskId, logId, busy = true)
         viewModelScope.launch {
-            runCatching { action() }
-                .onSuccess { actionError.value = null }
-                .onFailure { actionError.value = TaskError.INVALID_LIFECYCLE_INPUT }
+            try {
+                action()
+                actionError.value = null
+                val message = when (kind) {
+                    TaskMutationKind.START -> "已记录开始；不会根据时间经过自动完成。"
+                    TaskMutationKind.COMPLETE -> "已确认完成；不会以计划时长或计时推断实际耗时。"
+                    TaskMutationKind.POSTPONE -> "已记录本次推迟；现有计划未自动重新安排。"
+                    TaskMutationKind.CANCEL -> "已取消任务，执行历史仍保留。"
+                    TaskMutationKind.RESTORE -> "已恢复为未开始，执行历史仍保留。"
+                    TaskMutationKind.PARTIAL -> "已保存部分进度；未将整个任务标记完成。"
+                    TaskMutationKind.FEEDBACK -> "已保存反馈；任务状态未改变。"
+                    TaskMutationKind.CORRECT -> "已追加纠正记录；原始历史仍保留。"
+                    TaskMutationKind.REPLACE -> "已保存替换事项；原任务和历史仍保留。"
+                }
+                mutation.value = TaskMutationState(kind, taskId, logId, receipt = message)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                mutation.value = TaskMutationState(kind, taskId, logId)
+                retryMutation = null
+                throw cancelled
+            } catch (error: Exception) {
+                actionError.value = TaskError.INVALID_LIFECYCLE_INPUT
+                mutation.value = TaskMutationState(kind, taskId, logId,
+                    error = "本次记录未保存，输入仍保留。请重试；若原任务或记录已不存在，请关闭后重新选择。")
+            }
         }
     }
 
