@@ -36,6 +36,9 @@ class EditorSheetUiTest {
         rule.waitForIdle(); assertEquals(0, closes)
         rule.onNodeWithTag("editor-body").assertIsDisplayed()
         rule.runOnIdle { saving.value = false }
+        // Native input does not wait for Compose's updated BackHandler closure.
+        rule.waitForIdle()
+        rule.onNodeWithText("保存").assertIsEnabled()
         pressSystemBack()
         rule.waitUntil(10_000) { closes == 1 }
     }
