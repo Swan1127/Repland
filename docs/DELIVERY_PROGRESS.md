@@ -5,10 +5,32 @@
 ## 基线
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
-- 实施分支：`codex/product-delivery`。
-- 候选版本：`0.1.16 (1016)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`。基线标签 `v0.1.16` 不移动。
+- 候选版本：`0.1.17 (1017)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
+
+## 0.1.17：独立任务创建新版（2026-10-04）
+
+按 ui-ux-pro-max 检查层级、标签、48dp 操作、禁用/错误与安全区；emil-design-eng 用于渐进填写与高频步骤无多余动画；apple-design 用于可预测原生抽屉、关闭保留与键盘先返回。遵守 Compose / Material 3 及原有语义色和产品规则，不重设计其他页面。
+
+创建草稿复用 Room v20 工作区，保存文字、步骤、自定义时长、类别/优先级及独立日期。成功事务一起写任务/清草稿；失败保留、重复提交不重复新增，读取失败不覆盖旧草稿。清除数据先暂停暂存，主动 JSON 导出包含草稿。选定日期后返回仍明确保留日期；今日清单不等于生成时段。
+
+最终来源 `37a81cacf713ba87cc15187b9756a85651ccea24`：113 单元、35 设备专项全部通过（失败/跳过均 0）；internal、release Kotlin/Manifest、离线边界通过。XML 保留 `android/app/build/reports/repland-017-final-targeted.xml`；APK/清单保留忽略输出 `android/app/build/reports/retained/0.1.17`。此前 172 项全套在 `9941978` 通过，是历史阶段证据，不宣称最新源码已全套通过。
+
+当前版原位升级、冷启动，未读取或清除 API 密钥/用户数据；只当前包运行。真实 IME 下第一次返回只收键盘，第二次关闭；关闭/冷启动恢复同一文字、DURATION 步骤及自定义 45；下拉关闭后草稿恢复，明确放弃后为空。深浅色 2 倍字号横屏选项/输入/保存与返回可滚动到达，浅色大字号竖屏创建主要操作可达；已查看截图 `repland17-keyboard.png`、`repland17-landdark*.png`、`repland17-landlight.png`、`repland17-newlarge.png`。这不是完整无障碍或真机手势验收。
+
+测试写入如实记录：本轮自己的 `QA-draft17-only` 和 `QA-uncommitted17` 样例已创建，后者实际为今日清单/45 分钟/无时段；一次坐标操作在旋转衔接后点击到保存，不能算未写入路径。`QA-gesture17` 仅作未提交草稿，已通过显式放弃清除。前两个隔离标记事项暂保留用于下一批编辑回归，不操作用户事项或确认计划。QA-037 已有编辑目标/重建/失败反馈独立待修复。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `3042ed79c9e4a95f3a7eb2c36f950fc3cf65144da723b2b4fce521c48ef9720a` |
+| app-debug.apk | `5d7ddcf7c4c9c26ed6318bf42b4da551cad5937084b18e90f09704a7eb09f6f7` |
+| app-debug-androidTest.apk | `525a36fe577ad1e18a406c549dcacc461ed827441c4e51ae283c05bfa8c50fba` |
+
+真实设备/PDF/通知/7 天试用仍待验收，新增 REAL_WORLD_ACCEPTANCE.md 提供记录表，不代表已经观察。全部完成后才开展用户要求的网上竞品/交互意见报告，报告建议不自动实施。
+
+### 原计划阶段状态
 
 | 阶段 | 状态 | 证据/剩余工作 |
 | --- | --- | --- |
