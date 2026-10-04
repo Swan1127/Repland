@@ -6,7 +6,7 @@
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
 - 实施分支：`codex/product-delivery`。
-- 候选版本：`0.1.15 (1015)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 候选版本：`0.1.16 (1016)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
 
@@ -197,6 +197,26 @@ APK 检查确认 internal 的两个 Provider 类/构造入口保留；release Ma
 | app-debug.apk | com.swan1127.repland.qa | `2a27a687d9c59ed1692e0dcbbbfc3eebdd68f2f4be9a050e67a39efbd3bf2271` |
 
 最终构建没有重新生成 androidTest APK，也没有重跑全部设备测试；不将产物清单中旧测试 APK 当成该提交同源回归结果。
+
+## 第十七批：独立布局修复基线（0.1.16，2026-10-04）
+
+按用户要求先保留这一批，再在新版本优化任务创建。任务顶部提取为共享组件，正常字号保持紧凑同行，大字号/窄屏标题和操作分行自然增长；操作 >=48dp，保留禁用、撤销、排序预览回调。新增按钮只处理左右 safeDrawing，避免横屏系统栏重叠和竖屏重复底部留白。未改整体配色、排序或日程。
+
+QA-032 旧组件先以真实设备测试复现标题高度溢出。开发首次编译缺少 FlowRow 的 ExperimentalLayoutApi 声明失败，补声明后首轮 19 项中 3 项失败：两个标题宽度溢出与外层 inset 测量标签位置；补全标题宽度约束、测量标签放在内边距之前后重新通过，不把失败批次算通过。
+
+最终来源 `d21a01927fa027108d8bae1e065a996cda264b7a`：110 单元、19 同源 API 36.1 专项全部通过，无失败/错误/跳过；含顶部栏 5 项、核心创建 7 项、计划成员 1 项、规划预览 6 项。debug/androidTest/internal 构建、release Kotlin/Manifest、离线边界通过；未生成 release APK，未重跑全套。
+
+原位升级成功、不清除任务/密钥；2 倍字号深浅色竖屏和深色横屏任务页截图已查看，标题完整和新增按钮不与系统导航交叠。窄屏 320dp/2 倍字号组件测试通过；未声称全应用横屏/真机/读屏通过。系统字号恢复 1.0、方向恢复竖屏自动旋转、浅色。旧事项仍存在；因当前设备日期跨日，列表显示待安排不能据此认定原历史时段消失。本批不发送真实 API。
+
+保留本地 APK/清单：`android/app/build/reports/retained/0.1.16`（忽略输出）；完整专项 XML `android/app/build/reports/repland-016-layout.xml`。GitHub 保留标签 `repland-0.1.16-layout-baseline`。GitHub CLI 当前未授权，故没有建立带 APK 附件的 Release，不读取凭据绕过；源码/标签通过既有 SSH 推送。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `249a9fc30e3bdc4e267495885c41fad068da4985e8f3ddc8c88a013b5186689d` |
+| app-debug.apk | `a5af71116b2f235d6c9047520aed9cd71d802f2b634101fb9e05b7020a3b3de4` |
+| app-debug-androidTest.apk | `88713e229721307c8e3e2dd453b207aa2aa52cdc6ce2628a853c3b63569f4715` |
+
+新任务创建草稿/键盘/保存反馈改动尚未开始，授权边界见 UI_REDESIGN_RUN_2026-10-04.md；竞品与交互报告留在原计划结束后，仅提出意见。真机与七天试用仍待验收。
 
 ## 第十六批：全天预览边界（0.1.15，2026-10-04）
 
