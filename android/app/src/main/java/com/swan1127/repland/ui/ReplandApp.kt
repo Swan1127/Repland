@@ -484,7 +484,14 @@ fun ReplandApp(
     } else {
         Scaffold(
             topBar = {
-                if (selectedTab != AppTab.AGENT) TopAppBar(
+                if (selectedTab == AppTab.TASKS) TaskPageAppBar(
+                    title = stringResource(selectedTab.titleRes),
+                    canUndo = workspaceUiState.canUndoOrder,
+                    undoEnabled = !planUiState.isWorking && planUiState.draft == null,
+                    sortEnabled = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
+                    onUndo = planViewModel::undoTaskOrder,
+                    onSort = { if (planUiState.draft == null) generatePlanDraft(reorder = true, orderOnly = true) },
+                ) else if (selectedTab != AppTab.AGENT) TopAppBar(
                     title = {
                         Column {
                             Text(
@@ -510,20 +517,6 @@ fun ReplandApp(
                             }
                         }
                     },
-                    actions = {
-                        if (selectedTab == AppTab.TASKS) {
-                            if (workspaceUiState.canUndoOrder) TextButton(
-                                onClick = planViewModel::undoTaskOrder,
-                                enabled = !planUiState.isWorking && planUiState.draft == null,
-                                modifier = Modifier.testTag("undo-task-sort"),
-                            ) { Text("撤销排序") }
-                            TextButton(
-                                onClick = { if (planUiState.draft == null) generatePlanDraft(reorder = true, orderOnly = true) },
-                                enabled = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
-                                modifier = Modifier.testTag("auto-sort-tasks"),
-                            ) { Text("自动排序") }
-                        }
-                    },
                 )
             },
             bottomBar = {
@@ -547,12 +540,11 @@ fun ReplandApp(
             floatingActionButton = {
                 when (selectedTab) {
                     AppTab.TASKS -> {
-                        FloatingActionButton(
+                        TaskCaptureButton(
                             onClick = {
                                 showTaskCapture = true
                             },
-                            modifier = Modifier.testTag("add-task"),
-                        ) { Icon(Icons.Outlined.Add, contentDescription = "添加任务") }
+                        )
                     }
 
                     AppTab.TODAY -> Unit
