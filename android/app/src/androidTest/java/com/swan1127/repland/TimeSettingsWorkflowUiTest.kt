@@ -17,7 +17,10 @@ import org.junit.Test
 class TimeSettingsWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
     private val repo get() = (rule.activity.application as ReplandApplication).appContainer.timeRepository
-    private fun waitTag(tag: String) = rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }
+    private fun waitTag(tag: String) {
+        try { rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() } }
+        catch (failure: Exception) { screenshot("qa-time20-timeout-$tag.png"); throw failure }
+    }
     private fun gone(tag: String) = rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isEmpty() }
     private fun open() {
         waitTag("navigation-mine"); rule.onNodeWithTag("navigation-mine").performClick()
@@ -48,7 +51,9 @@ class TimeSettingsWorkflowUiTest {
             val saved = runBlocking { repo.observeWeeklyBlocks().first().single { it.title == name } }; savedId = saved.id
             assertEquals(1440, saved.endMinute); assertEquals(original.size + 1, runBlocking { repo.observeWeeklyBlocks().first().size })
             rule.onNodeWithText("每周时间已保存；现有任务计划未自动重新安排").assertIsDisplayed()
-            rule.onNodeWithTag("weekly-edit-${saved.id}").performScrollTo().performClick(); waitTag("weekly-block-title")
+            rule.onNodeWithTag("weekly-edit-${saved.id}").performScrollTo()
+            screenshot("qa-time20-before-weekly-edit.png")
+            rule.onNodeWithTag("weekly-edit-${saved.id}").performClick(); waitTag("weekly-block-title")
             fill("weekly-block-title", "$name-edited")
             rule.activityRule.scenario.recreate(); waitTag("weekly-block-title")
             rule.onNodeWithTag("weekly-block-title").assertTextContains("$name-edited")
@@ -76,7 +81,9 @@ class TimeSettingsWorkflowUiTest {
             rule.onNodeWithTag("date-override-save").performClick(); gone("date-override-title")
             val saved = runBlocking { repo.observeDateOverrides().first().single { it.title == name } }; savedId = saved.id
             assertEquals(1440, saved.endMinute); assertEquals(LocalDate.of(2026, 10, 5), saved.date)
-            rule.onNodeWithTag("override-edit-${saved.id}").performScrollTo().performClick(); waitTag("date-override-title")
+            rule.onNodeWithTag("override-edit-${saved.id}").performScrollTo()
+            screenshot("qa-time20-before-override-edit.png")
+            rule.onNodeWithTag("override-edit-${saved.id}").performClick(); waitTag("date-override-title")
             fill("date-override-note", "旋转保留")
             rule.activityRule.scenario.recreate(); waitTag("date-override-title")
             rule.onNodeWithTag("date-override-note").performScrollTo().assertTextContains("旋转保留")

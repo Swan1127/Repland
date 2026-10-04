@@ -164,6 +164,8 @@ import com.swan1127.repland.domain.model.PlanDraftReview
 import com.swan1127.repland.ui.time.TimeViewModel
 import com.swan1127.repland.ui.time.TimeMutationKind
 import androidx.compose.runtime.key
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import com.swan1127.repland.ui.time.TimetableImportState
 import com.swan1127.repland.ui.plan.PlanViewModel
 import com.swan1127.repland.ui.preferences.CategoryPreferenceViewModel
@@ -247,6 +249,8 @@ fun ReplandApp(
         onDispose { captureLifecycle.removeObserver(observer) }
     }
     val captureSnackbar = remember { androidx.compose.material3.SnackbarHostState() }
+    var snackbarHeightPx by remember { mutableStateOf(0) }
+    val snackbarBottomInset = with(LocalDensity.current) { snackbarHeightPx.toDp() }
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val executionSession by taskViewModel.activeSession.collectAsStateWithLifecycle()
     val executionBusy by taskViewModel.sessionBusy.collectAsStateWithLifecycle()
@@ -512,7 +516,8 @@ fun ReplandApp(
         )
     } else {
         Scaffold(
-            snackbarHost = { androidx.compose.material3.SnackbarHost(captureSnackbar) },
+            snackbarHost = { androidx.compose.material3.SnackbarHost(captureSnackbar,
+                modifier = Modifier.onSizeChanged { snackbarHeightPx = it.height }) },
             topBar = {
                 if (selectedTab == AppTab.TASKS) TaskPageAppBar(
                     title = stringResource(selectedTab.titleRes),
@@ -822,6 +827,7 @@ fun ReplandApp(
                     )
 
                     AppTab.TIME -> TimeScreen(
+                        snackbarBottomInset = snackbarBottomInset,
                         state = timeUiState,
                         busy = timeMutation.busy,
                         onAddWeekly = { timeViewModel.resetMutation(); weeklyBlockEditorId = null; weeklyBlockInitialKind = TimeBlockKind.COURSE; showWeeklyBlockEditor = true },
@@ -2703,6 +2709,7 @@ private fun AiRequestPreviewDialog(
 
 @Composable
 private fun TimeScreen(
+    snackbarBottomInset: androidx.compose.ui.unit.Dp,
     state: com.swan1127.repland.ui.time.TimeUiState,
     busy: Boolean,
     onAddWeekly: () -> Unit,
@@ -2721,7 +2728,7 @@ private fun TimeScreen(
         onResult = { uri -> uri?.let(onImportPdf) },
     )
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize().padding(bottom = snackbarBottomInset).verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
