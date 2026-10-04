@@ -397,7 +397,10 @@ fun TaskCaptureSheet(
                         Button(onClick = { step(TaskCaptureStage.INTENT) }, enabled = current.text.isNotBlank() && !saving,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("task-capture-arrange-today")) { Text("安排今天") }
                         OutlinedButton(onClick = { save() }, enabled = current.text.isNotBlank() && !saving,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("task-capture-save-inbox")) { Text(if (saving) "正在保存…" else "先保存到待安排") }
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("task-capture-save-inbox")) {
+                            Text(if (saving) "正在保存…" else if (current.dueDate != null || current.scheduledForDate != null)
+                                "保存任务（保留已选日期）" else "先保存到待安排")
+                        }
                     }
                     TaskCaptureStage.DURATION -> Button(onClick = { save(current.copy(scheduledForDate = LocalDate.now())) },
                         enabled = current.durationIsValid && !saving,

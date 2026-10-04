@@ -59,4 +59,15 @@ class TaskCaptureSheetUiTest {
         rule.onNodeWithTag("task-capture-close").assertIsDisplayed()
         rule.onNodeWithTag("task-capture-duration-custom").performScrollTo().assertIsDisplayed()
     }
+    @Test fun returning_with_selected_dates_keeps_them_and_names_the_save_action_honestly() {
+        val due = java.time.LocalDate.now().plusDays(7)
+        var result: TaskDraft? = null
+        rule.setContent { ReplandTheme {
+            TaskCaptureSheet("", {}, { result = it }, draft = TaskCaptureDraft(text = "有截止日期", dueDate = due))
+        } }
+        rule.onNodeWithText("保存任务（保留已选日期）").assertIsDisplayed()
+        rule.onNodeWithTag("task-capture-save-inbox").performClick()
+        assertEquals(due, result!!.dueDate)
+        assertNull(result!!.scheduledForDate)
+    }
 }

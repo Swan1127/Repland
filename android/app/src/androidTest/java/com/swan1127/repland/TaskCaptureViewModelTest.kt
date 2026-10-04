@@ -117,4 +117,14 @@ class TaskCaptureViewModelTest {
             assertEquals("仍可编辑", vm.uiState.value.draft.text)
         }
     }
+    @Test fun dated_task_receipt_does_not_falsely_claim_inbox_or_today() {
+        withVm(Fake()) { vm ->
+            val draft = vm.uiState.value.draft.copy(text = "下周截止", dueDate = java.time.LocalDate.now().plusDays(7))
+            withContext(Dispatchers.Main) { vm.update(draft); vm.save(draft.toTaskDraft()) }
+            vm.uiState.first { it.receipt != null }
+            assertTrue(vm.uiState.value.receipt!!.contains("任务库（已设日期"))
+            assertFalse(vm.uiState.value.receipt!!.contains("待安排"))
+            assertFalse(vm.uiState.value.receipt!!.contains("今日清单"))
+        }
+    }
 }

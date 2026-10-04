@@ -75,7 +75,12 @@ class TaskCaptureViewModel(private val repository: TaskCaptureRepository) : View
                     repository.saveDraft(current.draft)
                     repository.commit(current.draft, task)
                 }
-                val destination = if (task.scheduledForDate == null) "待安排" else "今日清单（未占具体时段）"
+                val today = java.time.LocalDate.now()
+                val destination = when {
+                    task.scheduledForDate == today || task.dueDate == today -> "今日清单（未占具体时段）"
+                    task.scheduledForDate == null && task.dueDate == null -> "待安排"
+                    else -> "任务库（已设日期，未占具体时段）"
+                }
                 uiState.value = TaskCaptureUiState(loading = false, receipt = "已保存“${task.displayName}”到$destination。")
             } catch (cancelled: CancellationException) { throw cancelled }
             catch (error: Exception) { uiState.value = current.copy(saving = false, error = "保存未成功，草稿和选项仍保留，请重试。") }
