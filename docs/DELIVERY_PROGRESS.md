@@ -1,14 +1,28 @@
 # Repland 交付进度
 
-更新日期：2026-10-03。用户已授权：先提交 GitHub 当前状态，再执行产品交付计划。
+更新日期：2026-10-05。用户已授权：先提交 GitHub 当前状态，再执行产品交付计划；各批自主续作，额度剩 1% 时保存进度并非强制关机。
 
 ## 基线
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
-- 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`。基线标签 `v0.1.16` 不移动。
-- 候选版本：`0.1.17 (1017)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`；编辑可靠性 `codex/editor-integrity`。基线标签 `v0.1.16` / `v0.1.17` 不移动。
+- 候选版本：`0.1.18 (1018)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
+
+## 0.1.18：已有任务编辑可靠性（2026-10-05）
+
+稳定目标 ID、按 ID 恢复字段、丢失目标禁止新建，Room updateExisting 事务拒绝已移除目标复活。保存中禁止重复提交/抽屉退出，失败保留可重试，实际提交后才关闭并回任务页显示成功提示。文本大数不得转未知；初始优先级/状态/日志不改，现有时段不自动重新安排。设计和边界见 EDITOR_INTEGRITY_2026-10-04.md。
+
+最终来源 `2247e8379e84fa97401413d9e0a6a4019ec56c9b`：113 单元、181 设备全套全部通过（失败/跳过 0），internal、release Kotlin/Manifest、离线边界通过。完整 XML 为 reports/repland-018-final-full.xml；本机 APK/清单保留 reports/retained/0.1.18。首跑 180/181 及两次 6/7 失败证据保留，不称首跑全过。
+
+当前包原位升级为 1018，只当前包运行；不读取/清除密钥或用户数据。手动将自己的 QA-draft17-only 补为 45 分钟，任务页仍为原 3 个事项；截图已查看。真实成功回执由设备 Activity 测试断言，不以手查错过的短时提示替代。QA-039 时间约束保存和 QA-040 PDF 预览仍待后续修复，M5 外部验收仍待测。
+
+| 文件 | SHA-256 |
+| --- | --- |
+| app-internal.apk | `d6a750baea1c7fec625f14cc246a2280ad05d45ecccbac0d374fece01bf63b2e` |
+| app-debug.apk | `2ef17835a94c008cb5d3989c4243a9a4439cf033e02062ce1bbd1871f3c1824c` |
+| app-debug-androidTest.apk | `16aaa471c1f69986181cc07e9cf3f0552ebe3c427d64ae543385afa97d0cdf90` |
 
 ## 0.1.17：独立任务创建新版（2026-10-04）
 

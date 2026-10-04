@@ -1,12 +1,24 @@
 # Repland 缺陷记录（2026-10-03）
 
+### QA-041 — 旧参与模式持久化测试依赖毫秒内随机事件顺序
+
+状态：0.1.18 测试已修正，最终来源 2247e83 的 181 项同源全套通过；不认定产品持久化失败。EngagementRepositoryTest 旧断言要求 events[0] 为 MODE_CHANGED，但实际返回 TIMELINE_OPENED。DAO 按 occurredAtEpochMillis、随机 UUID 排序，Repository 使用毫秒墙钟而未承诺同毫秒调用严格顺序。现按 type 定位并校验两条记录的 mode/subjectId，不放宽数量或内容，不修改产品时钟迎合断言。首跑 180/181 失败 XML 保留，不称首跑全过。
+
+### QA-040 — PDF 识别后未经内容预览即写入课程
+
+状态：源码确认，待独立验证/修复。P1 导入确认边界。TimeViewModel.readTimetable 解析到非空课程后直接 importRecognizedCourses，后者写 saveWeeklyBlocks 并进入 Idle；Review 类型存在却未在解析成功时设置。选择文件不等于用户确认识别内容，与 REAL_WORLD_ACCEPTANCE 中“编辑/取消/确认、预览前不写约束”冲突。尚未取得真实课表，不声称真实 PDF 已复现；应以隔离解析样例证明确认前零写入、取消零写入、确认原子提交及失败恢复。
+
+### QA-039 — 时间约束保存失败无恢复，编辑仍提前关闭
+
+状态：源码确认，待独立验证/修复。P1。TimeViewModel 的课程/例外/学期起点保存及删除直接在 viewModelScope 调用 Repository，没有非取消异常处理；Root 课程/例外编辑发起保存即关闭。数据库写入失败可能成为主线程协程未处理异常并丢失表单。编辑目标对象仅 remember、开关可恢复，也有重建丢身份风险。0.1.18 的 TaskEditor 修复不覆盖这些路径；通用抽屉返回测试通过不等于时间约束保存已可靠。
+
 ### QA-038 — 创建抽屉返回键同时关闭软键盘和抽屉
 
 状态：0.1.17 旧候选手动复现；最终 `37a81ca` 修复，35 同源专项及当前包真实 IME/下拉手查通过。P2。Material 3 1.3.0 原生 Back 的程序 hide 绕过 confirmValueChange，因此禁用其 eager Back，抽屉内 BackHandler 先收 IME，第二次关闭；拖动确认与保存中禁止隐藏保留。使用 Dialog 内键盘控制器/Insets，不用外层 Activity 窗口。测试依据 mWindowVisible 而非隐藏后仍为 true 的 mIsInputViewShown。真机预测返回及整套手势矩阵仍未验收。
 
 ### QA-037 — 已有任务编辑未保留目标身份和保存失败输入
 
-状态：源码确认，后续原计划回归待处理。P1。Root 的编辑开关为 rememberSaveable，但目标 Task 对象只 remember；Activity 重建后目标为空，编辑可能按新建提交。字段本身也只 remember，且发起异步保存便关闭，失败丢失填写内容；自定义时长文本超出 Int 范围会转 null，通过只检查 TaskDraft 的校验而被当作未知。该路径不属于 0.1.17 快速创建抽屉，不能据创建测试通过认定编辑已修复。须验证稳定目标、重建、失败保留、成功回执、重复提交与数值边界。
+状态：0.1.18 修复，最终 2247e83 的 181 项同源全套通过，含稳定目标/重建/数值边界/失败保留/真实回执/重复提交测试。P1。旧编辑开关为 rememberSaveable、目标对象却只 remember；重建可变新建。现恢复目标 ID 与字段，updateExisting 事务拒绝丢失身份；大数文本显式无效，提交后才关闭并回任务页显示回执。当前包只编辑自己的 QA-draft17-only 为 45 分钟，总数未增加。关闭后的磁盘编辑草稿、其他编辑器不在本条完成范围，见 EDITOR_INTEGRITY_2026-10-04.md。
 
 ### QA-036 — 清除本地数据后内存创建草稿可能被再次暂存
 
