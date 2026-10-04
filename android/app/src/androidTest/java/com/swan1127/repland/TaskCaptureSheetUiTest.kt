@@ -70,4 +70,30 @@ class TaskCaptureSheetUiTest {
         assertEquals(due, result!!.dueDate)
         assertNull(result!!.scheduledForDate)
     }
+    @Test fun real_soft_keyboard_back_hides_ime_before_dismissing_capture() {
+        val automation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
+        fun shell(command: String) = android.os.ParcelFileDescriptor.AutoCloseInputStream(
+            automation.executeShellCommand(command)).bufferedReader().use { it.readText().trim() }
+        val previous = shell("settings get secure show_ime_with_hard_keyboard")
+        var dismissals = 0
+        try {
+            shell("settings put secure show_ime_with_hard_keyboard 1")
+            rule.setContent { ReplandTheme {
+                TaskCaptureSheet("", { dismissals++ }, {}, draft = TaskCaptureDraft(text = "键盘返回测试"))
+            } }
+            rule.onNodeWithTag("task-capture-input").performClick()
+            // mIsInputViewShown describes the service's input layout, not window visibility.
+            rule.waitUntil(10_000) { shell("dumpsys input_method").contains("mWindowVisible=true") }
+            androidx.test.espresso.Espresso.pressBackUnconditionally()
+            rule.waitUntil(10_000) { !shell("dumpsys input_method").contains("mWindowVisible=true") }
+            rule.waitForIdle()
+            rule.onNodeWithTag("task-capture-input").assertIsDisplayed()
+            assertEquals(0, dismissals)
+            androidx.test.espresso.Espresso.pressBackUnconditionally()
+            rule.waitUntil(10_000) { dismissals == 1 }
+        } finally {
+            shell(if (previous == "null") "settings delete secure show_ime_with_hard_keyboard"
+                else "settings put secure show_ime_with_hard_keyboard $previous")
+        }
+    }
 }

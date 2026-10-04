@@ -1,5 +1,7 @@
 package com.swan1127.repland.ui.components
 
+import androidx.activity.compose.BackHandler
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -52,6 +54,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -65,9 +68,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,6 +98,7 @@ import com.swan1127.repland.domain.model.TaskName
 import com.swan1127.repland.domain.model.TaskPriority
 import com.swan1127.repland.domain.model.TaskStatus
 import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 /**
  * The default list representation is intentionally compact. Full task information belongs
@@ -305,39 +311,55 @@ fun TaskCaptureSheet(
 ) {
     var localDraft by rememberSaveable(stateSaver = CaptureDraftSaver) { mutableStateOf(TaskCaptureDraft(text = initialText)) }
     val current = draft ?: localDraft
-    val focus = LocalFocusManager.current
-    val keyboard = LocalSoftwareKeyboardController.current
+    val imeBridge = remember { CaptureImeBridge() }
+    val sheetScope = rememberCoroutineScope()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     fun update(value: TaskCaptureDraft) { if (!saving) { localDraft = value; onDraftChange(value) } }
-    fun step(value: TaskCaptureStage) { focus.clearFocus(); keyboard?.hide(); update(current.copy(stage = value)) }
+    fun step(value: TaskCaptureStage) { imeBridge.hide(); update(current.copy(stage = value)) }
     LaunchedEffect(initialText) {
         if (initialText.isNotBlank() && initialText != current.text) update(current.copy(text = initialText, stage = TaskCaptureStage.CAPTURE))
     }
     val latestSaving by rememberUpdatedState(saving)
-    val latestImeVisible by rememberUpdatedState(WindowInsets.isImeVisible)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true,
         confirmValueChange = { target ->
             when {
                 target != SheetValue.Hidden -> true
                 latestSaving -> false
-                latestImeVisible -> { focus.clearFocus(); keyboard?.hide(); false }
+                imeBridge.visible -> { imeBridge.hide(); false }
                 else -> true
             }
         })
 
     fun save(value: TaskCaptureDraft = current) {
         if (saving || value.text.isBlank()) return
-        focus.clearFocus(); keyboard?.hide()
+        imeBridge.hide()
         if (value != current) update(value)
         onSave(value.toTaskDraft())
     }
 
     ModalBottomSheet(
         modifier = Modifier.testTag("task-capture-sheet"),
-        onDismissRequest = { if (!saving) onDismiss() },
+        // Material 3 1.3.0 invokes this after a Back-triggered hide even when vetoed.
+        onDismissRequest = { if (!saving && !sheetState.isVisible) onDismiss() },
         sheetState = sheetState,
+        // 1.3.0's overlay Back callback bypasses confirmValueChange via hide().
+        properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
+        val sheetFocus = LocalFocusManager.current
+        val sheetKeyboard = LocalSoftwareKeyboardController.current
+        val sheetImeVisible = WindowInsets.isImeVisible
+        BackHandler {
+            if (!saving) {
+                if (sheetImeVisible) { sheetFocus.clearFocus(); sheetKeyboard?.hide() }
+                else sheetScope.launch { sheetState.hide(); if (!sheetState.isVisible) onDismiss() }
+            }
+        }
+        SideEffect {
+            // Read controllers/insets from the dialog, not the underlying Activity window.
+            imeBridge.visible = sheetImeVisible
+            imeBridge.hide = { sheetFocus.clearFocus(); sheetKeyboard?.hide() }
+        }
         BoxWithConstraints(Modifier.fillMaxWidth()) {
         val compactHeight = maxHeight < 480.dp
         Column(
@@ -355,7 +377,7 @@ fun TaskCaptureSheet(
                     Text(if (persisted) "草稿已保存在此设备，尚未创建任务" else if (current.text.isBlank()) "关闭可保留填写内容，尚未创建任务" else "尚未创建任务 · 正在暂存草稿",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                IconButton(onClick = onDismiss, enabled = !saving, modifier = Modifier.testTag("task-capture-close")) {
+                IconButton(onClick = { imeBridge.hide(); onDismiss() }, enabled = !saving, modifier = Modifier.testTag("task-capture-close")) {
                     Icon(Icons.Outlined.Close, contentDescription = "关闭并保留草稿")
                 }
             }
@@ -372,7 +394,7 @@ fun TaskCaptureSheet(
                         text = current.text,
                         onTextChange = { update(current.copy(text = it)) },
                         onMore = { if (current.text.isNotBlank()) step(TaskCaptureStage.DETAILS) },
-                        onVoice = onVoice?.let { action -> { focus.clearFocus(); keyboard?.hide(); action() } },
+                        onVoice = onVoice?.let { action -> { imeBridge.hide(); action() } },
                         category = current.category, priority = current.priority,
                         draft = current, enabled = !saving,
                     )
@@ -433,6 +455,12 @@ fun TaskCaptureSheet(
         confirmButton = { TextButton(onClick = { confirmDiscard = false; if (onDiscard != null) onDiscard() else update(TaskCaptureDraft()) },
             modifier = Modifier.testTag("task-capture-confirm-discard")) { Text("放弃草稿") } },
         dismissButton = { TextButton(onClick = { confirmDiscard = false }) { Text("继续编辑") } })
+}
+
+/** Event-only bridge across the ModalBottomSheet's separate window/composition. */
+private class CaptureImeBridge {
+    var visible: Boolean = false
+    var hide: () -> Unit = {}
 }
 
 @Composable
