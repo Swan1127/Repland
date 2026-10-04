@@ -1,6 +1,7 @@
 package com.swan1127.repland.ui
 
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 
@@ -1067,6 +1068,17 @@ fun ReplandApp(
                 taskViewModel.correctExecutionLog(log.taskId, log.id, feedback)
                 correctingLog = null
             },
+        )
+    }
+
+    (timeUiState.timetableImport as? TimetableImportState.Review)?.let { review ->
+        TimetableImportReviewDialog(
+            review = review,
+            onDismiss = timeViewModel::clearTimetableImport,
+            onConfirm = timeViewModel::confirmTimetableImport,
+            onSelected = timeViewModel::selectImportedCourse,
+            onEditCourse = timeViewModel::updateImportedCourse,
+            onClockAcknowledged = timeViewModel::acknowledgeImportClock,
         )
     }
 
@@ -2657,12 +2669,13 @@ private fun TimeScreen(
         onResult = { uri -> uri?.let(onImportPdf) },
     )
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 24.dp),
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("导入固定课程", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
         Text(
-            "选择课表 PDF 后，识别到的课程会直接进入日与周视图。课程在日轨道上可长按拖动调整时间。",
+            "选择课表 PDF 后先预览识别结果；勾选课程并核对节次时间，确认后才加入固定时间。",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -2683,6 +2696,8 @@ private fun TimeScreen(
                 )
                 Button(
                     onClick = { timetablePicker.launch(arrayOf("application/pdf")) },
+                    enabled = timetableImport != TimetableImportState.Reading &&
+                        (timetableImport as? TimetableImportState.Review)?.saving != true,
                     modifier = Modifier.fillMaxWidth().testTag("import-timetable-pdf"),
                 ) { Text(stringResource(R.string.import_timetable_pdf)) }
             }
@@ -2692,11 +2707,19 @@ private fun TimeScreen(
             is TimetableImportState.Review -> Unit
 
             TimetableImportState.Reading -> {
-                Text(
-                    "正在导入课表…",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                Text("正在识别课表，尚未写入课程…", color = MaterialTheme.colorScheme.primary)
+                TextButton(onClick = onClearTimetableImport) { Text("取消识别") }
+            }
+
+            is TimetableImportState.Completed -> {
+                Card(modifier = Modifier.fillMaxWidth().testTag("timetable-import-receipt")) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("已新增 ${timetableImport.addedCount} 门课程；跳过 ${timetableImport.skippedCount} 项重复课程。",
+                            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+                        Text("固定课程已同步到日与周视图，现有任务计划未自动重新安排。")
+                        TextButton(onClick = onClearTimetableImport) { Text("知道了") }
+                    }
+                }
             }
 
             is TimetableImportState.Failed -> {
@@ -2914,21 +2937,26 @@ private fun WeeklyBlockCard(
 
 @Composable
 private fun TimetableImportReviewDialog(
-    courses: List<ImportedCourse>,
+    review: TimetableImportState.Review,
     onDismiss: () -> Unit,
-    onConfirm: (List<ImportedCourse>) -> Unit,
+    onConfirm: () -> Unit,
+    onSelected: (String, Boolean) -> Unit,
+    onEditCourse: (ImportedCourse) -> Unit,
+    onClockAcknowledged: (Boolean) -> Unit,
 ) {
-    var reviewedCourses by remember(courses) { mutableStateOf(courses) }
-    var selectedIds by remember(courses) { mutableStateOf(courses.map(ImportedCourse::id).toSet()) }
-    var editingCourse by remember { mutableStateOf<ImportedCourse?>(null) }
-    val selectedCourses = reviewedCourses.filter { it.id in selectedIds }
+    var editingCourseId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedCourses = review.courses.filter { it.id in review.selectedIds }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        modifier = Modifier.testTag("timetable-import-review"),
+        onDismissRequest = { if (!review.saving) onDismiss() },
+        properties = androidx.compose.ui.window.DialogProperties(
+            dismissOnBackPress = !review.saving, dismissOnClickOutside = !review.saving,
+        ),
         title = { Text(stringResource(R.string.timetable_import_review)) },
         text = {
             Column(
                 modifier = Modifier
-                    .height(420.dp)
+                    .heightIn(max = 420.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
@@ -2937,24 +2965,18 @@ private fun TimetableImportReviewDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                reviewedCourses.forEach { course ->
+                review.courses.forEach { course ->
                     val draft = ClassPeriodClock.toWeeklyTimeBlockDraft(course)
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                selectedIds = if (course.id in selectedIds) {
-                                    selectedIds - course.id
-                                } else {
-                                    selectedIds + course.id
-                                }
-                            },
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Top,
                     ) {
                         Checkbox(
-                            checked = course.id in selectedIds,
-                            onCheckedChange = { checked ->
-                                selectedIds = if (checked) selectedIds + course.id else selectedIds - course.id
+                            checked = course.id in review.selectedIds,
+                            onCheckedChange = { onSelected(course.id, it) },
+                            enabled = !review.saving,
+                            modifier = Modifier.testTag("import-course-select-${course.id}").semantics {
+                                contentDescription = "选择课程：${course.title}"
                             },
                         )
                         Spacer(Modifier.width(8.dp))
@@ -2985,35 +3007,47 @@ private fun TimetableImportReviewDialog(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
-                            TextButton(onClick = { editingCourse = course }) {
+                            TextButton(onClick = { editingCourseId = course.id }, enabled = !review.saving,
+                                modifier = Modifier.testTag("import-course-edit-${course.id}")) {
                                 Text(stringResource(R.string.edit_imported_course))
                             }
                         }
                     }
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = review.clockAcknowledged, onCheckedChange = onClockAcknowledged,
+                        enabled = !review.saving, modifier = Modifier.testTag("import-clock-acknowledge").semantics {
+                            contentDescription = "已核对所选课程的默认节次时间"
+                        })
+                    Text("已核对所选课程的默认节次时间", style = MaterialTheme.typography.bodyMedium)
+                }
+                review.error?.let { message ->
+                    Text(message, color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag("timetable-import-error").semantics { liveRegion = LiveRegionMode.Polite })
+                }
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(selectedCourses) },
-                enabled = selectedCourses.isNotEmpty(),
+                onClick = onConfirm,
+                enabled = !review.saving && selectedCourses.isNotEmpty() && review.clockAcknowledged,
+                modifier = Modifier.testTag("timetable-import-confirm"),
             ) {
-                Text(stringResource(R.string.import_selected_format, selectedCourses.size))
+                Text(if (review.saving) "正在保存…" else stringResource(R.string.import_selected_format, selectedCourses.size))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss, enabled = !review.saving,
+                modifier = Modifier.testTag("timetable-import-cancel")) { Text(stringResource(R.string.cancel)) }
         },
     )
-    editingCourse?.let { course ->
+    review.courses.firstOrNull { it.id == editingCourseId }?.let { course ->
         ImportedCourseEditorDialog(
             course = course,
-            onDismiss = { editingCourse = null },
+            onDismiss = { editingCourseId = null },
             onSave = { updated ->
-                reviewedCourses = reviewedCourses.map { current ->
-                    if (current.id == updated.id) updated else current
-                }
-                editingCourse = null
+                onEditCourse(updated)
+                editingCourseId = null
             },
         )
     }
@@ -3025,13 +3059,13 @@ private fun ImportedCourseEditorDialog(
     onDismiss: () -> Unit,
     onSave: (ImportedCourse) -> Unit,
 ) {
-    var title by remember(course) { mutableStateOf(course.title) }
-    var dayOfWeek by remember(course) { mutableStateOf(course.dayOfWeek) }
-    var startPeriodText by remember(course) { mutableStateOf(course.startPeriod.toString()) }
-    var endPeriodText by remember(course) { mutableStateOf(course.endPeriod.toString()) }
-    var weekPattern by remember(course) { mutableStateOf(course.weekPattern.orEmpty()) }
-    var showValidationError by remember { mutableStateOf(false) }
-    AlertDialog(
+    var title by rememberSaveable(course.id) { mutableStateOf(course.title) }
+    var dayOfWeek by rememberSaveable(course.id) { mutableStateOf(course.dayOfWeek) }
+    var startPeriodText by rememberSaveable(course.id) { mutableStateOf(course.startPeriod.toString()) }
+    var endPeriodText by rememberSaveable(course.id) { mutableStateOf(course.endPeriod.toString()) }
+    var weekPattern by rememberSaveable(course.id) { mutableStateOf(course.weekPattern.orEmpty()) }
+    var showValidationError by rememberSaveable { mutableStateOf(false) }
+    EditorSheet(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.edit_imported_course)) },
         text = {
@@ -3042,7 +3076,7 @@ private fun ImportedCourseEditorDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("import-course-name"),
                     label = { Text(stringResource(R.string.time_block_name)) },
                     singleLine = true,
                 )
@@ -3056,7 +3090,7 @@ private fun ImportedCourseEditorDialog(
                 OutlinedTextField(
                     value = startPeriodText,
                     onValueChange = { startPeriodText = it.filter(Char::isDigit) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("import-course-start-period"),
                     label = { Text(stringResource(R.string.start_period)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -3064,7 +3098,7 @@ private fun ImportedCourseEditorDialog(
                 OutlinedTextField(
                     value = endPeriodText,
                     onValueChange = { endPeriodText = it.filter(Char::isDigit) },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("import-course-end-period"),
                     label = { Text(stringResource(R.string.end_period)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -3072,7 +3106,7 @@ private fun ImportedCourseEditorDialog(
                 OutlinedTextField(
                     value = weekPattern,
                     onValueChange = { weekPattern = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("import-course-week-pattern"),
                     label = { Text(stringResource(R.string.week_pattern_optional)) },
                     singleLine = true,
                 )
@@ -3100,6 +3134,7 @@ private fun ImportedCourseEditorDialog(
                         showValidationError = true
                     }
                 },
+                modifier = Modifier.testTag("import-course-save"),
             ) { Text(stringResource(R.string.save)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },

@@ -108,6 +108,23 @@ class RoomTimeRepository(
         touchTimeConstraints(now)
     }
 
+    override suspend fun importWeeklyBlocks(drafts: List<WeeklyTimeBlockDraft>): Int {
+        require(drafts.all(com.swan1127.repland.domain.model.TimeBlockValidator::isValid)) {
+            "课程名称或时间无效，请修改后重试"
+        }
+        require(drafts.all { it.id == null }) { "导入不能修改已有课程身份" }
+        val now = System.currentTimeMillis()
+        return timeDao.importWeeklyBlocksAndAdvance(drafts.map { draft ->
+            WeeklyTimeBlockEntity(
+                id = UUID.randomUUID().toString(), title = draft.title.trim(), kind = draft.kind.name,
+                dayOfWeek = draft.dayOfWeek.value, startMinute = draft.startMinute, endMinute = draft.endMinute,
+                weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
+                trackId = draft.trackId.ifBlank { "course" }, note = draft.note?.trim()?.takeIf(String::isNotBlank),
+                createdAtEpochMillis = now, updatedAtEpochMillis = now,
+            )
+        })
+    }
+
     override suspend fun deleteDateOverride(id: String) {
         timeDao.deleteDateOverride(id)
         touchTimeConstraints(System.currentTimeMillis())

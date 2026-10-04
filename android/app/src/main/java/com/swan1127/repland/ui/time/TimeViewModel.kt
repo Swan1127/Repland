@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 
 data class TimeUiState(
     val weeklyBlocks: List<WeeklyTimeBlock> = emptyList(),
@@ -36,7 +38,15 @@ sealed interface TimetableImportState {
 
     data object Reading : TimetableImportState
 
-    data class Review(val courses: List<ImportedCourse>) : TimetableImportState
+    data class Review(
+        val courses: List<ImportedCourse>,
+        val selectedIds: Set<String> = courses.map(ImportedCourse::id).toSet(),
+        val clockAcknowledged: Boolean = false,
+        val saving: Boolean = false,
+        val error: String? = null,
+    ) : TimetableImportState
+
+    data class Completed(val addedCount: Int, val skippedCount: Int) : TimetableImportState
 
     data class Failed(val message: String) : TimetableImportState
 }
@@ -44,8 +54,12 @@ sealed interface TimetableImportState {
 class TimeViewModel(
     private val timeRepository: TimeRepository,
     private val timetableImporter: PdfTimetableImporter,
+    private val parseTimetable: suspend (Uri) -> List<ImportedCourse> = timetableImporter::parse,
 ) : ViewModel() {
     private val timetableImport = MutableStateFlow<TimetableImportState>(TimetableImportState.Idle)
+    val timetableImportState: StateFlow<TimetableImportState> = timetableImport
+    private var importJob: Job? = null
+    private var importVersion = 0L
 
     val uiState: StateFlow<TimeUiState> = combine(
         timeRepository.observeWeeklyBlocks(),
@@ -91,67 +105,86 @@ class TimeViewModel(
     }
 
     fun readTimetable(uri: Uri) {
+        if ((timetableImport.value as? TimetableImportState.Review)?.saving == true) return
+        importJob?.cancel()
+        val version = ++importVersion
         timetableImport.value = TimetableImportState.Reading
-        viewModelScope.launch {
-            runCatching { timetableImporter.parse(uri) }
-                .onSuccess { courses ->
-                    if (courses.isEmpty()) {
-                        timetableImport.value = TimetableImportState.Failed("未识别到课程，请确认这是星期与节次网格形式的课表 PDF")
-                    } else {
-                        // Keep the existing Reading state until the repository write has finished.
-                        // Assigning it after launching the write can otherwise race with the Idle state.
-                        importRecognizedCourses(courses)
-                    }
-                }
-                .onFailure { error ->
-                    timetableImport.value = TimetableImportState.Failed(
-                        error.message ?: "导入失败，请换一个课表 PDF 后重试",
-                    )
-                }
+        importJob = viewModelScope.launch {
+            try {
+                val courses = parseTimetable(uri)
+                if (version != importVersion) return@launch
+                timetableImport.value = if (courses.isEmpty()) {
+                    TimetableImportState.Failed("未识别到课程，请确认这是星期与节次网格形式的课表 PDF")
+                } else if (courses.map(ImportedCourse::id).distinct().size != courses.size) {
+                    TimetableImportState.Failed("课程识别身份重复，请换一个课表 PDF 后重试")
+                } else TimetableImportState.Review(courses)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                if (version == importVersion) timetableImport.value = TimetableImportState.Failed(
+                    "无法识别此课表，请检查文件权限和 PDF 格式后重新选择；没有写入课程",
+                )
+            }
         }
     }
 
-    fun confirmTimetableImport(courses: List<ImportedCourse>) {
-        importRecognizedCourses(courses)
+    fun selectImportedCourse(id: String, selected: Boolean) {
+        updateReview { review ->
+            if (review.courses.none { it.id == id }) review
+            else review.copy(selectedIds = if (selected) review.selectedIds + id else review.selectedIds - id, error = null)
+        }
     }
 
-    /** File selection is already an explicit import action; recognized courses go straight to the timeline. */
-    private fun importRecognizedCourses(courses: List<ImportedCourse>) {
-        val existingKeys = uiState.value.weeklyBlocks.map { block ->
-            listOf(
-                block.title,
-                block.dayOfWeek,
-                block.startMinute,
-                block.endMinute,
-                block.weekPattern,
-            )
-        }.toSet()
-        val drafts = courses.mapNotNull(ClassPeriodClock::toWeeklyTimeBlockDraft)
-            .filter { draft ->
-                listOf(
-                    draft.title,
-                    draft.dayOfWeek,
-                    draft.startMinute,
-                    draft.endMinute,
-                    draft.weekPattern,
-                ) !in existingKeys
+    fun acknowledgeImportClock(acknowledged: Boolean) {
+        updateReview { it.copy(clockAcknowledged = acknowledged, error = null) }
+    }
+
+    fun updateImportedCourse(course: ImportedCourse) {
+        updateReview { review ->
+            val draft = ClassPeriodClock.toWeeklyTimeBlockDraft(course)
+            if (review.courses.none { it.id == course.id } || draft == null || !TimeBlockValidator.isValid(draft)) {
+                review.copy(error = "课程名称或节次无效，请修改后重试")
+            } else review.copy(courses = review.courses.map { if (it.id == course.id) course else it },
+                clockAcknowledged = false, error = null)
+        }
+    }
+
+    private fun updateReview(transform: (TimetableImportState.Review) -> TimetableImportState.Review) {
+        val review = timetableImport.value as? TimetableImportState.Review ?: return
+        if (!review.saving) timetableImport.value = transform(review)
+    }
+
+    fun confirmTimetableImport() {
+        val review = timetableImport.value as? TimetableImportState.Review ?: return
+        if (review.saving) return
+        val selected = review.courses.filter { it.id in review.selectedIds }
+        if (!review.clockAcknowledged || selected.isEmpty()) {
+            timetableImport.value = review.copy(error = "请至少选择一门课程并核对默认节次时间")
+            return
+        }
+        val drafts = selected.map(ClassPeriodClock::toWeeklyTimeBlockDraft)
+        if (drafts.any { it == null || !TimeBlockValidator.isValid(it) }) {
+            timetableImport.value = review.copy(error = "所选课程名称或节次无效，请编辑后重试")
+            return
+        }
+        timetableImport.value = review.copy(saving = true, error = null)
+        importJob = viewModelScope.launch {
+            try {
+                val added = timeRepository.importWeeklyBlocks(drafts.filterNotNull())
+                timetableImport.value = TimetableImportState.Completed(added, selected.size - added)
+            } catch (cancelled: CancellationException) {
+                timetableImport.value = review
+                throw cancelled
+            } catch (_: Exception) {
+                timetableImport.value = review.copy(error = "课程未保存，预览仍保留；请重试")
             }
-            .distinctBy { draft ->
-                listOf(
-                    draft.title.trim(),
-                    draft.dayOfWeek,
-                    draft.startMinute,
-                    draft.endMinute,
-                    draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
-                )
-            }
-        viewModelScope.launch {
-            timeRepository.saveWeeklyBlocks(drafts)
-            timetableImport.value = TimetableImportState.Idle
         }
     }
 
     fun clearTimetableImport() {
+        if ((timetableImport.value as? TimetableImportState.Review)?.saving == true) return
+        ++importVersion
+        importJob?.cancel()
         timetableImport.value = TimetableImportState.Idle
     }
 

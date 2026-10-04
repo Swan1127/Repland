@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -49,4 +50,20 @@ interface TimeDao {
 
     @Query("DELETE FROM date_overrides WHERE id = :id")
     suspend fun deleteDateOverride(id: String)
+
+    @Transaction
+    suspend fun importWeeklyBlocksAndAdvance(blocks: List<WeeklyTimeBlockEntity>): Int {
+        fun key(block: WeeklyTimeBlockEntity) = listOf(block.title.trim(), block.kind, block.dayOfWeek,
+            block.startMinute, block.endMinute, block.weekPattern?.trim()?.takeIf(String::isNotBlank), block.trackId)
+        val existingKeys = getAllWeeklyBlocks().map(::key).toSet()
+        val additions = blocks.distinctBy(::key).filter { key(it) !in existingKeys }
+        if (additions.isEmpty()) return 0
+        insertWeeklyBlocks(additions)
+        val current = getSemesterSettings()
+        insertSemesterSettings(SemesterSettingsEntity(
+            firstWeekMondayEpochDay = current?.firstWeekMondayEpochDay,
+            updatedAtEpochMillis = maxOf(System.currentTimeMillis(), (current?.updatedAtEpochMillis ?: 0L) + 1),
+        ))
+        return additions.size
+    }
 }

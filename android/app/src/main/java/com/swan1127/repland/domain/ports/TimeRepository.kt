@@ -20,6 +20,9 @@ interface TimeRepository {
 
     suspend fun saveWeeklyBlocks(drafts: List<WeeklyTimeBlockDraft>)
 
+    /** Confirmed import: deduplicate against the current store and advance constraints atomically. */
+    suspend fun importWeeklyBlocks(drafts: List<WeeklyTimeBlockDraft>): Int
+
     suspend fun deleteWeeklyBlock(id: String)
 
     suspend fun saveDateOverride(draft: DateOverrideDraft)

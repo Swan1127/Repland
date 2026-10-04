@@ -104,11 +104,11 @@
     <string name="semester_week_date">日期（YYYY-MM-DD）</string>
     <string name="semester_week_editor_hint">例如 2026-09-07</string>
     <string name="semester_week_error">请输入一个周一的有效日期。</string>
-    <string name="import_timetable_hint">可从学校课表 PDF 识别课程，导入后直接加入固定时间。</string>
+    <string name="import_timetable_hint">在本机识别学校课表 PDF；先预览、核对并选择，确认后才加入固定时间。</string>
     <string name="import_timetable_pdf">导入课表 PDF</string>
     <string name="reading_timetable">正在本机读取课表…</string>
     <string name="timetable_import_review">确认导入课程</string>
-    <string name="import_default_period_note">课表按“节次”而非钟点记录。系统先按默认节次时间导入；导入后可在固定时间中逐项修改。</string>
+    <string name="import_default_period_note">以下钟点由默认节次表转换，不代表你学校的真实上课时间。请逐项核对；若不一致，先取消并手动添加课程，不要直接导入。</string>
     <string name="course_period_format">%1$s · 第%2$d-%3$d节</string>
     <string name="import_selected_format">导入已选（%1$d）</string>
     <string name="edit_imported_course">修改导入课程</string>
