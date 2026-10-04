@@ -47,7 +47,10 @@ class QuickAvailabilityTest {
             plans.accept(state.draft!!)
             assertNotNull(plans.observeCurrentPlan().first())
             vm.saveAvailabilityAndGenerate(value, CategoryPreferences.defaults) { saves++ }
-            withTimeout(5_000) { vm.uiState.first { it.draft?.sourceRevision != state.draft!!.sourceRevision && !it.isWorking } }
+            // accept() clears the old draft. Null is not a successfully generated new preview.
+            withTimeout(5_000) { vm.uiState.first {
+                it.draft != null && it.draft.sourceRevision != state.draft!!.sourceRevision && !it.isWorking
+            } }
             assertEquals(2, saves); assertEquals(1, times.observeDateOverrides().first().size)
             assertTrue(times.observeWeeklyBlocks().first().isEmpty())
         } finally { store.clear(); db.close() }

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import com.swan1127.repland.domain.model.*
 import com.swan1127.repland.ui.time.*
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
@@ -48,6 +49,13 @@ class TimetableConfirmationUiTest {
         waitTag("timetable-import-review")
         return vm().timetableImportState.value as TimetableImportState.Review
     }
+    private fun screenshot(name: String) {
+        rule.waitForIdle()
+        val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        try { File(rule.activity.getExternalFilesDir(null), name).outputStream().use {
+            check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        } } finally { bitmap.recycle() }
+    }
 
     @Test fun preview_and_course_edit_survive_recreation_then_cancel_without_writes() {
         openImportPage()
@@ -88,9 +96,11 @@ class TimetableConfirmationUiTest {
             assertEquals(before, runBlocking { repo.observeWeeklyBlocks().first() })
             rule.onNodeWithTag("timetable-import-confirm").assertIsNotEnabled()
             rule.onNodeWithTag("import-clock-acknowledge").performScrollTo().performClick()
+            screenshot("qa-timetable19-preview.png")
             rule.onNodeWithTag("timetable-import-confirm").assertIsEnabled().performClick()
             waitTag("timetable-import-receipt")
             rule.onNodeWithText("已新增 1 门课程；跳过 0 项重复课程。").assertIsDisplayed()
+            screenshot("qa-timetable19-receipt.png")
             val after = runBlocking { repo.observeWeeklyBlocks().first() }
             assertEquals(before.size + 1, after.size)
             val saved = after.single { it.title == course.title }
