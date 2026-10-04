@@ -71,6 +71,7 @@ class AppContainer(context: Context) {
     ).build()
 
     val taskRepository: TaskRepository = RoomTaskRepository(database)
+    val taskCaptureRepository = com.swan1127.repland.data.room.RoomTaskCaptureRepository(database)
     val executionSessionRepository = com.swan1127.repland.data.room.RoomExecutionSessionRepository(database)
     val timeRepository: TimeRepository = RoomTimeRepository(database.timeDao())
     val planRepository: PlanRepository = RoomPlanRepository(database)

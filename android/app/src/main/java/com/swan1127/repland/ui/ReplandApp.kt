@@ -66,6 +66,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -92,6 +93,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.swan1127.repland.R
@@ -224,7 +228,18 @@ fun ReplandApp(
     aiProviderConfigViewModel: AiProviderConfigViewModel,
     arrangementAssistantViewModel: ArrangementAssistantViewModel,
     engagementViewModel: EngagementViewModel,
+    taskCaptureViewModel: com.swan1127.repland.ui.tasks.TaskCaptureViewModel,
 ) {
+    val taskCaptureUiState by taskCaptureViewModel.uiState.collectAsStateWithLifecycle()
+    val captureLifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(captureLifecycle, taskCaptureViewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) taskCaptureViewModel.retain()
+        }
+        captureLifecycle.addObserver(observer)
+        onDispose { captureLifecycle.removeObserver(observer) }
+    }
+    val captureSnackbar = remember { androidx.compose.material3.SnackbarHostState() }
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val executionSession by taskViewModel.activeSession.collectAsStateWithLifecycle()
     val executionBusy by taskViewModel.sessionBusy.collectAsStateWithLifecycle()
@@ -483,6 +498,7 @@ fun ReplandApp(
         )
     } else {
         Scaffold(
+            snackbarHost = { androidx.compose.material3.SnackbarHost(captureSnackbar) },
             topBar = {
                 if (selectedTab == AppTab.TASKS) TaskPageAppBar(
                     title = stringResource(selectedTab.titleRes),
@@ -842,16 +858,33 @@ fun ReplandApp(
             onFinish = { outcome, feedback -> taskViewModel.finishSession(executionSession!!.id, outcome, feedback) },
         )
     }
-    if (showTaskCapture) {
+    LaunchedEffect(taskCaptureUiState.receipt) {
+        taskCaptureUiState.receipt?.let { receipt ->
+            showTaskCapture = false
+            taskEditorSeed = ""
+            captureSnackbar.showSnackbar(receipt)
+            // Consuming the effect key earlier would cancel the visible Snackbar.
+            taskCaptureViewModel.dismissReceipt()
+        }
+    }
+    if (showTaskCapture && taskCaptureUiState.loadFailed && !taskCaptureUiState.loading) {
+        AlertDialog(onDismissRequest = { showTaskCapture = false }, title = { Text("草稿暂时无法读取") },
+            text = { Text(taskCaptureUiState.error.orEmpty()) },
+            confirmButton = { TextButton(onClick = taskCaptureViewModel::retryLoad) { Text("重试") } },
+            dismissButton = { TextButton(onClick = { showTaskCapture = false }) { Text("返回") } })
+    }
+    if (showTaskCapture && !taskCaptureUiState.loading && !taskCaptureUiState.loadFailed) {
         TaskCaptureSheet(
             initialText = taskEditorSeed,
-            onVoice = { showTaskCapture = false; showVoiceComposer = true; voiceError = false },
-            onDismiss = { showTaskCapture = false; taskEditorSeed = "" },
-            onSave = {
-                taskViewModel.saveTask(it)
-                showTaskCapture = false
-                taskEditorSeed = ""
-            },
+            draft = taskCaptureUiState.draft,
+            onDraftChange = taskCaptureViewModel::update,
+            saving = taskCaptureUiState.saving,
+            persisted = taskCaptureUiState.persisted,
+            saveError = taskCaptureUiState.error,
+            onDiscard = taskCaptureViewModel::discard,
+            onVoice = { taskCaptureViewModel.retain(); taskEditorSeed = ""; voiceTranscript = taskCaptureUiState.draft.text; showTaskCapture = false; showVoiceComposer = true; voiceError = false },
+            onDismiss = { taskCaptureViewModel.retain(); showTaskCapture = false; taskEditorSeed = "" },
+            onSave = taskCaptureViewModel::save,
         )
     }
 

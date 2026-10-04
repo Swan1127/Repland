@@ -29,6 +29,9 @@ class MainActivity : ComponentActivity() {
                 val taskViewModel: TaskViewModel = viewModel(
                     factory = TaskViewModel.Factory(appContainer.taskRepository, appContainer.executionSessionRepository),
                 )
+                val taskCaptureViewModel: com.swan1127.repland.ui.tasks.TaskCaptureViewModel = viewModel(
+                    factory = com.swan1127.repland.ui.tasks.TaskCaptureViewModel.Factory(appContainer.taskCaptureRepository),
+                )
                 val timeViewModel: TimeViewModel = viewModel(
                     factory = TimeViewModel.Factory(
                         appContainer.timeRepository,
@@ -90,6 +93,7 @@ class MainActivity : ComponentActivity() {
                     aiProviderConfigViewModel,
                     arrangementAssistantViewModel,
                     engagementViewModel,
+                    taskCaptureViewModel,
                 )
             }
         }

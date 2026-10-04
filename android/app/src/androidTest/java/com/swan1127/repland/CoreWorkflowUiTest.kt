@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +39,7 @@ class CoreWorkflowUiTest {
     fun staged_capture_keeps_draft_unsaved_until_duration_is_confirmed() {
         val taskName = "分步创建 ${System.currentTimeMillis()}"
         openTaskCapture()
-        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
         waitForTag("task-capture-choose-duration")
         composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
@@ -62,7 +64,7 @@ class CoreWorkflowUiTest {
     fun capture_exposes_a_free_deadline_picker_beyond_shortcuts() {
         val taskName = "自由截止日 ${System.currentTimeMillis()}"
         openTaskCapture()
-        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
         waitForTag("task-capture-choose-deadline")
         composeRule.onNodeWithTag("task-capture-choose-deadline").performClick()
@@ -80,7 +82,7 @@ class CoreWorkflowUiTest {
     fun capture_accepts_a_custom_duration_without_forcing_a_preset() {
         val taskName = "自定义时长 ${System.currentTimeMillis()}"
         openTaskCapture()
-        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
         waitForTag("task-capture-choose-duration")
         composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
@@ -105,7 +107,7 @@ class CoreWorkflowUiTest {
     fun status_start_then_complete_without_timer_keeps_actual_duration_unknown() {
         val taskName = "直接完成 ${System.currentTimeMillis()}"
         openTaskCapture()
-        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
         composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
         composeRule.onNodeWithTag("task-capture-duration-15").performClick()
@@ -138,9 +140,7 @@ class CoreWorkflowUiTest {
 
     @Test
     fun editable_voice_capture_can_become_a_task_draft_without_auto_saving() {
-        composeRule.onNodeWithTag("navigation-tasks").performClick()
-        waitForTag("add-task")
-        composeRule.onNodeWithTag("add-task").performClick()
+        openTaskCapture()
         waitForTag("voice-capture")
         composeRule.onNodeWithTag("voice-capture").performClick()
         waitForTag("voice-transcript")
@@ -156,14 +156,12 @@ class CoreWorkflowUiTest {
         val feedbackContent = "已完成 UI 回归反馈"
 
         // Creation belongs to the task inbox; the day canvas is now for arranging objects.
-        composeRule.onNodeWithTag("navigation-tasks").performClick()
-        waitForTag("add-task")
-        composeRule.onNodeWithTag("add-task").performClick()
-        waitForTag("task-capture-input")
-        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
 
         waitForTag("task-card-$taskName")
+        composeRule.onNodeWithText("已保存“$taskName”到待安排。", useUnmergedTree = true).assertExists()
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
         waitForTag("task-detail-scroll")
         repeat(4) {
@@ -220,11 +218,8 @@ class CoreWorkflowUiTest {
             }
         }
 
-        composeRule.onNodeWithTag("navigation-tasks").performClick()
-        waitForTag("add-task")
-        composeRule.onNodeWithTag("add-task").performClick()
-        waitForTag("task-capture-input")
-        composeRule.onNodeWithTag("task-capture-input").performTextInput(taskName)
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
         waitForTag("task-card-$taskName")
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
@@ -265,11 +260,52 @@ class CoreWorkflowUiTest {
         }
     }
 
+    @Test
+    fun capture_close_reopen_and_activity_recreation_keep_custom_duration_without_creating_task() {
+        val taskName = "草稿恢复 ${System.currentTimeMillis()}"
+        openTaskCapture()
+        composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
+        composeRule.onNodeWithTag("task-capture-arrange-today").performClick()
+        composeRule.onNodeWithTag("task-capture-choose-duration").performClick()
+        composeRule.onNodeWithTag("task-capture-duration-custom").performClick()
+        composeRule.onNodeWithTag("task-capture-duration-custom-input").performTextReplacement("45")
+        composeRule.onNodeWithTag("task-capture-close").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag("add-task").performClick()
+        waitForTag("task-capture-duration-custom-input")
+        composeRule.onNodeWithTag("task-capture-duration-custom-input").assertTextContains("45")
+        composeRule.activityRule.scenario.recreate()
+        waitForTag("task-capture-duration-custom-input")
+        composeRule.onNodeWithTag("task-capture-duration-custom-input").assertTextContains("45")
+        val container = (composeRule.activity.application as ReplandApplication).appContainer
+        assertFalse(runBlocking { container.taskRepository.observeTasks().first().any { it.displayName == taskName } })
+        composeRule.onNodeWithTag("task-capture-back").performClick()
+        composeRule.onNodeWithTag("task-capture-back").performClick()
+        composeRule.onNodeWithTag("task-capture-input").assertTextContains(taskName)
+        composeRule.onNodeWithTag("task-capture-discard").performClick()
+        assertFalse(runBlocking { container.taskRepository.observeTasks().first().any { it.displayName == taskName } })
+        composeRule.onNodeWithTag("task-capture-confirm-discard").performClick()
+        composeRule.waitUntil(10_000) {
+            composeRule.onNodeWithTag("task-capture-input").fetchSemanticsNode().config[SemanticsProperties.EditableText].text.isEmpty()
+        }
+        composeRule.onNodeWithTag("task-capture-close").performClick()
+    }
+
     private fun openTaskCapture() {
         waitForTag("navigation-tasks")
         composeRule.onNodeWithTag("navigation-tasks").performClick()
         waitForTag("add-task")
         composeRule.onNodeWithTag("add-task").performClick()
+        composeRule.waitUntil(10_000) {
+            composeRule.onAllNodesWithTag("task-capture-input").fetchSemanticsNodes().isNotEmpty() ||
+                composeRule.onAllNodesWithTag("task-capture-back").fetchSemanticsNodes().isNotEmpty()
+        }
+        repeat(2) {
+            if (composeRule.onAllNodesWithTag("task-capture-input").fetchSemanticsNodes().isEmpty()) {
+                composeRule.onNodeWithTag("task-capture-back").performClick()
+                composeRule.waitForIdle()
+            }
+        }
         waitForTag("task-capture-input")
     }
 }
