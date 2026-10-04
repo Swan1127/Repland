@@ -162,6 +162,8 @@ import com.swan1127.repland.domain.model.WeeklyTimeBlockDraft
 import com.swan1127.repland.domain.model.UnscheduledReason
 import com.swan1127.repland.domain.model.PlanDraftReview
 import com.swan1127.repland.ui.time.TimeViewModel
+import com.swan1127.repland.ui.time.TimeMutationKind
+import androidx.compose.runtime.key
 import com.swan1127.repland.ui.time.TimetableImportState
 import com.swan1127.repland.ui.plan.PlanViewModel
 import com.swan1127.repland.ui.preferences.CategoryPreferenceViewModel
@@ -252,6 +254,7 @@ fun ReplandApp(
     val executionFinished by taskViewModel.sessionFinished.collectAsStateWithLifecycle()
     var showExecutionSession by rememberSaveable { mutableStateOf(false) }
     val timeUiState by timeViewModel.uiState.collectAsStateWithLifecycle()
+    val timeMutation by timeViewModel.mutationState.collectAsStateWithLifecycle()
     val planUiState by planViewModel.uiState.collectAsStateWithLifecycle()
     val workspaceUiState by planViewModel.workspaceUiState.collectAsStateWithLifecycle()
     val categoryPreferenceUiState by categoryPreferenceViewModel.uiState.collectAsStateWithLifecycle()
@@ -321,13 +324,17 @@ fun ReplandApp(
     var cancellingTask by remember { mutableStateOf<Task?>(null) }
     var replacingTask by remember { mutableStateOf<Task?>(null) }
     var correctingLog by remember { mutableStateOf<TaskExecutionLog?>(null) }
-    var weeklyBlockEditorTarget by remember { mutableStateOf<WeeklyTimeBlock?>(null) }
+    var weeklyBlockEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    val weeklyBlockEditorTarget = weeklyBlockEditorId?.let { id -> timeUiState.weeklyBlocks.firstOrNull { it.id == id } }
     var showWeeklyBlockEditor by rememberSaveable { mutableStateOf(false) }
-    var weeklyBlockInitialKind by remember { mutableStateOf(TimeBlockKind.COURSE) }
-    var dateOverrideEditorTarget by remember { mutableStateOf<DateOverride?>(null) }
+    var weeklyBlockInitialKind by rememberSaveable { mutableStateOf(TimeBlockKind.COURSE) }
+    var dateOverrideEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    val dateOverrideEditorTarget = dateOverrideEditorId?.let { id -> timeUiState.dateOverrides.firstOrNull { it.id == id } }
     var showDateOverrideEditor by rememberSaveable { mutableStateOf(false) }
-    var deletingWeeklyBlock by remember { mutableStateOf<WeeklyTimeBlock?>(null) }
-    var deletingDateOverride by remember { mutableStateOf<DateOverride?>(null) }
+    var deletingWeeklyId by rememberSaveable { mutableStateOf<String?>(null) }
+    val deletingWeeklyBlock = deletingWeeklyId?.let { id -> timeUiState.weeklyBlocks.firstOrNull { it.id == id } }
+    var deletingOverrideId by rememberSaveable { mutableStateOf<String?>(null) }
+    val deletingDateOverride = deletingOverrideId?.let { id -> timeUiState.dateOverrides.firstOrNull { it.id == id } }
     var showSemesterStartEditor by rememberSaveable { mutableStateOf(false) }
     var showPlanOverview by rememberSaveable { mutableStateOf(false) }
     var showClearPlanConfirmation by rememberSaveable { mutableStateOf(false) }
@@ -518,7 +525,7 @@ fun ReplandApp(
                     title = {
                         Column {
                             Text(
-                                if (selectedTab == AppTab.TIME) "导入课表" else stringResource(selectedTab.titleRes),
+                                if (selectedTab == AppTab.TIME) "时间设置" else stringResource(selectedTab.titleRes),
                                 style = MaterialTheme.typography.titleLarge,
                             )
                             if (selectedTab == AppTab.TODAY) {
@@ -614,17 +621,19 @@ fun ReplandApp(
                                 }
 
                                 entry.id.startsWith("weekly:") -> {
-                                    weeklyBlockEditorTarget = timeUiState.weeklyBlocks.firstOrNull {
+                                    timeViewModel.resetMutation()
+                                    weeklyBlockEditorId = timeUiState.weeklyBlocks.firstOrNull {
                                         it.id == entry.id.removePrefix("weekly:")
-                                    }
-                                    showWeeklyBlockEditor = weeklyBlockEditorTarget != null
+                                    }?.id
+                                    showWeeklyBlockEditor = weeklyBlockEditorId != null
                                 }
 
                                 entry.id.startsWith("override:") -> {
-                                    dateOverrideEditorTarget = timeUiState.dateOverrides.firstOrNull {
+                                    timeViewModel.resetMutation()
+                                    dateOverrideEditorId = timeUiState.dateOverrides.firstOrNull {
                                         it.id == entry.id.removePrefix("override:")
-                                    }
-                                    showDateOverrideEditor = dateOverrideEditorTarget != null
+                                    }?.id
+                                    showDateOverrideEditor = dateOverrideEditorId != null
                                 }
                             }
                         },
@@ -813,11 +822,21 @@ fun ReplandApp(
                     )
 
                     AppTab.TIME -> TimeScreen(
+                        state = timeUiState,
+                        busy = timeMutation.busy,
+                        onAddWeekly = { timeViewModel.resetMutation(); weeklyBlockEditorId = null; weeklyBlockInitialKind = TimeBlockKind.COURSE; showWeeklyBlockEditor = true },
+                        onEditWeekly = { timeViewModel.resetMutation(); weeklyBlockEditorId = it.id; showWeeklyBlockEditor = true },
+                        onDeleteWeekly = { timeViewModel.resetMutation(); deletingWeeklyId = it.id },
+                        onAddOverride = { timeViewModel.resetMutation(); dateOverrideEditorId = null; showDateOverrideEditor = true },
+                        onEditOverride = { timeViewModel.resetMutation(); dateOverrideEditorId = it.id; showDateOverrideEditor = true },
+                        onDeleteOverride = { timeViewModel.resetMutation(); deletingOverrideId = it.id },
+                        onEditSemester = { timeViewModel.resetMutation(); showSemesterStartEditor = true },
                         timetableImport = timeUiState.timetableImport,
                         onImportPdf = timeViewModel::readTimetable,
                         onClearTimetableImport = timeViewModel::clearTimetableImport,
                     )
                     AppTab.MINE -> MineScreen(
+                        onOpenTimeSettings = { timeReturnTab = AppTab.MINE; selectedTab = AppTab.TIME },
                         weights = categoryPreferenceUiState.weights,
                         profileEvidence = profileEvidenceUiState.evidence,
                         isLoading = categoryPreferenceUiState.isLoading ||
@@ -1082,61 +1101,85 @@ fun ReplandApp(
         )
     }
 
-    if (showWeeklyBlockEditor) {
+    LaunchedEffect(timeMutation.receipt) {
+        timeMutation.receipt?.let { receipt ->
+            when (timeMutation.kind) {
+                TimeMutationKind.WEEKLY_SAVE -> if (weeklyBlockEditorId == timeMutation.targetId) showWeeklyBlockEditor = false
+                TimeMutationKind.OVERRIDE_SAVE -> if (dateOverrideEditorId == timeMutation.targetId) showDateOverrideEditor = false
+                TimeMutationKind.SEMESTER_SAVE -> showSemesterStartEditor = false
+                TimeMutationKind.WEEKLY_DELETE -> if (deletingWeeklyId == timeMutation.targetId) deletingWeeklyId = null
+                TimeMutationKind.OVERRIDE_DELETE -> if (deletingOverrideId == timeMutation.targetId) deletingOverrideId = null
+                null -> Unit
+            }
+            captureSnackbar.showSnackbar(receipt)
+            timeViewModel.resetMutation()
+        }
+    }
+    if (!timeUiState.isLoading && !timeMutation.busy && timeMutation.receipt == null && ((showWeeklyBlockEditor && weeklyBlockEditorId != null && weeklyBlockEditorTarget == null) ||
+        (showDateOverrideEditor && dateOverrideEditorId != null && dateOverrideEditorTarget == null) ||
+        (deletingWeeklyId != null && deletingWeeklyBlock == null) || (deletingOverrideId != null && deletingDateOverride == null))) {
+        AlertDialog(onDismissRequest = {}, title = { Text("原时间设置已不存在") },
+            text = { Text("请关闭并重新选择，不会把本次编辑保存为新的时间设置。") },
+            confirmButton = { TextButton(onClick = { showWeeklyBlockEditor = false; showDateOverrideEditor = false;
+                deletingWeeklyId = null; deletingOverrideId = null; timeViewModel.resetMutation() }) { Text("关闭") } })
+    }
+    if (showWeeklyBlockEditor && !timeUiState.isLoading && (weeklyBlockEditorId == null || weeklyBlockEditorTarget != null)) {
         WeeklyTimeBlockEditorDialog(
             block = weeklyBlockEditorTarget,
             initialKind = weeklyBlockInitialKind,
-            onDismiss = { showWeeklyBlockEditor = false; weeklyBlockInitialKind = TimeBlockKind.COURSE },
-            onSave = {
-                timeViewModel.saveWeeklyBlock(it)
-                showWeeklyBlockEditor = false
-                weeklyBlockInitialKind = TimeBlockKind.COURSE
-            },
+            busy = timeMutation.busy,
+            error = timeMutation.error,
+            onDismiss = { if (!timeMutation.busy) { showWeeklyBlockEditor = false; timeViewModel.resetMutation() } },
+            onSave = timeViewModel::saveWeeklyBlock,
         )
     }
 
-    if (showDateOverrideEditor) {
+    if (showDateOverrideEditor && !timeUiState.isLoading && (dateOverrideEditorId == null || dateOverrideEditorTarget != null)) {
         DateOverrideEditorDialog(
             dateOverride = dateOverrideEditorTarget,
-            onDismiss = { showDateOverrideEditor = false },
-            onSave = {
-                timeViewModel.saveDateOverride(it)
-                showDateOverrideEditor = false
-            },
+            busy = timeMutation.busy,
+            error = timeMutation.error,
+            onDismiss = { if (!timeMutation.busy) { showDateOverrideEditor = false; timeViewModel.resetMutation() } },
+            onSave = timeViewModel::saveDateOverride,
         )
     }
 
-    if (showSemesterStartEditor) {
+    if (showSemesterStartEditor && !timeUiState.isLoading) {
         SemesterStartEditorDialog(
             semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
-            onDismiss = { showSemesterStartEditor = false },
-            onSave = {
-                timeViewModel.saveSemesterFirstWeekMonday(it)
-                showSemesterStartEditor = false
-            },
+            busy = timeMutation.busy,
+            error = timeMutation.error,
+            onDismiss = { if (!timeMutation.busy) { showSemesterStartEditor = false; timeViewModel.resetMutation() } },
+            onSave = timeViewModel::saveSemesterFirstWeekMonday,
         )
     }
 
     deletingWeeklyBlock?.let { block ->
         DeleteTimeEntryDialog(
             title = block.title,
-            onDismiss = { deletingWeeklyBlock = null },
-            onConfirm = {
-                timeViewModel.deleteWeeklyBlock(block.id)
-                deletingWeeklyBlock = null
-            },
+            busy = timeMutation.busy,
+            error = timeMutation.error,
+            onDismiss = { if (!timeMutation.busy) { deletingWeeklyId = null; timeViewModel.resetMutation() } },
+            onConfirm = { timeViewModel.deleteWeeklyBlock(block.id) },
         )
     }
 
     deletingDateOverride?.let { dateOverride ->
         DeleteTimeEntryDialog(
             title = dateOverride.title,
-            onDismiss = { deletingDateOverride = null },
-            onConfirm = {
-                timeViewModel.deleteDateOverride(dateOverride.id)
-                deletingDateOverride = null
-            },
+            busy = timeMutation.busy,
+            error = timeMutation.error,
+            onDismiss = { if (!timeMutation.busy) { deletingOverrideId = null; timeViewModel.resetMutation() } },
+            onConfirm = { timeViewModel.deleteDateOverride(dateOverride.id) },
         )
+    }
+
+    if (timeMutation.error != null && !showWeeklyBlockEditor && !showDateOverrideEditor && !showSemesterStartEditor &&
+        deletingWeeklyId == null && deletingOverrideId == null) {
+        AlertDialog(onDismissRequest = timeViewModel::resetMutation, title = { Text("时间设置未保存") },
+            text = { Text(timeMutation.error.orEmpty()) },
+            confirmButton = { TextButton(onClick = timeViewModel::retryMutation) { Text("重试") } },
+            dismissButton = { TextButton(onClick = timeViewModel::resetMutation) { Text("取消") } })
     }
 
     planUiState.errorMessage?.let { message ->
@@ -2660,6 +2703,15 @@ private fun AiRequestPreviewDialog(
 
 @Composable
 private fun TimeScreen(
+    state: com.swan1127.repland.ui.time.TimeUiState,
+    busy: Boolean,
+    onAddWeekly: () -> Unit,
+    onEditWeekly: (WeeklyTimeBlock) -> Unit,
+    onDeleteWeekly: (WeeklyTimeBlock) -> Unit,
+    onAddOverride: () -> Unit,
+    onEditOverride: (DateOverride) -> Unit,
+    onDeleteOverride: (DateOverride) -> Unit,
+    onEditSemester: () -> Unit,
     timetableImport: TimetableImportState,
     onImportPdf: (Uri) -> Unit,
     onClearTimetableImport: () -> Unit,
@@ -2696,7 +2748,7 @@ private fun TimeScreen(
                 )
                 Button(
                     onClick = { timetablePicker.launch(arrayOf("application/pdf")) },
-                    enabled = timetableImport != TimetableImportState.Reading &&
+                    enabled = !busy && timetableImport != TimetableImportState.Reading &&
                         (timetableImport as? TimetableImportState.Review)?.saving != true,
                     modifier = Modifier.fillMaxWidth().testTag("import-timetable-pdf"),
                 ) { Text(stringResource(R.string.import_timetable_pdf)) }
@@ -2747,6 +2799,24 @@ private fun TimeScreen(
                 }
             }
         }
+        Text("规划时间约束", style = MaterialTheme.typography.titleLarge)
+        Text("可用时间用于制定计划；课程、休息和固定事项会避让。修改后需要重新预览并确认，不自动覆盖现有安排。",
+            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (state.isLoading) {
+            Text("正在读取时间设置…")
+        } else {
+            SemesterWeekCard(state.semesterFirstWeekMonday, onEditSemester, enabled = !busy)
+            TimeListHeading("每周常用时间", "添加", onAddWeekly, enabled = !busy, tag = "time-add-weekly")
+            if (state.weeklyBlocks.isEmpty()) Text("还没有每周时间；可添加可用时间、课程、休息或固定事项。")
+            state.weeklyBlocks.forEach { block ->
+                key(block.id) { WeeklyBlockCard(block, { onEditWeekly(block) }, { onDeleteWeekly(block) }, enabled = !busy) }
+            }
+            TimeListHeading("单日例外", "添加", onAddOverride, enabled = !busy, tag = "time-add-override")
+            if (state.dateOverrides.isEmpty()) Text("还没有单日例外；可指定某一天临时不可用或增加可用时间。")
+            state.dateOverrides.forEach { item ->
+                key(item.id) { DateOverrideCard(item, { onEditOverride(item) }, { onDeleteOverride(item) }, enabled = !busy) }
+            }
+        }
     }
 }
 
@@ -2754,6 +2824,7 @@ private fun TimeScreen(
 private fun SemesterWeekCard(
     semesterFirstWeekMonday: LocalDate?,
     onEdit: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Card(
         shape = RoundedCornerShape(20.dp),
@@ -2786,7 +2857,7 @@ private fun SemesterWeekCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            TextButton(onClick = onEdit) {
+            TextButton(onClick = onEdit, enabled = enabled, modifier = Modifier.testTag("time-edit-semester")) {
                 Text(
                     stringResource(
                         if (semesterFirstWeekMonday == null) R.string.set_semester_week
@@ -2803,20 +2874,25 @@ private fun SemesterStartEditorDialog(
     semesterFirstWeekMonday: LocalDate?,
     onDismiss: () -> Unit,
     onSave: (LocalDate) -> Unit,
+    busy: Boolean = false,
+    error: String? = null,
 ) {
-    var dateText by remember(semesterFirstWeekMonday) {
+    var dateText by rememberSaveable {
         mutableStateOf(semesterFirstWeekMonday?.toString().orEmpty())
     }
-    var showValidationError by remember { mutableStateOf(false) }
-    AlertDialog(
+    var showValidationError by rememberSaveable { mutableStateOf(false) }
+    EditorSheet(
+        saving = busy,
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.semester_week_editor_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { dateText = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    isError = showValidationError,
+                    modifier = Modifier.fillMaxWidth().testTag("semester-start-date"),
                     label = { Text(stringResource(R.string.semester_week_date)) },
                     placeholder = { Text(stringResource(R.string.semester_week_editor_hint)) },
                     singleLine = true,
@@ -2827,6 +2903,8 @@ private fun SemesterStartEditorDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("time-mutation-error").semantics { liveRegion = LiveRegionMode.Polite }) }
             }
         },
         confirmButton = {
@@ -2836,10 +2914,12 @@ private fun SemesterStartEditorDialog(
                     if (date?.dayOfWeek == DayOfWeek.MONDAY) onSave(date)
                     else showValidationError = true
                 },
-            ) { Text(stringResource(R.string.save)) }
+                enabled = !busy,
+                modifier = Modifier.testTag("semester-start-save"),
+            ) { Text(if (busy) "保存中…" else stringResource(R.string.save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
         },
     )
 }
@@ -2849,6 +2929,8 @@ private fun TimeListHeading(
     title: String,
     actionLabel: String,
     onAction: () -> Unit,
+    enabled: Boolean = true,
+    tag: String = "time-add",
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -2856,7 +2938,7 @@ private fun TimeListHeading(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
-        TextButton(onClick = onAction) { Text(actionLabel) }
+        TextButton(onClick = onAction, enabled = enabled, modifier = Modifier.testTag(tag)) { Text(actionLabel) }
     }
 }
 
@@ -2888,11 +2970,10 @@ private fun WeeklyBlockCard(
     block: WeeklyTimeBlock,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onEdit),
+        modifier = Modifier.fillMaxWidth().testTag("weekly-block-${block.id}"),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -2928,7 +3009,8 @@ private fun WeeklyBlockCard(
                     )
                 }
             }
-            TextButton(onClick = onDelete) {
+            TextButton(onClick = onEdit, enabled = enabled, modifier = Modifier.testTag("weekly-edit-${block.id}")) { Text("编辑") }
+            TextButton(onClick = onDelete, enabled = enabled, modifier = Modifier.testTag("weekly-delete-${block.id}")) {
                 Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
             }
         }
@@ -3709,7 +3791,7 @@ private fun PlanSegmentEditorDialog(
                     val updated = segment.copy(
                         date = parsedDate ?: segment.date,
                         startMinute = TimeBlockValidator.parseTime(startTime) ?: -1,
-                        endMinute = TimeBlockValidator.parseTime(endTime) ?: -1,
+                        endMinute = TimeBlockValidator.parseEndTime(endTime) ?: -1,
                         trackId = selectedTrackId,
                     )
                     if (parsedDate == null || !PlanDraftEditor.isValidSegment(updated)) {
@@ -3844,11 +3926,10 @@ private fun DateOverrideCard(
     dateOverride: DateOverride,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onEdit),
+        modifier = Modifier.fillMaxWidth().testTag("date-override-${dateOverride.id}"),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -3876,7 +3957,8 @@ private fun DateOverrideCard(
                     color = MaterialTheme.colorScheme.primary,
                 )
             }
-            TextButton(onClick = onDelete) {
+            TextButton(onClick = onEdit, enabled = enabled, modifier = Modifier.testTag("override-edit-${dateOverride.id}")) { Text("编辑") }
+            TextButton(onClick = onDelete, enabled = enabled, modifier = Modifier.testTag("override-delete-${dateOverride.id}")) {
                 Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
             }
         }
@@ -3885,6 +3967,7 @@ private fun DateOverrideCard(
 
 @Composable
 private fun MineScreen(
+    onOpenTimeSettings: () -> Unit,
     weights: Map<TaskCategory, Int>,
     profileEvidence: List<ProfileEvidence>,
     isLoading: Boolean,
@@ -3935,6 +4018,9 @@ private fun MineScreen(
         Text("版本 ${com.swan1127.repland.BuildConfig.VERSION_NAME} (${com.swan1127.repland.BuildConfig.VERSION_CODE}) · ${com.swan1127.repland.BuildConfig.BUILD_SOURCE}",
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("app-version"))
         Text("日常使用", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+        OutlinedButton(onClick = onOpenTimeSettings, modifier = Modifier.fillMaxWidth().testTag("mine-time-settings")) {
+            Text("时间设置 · 课程、可用时间与学期")
+        }
         Text("统一工作方式", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         Text("所有安排始终可见，详细信息按需展开。旧版参与方式记录保留在本地历史中，不再改变页面功能。",
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -4834,20 +4920,23 @@ private fun WeeklyTimeBlockEditorDialog(
     onDismiss: () -> Unit,
     onSave: (WeeklyTimeBlockDraft) -> Unit,
     initialKind: TimeBlockKind = TimeBlockKind.COURSE,
+    busy: Boolean = false,
+    error: String? = null,
 ) {
-    var title by remember(block) { mutableStateOf(block?.title.orEmpty()) }
-    var kind by remember(block) { mutableStateOf(block?.kind ?: initialKind) }
-    var dayOfWeek by remember(block) { mutableStateOf(block?.dayOfWeek ?: if (initialKind == TimeBlockKind.AVAILABLE) LocalDate.now().dayOfWeek else DayOfWeek.MONDAY) }
-    var startTime by remember(block) {
+    var title by rememberSaveable(block?.id) { mutableStateOf(block?.title.orEmpty()) }
+    var kind by rememberSaveable(block?.id) { mutableStateOf(block?.kind ?: initialKind) }
+    var dayOfWeek by rememberSaveable(block?.id) { mutableStateOf(block?.dayOfWeek ?: if (initialKind == TimeBlockKind.AVAILABLE) LocalDate.now().dayOfWeek else DayOfWeek.MONDAY) }
+    var startTime by rememberSaveable(block?.id) {
         mutableStateOf(block?.startMinute?.let(TimeBlockValidator::formatTime) ?: "09:00")
     }
-    var endTime by remember(block) {
+    var endTime by rememberSaveable(block?.id) {
         mutableStateOf(block?.endMinute?.let(TimeBlockValidator::formatTime) ?: "10:00")
     }
-    var note by remember(block) { mutableStateOf(block?.note.orEmpty()) }
-    var showValidationError by remember { mutableStateOf(false) }
+    var note by rememberSaveable(block?.id) { mutableStateOf(block?.note.orEmpty()) }
+    var showValidationError by rememberSaveable(block?.id) { mutableStateOf(false) }
 
     EditorSheet(
+        saving = busy,
         onDismissRequest = onDismiss,
         title = {
             Text(stringResource(if (block == null) R.string.add_weekly_block else R.string.edit_weekly_block))
@@ -4860,7 +4949,9 @@ private fun WeeklyTimeBlockEditorDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    isError = showValidationError && title.isBlank(),
+                    modifier = Modifier.fillMaxWidth().testTag("weekly-block-title"),
                     label = { Text(stringResource(R.string.time_block_name)) },
                     placeholder = { Text(stringResource(R.string.time_block_name_hint)) },
                     singleLine = true,
@@ -4871,6 +4962,7 @@ private fun WeeklyTimeBlockEditorDialog(
                     selected = kind,
                     label = { stringResource(it.labelRes()) },
                     onSelected = { kind = it },
+                    enabled = !busy,
                 )
                 Text(stringResource(R.string.day_of_week), style = MaterialTheme.typography.labelLarge)
                 ChoiceRow(
@@ -4878,11 +4970,14 @@ private fun WeeklyTimeBlockEditorDialog(
                     selected = dayOfWeek,
                     label = { stringResource(it.labelRes()) },
                     onSelected = { dayOfWeek = it },
+                    enabled = !busy,
                 )
                 OutlinedTextField(
                     value = startTime,
                     onValueChange = { startTime = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    isError = showValidationError && TimeBlockValidator.parseTime(startTime) == null,
+                    modifier = Modifier.fillMaxWidth().testTag("weekly-block-start"),
                     label = { Text(stringResource(R.string.start_time)) },
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
@@ -4890,7 +4985,9 @@ private fun WeeklyTimeBlockEditorDialog(
                 OutlinedTextField(
                     value = endTime,
                     onValueChange = { endTime = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    isError = showValidationError && TimeBlockValidator.parseEndTime(endTime) == null,
+                    modifier = Modifier.fillMaxWidth().testTag("weekly-block-end"),
                     label = { Text(stringResource(R.string.end_time)) },
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
@@ -4898,6 +4995,7 @@ private fun WeeklyTimeBlockEditorDialog(
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
+                    enabled = !busy,
                     modifier = Modifier.fillMaxWidth().testTag("weekly-block-note"),
                     label = { Text("备注（可选）") },
                     placeholder = { Text("地点、准备物、老师或上课提醒") },
@@ -4909,6 +5007,8 @@ private fun WeeklyTimeBlockEditorDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("time-mutation-error").semantics { liveRegion = LiveRegionMode.Polite }) }
             }
         },
         confirmButton = {
@@ -4920,17 +5020,19 @@ private fun WeeklyTimeBlockEditorDialog(
                         kind = kind,
                         dayOfWeek = dayOfWeek,
                         startMinute = TimeBlockValidator.parseTime(startTime) ?: -1,
-                        endMinute = TimeBlockValidator.parseTime(endTime) ?: -1,
+                        endMinute = TimeBlockValidator.parseEndTime(endTime) ?: -1,
                         weekPattern = block?.weekPattern,
                         trackId = block?.trackId ?: "course",
                         note = note,
                     )
                     if (TimeBlockValidator.isValid(draft)) onSave(draft) else showValidationError = true
                 },
-            ) { Text(stringResource(R.string.save)) }
+                enabled = !busy,
+                modifier = Modifier.testTag("weekly-block-save"),
+            ) { Text(if (busy) "保存中…" else stringResource(R.string.save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
         },
     )
 }
@@ -4940,24 +5042,27 @@ private fun DateOverrideEditorDialog(
     dateOverride: DateOverride?,
     onDismiss: () -> Unit,
     onSave: (DateOverrideDraft) -> Unit,
+    busy: Boolean = false,
+    error: String? = null,
 ) {
-    var title by remember(dateOverride) { mutableStateOf(dateOverride?.title.orEmpty()) }
-    var type by remember(dateOverride) {
+    var title by rememberSaveable(dateOverride?.id) { mutableStateOf(dateOverride?.title.orEmpty()) }
+    var type by rememberSaveable(dateOverride?.id) {
         mutableStateOf(dateOverride?.type ?: DateOverrideType.BLOCKED)
     }
-    var dateText by remember(dateOverride) {
+    var dateText by rememberSaveable(dateOverride?.id) {
         mutableStateOf(dateOverride?.date?.toString() ?: LocalDate.now().toString())
     }
-    var startTime by remember(dateOverride) {
+    var startTime by rememberSaveable(dateOverride?.id) {
         mutableStateOf(dateOverride?.startMinute?.let(TimeBlockValidator::formatTime) ?: "09:00")
     }
-    var endTime by remember(dateOverride) {
+    var endTime by rememberSaveable(dateOverride?.id) {
         mutableStateOf(dateOverride?.endMinute?.let(TimeBlockValidator::formatTime) ?: "10:00")
     }
-    var note by remember(dateOverride) { mutableStateOf(dateOverride?.note.orEmpty()) }
-    var showValidationError by remember { mutableStateOf(false) }
+    var note by rememberSaveable(dateOverride?.id) { mutableStateOf(dateOverride?.note.orEmpty()) }
+    var showValidationError by rememberSaveable(dateOverride?.id) { mutableStateOf(false) }
 
     EditorSheet(
+        saving = busy,
         onDismissRequest = onDismiss,
         title = {
             Text(stringResource(if (dateOverride == null) R.string.add_date_override else R.string.edit_date_override))
@@ -4970,7 +5075,9 @@ private fun DateOverrideEditorDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    isError = showValidationError && title.isBlank(),
+                    modifier = Modifier.fillMaxWidth().testTag("date-override-title"),
                     label = { Text(stringResource(R.string.time_block_name)) },
                     placeholder = { Text(stringResource(R.string.time_block_name_hint)) },
                     singleLine = true,
@@ -4981,18 +5088,21 @@ private fun DateOverrideEditorDialog(
                     selected = type,
                     label = { stringResource(it.labelRes()) },
                     onSelected = { type = it },
+                    enabled = !busy,
                 )
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { dateText = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().testTag("date-override-date"),
                     label = { Text(stringResource(R.string.override_date)) },
                     singleLine = true,
                 )
                 OutlinedTextField(
                     value = startTime,
                     onValueChange = { startTime = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().testTag("date-override-start"),
                     label = { Text(stringResource(R.string.start_time)) },
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
@@ -5000,7 +5110,8 @@ private fun DateOverrideEditorDialog(
                 OutlinedTextField(
                     value = endTime,
                     onValueChange = { endTime = it },
-                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !busy,
+                    modifier = Modifier.fillMaxWidth().testTag("date-override-end"),
                     label = { Text(stringResource(R.string.end_time)) },
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
@@ -5008,6 +5119,7 @@ private fun DateOverrideEditorDialog(
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
+                    enabled = !busy,
                     modifier = Modifier.fillMaxWidth().testTag("date-override-note"),
                     label = { Text("备注（可选）") },
                     placeholder = { Text("地点、准备物或本次调整的原因") },
@@ -5019,6 +5131,8 @@ private fun DateOverrideEditorDialog(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+                error?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("time-mutation-error").semantics { liveRegion = LiveRegionMode.Polite }) }
             }
         },
         confirmButton = {
@@ -5026,7 +5140,7 @@ private fun DateOverrideEditorDialog(
                 onClick = {
                     val date = runCatching { LocalDate.parse(dateText.trim()) }.getOrNull()
                     val startMinute = TimeBlockValidator.parseTime(startTime)
-                    val endMinute = TimeBlockValidator.parseTime(endTime)
+                    val endMinute = TimeBlockValidator.parseEndTime(endTime)
                     val draft = date?.let {
                         DateOverrideDraft(
                             id = dateOverride?.id,
@@ -5041,10 +5155,12 @@ private fun DateOverrideEditorDialog(
                     if (draft != null && TimeBlockValidator.isValid(draft)) onSave(draft)
                     else showValidationError = true
                 },
-            ) { Text(stringResource(R.string.save)) }
+                enabled = !busy,
+                modifier = Modifier.testTag("date-override-save"),
+            ) { Text(if (busy) "保存中…" else stringResource(R.string.save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
         },
     )
 }
@@ -5054,18 +5170,22 @@ private fun DeleteTimeEntryDialog(
     title: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
+    busy: Boolean = false,
+    error: String? = null,
 ) {
     AlertDialog(
+        properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = !busy, dismissOnClickOutside = !busy),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.delete_time_entry)) },
-        text = { Text(stringResource(R.string.delete_time_entry_message, title)) },
+        text = { Column { Text(stringResource(R.string.delete_time_entry_message, title));
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("time-mutation-error")) } } },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+            TextButton(onClick = onConfirm, enabled = !busy, modifier = Modifier.testTag("time-delete-confirm")) {
+                Text(if (busy) "删除中…" else stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) }
         },
     )
 }

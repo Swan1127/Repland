@@ -52,6 +52,56 @@ interface TimeDao {
     suspend fun deleteDateOverride(id: String)
 
     @Transaction
+    suspend fun saveWeeklyAndAdvance(block: WeeklyTimeBlockEntity, editing: Boolean) {
+        val existing = getWeeklyBlockById(block.id)
+        require(!editing || existing != null) { "原时间设置已不存在，请重新打开" }
+        insertWeeklyBlock(block.copy(createdAtEpochMillis = existing?.createdAtEpochMillis ?: block.createdAtEpochMillis))
+        advanceRevision()
+    }
+
+    @Transaction
+    suspend fun saveWeeklyBatchAndAdvance(blocks: List<WeeklyTimeBlockEntity>) {
+        if (blocks.isEmpty()) return
+        insertWeeklyBlocks(blocks)
+        advanceRevision()
+    }
+
+    @Transaction
+    suspend fun deleteWeeklyAndAdvance(id: String) {
+        require(getWeeklyBlockById(id) != null) { "原时间设置已不存在，请重新打开" }
+        deleteWeeklyBlock(id)
+        advanceRevision()
+    }
+
+    @Transaction
+    suspend fun saveOverrideAndAdvance(override: DateOverrideEntity, editing: Boolean) {
+        val existing = getDateOverrideById(override.id)
+        require(!editing || existing != null) { "原时间设置已不存在，请重新打开" }
+        insertDateOverride(override.copy(createdAtEpochMillis = existing?.createdAtEpochMillis ?: override.createdAtEpochMillis))
+        advanceRevision()
+    }
+
+    @Transaction
+    suspend fun deleteOverrideAndAdvance(id: String) {
+        require(getDateOverrideById(id) != null) { "原时间设置已不存在，请重新打开" }
+        deleteDateOverride(id)
+        advanceRevision()
+    }
+
+    @Transaction
+    suspend fun saveSemesterAndAdvance(firstMondayEpochDay: Long?) {
+        val current = getSemesterSettings()
+        insertSemesterSettings(SemesterSettingsEntity(firstWeekMondayEpochDay = firstMondayEpochDay,
+            updatedAtEpochMillis = maxOf(System.currentTimeMillis(), (current?.updatedAtEpochMillis ?: 0L) + 1)))
+    }
+
+    suspend fun advanceRevision() {
+        val current = getSemesterSettings()
+        insertSemesterSettings(SemesterSettingsEntity(firstWeekMondayEpochDay = current?.firstWeekMondayEpochDay,
+            updatedAtEpochMillis = maxOf(System.currentTimeMillis(), (current?.updatedAtEpochMillis ?: 0L) + 1)))
+    }
+
+    @Transaction
     suspend fun importWeeklyBlocksAndAdvance(blocks: List<WeeklyTimeBlockEntity>): Int {
         fun key(block: WeeklyTimeBlockEntity) = listOf(block.title.trim(), block.kind, block.dayOfWeek,
             block.startMinute, block.endMinute, block.weekPattern?.trim()?.takeIf(String::isNotBlank), block.trackId)
@@ -59,11 +109,7 @@ interface TimeDao {
         val additions = blocks.distinctBy(::key).filter { key(it) !in existingKeys }
         if (additions.isEmpty()) return 0
         insertWeeklyBlocks(additions)
-        val current = getSemesterSettings()
-        insertSemesterSettings(SemesterSettingsEntity(
-            firstWeekMondayEpochDay = current?.firstWeekMondayEpochDay,
-            updatedAtEpochMillis = maxOf(System.currentTimeMillis(), (current?.updatedAtEpochMillis ?: 0L) + 1),
-        ))
+        advanceRevision()
         return additions.size
     }
 }

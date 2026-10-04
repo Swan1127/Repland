@@ -20,7 +20,7 @@ fun QuickAvailabilityDialog(busy: Boolean, error: String?, onDismiss: () -> Unit
     var weekly by rememberSaveable { mutableStateOf(false) }
     val parsedDate = runCatching { LocalDate.parse(date) }.getOrNull()
     val startMinute = TimeBlockValidator.parseTime(start)
-    val endMinute = TimeBlockValidator.parseTime(end)
+    val endMinute = TimeBlockValidator.parseEndTime(end)
     val value = if (parsedDate != null && startMinute != null && endMinute != null) QuickAvailability(parsedDate, startMinute, endMinute, weekly) else null
     AlertDialog(onDismissRequest = { if (!busy) onDismiss() }, title = { Text("补充一段可用时间") },
         text = {

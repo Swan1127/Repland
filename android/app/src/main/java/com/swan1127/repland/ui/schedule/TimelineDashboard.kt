@@ -1236,7 +1236,7 @@ private fun TimelineTimeEditorDialog(
             TextButton(
                 onClick = {
                     val startMinute = TimeBlockValidator.parseTime(startTime)
-                    val endMinute = TimeBlockValidator.parseTime(endTime)
+                    val endMinute = TimeBlockValidator.parseEndTime(endTime)
                     errorMessage = when {
                         startMinute == null || endMinute == null || startMinute >= endMinute -> "请输入有效的开始与结束时间。"
                         !onSave(startMinute, endMinute) -> "同一轨道的这个时段已有安排；可换时间或保留并行轨道。"

@@ -51,6 +51,15 @@ sealed interface TimetableImportState {
     data class Failed(val message: String) : TimetableImportState
 }
 
+enum class TimeMutationKind { WEEKLY_SAVE, WEEKLY_DELETE, OVERRIDE_SAVE, OVERRIDE_DELETE, SEMESTER_SAVE }
+data class TimeMutationState(
+    val kind: TimeMutationKind? = null,
+    val targetId: String? = null,
+    val busy: Boolean = false,
+    val error: String? = null,
+    val receipt: String? = null,
+)
+
 class TimeViewModel(
     private val timeRepository: TimeRepository,
     private val timetableImporter: PdfTimetableImporter,
@@ -60,6 +69,9 @@ class TimeViewModel(
     val timetableImportState: StateFlow<TimetableImportState> = timetableImport
     private var importJob: Job? = null
     private var importVersion = 0L
+    private val mutation = MutableStateFlow(TimeMutationState())
+    val mutationState: StateFlow<TimeMutationState> = mutation
+    private var retryAction: (() -> Unit)? = null
 
     val uiState: StateFlow<TimeUiState> = combine(
         timeRepository.observeWeeklyBlocks(),
@@ -83,29 +95,58 @@ class TimeViewModel(
         )
 
     fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft) {
-        if (!TimeBlockValidator.isValid(draft)) return
-        viewModelScope.launch { timeRepository.saveWeeklyBlock(draft) }
+        mutate(TimeMutationKind.WEEKLY_SAVE, draft.id, "每周时间已保存") {
+            require(TimeBlockValidator.isValid(draft))
+            timeRepository.saveWeeklyBlock(draft)
+        }
     }
 
     fun deleteWeeklyBlock(id: String) {
-        viewModelScope.launch { timeRepository.deleteWeeklyBlock(id) }
+        mutate(TimeMutationKind.WEEKLY_DELETE, id, "每周时间已删除") { timeRepository.deleteWeeklyBlock(id) }
     }
 
     fun saveDateOverride(draft: DateOverrideDraft) {
-        if (!TimeBlockValidator.isValid(draft)) return
-        viewModelScope.launch { timeRepository.saveDateOverride(draft) }
+        mutate(TimeMutationKind.OVERRIDE_SAVE, draft.id, "单日例外已保存") {
+            require(TimeBlockValidator.isValid(draft))
+            timeRepository.saveDateOverride(draft)
+        }
     }
 
     fun deleteDateOverride(id: String) {
-        viewModelScope.launch { timeRepository.deleteDateOverride(id) }
+        mutate(TimeMutationKind.OVERRIDE_DELETE, id, "单日例外已删除") { timeRepository.deleteDateOverride(id) }
     }
 
     fun saveSemesterFirstWeekMonday(date: LocalDate?) {
-        viewModelScope.launch { timeRepository.saveSemesterFirstWeekMonday(date) }
+        mutate(TimeMutationKind.SEMESTER_SAVE, null, "学期起点已保存") { timeRepository.saveSemesterFirstWeekMonday(date) }
+    }
+
+    private fun mutate(kind: TimeMutationKind, targetId: String?, receipt: String, action: suspend () -> Unit) {
+        if (mutation.value.busy || mutation.value.receipt != null ||
+            (timetableImport.value as? TimetableImportState.Review)?.saving == true) return
+        mutation.value = TimeMutationState(kind, targetId, busy = true)
+        retryAction = { mutate(kind, targetId, receipt, action) }
+        viewModelScope.launch {
+            try {
+                action()
+                retryAction = null
+                mutation.value = TimeMutationState(kind, targetId, receipt = "$receipt；现有任务计划未自动重新安排")
+            } catch (cancelled: CancellationException) {
+                retryAction = null
+                mutation.value = TimeMutationState()
+                throw cancelled
+            } catch (_: Exception) {
+                mutation.value = TimeMutationState(kind, targetId, error = "时间设置未保存。输入仍保留，请重试；若原记录已移除，请取消并重新打开。")
+            }
+        }
+    }
+
+    fun retryMutation() { retryAction?.invoke() }
+    fun resetMutation() {
+        if (!mutation.value.busy) { retryAction = null; mutation.value = TimeMutationState() }
     }
 
     fun readTimetable(uri: Uri) {
-        if ((timetableImport.value as? TimetableImportState.Review)?.saving == true) return
+        if ((timetableImport.value as? TimetableImportState.Review)?.saving == true || mutation.value.busy) return
         importJob?.cancel()
         val version = ++importVersion
         timetableImport.value = TimetableImportState.Reading

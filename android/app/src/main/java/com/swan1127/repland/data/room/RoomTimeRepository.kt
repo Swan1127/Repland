@@ -1,155 +1,67 @@
 package com.swan1127.repland.data.room
 
-import com.swan1127.repland.domain.model.DateOverride
-import com.swan1127.repland.domain.model.DateOverrideDraft
-import com.swan1127.repland.domain.model.TimeConstraintSettings
-import com.swan1127.repland.domain.model.WeeklyTimeBlock
-import com.swan1127.repland.domain.model.WeeklyTimeBlockDraft
+import com.swan1127.repland.domain.model.*
 import com.swan1127.repland.domain.ports.TimeRepository
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class RoomTimeRepository(
-    private val timeDao: TimeDao,
-) : TimeRepository {
+class RoomTimeRepository(private val timeDao: TimeDao) : TimeRepository {
     override fun observeWeeklyBlocks(): Flow<List<WeeklyTimeBlock>> =
-        timeDao.observeWeeklyBlocks().map { blocks -> blocks.map(WeeklyTimeBlockEntity::toDomain) }
-
+        timeDao.observeWeeklyBlocks().map { it.map(WeeklyTimeBlockEntity::toDomain) }
     override fun observeDateOverrides(): Flow<List<DateOverride>> =
-        timeDao.observeDateOverrides().map { overrides -> overrides.map(DateOverrideEntity::toDomain) }
-
+        timeDao.observeDateOverrides().map { it.map(DateOverrideEntity::toDomain) }
     override fun observeTimeConstraintSettings(): Flow<TimeConstraintSettings> =
-        timeDao.observeSemesterSettings().map { settings ->
-            TimeConstraintSettings(
-                semesterFirstWeekMonday = settings?.firstWeekMondayEpochDay?.let(LocalDate::ofEpochDay),
-                updatedAtEpochMillis = settings?.updatedAtEpochMillis ?: 0L,
-            )
+        timeDao.observeSemesterSettings().map {
+            TimeConstraintSettings(it?.firstWeekMondayEpochDay?.let(LocalDate::ofEpochDay), it?.updatedAtEpochMillis ?: 0L)
         }
 
-    override suspend fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft) {
-        val now = System.currentTimeMillis()
-        val existing = draft.id?.let { id -> timeDao.getWeeklyBlockById(id) }
-        timeDao.insertWeeklyBlock(
-            WeeklyTimeBlockEntity(
-                id = existing?.id ?: UUID.randomUUID().toString(),
-                title = draft.title.trim(),
-                kind = draft.kind.name,
-                dayOfWeek = draft.dayOfWeek.value,
-                startMinute = draft.startMinute,
-                endMinute = draft.endMinute,
-                weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
-                trackId = draft.trackId.ifBlank { "course" },
-                note = draft.note?.trim()?.takeIf(String::isNotBlank),
-                createdAtEpochMillis = existing?.createdAtEpochMillis ?: now,
-                updatedAtEpochMillis = now,
-            ),
-        )
-        touchTimeConstraints(now)
+    private fun entity(draft: WeeklyTimeBlockDraft, now: Long): WeeklyTimeBlockEntity {
+        require(TimeBlockValidator.isValid(draft)) { "名称或时间无效" }
+        require(draft.id == null || draft.id.isNotBlank()) { "时间设置身份无效" }
+        return WeeklyTimeBlockEntity(id = draft.id ?: UUID.randomUUID().toString(), title = draft.title.trim(),
+            kind = draft.kind.name, dayOfWeek = draft.dayOfWeek.value, startMinute = draft.startMinute,
+            endMinute = draft.endMinute, weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
+            trackId = draft.trackId.ifBlank { "course" }, note = draft.note?.trim()?.takeIf(String::isNotBlank),
+            createdAtEpochMillis = now, updatedAtEpochMillis = now)
     }
 
-    override suspend fun deleteWeeklyBlock(id: String) {
-        timeDao.deleteWeeklyBlock(id)
-        touchTimeConstraints(System.currentTimeMillis())
-    }
+    override suspend fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft) =
+        timeDao.saveWeeklyAndAdvance(entity(draft, System.currentTimeMillis()), draft.id != null)
 
     override suspend fun saveWeeklyBlocks(drafts: List<WeeklyTimeBlockDraft>) {
-        val validDrafts = drafts.filter(com.swan1127.repland.domain.model.TimeBlockValidator::isValid)
-            .distinctBy { draft ->
-                listOf(
-                    draft.title.trim(),
-                    draft.kind,
-                    draft.dayOfWeek,
-                    draft.startMinute,
-                    draft.endMinute,
-                    draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
-                    draft.trackId.ifBlank { "course" },
-                )
-            }
-        if (validDrafts.isEmpty()) return
+        require(drafts.all { TimeBlockValidator.isValid(it) && it.id == null }) { "批量新增不能包含无效课程或已有身份" }
         val now = System.currentTimeMillis()
-        timeDao.insertWeeklyBlocks(
-            validDrafts.map { draft ->
-                WeeklyTimeBlockEntity(
-                    id = UUID.randomUUID().toString(),
-                    title = draft.title.trim(),
-                    kind = draft.kind.name,
-                    dayOfWeek = draft.dayOfWeek.value,
-                    startMinute = draft.startMinute,
-                    endMinute = draft.endMinute,
-                    weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
-                    trackId = draft.trackId.ifBlank { "course" },
-                    note = draft.note?.trim()?.takeIf(String::isNotBlank),
-                    createdAtEpochMillis = now,
-                    updatedAtEpochMillis = now,
-                )
-            },
-        )
-        touchTimeConstraints(now)
-    }
-
-    override suspend fun saveDateOverride(draft: DateOverrideDraft) {
-        val now = System.currentTimeMillis()
-        val existing = draft.id?.let { id -> timeDao.getDateOverrideById(id) }
-        timeDao.insertDateOverride(
-            DateOverrideEntity(
-                id = existing?.id ?: UUID.randomUUID().toString(),
-                title = draft.title.trim(),
-                type = draft.type.name,
-                dateEpochDay = draft.date.toEpochDay(),
-                startMinute = draft.startMinute,
-                endMinute = draft.endMinute,
-                note = draft.note?.trim()?.takeIf(String::isNotBlank),
-                createdAtEpochMillis = existing?.createdAtEpochMillis ?: now,
-                updatedAtEpochMillis = now,
-            ),
-        )
-        touchTimeConstraints(now)
+        val blocks = drafts.distinctBy { listOf(it.title.trim(), it.kind, it.dayOfWeek, it.startMinute,
+            it.endMinute, it.weekPattern?.trim()?.takeIf(String::isNotBlank), it.trackId.ifBlank { "course" }) }
+            .map { entity(it, now) }
+        timeDao.saveWeeklyBatchAndAdvance(blocks)
     }
 
     override suspend fun importWeeklyBlocks(drafts: List<WeeklyTimeBlockDraft>): Int {
-        require(drafts.all(com.swan1127.repland.domain.model.TimeBlockValidator::isValid)) {
-            "课程名称或时间无效，请修改后重试"
-        }
-        require(drafts.all { it.id == null }) { "导入不能修改已有课程身份" }
+        require(drafts.all { TimeBlockValidator.isValid(it) && it.id == null }) { "课程名称、时间或导入身份无效" }
         val now = System.currentTimeMillis()
-        return timeDao.importWeeklyBlocksAndAdvance(drafts.map { draft ->
-            WeeklyTimeBlockEntity(
-                id = UUID.randomUUID().toString(), title = draft.title.trim(), kind = draft.kind.name,
-                dayOfWeek = draft.dayOfWeek.value, startMinute = draft.startMinute, endMinute = draft.endMinute,
-                weekPattern = draft.weekPattern?.trim()?.takeIf(String::isNotBlank),
-                trackId = draft.trackId.ifBlank { "course" }, note = draft.note?.trim()?.takeIf(String::isNotBlank),
-                createdAtEpochMillis = now, updatedAtEpochMillis = now,
-            )
-        })
+        return timeDao.importWeeklyBlocksAndAdvance(drafts.map { entity(it, now) })
     }
 
-    override suspend fun deleteDateOverride(id: String) {
-        timeDao.deleteDateOverride(id)
-        touchTimeConstraints(System.currentTimeMillis())
+    override suspend fun deleteWeeklyBlock(id: String) = timeDao.deleteWeeklyAndAdvance(id)
+
+    override suspend fun saveDateOverride(draft: DateOverrideDraft) {
+        require(TimeBlockValidator.isValid(draft)) { "名称或时间无效" }
+        require(draft.id == null || draft.id.isNotBlank()) { "时间设置身份无效" }
+        val now = System.currentTimeMillis()
+        timeDao.saveOverrideAndAdvance(DateOverrideEntity(id = draft.id ?: UUID.randomUUID().toString(),
+            title = draft.title.trim(), type = draft.type.name, dateEpochDay = draft.date.toEpochDay(),
+            startMinute = draft.startMinute, endMinute = draft.endMinute,
+            note = draft.note?.trim()?.takeIf(String::isNotBlank), createdAtEpochMillis = now, updatedAtEpochMillis = now),
+            draft.id != null)
     }
 
+    override suspend fun deleteDateOverride(id: String) = timeDao.deleteOverrideAndAdvance(id)
     override suspend fun saveSemesterFirstWeekMonday(date: LocalDate?) {
-        val now = System.currentTimeMillis()
-        timeDao.insertSemesterSettings(
-            SemesterSettingsEntity(
-                firstWeekMondayEpochDay = date?.toEpochDay(),
-                updatedAtEpochMillis = nextConstraintRevision(now),
-            ),
-        )
+        require(date == null || date.dayOfWeek == DayOfWeek.MONDAY) { "学期第一周起点应为周一" }
+        timeDao.saveSemesterAndAdvance(date?.toEpochDay())
     }
-
-    private suspend fun touchTimeConstraints(now: Long) {
-        val current = timeDao.getSemesterSettings()
-        timeDao.insertSemesterSettings(
-            SemesterSettingsEntity(
-                firstWeekMondayEpochDay = current?.firstWeekMondayEpochDay,
-                updatedAtEpochMillis = nextConstraintRevision(now),
-            ),
-        )
-    }
-
-    private suspend fun nextConstraintRevision(now: Long): Long =
-        maxOf(now, (timeDao.getSemesterSettings()?.updatedAtEpochMillis ?: Long.MIN_VALUE) + 1)
 }

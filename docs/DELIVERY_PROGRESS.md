@@ -5,8 +5,8 @@
 ## 基线
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
-- 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`；编辑可靠性 `codex/editor-integrity`。基线标签 `v0.1.16` / `v0.1.17` 不移动。
-- 候选版本：`0.1.18 (1018)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`；编辑可靠性 `codex/editor-integrity`；课表确认 `codex/time-integrity`；时间设置 `codex/time-settings`。各保留标签不移动。
+- 已安装候选：`0.1.19 (1019)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；0.1.20 时间设置实施/验证中，不作为已安装版。各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
 

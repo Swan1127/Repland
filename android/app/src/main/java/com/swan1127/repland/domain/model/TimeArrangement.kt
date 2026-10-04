@@ -88,6 +88,9 @@ object TimeBlockValidator {
         return match.groupValues[1].toInt() * 60 + match.groupValues[2].toInt()
     }
 
+    /** 24:00 is the end of this day, never a valid start time. */
+    fun parseEndTime(text: String): Int? = if (text.trim() == "24:00") MINUTES_PER_DAY else parseTime(text)
+
     fun formatTime(minutes: Int): String = String.format(
         Locale.ROOT,
         "%02d:%02d",
