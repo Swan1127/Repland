@@ -81,15 +81,16 @@ class TaskCaptureSheetUiTest {
             rule.setContent { ReplandTheme {
                 TaskCaptureSheet("", { dismissals++ }, {}, draft = TaskCaptureDraft(text = "键盘返回测试"))
             } }
-            rule.onNodeWithTag("task-capture-input").performClick()
+            NativeSheetTestInput.awaitFocusedDialog(rule, "接下来要做什么？")
+            rule.onNodeWithTag("task-capture-input").performClick().assertIsFocused()
             // mIsInputViewShown describes the service's input layout, not window visibility.
             rule.waitUntil(10_000) { shell("dumpsys input_method").contains("mWindowVisible=true") }
-            androidx.test.espresso.Espresso.pressBackUnconditionally()
+            NativeSheetTestInput.back(rule, "接下来要做什么？")
             rule.waitUntil(10_000) { !shell("dumpsys input_method").contains("mWindowVisible=true") }
             rule.waitForIdle()
             rule.onNodeWithTag("task-capture-input").assertIsDisplayed()
             assertEquals(0, dismissals)
-            androidx.test.espresso.Espresso.pressBackUnconditionally()
+            NativeSheetTestInput.back(rule, "接下来要做什么？")
             rule.waitUntil(10_000) { dismissals == 1 }
         } finally {
             shell(if (previous == "null") "settings delete secure show_ime_with_hard_keyboard"

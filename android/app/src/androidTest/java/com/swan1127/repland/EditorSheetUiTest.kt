@@ -15,10 +15,7 @@ import org.junit.Test
 class EditorSheetUiTest {
     @get:Rule val rule = createComposeRule()
     private fun pressSystemBack() {
-        // The sheet is a separate dialog window; don't select the unfocused Activity root.
-        val automation = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation
-        android.os.ParcelFileDescriptor.AutoCloseInputStream(automation.executeShellCommand("input keyevent 4"))
-            .bufferedReader().use { it.readText() }
+        NativeSheetTestInput.back(rule, "编辑中")
     }
 
     @Test fun pending_save_blocks_back_and_drag_then_returns_normally() {
@@ -56,7 +53,8 @@ class EditorSheetUiTest {
                     text = { OutlinedTextField("保留输入", {}, Modifier.testTag("editor-input")) },
                     confirmButton = { TextButton(onClick = {}) { Text("保存") } })
             } }
-            rule.onNodeWithTag("editor-input").performClick()
+            NativeSheetTestInput.awaitFocusedDialog(rule, "编辑中")
+            rule.onNodeWithTag("editor-input").performClick().assertIsFocused()
             rule.waitUntil(10_000) { shell("dumpsys input_method").contains("mWindowVisible=true") }
             pressSystemBack()
             rule.waitUntil(10_000) { !shell("dumpsys input_method").contains("mWindowVisible=true") }

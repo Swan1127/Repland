@@ -1,5 +1,29 @@
 # Repland 缺陷记录（2026-10-03）
 
+### QA-047 — 组件宿主原生返回/IME 回归不稳定
+
+状态：0.1.19 全套重跑 185/188 后定位与复测中；本次原生 3 项专项已通过，最终全套待重跑。EditorSheetUiTest 第一次原生 Back 后找不到 Compose 层级；另两个真实 IME 在键盘显示前超时。新焦点等待初版也失败：需启用交互窗口检索，且 Compose 虚拟节点用树遍历而非提供者文本搜索。重启后另观察到 System UI 无响应弹窗/系统弹窗占焦点，点击 Wait 恢复；activity lastanr 返回未记录，不能断定 GPU 或 Repland 原因。修正测试驱动并恢复环境后，原生返回/保存保护/真实 IME 三项 ADB 专项通过（17.164 秒），所有原断言保留，产品抽屉代码未修改。两个全套失败 XML、专项失败 XML、黑屏/系统弹窗截图均保留；系统弹窗遮挡的导入截图不作视觉通过证据。不清用户数据、不删除/跳过用例，最终验收仍绑定后续同源全套与清晰截图。
+
+### QA-046 — 可用时间测试把空草案误判为新预览
+
+状态：0.1.19 全套 187/188，QuickAvailabilityTest 的第二次成功回执断言失败；待修正测试复测。旧等待条件 `draft?.sourceRevision != previous` 在 accept 清空草案为 null 时成立，可能在新请求完成前退出；保留失败 XML，改为同时要求草案非空和新摘要，不改变成功回执次数/去重/提交断言，不将此直接认定为产品重复保存失败。
+
+### QA-045 — 推迟建议的重排入口回到 PDF 页面
+
+状态：源码确认，待独立回归。P2。任务详情 PostponementGuidance 的 onReviewAdjustmentDraft 清除详情后选择 AppTab.TIME（当前为导入课表），同时生成草案；关闭草案后落在无关 PDF 页面。应回到规划上下文，不以全局草案弹出掩盖底页导航错误。
+
+### QA-044 — 执行反馈失败丢表单，数值大数被视为未知
+
+状态：源码与可达调用链确认，待独立回归。P1。详情中的部分完成/记录反馈及日志纠正调用后立即清目标；ViewModel 捕获错误为 INVALID_LIFECYCLE_INPUT，但 Root 没有消费该错误，输入丢失且无可见恢复。FeedbackDialog 的非空时长/进度超过 Int 范围转 null，可在有文字时被当未知通过。仅未被调用的旧 CompleteTaskDialog 不作为可达复现证据；范围须验证稳定身份、重建、数值、失败保留和真实回执。
+
+### QA-043 — “我的”时间设置入口缺失，学期编辑组件未接入
+
+状态：源码确认，待独立回归。P2 工作流断点。QuickAvailabilityDialog 指向“我的”时间设置，但 MineScreen 无此入口；TimeScreen 仅 PDF 导入。SemesterWeekCard 等组件未调用，showSemesterStartEditor 没有置 true 的路径。编辑单条课程还可由时间轴进入，但不等于已有统一时间设置与学期起点入口。
+
+### QA-042 — 24:00 结束时间可显示但不能在编辑器保存
+
+状态：源码确认，待独立回归。P2。领域允许 endMinute=1440、formatTime 显示 24:00，而时间表单用只接受 00:00–23:59 的 parseTime 解析结束；深夜课程/例外原样打开再保存即无效。须单独支持结束日边界，不能允许 24:00 作为开始或 24:30 之类非法钟点。
+
 ### QA-041 — 旧参与模式持久化测试依赖毫秒内随机事件顺序
 
 状态：0.1.18 测试已修正，最终来源 2247e83 的 181 项同源全套通过；不认定产品持久化失败。EngagementRepositoryTest 旧断言要求 events[0] 为 MODE_CHANGED，但实际返回 TIMELINE_OPENED。DAO 按 occurredAtEpochMillis、随机 UUID 排序，Repository 使用毫秒墙钟而未承诺同毫秒调用严格顺序。现按 type 定位并校验两条记录的 mode/subjectId，不放宽数量或内容，不修改产品时钟迎合断言。首跑 180/181 失败 XML 保留，不称首跑全过。
