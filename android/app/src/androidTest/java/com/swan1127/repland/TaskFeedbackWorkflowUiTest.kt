@@ -17,7 +17,10 @@ import java.util.UUID
 class TaskFeedbackWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
     private val repo get() = (rule.activity.application as ReplandApplication).appContainer.taskRepository
-    private fun waitTag(tag: String) = rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }
+    private fun waitTag(tag: String) {
+        try { rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() } }
+        catch (failure: Throwable) { screenshot("qa-feedback21-timeout-$tag.png"); throw failure }
+    }
     private fun gone(tag: String) = rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isEmpty() }
     private fun fill(tag: String, value: String) = rule.onNodeWithTag(tag).performScrollTo().performTextReplacement(value)
     private fun seed(): Pair<String, String> {
@@ -34,10 +37,19 @@ class TaskFeedbackWorkflowUiTest {
     private fun action(tag: String) {
         rule.onNodeWithTag("task-detail-scroll").performScrollToNode(hasTestTag(tag))
         rule.waitUntil(10_000) { !rule.onNodeWithTag(tag).fetchSemanticsNode().config.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled) }
+        // Lazy discovery finds an item even if this descendant is below the viewport.
+        // Scroll the actual control into view and still use a real pointer click.
+        rule.onNodeWithTag(tag).performScrollTo().assertIsDisplayed()
+        val controlBounds = rule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot
+        val viewport = rule.onNodeWithTag("task-detail-scroll").fetchSemanticsNode().boundsInRoot
+        assertTrue("control must be fully inside the scroll viewport", controlBounds.top >= viewport.top && controlBounds.bottom <= viewport.bottom)
+        if (tag.startsWith("execution-log-correct-")) screenshot("qa-feedback21-before-correct.png")
         rule.onNodeWithTag(tag).performClick()
     }
     private fun screenshot(name: String) {
-        rule.waitForIdle(); val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        rule.mainClock.advanceTimeByFrame(); rule.waitForIdle()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
         try { File(rule.activity.getExternalFilesDir(null), name).outputStream().use { check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) } }
         finally { bitmap.recycle() }
     }
