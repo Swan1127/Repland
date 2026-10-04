@@ -1,5 +1,11 @@
 # Repland 缺陷记录（2026-10-03）
 
+2026-10-05 0.1.19 验收更新：来源 31c8e8b 的 188 项同源全套全部通过（失败/跳过 0），113 单元通过；无遮挡导入预览与回执已查看。QA-040 在生成 PDF/本地链路范围修复验证，真课表仍待验收；QA-046/047 测试驱动问题在保留原业务断言条件下验证关闭。QA-048 同一 AVD 软件渲染/禁快照冷启动后全套成功，系统原失败记录不删除，具体驱动根因未证实。以下描述保留发现与失败历史，不等同最新状态仍失败。
+
+### QA-049 — 浅色界面状态栏图标与背景对比不足
+
+状态：截图确认，P2，先记录待独立处理。0.1.19 真实 Activity 的导入完成页 `android/app/build/reports/ui/repland19-receipt.png` 顶部系统时间/信号/电量为浅色，在浅背景上不易辨识；预览模态遮罩时相对清楚。不推断仅软件渲染造成，也不把仅 Compose 内容显示断言当完整主题通过。后续须核对 Activity/system-bar 主题随深浅色切换、抽屉/返回恢复与真实设备。
+
 ### QA-048 — 模拟器系统 watchdog 中断全套回归
 
 状态：环境排查中，不能据此判定产品崩溃，也不能判定全套通过。来源 528e3cf 的 188 项全套只执行 38 项，仪器报告 `INSTRUMENTATION_ABORTED: System has crashed`；ActivityScenario 在清理时停留 PAUSED，未到 DESTROYED。原报告保留为 `android/app/build/reports/repland-019-system-crash-failure.xml`。系统 dropbox 的 2026-10-04 17:30:07 UTC watchdog 记录窗口管理/显示/动画线程阻塞约 70 秒，android.anim 持有窗口锁并等待 SurfaceComposer 的 captureLayersSync（任务窗口快照），图形服务高内核占用。此为运行环境证据，不把 GPU 驱动原因当成已证实事实。拟同一 AVD 保留 userdata、禁用快照冷启动，临时软件渲染对照复测；不删除/跳过任何用例，不清用户数据或密钥。
