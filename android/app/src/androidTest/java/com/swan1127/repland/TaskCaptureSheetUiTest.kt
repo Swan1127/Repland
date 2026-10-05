@@ -33,6 +33,29 @@ class TaskCaptureSheetUiTest {
         rule.onNodeWithTag("task-capture-save-duration").assertIsEnabled().performClick()
         assertEquals(45, result!!.totalDurationMinutes)
     }
+    @Test fun invalid_duration_correction_retains_newly_selected_deadline_without_creating_task() {
+        var result: TaskDraft? = null
+        lateinit var capture: MutableState<TaskCaptureDraft>
+        val tomorrow = java.time.LocalDate.now().plusDays(1)
+        rule.setContent { ReplandTheme {
+            capture = remember { mutableStateOf(TaskCaptureDraft(text = "截止日期不丢失", stage = TaskCaptureStage.DEADLINE,
+                isCustomDuration = true, customDurationText = "-30")) }
+            TaskCaptureSheet("", {}, { result = it }, draft = capture.value, onDraftChange = { capture.value = it })
+        } }
+        rule.onNodeWithTag("task-capture-deadline-tomorrow").performScrollTo().performClick()
+        rule.runOnIdle {
+            assertNull(result); assertEquals(tomorrow, capture.value.dueDate)
+            assertNull(capture.value.scheduledForDate)
+            assertEquals(TaskCaptureStage.DURATION, capture.value.stage)
+            assertEquals("-30", capture.value.customDurationText)
+        }
+        rule.onNodeWithTag("task-capture-save-duration").assertIsNotEnabled()
+        rule.onNodeWithTag("task-capture-duration-unknown").performScrollTo().performClick()
+        rule.onNodeWithTag("task-capture-save-duration").performClick()
+        assertEquals(tomorrow, result!!.dueDate)
+        assertNull(result!!.totalDurationMinutes)
+        assertEquals(java.time.LocalDate.now(), result!!.scheduledForDate) // Explicitly labelled save-to-today action.
+    }
 
     @Test fun saving_disables_input_save_close_and_voice() {
         var saves = 0

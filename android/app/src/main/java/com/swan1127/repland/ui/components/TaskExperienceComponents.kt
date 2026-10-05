@@ -332,7 +332,11 @@ fun TaskCaptureSheet(
 
     fun save(value: TaskCaptureDraft = current) {
         if (saving || value.text.isBlank()) return
-        if (!value.durationIsValid) { step(TaskCaptureStage.DURATION); return }
+        if (!value.durationIsValid) {
+            imeBridge.hide()
+            update(value.copy(stage = TaskCaptureStage.DURATION))
+            return
+        }
         imeBridge.hide()
         if (value != current) update(value)
         onSave(value.toTaskDraft())
