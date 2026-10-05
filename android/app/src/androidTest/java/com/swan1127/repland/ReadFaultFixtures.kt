@@ -4,6 +4,7 @@ import com.swan1127.repland.domain.model.*
 import com.swan1127.repland.domain.ports.*
 import kotlinx.coroutines.flow.*
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CompletableDeferred
 
 /** Tests only: real repositories retain transaction semantics, observations can fail. */
 internal class ReadFaultTasks(private val base: TaskRepository) : TaskRepository by base {
@@ -26,5 +27,44 @@ internal class ReadFaultTime(private val base: TimeRepository) : TimeRepository 
     override fun observeTimeConstraintSettings() = guard("settings", base.observeTimeConstraintSettings())
     private fun <T> guard(part: String, source: Flow<T>) = source.combine(failedPart) { value, failed ->
         check(part != failed) { "QA read failure" }; value
+    }
+}
+
+internal class ReadFaultPlans(private val base: PlanRepository) : PlanRepository by base {
+    val failedPart = MutableStateFlow<String?>(null)
+    val mainSources = AtomicInteger()
+    val workspaceSources = AtomicInteger()
+    override fun observeCurrentPlan(): Flow<ConfirmedPlan?> { mainSources.incrementAndGet(); return guard("current", base.observeCurrentPlan()) }
+    override fun observePlanHistory() = guard("history", base.observePlanHistory())
+    override fun observeDraft() = guard("draft", base.observeDraft())
+    override fun observeTaskOrder() = guard("order", base.observeTaskOrder())
+    override fun observeTracks(): Flow<List<RhythmTrack>> { workspaceSources.incrementAndGet(); return guard("tracks", base.observeTracks()) }
+    override fun observeAssistantWorkspace() = guard("assistant", base.observeAssistantWorkspace())
+    override fun observeCanUndoTaskOrder() = guard("undo", base.observeCanUndoTaskOrder())
+    private fun <T> guard(part: String, source: Flow<T>) = source.combine(failedPart) { value, failed ->
+        check(part != failed) { "QA read failure" }; value
+    }
+}
+
+internal class ReadFaultPreferences(private val base: CategoryPreferenceRepository) : CategoryPreferenceRepository by base {
+    val failed = MutableStateFlow(false)
+    val sources = AtomicInteger()
+    val commits = AtomicInteger()
+    val cancelledWrite = CompletableDeferred<Unit>()
+    @Volatile var failWrite = false
+    var gate: CompletableDeferred<Unit>? = null
+    override fun observe(): Flow<Map<TaskCategory, Int>> {
+        sources.incrementAndGet()
+        return base.observe().combine(failed) { weights, fail -> check(!fail) { "QA read failure" }; weights }
+    }
+    override suspend fun save(weights: Map<TaskCategory, Int>) {
+        try {
+            gate?.await()
+            check(!failWrite) { "QA write failure" }
+            base.save(weights); commits.incrementAndGet()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            cancelledWrite.complete(Unit)
+            throw cancelled
+        }
     }
 }

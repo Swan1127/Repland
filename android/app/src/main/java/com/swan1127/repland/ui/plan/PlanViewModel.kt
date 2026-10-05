@@ -20,14 +20,23 @@ data class PlanUiState(
     val isWorking: Boolean = false,
     val taskOrder: List<String> = emptyList(),
     val assistantReceipt: AssistantSaveReceipt? = null,
-)
+    val isLoading: Boolean = true,
+    val hasLoaded: Boolean = false,
+    val readError: String? = null,
+) {
+    val isTrusted get() = hasLoaded && !isLoading && readError == null
+}
 
 data class InteractionWorkspaceUiState(
     val isLoading: Boolean = true,
     val tracks: List<RhythmTrack> = RhythmTracks.defaults,
     val assistant: AssistantWorkspace? = null,
     val canUndoOrder: Boolean = false,
-)
+    val hasLoaded: Boolean = false,
+    val readError: String? = null,
+) {
+    val isTrusted get() = hasLoaded && !isLoading && readError == null
+}
 
 class PlanViewModel(
     private val planRepository: PlanRepository,
@@ -42,20 +51,36 @@ class PlanViewModel(
     fun dismissAssistantReceipt() { assistantReceipt.value = null }
     suspend fun queryTasks(scope: TaskQueryScope, date: LocalDate): List<Task> = requireNotNull(operations).query(scope, date)
     suspend fun explainOrder(taskId: String): LocalPriorityAssessment = requireNotNull(operations).explainOrder(taskId)
-    val workspaceUiState = combine(planRepository.observeTracks(), planRepository.observeAssistantWorkspace(), planRepository.observeCanUndoTaskOrder()) { tracks, assistant, canUndo ->
-        InteractionWorkspaceUiState(false, tracks, assistant, canUndo)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InteractionWorkspaceUiState())
+    private val readRetries = MutableStateFlow(0)
+    val workspaceUiState = com.swan1127.repland.ui.state.recoverableRead(
+        initial = InteractionWorkspaceUiState(), retries = readRetries, errorMessage = "轨道与助手草稿读取失败；原设置仍保留。本页输入暂不写入，请重试。",
+    ) {
+        combine(planRepository.observeTracks(), planRepository.observeAssistantWorkspace(), planRepository.observeCanUndoTaskOrder()) { tracks, assistant, canUndo ->
+            InteractionWorkspaceUiState(false, tracks, assistant, canUndo, hasLoaded = true)
+        }
+    }.map { read -> read.value.copy(isLoading = read.isLoading, hasLoaded = read.hasLoaded, readError = read.error) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InteractionWorkspaceUiState())
 
     fun saveTracks(tracks: List<RhythmTrack>) = mutate { planRepository.saveTracks(tracks) }
     fun saveAssistantWorkspace(value: AssistantWorkspace) = mutate { planRepository.saveAssistantWorkspace(value) }
     fun undoTaskOrder() = mutate { planRepository.undoTaskOrder() }
-    val uiState: StateFlow<PlanUiState> = combine(
-        planRepository.observeCurrentPlan(), planRepository.observePlanHistory(),
-        planRepository.observeDraft(), operation, planRepository.observeTaskOrder(),
-    ) { current, history, draft, state, order ->
-        PlanUiState(current, history, draft, state.first, state.second, order)
-    }.combine(assistantReceipt) { state, receipt -> state.copy(assistantReceipt = receipt) }
+    val uiState: StateFlow<PlanUiState> = com.swan1127.repland.ui.state.recoverableRead(
+        initial = PlanUiState(), retries = readRetries, errorMessage = "计划与顺序读取失败；未清空现有计划或预览，请重试。",
+    ) {
+        combine(planRepository.observeCurrentPlan(), planRepository.observePlanHistory(),
+            planRepository.observeDraft(), planRepository.observeTaskOrder()) { current, history, draft, order ->
+            PlanUiState(currentPlan = current, planHistory = history, draft = draft, taskOrder = order,
+                isLoading = false, hasLoaded = true)
+        }
+    }.combine(operation) { read, operation -> read.value.copy(isLoading = read.isLoading, hasLoaded = read.hasLoaded,
+        readError = read.error, errorMessage = operation.first, isWorking = operation.second) }
+        .combine(assistantReceipt) { state, receipt -> state.copy(assistantReceipt = receipt) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
+
+    fun retryRead() {
+        if ((!uiState.value.isLoading && uiState.value.readError != null) ||
+            (!workspaceUiState.value.isLoading && workspaceUiState.value.readError != null)) readRetries.value++
+    }
 
     fun generateDraft(
         tasks: List<Task>,
@@ -177,9 +202,21 @@ class PlanViewModel(
     fun removePlacement(segmentId: String) = mutate { planRepository.removePlacement(segmentId) }
     fun dismissError() { operation.value = null to operation.value.second }
 
+    private fun readUnavailable() = uiState.value.readError != null || workspaceUiState.value.readError != null ||
+            (uiState.value.hasLoaded && uiState.value.isLoading) ||
+            (workspaceUiState.value.hasLoaded && workspaceUiState.value.isLoading)
+
     private fun mutate(action: suspend () -> Unit) {
+        if (readUnavailable()) {
+            operation.value = "请先重新读取计划与助手草稿；本次未保存，已有内容仍保留。" to false
+            return
+        }
         viewModelScope.launch {
             mutex.withLock {
+                if (readUnavailable()) {
+                    operation.value = "请先重新读取计划与助手草稿；本次未保存，已有内容仍保留。" to false
+                    return@withLock
+                }
                 operation.value = null to true
                 try {
                     action()
