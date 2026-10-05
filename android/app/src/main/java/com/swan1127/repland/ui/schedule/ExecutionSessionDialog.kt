@@ -10,9 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalContext
-import android.view.ContextThemeWrapper
-import com.swan1127.repland.R
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -41,15 +38,10 @@ fun ExecutionSessionDialog(
     }
     val elapsedSeconds = session.elapsedMillis(now) / 1_000
     val remaining = (session.targetSeconds - elapsedSeconds).coerceAtLeast(0)
-    val context = LocalContext.current
-    val dialogContext = remember(context) { ContextThemeWrapper(context, R.style.Theme_Repland_FocusDialogHost) }
-    // Compose 1.7 keeps the platform floating theme on Android S+ even when
-    // decorFitsSystemWindows=false. Override only this full-screen dialog host.
-    CompositionLocalProvider(LocalContext provides dialogContext) {
     Dialog(onDismissRequest = { if (!busy) onDismiss() }, properties = DialogProperties(
-        usePlatformDefaultWidth = false,
-        // This is a full-screen surface. Let Compose own system/IME insets instead
-        // of measuring screen-wide content inside an inset floating window.
+        // Compose 1.7's non-default measurement uses screen dimensions even
+        // when the native dialog is inset. Honor native constraints instead.
+        usePlatformDefaultWidth = true,
         decorFitsSystemWindows = false,
     )) {
         Surface(Modifier.fillMaxSize().testTag("execution-session"), color = MaterialTheme.colorScheme.surface) {
@@ -95,6 +87,5 @@ fun ExecutionSessionDialog(
                 TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-return")) { Text("返回页面 · 保留本轮") }
             }
         }
-    }
     }
 }
