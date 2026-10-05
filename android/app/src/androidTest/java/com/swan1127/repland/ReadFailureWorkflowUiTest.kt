@@ -3,6 +3,7 @@ package com.swan1127.repland
 import android.database.sqlite.SQLiteDatabase
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.platform.app.InstrumentationRegistry
 import com.swan1127.repland.domain.model.*
 import com.swan1127.repland.ui.tasks.TaskViewModel
 import com.swan1127.repland.ui.time.TimeViewModel
@@ -14,6 +15,7 @@ import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.util.UUID
+import java.io.File
 
 class ReadFailureWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
@@ -43,6 +45,13 @@ class ReadFailureWorkflowUiTest {
     }
     private fun retryInSheet() = rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(hasTestTag("editor-sheet")))
         .performScrollTo().performClick()
+    private fun screenshot(name: String) {
+        rule.waitForIdle()
+        val bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        try { File(rule.activity.getExternalFilesDir(null), name).outputStream().use {
+            check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        } } finally { bitmap.recycle() }
+    }
     private fun cleanupTask(id: String) {
         check(rule.activity.packageName == "com.swan1127.repland.qa")
         SQLiteDatabase.openDatabase(rule.activity.getDatabasePath("repland.db").absolutePath, null, SQLiteDatabase.OPEN_READWRITE).use {
@@ -69,6 +78,8 @@ class ReadFailureWorkflowUiTest {
             rule.onNodeWithTag("task-editor-description").performScrollTo().assertTextContains("读失败后保留输入")
             rule.onNodeWithTag("task-editor-save").assertIsNotEnabled()
             assertEquals(original, runBlocking { container.taskRepository.observeTasks().first().single { it.id == id } })
+            rule.onNode(hasTestTag("data-read-notice") and hasAnyAncestor(hasTestTag("editor-sheet"))).performScrollTo()
+            screenshot("qa-read23-task-failure.png")
             fault.failed.value = false; retryInSheet(); rule.waitUntil(10_000) { vm.uiState.value.isTrusted }
             rule.onNodeWithTag("task-editor-save").assertIsEnabled().performClick(); gone("task-editor-name")
             val saved = runBlocking { container.taskRepository.observeTasks().first().single { it.id == id } }
@@ -94,6 +105,8 @@ class ReadFailureWorkflowUiTest {
             rule.activityRule.scenario.recreate(); waitTag("weekly-block-title")
             rule.onNodeWithTag("weekly-block-title").assertTextContains("$name-edited")
             rule.onNodeWithTag("weekly-block-end").performScrollTo().assertTextContains("24:00")
+            rule.onNode(hasTestTag("data-read-notice") and hasAnyAncestor(hasTestTag("editor-sheet"))).performScrollTo()
+            screenshot("qa-read23-time-failure.png")
             assertEquals(original, runBlocking { container.timeRepository.observeWeeklyBlocks().first().single { it.id == id } })
             fault.failedPart.value = null; retryInSheet(); rule.waitUntil(10_000) { vm.uiState.value.isTrusted }
             rule.onNodeWithTag("weekly-block-save").assertIsEnabled().performClick(); gone("weekly-block-title")
@@ -121,5 +134,32 @@ class ReadFailureWorkflowUiTest {
         // Leave no persistent assistant workspace for subsequent workflow cases.
         fill("agent-prompt", "")
         rule.onNodeWithTag("navigation-tasks").performClick()
+    }
+
+    @Test fun persisted_sort_preview_cannot_be_confirmed_during_failed_reads_but_cancel_remains_available() {
+        val id = UUID.randomUUID().toString(); val name = "QA-sort-read23-$id"
+        try {
+            runBlocking { container.taskRepository.save(TaskDraft(id, name, "", TaskCategory.COURSE, TaskPriority.MEDIUM, 1, 30, null)) }
+            val originalPlan = runBlocking { container.planRepository.observeCurrentPlan().first() }
+            val originalOrder = runBlocking { container.planRepository.observeTaskOrder().first() }
+            runBlocking { container.planningOperationService.preview(PlanningPreviewKind.SORT_ONLY) }
+            val (fault, vm) = taskFault(); waitTag("accept-plan-draft")
+            fault.failed.value = true; rule.waitUntil(10_000) { vm.uiState.value.readError != null }
+            rule.onNodeWithTag("accept-plan-draft").assertIsNotEnabled()
+            val discard = rule.activity.getString(com.swan1127.repland.R.string.discard_plan_draft)
+            rule.onNodeWithText(discard).assertIsEnabled()
+            rule.activityRule.scenario.recreate(); waitTag("accept-plan-draft")
+            rule.onNodeWithTag("accept-plan-draft").assertIsNotEnabled()
+            assertEquals(originalPlan, runBlocking { container.planRepository.observeCurrentPlan().first() })
+            assertEquals(originalOrder, runBlocking { container.planRepository.observeTaskOrder().first() })
+            fault.failed.value = false
+            rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(isDialog())).performClick()
+            rule.waitUntil(10_000) { vm.uiState.value.isTrusted }
+            rule.onNodeWithTag("accept-plan-draft").assertIsEnabled()
+            rule.onNodeWithText(discard).performClick(); gone("accept-plan-draft")
+            assertNull(runBlocking { container.planRepository.observeDraft().first() })
+            assertEquals(originalPlan, runBlocking { container.planRepository.observeCurrentPlan().first() })
+            assertEquals(originalOrder, runBlocking { container.planRepository.observeTaskOrder().first() })
+        } finally { cleanupTask(id) }
     }
 }

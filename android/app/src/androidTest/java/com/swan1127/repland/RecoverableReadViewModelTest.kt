@@ -69,6 +69,26 @@ class RecoverableReadViewModelTest {
         } finally { observer?.cancelAndJoin(); withContext(Dispatchers.Main) { store.clear() }; database.close() }
     }
 
+    @Test fun initial_time_failure_is_not_empty_success_and_recovers_all_three_sources() = runBlocking {
+        val database = db(); val store = ViewModelStore(); val base = RoomTimeRepository(database.timeDao())
+        val fault = ReadFaultTime(base).apply { failedPart.value = "settings" }
+        lateinit var vm: TimeViewModel; var observer: Job? = null
+        try {
+            base.saveWeeklyBlock(week())
+            withContext(Dispatchers.Main) { vm = TimeViewModel(fault, PdfTimetableImporter(ApplicationProvider.getApplicationContext())); store.put("time", vm) }
+            observer = launch { vm.uiState.collect() }
+            withTimeout(10_000) { vm.uiState.first { it.readError != null } }
+            assertFalse(vm.uiState.value.hasLoaded); assertFalse(vm.uiState.value.isTrusted)
+            withContext(Dispatchers.Main) { vm.saveWeeklyBlock(week().copy(title = "不能新增")) }
+            assertNull(vm.mutationState.value.receipt); assertNotNull(vm.mutationState.value.error)
+            assertEquals(1, base.observeWeeklyBlocks().first().size)
+            fault.failedPart.value = null
+            withContext(Dispatchers.Main) { vm.retryRead() }
+            withTimeout(10_000) { vm.uiState.first { it.isTrusted } }
+            assertEquals("原课程", vm.uiState.value.weeklyBlocks.single().title); assertEquals(2, fault.sources.get())
+        } finally { observer?.cancelAndJoin(); withContext(Dispatchers.Main) { store.clear() }; database.close() }
+    }
+
     @Test fun weekly_failure_retains_complete_time_snapshot() = timeFailure("weekly")
     @Test fun date_failure_retains_complete_time_snapshot() = timeFailure("dates")
     @Test fun settings_failure_retains_complete_time_snapshot() = timeFailure("settings")
@@ -113,7 +133,7 @@ class RecoverableReadViewModelTest {
             withTimeout(10_000) { vm.uiState.first { it.timetableImport is TimetableImportState.Review } }
             fault.failedPart.value = "weekly"
             withTimeout(10_000) { vm.uiState.first { it.readError != null } }
-            withContext(Dispatchers.Main) { vm.acknowledgeImportClock(true); vm.updateImportedCourse(course.copy(title = "保留编辑")); vm.confirmTimetableImport() }
+            withContext(Dispatchers.Main) { vm.updateImportedCourse(course.copy(title = "保留编辑")); vm.acknowledgeImportClock(true); vm.confirmTimetableImport() }
             withTimeout(10_000) { vm.uiState.first { (it.timetableImport as? TimetableImportState.Review)?.error != null } }
             assertNotNull(vm.uiState.value.readError); assertTrue(base.observeWeeklyBlocks().first().isEmpty())
             assertEquals("保留编辑", (vm.uiState.value.timetableImport as TimetableImportState.Review).courses.single().title)
