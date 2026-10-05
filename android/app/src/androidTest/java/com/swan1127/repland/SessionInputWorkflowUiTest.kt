@@ -31,7 +31,14 @@ class SessionInputWorkflowUiTest {
     private fun seed(id: String) = runBlocking {
         check(container.executionSessionRepository.observeActive().first() == null) { "QA fixture must not replace an unrelated round" }
         container.taskRepository.save(TaskDraft(id, "QA-session25-$id", "", TaskCategory.COURSE, TaskPriority.MEDIUM, 1, 60, null))
-        container.planRepository.placeTask(id, LocalDate.now().plusDays(1), 600, 660, "focus")
+        val existing = container.planRepository.observeCurrentPlan().first()?.segments.orEmpty()
+        val weekly = container.timeRepository.observeWeeklyBlocks().first()
+        val overrides = container.timeRepository.observeDateOverrides().first()
+        val semester = container.timeRepository.observeTimeConstraintSettings().first().semesterFirstWeekMonday
+        val candidate = (1L..30L).asSequence().flatMap { day ->
+            (0..1380 step 60).asSequence().map { start -> PlannedSegment(taskId = id, date = LocalDate.now().plusDays(day), startMinute = start, endMinute = start + 60) }
+        }.first { runCatching { PlacementValidator.requireValid(it, existing, weekly, overrides, semester) }.isSuccess }
+        container.planRepository.placeTask(id, candidate.date, candidate.startMinute, candidate.endMinute, candidate.trackId)
         val segment = container.planRepository.observeCurrentPlan().first()!!.segments.first { it.taskId == id }
         container.executionSessionRepository.start(segment.id)
         container.executionSessionRepository.pause(container.executionSessionRepository.observeActive().first()!!.id)
@@ -39,6 +46,9 @@ class SessionInputWorkflowUiTest {
     private fun cleanup(id: String) = runBlocking {
         container.executionSessionRepository.observeActive().first()?.takeIf { it.taskId == id }?.let {
             container.executionSessionRepository.finish(it.id, ExecutionOutcome.CONTINUE, TaskFeedback())
+        }
+        container.planRepository.observeCurrentPlan().first()?.segments?.filter { it.taskId == id }?.forEach {
+            container.planRepository.removePlacement(it.id)
         }
     }
     @Test fun failed_round_read_keeps_partial_input_and_identity_through_recreation_and_retry() {
