@@ -52,6 +52,12 @@ class SessionInputWorkflowUiTest {
         }
     }
     @Test fun failed_round_read_keeps_partial_input_and_identity_through_recreation_and_retry() {
+        partialWorkflow(false)
+    }
+    @Test fun rotating_open_round_keeps_native_viewport_and_partial_input() {
+        partialWorkflow(true)
+    }
+    private fun partialWorkflow(rotateWhileOpen: Boolean) {
         val id = UUID.randomUUID().toString()
         try {
             seed(id); val original = runBlocking { container.executionSessionRepository.observeActive().first() }!!
@@ -60,6 +66,13 @@ class SessionInputWorkflowUiTest {
             rule.onNodeWithTag("resume-execution").performScrollTo().performClick(); waitTag("execution-pause-resume")
             NativeSheetTestInput.awaitFocusedDialog(rule, "QA-session25-$id")
             NativeSheetTestInput.assertDialogWithinDisplay(rule, "qa-focus26-open")
+            if (rotateWhileOpen) {
+                rule.activityRule.scenario.onActivity { it.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE }
+                rule.waitUntil(10_000) { rule.activity.resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE }
+                waitTag("execution-pause-resume")
+                NativeSheetTestInput.awaitFocusedDialog(rule, "QA-session25-$id")
+                NativeSheetTestInput.assertDialogWithinDisplay(rule, "qa-focus26-rotated")
+            }
             rule.onNodeWithText("部分完成").performScrollTo().performClick(); fill("execution-content", "保留第一章")
             listOf("-30", "3.5", "99999999999999999999").forEach {
                 fill("execution-progress", it); rule.onNodeWithTag("execution-progress").assertTextContains(it)
@@ -82,14 +95,20 @@ class SessionInputWorkflowUiTest {
             rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(hasTestTag("execution-session"))).performScrollTo().performClick()
             rule.waitUntil(10_000) { vm.sessionReadState.value.isTrusted }
             rule.onNodeWithTag("execution-partial-save").performScrollTo().assertIsEnabled()
+            NativeSheetTestInput.assertControlWithinWindow(rule, "execution-partial-save")
+            rule.onNodeWithTag("execution-return").performScrollTo().assertIsDisplayed()
+            NativeSheetTestInput.assertControlWithinWindow(rule, "execution-return")
             assertEquals(original, runBlocking { container.executionSessionRepository.observeActive().first() })
             assertEquals(plan, runBlocking { container.planRepository.observeCurrentPlan().first() })
-            rule.onNodeWithTag("execution-partial-save").performClick(); gone("execution-progress")
+            rule.onNodeWithTag("execution-partial-save").performScrollTo().performClick(); gone("execution-progress")
             rule.waitUntil(10_000) { runBlocking { container.executionSessionRepository.observeActive().first() == null } }
             val task = runBlocking { container.taskRepository.observeTasks().first().single { it.id == id } }
             assertEquals(40, task.progressPercent); assertEquals(TaskStatus.IN_PROGRESS, task.status)
             assertEquals(plan, runBlocking { container.planRepository.observeCurrentPlan().first() })
-        } finally { cleanup(id) }
+        } finally {
+            cleanup(id)
+            if (rotateWhileOpen) rule.activityRule.scenario.onActivity { it.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED }
+        }
     }
     @Test fun initially_failed_round_read_has_retry_and_does_not_offer_a_false_resume() {
         val id = UUID.randomUUID().toString()

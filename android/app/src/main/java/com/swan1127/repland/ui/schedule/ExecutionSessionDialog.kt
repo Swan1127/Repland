@@ -38,9 +38,14 @@ fun ExecutionSessionDialog(
     }
     val elapsedSeconds = session.elapsedMillis(now) / 1_000
     val remaining = (session.targetSeconds - elapsedSeconds).coerceAtLeast(0)
-    Dialog(onDismissRequest = { if (!busy) onDismiss() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+    Dialog(onDismissRequest = { if (!busy) onDismiss() }, properties = DialogProperties(
+        usePlatformDefaultWidth = false,
+        // This is a full-screen surface. Let Compose own system/IME insets instead
+        // of measuring screen-wide content inside an inset floating window.
+        decorFitsSystemWindows = false,
+    )) {
         Surface(Modifier.fillMaxSize().testTag("execution-session"), color = MaterialTheme.colorScheme.surface) {
-            Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
+            Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(if (session.isPaused) "本轮已暂停" else if (remaining == 0L) "计时已到 · 等待你确认结果" else "专注中",
                     style = MaterialTheme.typography.titleMedium)
@@ -79,7 +84,7 @@ fun ExecutionSessionDialog(
                     TextButton(onClick = { onFinish(ExecutionOutcome.SKIPPED, TaskFeedback(postponeReason = "本轮跳过")) }, enabled = !busy && canOperate,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("跳过本轮 · 延后任务") }
                 }
-                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("返回页面 · 保留本轮") }
+                TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-return")) { Text("返回页面 · 保留本轮") }
             }
         }
     }
