@@ -13,7 +13,8 @@ import com.swan1127.repland.domain.model.*
 import java.time.LocalDate
 
 @Composable
-fun QuickAvailabilityDialog(busy: Boolean, error: String?, onDismiss: () -> Unit, onSave: (QuickAvailability) -> Unit) {
+fun QuickAvailabilityDialog(busy: Boolean, error: String?, canSave: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null, onDismiss: () -> Unit, onSave: (QuickAvailability) -> Unit) {
     var date by rememberSaveable { mutableStateOf(LocalDate.now().toString()) }
     var start by rememberSaveable { mutableStateOf("") }
     var end by rememberSaveable { mutableStateOf("") }
@@ -25,6 +26,7 @@ fun QuickAvailabilityDialog(busy: Boolean, error: String?, onDismiss: () -> Unit
     AlertDialog(onDismissRequest = { if (!busy) onDismiss() }, title = { Text("补充一段可用时间") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                readNotice?.invoke()
                 Text("只需确认日期和起止时间。保存后重新排序并生成预览；确认预览前不会改动原计划。课程、休息和固定事项仍不可覆盖。")
                 OutlinedTextField(date, { date = it }, label = { Text("日期（年-月-日）") }, enabled = !busy,
                     modifier = Modifier.fillMaxWidth().testTag("quick-availability-date"), singleLine = true)
@@ -37,7 +39,7 @@ fun QuickAvailabilityDialog(busy: Boolean, error: String?, onDismiss: () -> Unit
                 Text("${if (weekly) "每周重复，从现在生效；日期用于确定星期" else "仅此日期"}；保存的时间可在“我的”时间设置中修改。", style = MaterialTheme.typography.bodySmall)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
-        }, confirmButton = { TextButton(onClick = { value?.let(onSave) }, enabled = !busy && value?.isValid() == true,
+        }, confirmButton = { TextButton(onClick = { value?.let(onSave) }, enabled = !busy && canSave && value?.isValid() == true,
             modifier = Modifier.heightIn(min = 48.dp).testTag("quick-availability-save")) { Text(if (busy) "正在保存…" else "保存并生成预览") } },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("暂不补充") } })
 }

@@ -61,7 +61,15 @@ class PlanningOperationService(
         return draft
     }
 
-    suspend fun confirm(draft: PlanDraft) = plans.accept(draft)
+    suspend fun confirm(draft: PlanDraft) {
+        // No fallback empty context at the write boundary. Repository transactions
+        // still revalidate revisions and hard constraints immediately before commit.
+        reads.snapshot()
+        plans.accept(draft)
+    }
     suspend fun confirmChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingIds: Set<String>, date: LocalDate): AssistantSaveResult =
-        plans.saveAssistantChanges(tasks, segments, existingIds, date)
+        run {
+            reads.snapshot()
+            plans.saveAssistantChanges(tasks, segments, existingIds, date)
+        }
 }

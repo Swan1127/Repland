@@ -29,7 +29,11 @@ data class TaskUiState(
     val tasks: List<Task> = emptyList(),
     val isLoading: Boolean = true,
     val error: TaskError? = null,
-)
+    val hasLoaded: Boolean = false,
+    val readError: String? = null,
+) {
+    val isTrusted: Boolean get() = hasLoaded && !isLoading && readError == null
+}
 
 enum class TaskError {
     INVALID_DRAFT,
@@ -101,17 +105,27 @@ class TaskViewModel(
         }
     }
 
-    val uiState: StateFlow<TaskUiState> = taskRepository.observeTasks()
-        .combine(actionError) { tasks, error -> TaskUiState(tasks = tasks, isLoading = false, error = error) }
-        .catch { emit(TaskUiState(isLoading = false, error = TaskError.SAVE_FAILED)) }
+    private val readRetries = MutableStateFlow(0)
+    val uiState: StateFlow<TaskUiState> = com.swan1127.repland.ui.state.recoverableRead(
+        initial = emptyList<Task>(), retries = readRetries, errorMessage = "任务读取失败，请重试；未清空任务库。",
+        source = taskRepository::observeTasks,
+    ).combine(actionError) { read, error ->
+        TaskUiState(read.value, read.isLoading, error, read.hasLoaded, read.error)
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = TaskUiState(),
         )
 
+    fun retryRead() { if (!uiState.value.isLoading && uiState.value.readError != null) readRetries.value++ }
+
     fun saveTask(draft: TaskDraft) {
         if (editorState.value.saving || editorState.value.receipt != null) return
+        if (uiState.value.readError != null || (uiState.value.hasLoaded && uiState.value.isLoading)) {
+            editorState.value = TaskEditorSaveState(error = "请先重新读取任务；输入仍保留，本次未保存。")
+            return
+        }
         if (!TaskDraftValidator.isValid(draft)) {
             actionError.value = TaskError.INVALID_DRAFT
             editorState.value = TaskEditorSaveState(error = "请检查名称、天数和时长，填写内容仍保留。")
@@ -201,6 +215,10 @@ class TaskViewModel(
     private fun lifecycleAction(kind: TaskMutationKind, taskId: String, logId: String? = null, action: suspend () -> Unit) {
         if (mutation.value.busy || mutation.value.receipt != null) return
         retryMutation = { lifecycleAction(kind, taskId, logId, action) }
+        if (uiState.value.readError != null || (uiState.value.hasLoaded && uiState.value.isLoading)) {
+            mutation.value = TaskMutationState(kind, taskId, logId, error = "请先重新读取任务；输入和原记录仍保留。")
+            return
+        }
         mutation.value = TaskMutationState(kind, taskId, logId, busy = true)
         viewModelScope.launch {
             try {

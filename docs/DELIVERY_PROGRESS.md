@@ -8,7 +8,7 @@
 
 - 当前项目快照已推送 `origin/main`：`5901bc3`。
 - 实施分支：原计划 `codex/product-delivery`；任务创建改造 `codex/task-capture-ui`；编辑可靠性 `codex/editor-integrity`；课表确认 `codex/time-integrity`；时间设置 `codex/time-settings`。各保留标签不移动。
-- 已安装候选：`0.1.21 (1021)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；执行反馈已完成同源本地验证。各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
+- 已安装候选：`0.1.22 (1022)`，模拟器使用“Repland 当前版”(`com.swan1127.repland.current`)；执行反馈与系统返回已完成各批同源本地验证。0.1.23 可信读取实施中，未编译/未验收/未安装；各批次安装包哈希与实际验证范围分别记录，不跨版本沿用。
 
 ## 阶段状态
 

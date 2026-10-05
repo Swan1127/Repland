@@ -232,6 +232,17 @@ private enum class AppTab(
 
 private enum class ScheduleRange { OVERVIEW, DAY, WEEK, MONTH }
 
+@Composable
+private fun DataReadNotice(message: String, onRetry: () -> Unit, canRetry: Boolean = true) {
+    Surface(color = MaterialTheme.colorScheme.errorContainer, modifier = Modifier.fillMaxWidth().testTag("data-read-notice")) {
+        Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(message, Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite },
+                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer)
+            TextButton(onClick = onRetry, enabled = canRetry, modifier = Modifier.testTag("retry-data-read")) { Text("重试读取") }
+        }
+    }
+}
+
 private const val POSTPONEMENT_ADVICE_THRESHOLD = 3
 
 @Composable
@@ -265,7 +276,7 @@ fun ReplandApp(
     val snackbarBottomInset = with(LocalDensity.current) { snackbarHeightPx.toDp() }
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val taskMutation by taskViewModel.mutationState.collectAsStateWithLifecycle()
-    val taskActionLocked = taskMutation.busy || taskMutation.receipt != null
+    val taskActionLocked = taskMutation.busy || taskMutation.receipt != null || !uiState.isTrusted
     val executionSession by taskViewModel.activeSession.collectAsStateWithLifecycle()
     val executionBusy by taskViewModel.sessionBusy.collectAsStateWithLifecycle()
     val executionError by taskViewModel.sessionError.collectAsStateWithLifecycle()
@@ -281,6 +292,11 @@ fun ReplandApp(
     val dataManagementUiState by dataManagementViewModel.uiState.collectAsStateWithLifecycle()
     val planningAgentUiState by planningAgentViewModel.uiState.collectAsStateWithLifecycle()
     val aiProviderConfigUiState by aiProviderConfigViewModel.uiState.collectAsStateWithLifecycle()
+    val planningReadsReady = uiState.isTrusted && timeUiState.isTrusted && !categoryPreferenceUiState.isLoading
+    val taskReadMessage = if (uiState.isLoading && uiState.hasLoaded) "正在重新读取任务…" else uiState.readError
+    val timeReadMessage = if (timeUiState.isLoading && timeUiState.hasLoaded) "正在重新读取时间设置…" else timeUiState.readError
+    val readMessage = listOfNotNull(taskReadMessage, timeReadMessage).joinToString("\n").ifBlank { null }
+    val retryReads: () -> Unit = { taskViewModel.retryRead(); timeViewModel.retryRead() }
     val arrangementAssistantAccess by arrangementAssistantViewModel.access.collectAsStateWithLifecycle()
     val engagementMode by engagementViewModel.mode.collectAsStateWithLifecycle()
     var activeDate by remember { mutableStateOf(LocalDate.now()) }
@@ -401,6 +417,10 @@ fun ReplandApp(
             } || timeUiState.timeConstraintsUpdatedAtEpochMillis > plan.createdAtEpochMillis
     } ?: false
     fun generatePlanDraft(reorder: Boolean = false, orderOnly: Boolean = false, todayOnly: LocalDate? = null) {
+        if (!planningReadsReady) {
+            feedbackSnackbarScope.launch { captureSnackbar.showSnackbar("任务或时间尚未可靠读取，请先重试；原计划未变。") }
+            return
+        }
         planViewModel.generateDraft(
             tasks = uiState.tasks,
             weeklyBlocks = timeUiState.weeklyBlocks,
@@ -443,7 +463,11 @@ fun ReplandApp(
         planUiState.currentPlan,
         planUiState.planHistory,
         uiState.tasks,
+        uiState.isTrusted,
     ) {
+        // Reading failure is not evidence that confirmed tasks disappeared. An
+        // explicit reminder switch-off can still cancel reminders safely.
+        if (!uiState.isTrusted && reminderSettingsUiState.preferences.isEnabled) return@LaunchedEffect
         reminderScheduler.sync(
             isEnabled = reminderSettingsUiState.preferences.isEnabled && notificationPermissionGranted,
             currentPlan = planUiState.currentPlan,
@@ -476,6 +500,8 @@ fun ReplandApp(
             savingRecord = taskMutation.busy,
             snackbarHostState = captureSnackbar,
             snackbarBottomInset = snackbarBottomInset,
+            readMessage = readMessage,
+            onRetryReads = retryReads,
             onSnackbarSize = { snackbarHeightPx = it },
             onBack = { selectedTaskId = null },
             onStart = taskViewModel::startTask,
@@ -498,7 +524,7 @@ fun ReplandApp(
                 selectedTab = AppTab.AGENT
                 if (planUiState.draft == null) generatePlanDraft()
             },
-            isAiEnabled = planningAgentUiState.preferences.isEnabled,
+            isAiEnabled = planningReadsReady && planningAgentUiState.preferences.isEnabled,
             planningAgentState = if (lastPlanningAgentTaskId == selectedTask.id) {
                 planningAgentUiState.workflow
             } else {
@@ -564,7 +590,7 @@ fun ReplandApp(
                     title = stringResource(selectedTab.titleRes),
                     canUndo = workspaceUiState.canUndoOrder,
                     undoEnabled = !planUiState.isWorking && planUiState.draft == null,
-                    sortEnabled = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
+                    sortEnabled = planningReadsReady && !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
                     onUndo = planViewModel::undoTaskOrder,
                     onSort = { if (planUiState.draft == null) generatePlanDraft(reorder = true, orderOnly = true) },
                 ) else if (selectedTab != AppTab.AGENT) TopAppBar(
@@ -633,11 +659,13 @@ fun ReplandApp(
                 }
             },
         ) { innerPadding ->
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
             ) {
+                readMessage?.let { DataReadNotice(it, retryReads, canRetry = !uiState.isLoading && !timeUiState.isLoading) }
+                Box(Modifier.weight(1f).fillMaxWidth()) {
                 when (selectedTab) {
                     AppTab.TODAY -> TodayScreen(
                         executionSession = executionSession,
@@ -695,7 +723,7 @@ fun ReplandApp(
                             }
                             ?.sortedWith(compareBy(PlannedSegment::date, PlannedSegment::startMinute))
                             .orEmpty(),
-                        isLoading = uiState.isLoading,
+                        isLoading = uiState.isLoading || (!uiState.hasLoaded && uiState.readError != null),
                         onOpen = { selectedTaskId = it.id },
                         onStart = taskViewModel::startTask,
                         onOpenDailyReview = { showDailyReview = true },
@@ -811,7 +839,7 @@ fun ReplandApp(
                     AppTab.TASKS -> TasksScreen(
                         confirmedSegments = planUiState.currentPlan?.segments.orEmpty(),
                         tasks = uiState.tasks.sortedBy { task -> planUiState.taskOrder.indexOf(task.id).takeIf { it >= 0 } ?: Int.MAX_VALUE },
-                        isLoading = uiState.isLoading,
+                        isLoading = uiState.isLoading || (!uiState.hasLoaded && uiState.readError != null),
                         onOpen = { selectedTaskId = it.id },
                         onStart = taskViewModel::startTask,
                         onAdd = {
@@ -820,10 +848,11 @@ fun ReplandApp(
                     )
 
                     AppTab.AGENT -> if (!workspaceUiState.isLoading) AgentCenterScreen(
+                        contextReady = planningReadsReady,
                         activeDate = activeDate,
                         occupiedEntries = agentTimelineEntries,
                         providerRevision = aiProviderConfigUiState.config.updatedAtEpochMillis,
-                        canRefineWithAi = arrangementAssistantAccess.isEnabled &&
+                        canRefineWithAi = planningReadsReady && arrangementAssistantAccess.isEnabled &&
                             arrangementAssistantAccess.hasExplicitConsent && aiProviderConfigUiState.config.hasApiKey && aiProviderConfigUiState.supportsRemote,
                         onRefineWithAi = arrangementAssistantViewModel::refine,
                         existingTasks = uiState.tasks.filter { it.status.isActive }.take(50).map {
@@ -845,9 +874,9 @@ fun ReplandApp(
                         onConfirmBatch = planViewModel::saveTasksAndPlace,
                         initialWorkspace = workspaceUiState.assistant,
                         availableTracks = workspaceUiState.tracks,
-                        hasExistingTasks = uiState.tasks.any { it.status.isActive },
+                        hasExistingTasks = !uiState.hasLoaded || uiState.tasks.any { it.status.isActive },
                         onAddTask = { selectedTab = AppTab.TASKS; showTaskCapture = true },
-                        hasAvailability = timeUiState.weeklyBlocks.any { it.kind == TimeBlockKind.AVAILABLE } ||
+                        hasAvailability = !timeUiState.hasLoaded || timeUiState.weeklyBlocks.any { it.kind == TimeBlockKind.AVAILABLE } ||
                             timeUiState.dateOverrides.any { it.type == DateOverrideType.AVAILABLE && !it.date.isBefore(LocalDate.now()) },
                         onConfigureAvailability = { planViewModel.dismissError(); showQuickAvailability = true },
                         contextRevision = PlanningRevision.of(com.swan1127.repland.domain.model.PlanGenerationInput(
@@ -857,7 +886,7 @@ fun ReplandApp(
                         isSaving = planUiState.isWorking,
                         onFormulatePlan = { generatePlanDraft(reorder = true) },
                         onArrangeExistingToday = { generatePlanDraft(todayOnly = LocalDate.now()) },
-                        canFormulatePlan = !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
+                        canFormulatePlan = planningReadsReady && !planUiState.isWorking && planUiState.draft == null && uiState.tasks.any { it.status.isActive },
                         onPlaceTask = { taskId, startMinute, endMinute, trackId ->
                             planViewModel.placeTask(taskId, activeDate, startMinute, endMinute, trackId)
                         },
@@ -870,7 +899,7 @@ fun ReplandApp(
                     AppTab.TIME -> TimeScreen(
                         snackbarBottomInset = snackbarBottomInset,
                         state = timeUiState,
-                        busy = timeMutation.busy,
+                        busy = timeMutation.busy || !timeUiState.isTrusted,
                         onAddWeekly = { timeViewModel.resetMutation(); weeklyBlockEditorId = null; weeklyBlockInitialKind = TimeBlockKind.COURSE; showWeeklyBlockEditor = true },
                         onEditWeekly = { timeViewModel.resetMutation(); weeklyBlockEditorId = it.id; showWeeklyBlockEditor = true },
                         onDeleteWeekly = { timeViewModel.resetMutation(); deletingWeeklyId = it.id },
@@ -916,6 +945,7 @@ fun ReplandApp(
                         engagementMode = engagementMode,
                         onEngagementModeChange = engagementViewModel::setMode,
                     )
+                }
                 }
             }
         }
@@ -973,7 +1003,7 @@ fun ReplandApp(
             taskViewModel.resetEditorResult()
         }
     }
-    if (showTaskEditor && taskEditorTargetId != null && !uiState.isLoading && taskEditorTarget == null) {
+    if (showTaskEditor && taskEditorTargetId != null && uiState.isTrusted && taskEditorTarget == null) {
         AlertDialog(onDismissRequest = { showTaskEditor = false }, title = { Text("这件任务已不在任务库") },
             text = { Text("不会把这次编辑当成新任务保存。请返回任务页检查。") },
             confirmButton = { TextButton(onClick = { showTaskEditor = false; taskViewModel.resetEditorResult() }) { Text("返回任务页") } })
@@ -984,6 +1014,8 @@ fun ReplandApp(
             initialText = taskEditorSeed,
             saving = editorSaveState.saving,
             saveError = editorSaveState.error,
+            canSave = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = { if (!editorSaveState.saving) { showTaskEditor = false; taskEditorSeed = ""; taskViewModel.resetEditorResult() } },
             onSave = taskViewModel::saveTask,
         )
@@ -1081,7 +1113,7 @@ fun ReplandApp(
             taskViewModel.resetMutation()
         }
     }
-    val missingFeedbackTarget = taskMutationEditorKind != null && !uiState.isLoading && uiState.error != com.swan1127.repland.ui.tasks.TaskError.SAVE_FAILED &&
+    val missingFeedbackTarget = taskMutationEditorKind != null && uiState.isTrusted &&
         (taskMutationTarget == null || (taskMutationEditorKind == TaskMutationKind.CORRECT &&
             !correctionLogs.isLoading && !correctionLogs.failed && correctionTarget == null))
     if (missingFeedbackTarget && !taskMutation.busy && taskMutation.receipt == null) {
@@ -1104,6 +1136,8 @@ fun ReplandApp(
         PartialCompletionDialog(
             task = task,
             busy = taskMutation.busy, error = taskMutation.error,
+            canConfirm = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = closeTaskMutation,
             onConfirm = { feedback ->
                 taskViewModel.recordPartialCompletion(task.id, feedback)
@@ -1115,6 +1149,8 @@ fun ReplandApp(
         ExecutionFeedbackDialog(
             task = task,
             busy = taskMutation.busy, error = taskMutation.error,
+            canConfirm = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = closeTaskMutation,
             onConfirm = { feedback ->
                 taskViewModel.recordFeedback(task.id, feedback)
@@ -1125,6 +1161,8 @@ fun ReplandApp(
     taskMutationTarget?.takeIf { taskMutationEditorKind == TaskMutationKind.POSTPONE && !missingFeedbackTarget }?.let { task ->
         PostponeTaskDialog(
             taskId = task.id, busy = taskMutation.busy, error = taskMutation.error,
+            canConfirm = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = closeTaskMutation,
             onConfirm = { reason ->
                 taskViewModel.postponeTask(task.id, reason)
@@ -1138,6 +1176,8 @@ fun ReplandApp(
             message = stringResource(R.string.cancel_task_message),
             confirmLabel = stringResource(R.string.task_cancel),
             busy = taskMutation.busy, error = taskMutation.error,
+            canConfirm = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = closeTaskMutation,
             onConfirm = {
                 taskViewModel.cancelTask(task.id)
@@ -1152,6 +1192,8 @@ fun ReplandApp(
             confirmLabel = R.string.replace_task,
             allowPriorityChange = true,
             saving = taskMutation.busy, saveError = taskMutation.error,
+            canSave = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = closeTaskMutation,
             onSave = { replacement ->
                 taskViewModel.replaceTask(task.id, replacement.copy(id = null))
@@ -1163,6 +1205,8 @@ fun ReplandApp(
         CorrectExecutionLogDialog(
             log = log,
             busy = taskMutation.busy, error = taskMutation.error,
+            canConfirm = uiState.isTrusted,
+            readNotice = { taskReadMessage?.let { DataReadNotice(it, taskViewModel::retryRead, !uiState.isLoading) } },
             onDismiss = closeTaskMutation,
             onConfirm = { feedback ->
                 taskViewModel.correctExecutionLog(log.taskId, log.id, feedback)
@@ -1173,6 +1217,8 @@ fun ReplandApp(
     (timeUiState.timetableImport as? TimetableImportState.Review)?.let { review ->
         TimetableImportReviewDialog(
             review = review,
+            canConfirm = timeUiState.isTrusted,
+            readNotice = { timeReadMessage?.let { DataReadNotice(it, timeViewModel::retryRead, !timeUiState.isLoading) } },
             onDismiss = timeViewModel::clearTimetableImport,
             onConfirm = timeViewModel::confirmTimetableImport,
             onSelected = timeViewModel::selectImportedCourse,
@@ -1195,7 +1241,7 @@ fun ReplandApp(
             timeViewModel.resetMutation()
         }
     }
-    if (!timeUiState.isLoading && !timeMutation.busy && timeMutation.receipt == null && ((showWeeklyBlockEditor && weeklyBlockEditorId != null && weeklyBlockEditorTarget == null) ||
+    if (timeUiState.isTrusted && !timeMutation.busy && timeMutation.receipt == null && ((showWeeklyBlockEditor && weeklyBlockEditorId != null && weeklyBlockEditorTarget == null) ||
         (showDateOverrideEditor && dateOverrideEditorId != null && dateOverrideEditorTarget == null) ||
         (deletingWeeklyId != null && deletingWeeklyBlock == null) || (deletingOverrideId != null && deletingDateOverride == null))) {
         AlertDialog(onDismissRequest = {}, title = { Text("原时间设置已不存在") },
@@ -1203,32 +1249,38 @@ fun ReplandApp(
             confirmButton = { TextButton(onClick = { showWeeklyBlockEditor = false; showDateOverrideEditor = false;
                 deletingWeeklyId = null; deletingOverrideId = null; timeViewModel.resetMutation() }) { Text("关闭") } })
     }
-    if (showWeeklyBlockEditor && !timeUiState.isLoading && (weeklyBlockEditorId == null || weeklyBlockEditorTarget != null)) {
+    if (showWeeklyBlockEditor && timeUiState.hasLoaded && (weeklyBlockEditorId == null || weeklyBlockEditorTarget != null)) {
         WeeklyTimeBlockEditorDialog(
             block = weeklyBlockEditorTarget,
             initialKind = weeklyBlockInitialKind,
             busy = timeMutation.busy,
             error = timeMutation.error,
+            canSave = timeUiState.isTrusted,
+            readNotice = { timeReadMessage?.let { DataReadNotice(it, timeViewModel::retryRead, !timeUiState.isLoading) } },
             onDismiss = { if (!timeMutation.busy) { showWeeklyBlockEditor = false; timeViewModel.resetMutation() } },
             onSave = timeViewModel::saveWeeklyBlock,
         )
     }
 
-    if (showDateOverrideEditor && !timeUiState.isLoading && (dateOverrideEditorId == null || dateOverrideEditorTarget != null)) {
+    if (showDateOverrideEditor && timeUiState.hasLoaded && (dateOverrideEditorId == null || dateOverrideEditorTarget != null)) {
         DateOverrideEditorDialog(
             dateOverride = dateOverrideEditorTarget,
             busy = timeMutation.busy,
             error = timeMutation.error,
+            canSave = timeUiState.isTrusted,
+            readNotice = { timeReadMessage?.let { DataReadNotice(it, timeViewModel::retryRead, !timeUiState.isLoading) } },
             onDismiss = { if (!timeMutation.busy) { showDateOverrideEditor = false; timeViewModel.resetMutation() } },
             onSave = timeViewModel::saveDateOverride,
         )
     }
 
-    if (showSemesterStartEditor && !timeUiState.isLoading) {
+    if (showSemesterStartEditor && timeUiState.hasLoaded) {
         SemesterStartEditorDialog(
             semesterFirstWeekMonday = timeUiState.semesterFirstWeekMonday,
             busy = timeMutation.busy,
             error = timeMutation.error,
+            canSave = timeUiState.isTrusted,
+            readNotice = { timeReadMessage?.let { DataReadNotice(it, timeViewModel::retryRead, !timeUiState.isLoading) } },
             onDismiss = { if (!timeMutation.busy) { showSemesterStartEditor = false; timeViewModel.resetMutation() } },
             onSave = timeViewModel::saveSemesterFirstWeekMonday,
         )
@@ -1239,6 +1291,8 @@ fun ReplandApp(
             title = block.title,
             busy = timeMutation.busy,
             error = timeMutation.error,
+            canSave = timeUiState.isTrusted,
+            readNotice = { timeReadMessage?.let { DataReadNotice(it, timeViewModel::retryRead, !timeUiState.isLoading) } },
             onDismiss = { if (!timeMutation.busy) { deletingWeeklyId = null; timeViewModel.resetMutation() } },
             onConfirm = { timeViewModel.deleteWeeklyBlock(block.id) },
         )
@@ -1249,6 +1303,8 @@ fun ReplandApp(
             title = dateOverride.title,
             busy = timeMutation.busy,
             error = timeMutation.error,
+            canSave = timeUiState.isTrusted,
+            readNotice = { timeReadMessage?.let { DataReadNotice(it, timeViewModel::retryRead, !timeUiState.isLoading) } },
             onDismiss = { if (!timeMutation.busy) { deletingOverrideId = null; timeViewModel.resetMutation() } },
             onConfirm = { timeViewModel.deleteDateOverride(dateOverride.id) },
         )
@@ -1273,6 +1329,8 @@ fun ReplandApp(
     if (showQuickAvailability) {
         com.swan1127.repland.ui.plan.QuickAvailabilityDialog(
             busy = planUiState.isWorking, error = planUiState.errorMessage,
+            canSave = planningReadsReady,
+            readNotice = { readMessage?.let { DataReadNotice(it, retryReads, !uiState.isLoading && !timeUiState.isLoading) } },
             onDismiss = { showQuickAvailability = false },
             onSave = { value -> planViewModel.saveAvailabilityAndGenerate(value, categoryPreferenceUiState.weights) { showQuickAvailability = false } },
         )
@@ -1283,6 +1341,8 @@ fun ReplandApp(
             currentPlan = planUiState.currentPlan,
             currentTaskOrder = planUiState.taskOrder,
             isSaving = planUiState.isWorking,
+            canAccept = planningReadsReady,
+            readNotice = { readMessage?.let { DataReadNotice(it, retryReads, !uiState.isLoading && !timeUiState.isLoading) } },
             tracks = workspaceUiState.tracks,
             onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskViewModel.resetEditorResult(); taskEditorTargetId = task.id; showTaskEditor = true },
             onConfigureAvailability = { planViewModel.dismissError(); showQuickAvailability = true },
@@ -1299,7 +1359,9 @@ fun ReplandApp(
             },
             onUpdateDraft = planViewModel::updateDraft,
             onAccept = {
-                if (reviewingAgentDraft) {
+                if (!planningReadsReady) {
+                    feedbackSnackbarScope.launch { captureSnackbar.showSnackbar("请先可靠读取任务和时间；原计划与草案仍保留。") }
+                } else if (reviewingAgentDraft) {
                     planViewModel.acceptDraft {
                         planningAgentViewModel.markAccepted()
                         reviewingAgentDraft = false
@@ -2112,6 +2174,8 @@ private fun TaskDetailScreen(
     snackbarHostState: androidx.compose.material3.SnackbarHostState,
     snackbarBottomInset: androidx.compose.ui.unit.Dp,
     onSnackbarSize: (Int) -> Unit,
+    readMessage: String?,
+    onRetryReads: () -> Unit,
     onBack: () -> Unit,
     onStart: (String) -> Unit,
     onEdit: () -> Unit,
@@ -2162,6 +2226,7 @@ private fun TaskDetailScreen(
             contentPadding = PaddingValues(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            readMessage?.let { item { DataReadNotice(it, onRetryReads) } }
             if (savingRecord) item { Text("正在保存本次记录…", modifier = Modifier.semantics {
                 liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite
             }) }
@@ -2903,8 +2968,8 @@ private fun TimeScreen(
         Text("规划时间约束", style = MaterialTheme.typography.titleLarge)
         Text("可用时间用于制定计划；课程、休息和固定事项会避让。修改后需要重新预览并确认，不自动覆盖现有安排。",
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (state.isLoading) {
-            Text("正在读取时间设置…")
+        if (!state.hasLoaded) {
+            Text(if (state.readError != null) "时间设置暂不可用，请重试读取；未删除现有记录。" else "正在读取时间设置…")
         } else {
             SemesterWeekCard(state.semesterFirstWeekMonday, onEditSemester, enabled = !busy)
             TimeListHeading("每周常用时间", "添加", onAddWeekly, enabled = !busy, tag = "time-add-weekly")
@@ -2977,6 +3042,8 @@ private fun SemesterStartEditorDialog(
     onSave: (LocalDate) -> Unit,
     busy: Boolean = false,
     error: String? = null,
+    canSave: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
 ) {
     var dateText by rememberSaveable {
         mutableStateOf(semesterFirstWeekMonday?.toString().orEmpty())
@@ -2988,6 +3055,7 @@ private fun SemesterStartEditorDialog(
         title = { Text(stringResource(R.string.semester_week_editor_title)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                readNotice?.invoke()
                 OutlinedTextField(
                     value = dateText,
                     onValueChange = { dateText = it },
@@ -3015,7 +3083,7 @@ private fun SemesterStartEditorDialog(
                     if (date?.dayOfWeek == DayOfWeek.MONDAY) onSave(date)
                     else showValidationError = true
                 },
-                enabled = !busy,
+                enabled = !busy && canSave,
                 modifier = Modifier.testTag("semester-start-save"),
             ) { Text(if (busy) "保存中…" else stringResource(R.string.save)) }
         },
@@ -3121,6 +3189,8 @@ private fun WeeklyBlockCard(
 @Composable
 private fun TimetableImportReviewDialog(
     review: TimetableImportState.Review,
+    canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     onSelected: (String, Boolean) -> Unit,
@@ -3143,6 +3213,7 @@ private fun TimetableImportReviewDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                readNotice?.invoke()
                 Text(
                     stringResource(R.string.import_default_period_note),
                     style = MaterialTheme.typography.bodyMedium,
@@ -3213,7 +3284,7 @@ private fun TimetableImportReviewDialog(
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
-                enabled = !review.saving && selectedCourses.isNotEmpty() && review.clockAcknowledged,
+                enabled = canConfirm && !review.saving && selectedCourses.isNotEmpty() && review.clockAcknowledged,
                 modifier = Modifier.testTag("timetable-import-confirm"),
             ) {
                 Text(if (review.saving) "正在保存…" else stringResource(R.string.import_selected_format, selectedCourses.size))
@@ -3340,6 +3411,8 @@ internal fun PlanDraftDialog(
     currentPlan: ConfirmedPlan? = null,
     currentTaskOrder: List<String> = emptyList(),
     isSaving: Boolean = false,
+    canAccept: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
 ) {
     val tasksById = tasks.associateBy(Task::id)
     val unknownTaskLabel = stringResource(R.string.unknown_task)
@@ -3367,6 +3440,7 @@ internal fun PlanDraftDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                readNotice?.invoke()
                 Text(
                     if (draft.orderOnly) "只调整任务列表顺序，不改变日程时段。" else stringResource(R.string.plan_draft_notice),
                     style = MaterialTheme.typography.bodyMedium,
@@ -3512,7 +3586,7 @@ internal fun PlanDraftDialog(
             Button(
                 onClick = onAccept,
                 modifier = Modifier.testTag("accept-plan-draft"),
-                enabled = !isSaving && (draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty() || (draft.orderOnly && orderedTaskIds.isNotEmpty())),
+                enabled = canAccept && !isSaving && (draft.segments.isNotEmpty() || draft.pendingTaskIds.isNotEmpty() || (draft.orderOnly && orderedTaskIds.isNotEmpty())),
             ) {
                 Text(if (draft.orderOnly) "应用排序" else stringResource(R.string.accept_plan_draft))
             }
@@ -4740,6 +4814,8 @@ private fun TaskEditorDialog(
     allowPriorityChange: Boolean = task == null,
     saving: Boolean = false,
     saveError: String? = null,
+    canSave: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     onSave: (TaskDraft) -> Unit,
 ) {
@@ -4776,6 +4852,7 @@ private fun TaskEditorDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                readNotice?.invoke()
                 OutlinedTextField(
                     value = displayName,
                     enabled = !saving,
@@ -4897,7 +4974,7 @@ private fun TaskEditorDialog(
                     )
                     if (!estimatedDaysInvalid && !durationInvalid && TaskDraftValidator.isValid(draft)) onSave(draft) else showValidationError = true
                 },
-                enabled = !saving,
+                enabled = !saving && canSave,
                 modifier = Modifier.testTag("task-editor-save"),
             ) { Text(if (saving) "保存中…" else stringResource(confirmLabel)) }
         },
@@ -5023,6 +5100,8 @@ private fun WeeklyTimeBlockEditorDialog(
     initialKind: TimeBlockKind = TimeBlockKind.COURSE,
     busy: Boolean = false,
     error: String? = null,
+    canSave: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
 ) {
     var title by rememberSaveable(block?.id) { mutableStateOf(block?.title.orEmpty()) }
     var kind by rememberSaveable(block?.id) { mutableStateOf(block?.kind ?: initialKind) }
@@ -5047,6 +5126,7 @@ private fun WeeklyTimeBlockEditorDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                readNotice?.invoke()
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -5128,7 +5208,7 @@ private fun WeeklyTimeBlockEditorDialog(
                     )
                     if (TimeBlockValidator.isValid(draft)) onSave(draft) else showValidationError = true
                 },
-                enabled = !busy,
+                enabled = !busy && canSave,
                 modifier = Modifier.testTag("weekly-block-save"),
             ) { Text(if (busy) "保存中…" else stringResource(R.string.save)) }
         },
@@ -5145,6 +5225,8 @@ private fun DateOverrideEditorDialog(
     onSave: (DateOverrideDraft) -> Unit,
     busy: Boolean = false,
     error: String? = null,
+    canSave: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
 ) {
     var title by rememberSaveable(dateOverride?.id) { mutableStateOf(dateOverride?.title.orEmpty()) }
     var type by rememberSaveable(dateOverride?.id) {
@@ -5173,6 +5255,7 @@ private fun DateOverrideEditorDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                readNotice?.invoke()
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -5256,7 +5339,7 @@ private fun DateOverrideEditorDialog(
                     if (draft != null && TimeBlockValidator.isValid(draft)) onSave(draft)
                     else showValidationError = true
                 },
-                enabled = !busy,
+                enabled = !busy && canSave,
                 modifier = Modifier.testTag("date-override-save"),
             ) { Text(if (busy) "保存中…" else stringResource(R.string.save)) }
         },
@@ -5273,15 +5356,18 @@ private fun DeleteTimeEntryDialog(
     onConfirm: () -> Unit,
     busy: Boolean = false,
     error: String? = null,
+    canSave: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
 ) {
     AlertDialog(
         properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = !busy, dismissOnClickOutside = !busy),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.delete_time_entry)) },
         text = { Column { Text(stringResource(R.string.delete_time_entry_message, title));
+            readNotice?.invoke()
             error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("time-mutation-error")) } } },
         confirmButton = {
-            TextButton(onClick = onConfirm, enabled = !busy, modifier = Modifier.testTag("time-delete-confirm")) {
+            TextButton(onClick = onConfirm, enabled = !busy && canSave, modifier = Modifier.testTag("time-delete-confirm")) {
                 Text(if (busy) "删除中…" else stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
             }
         },
@@ -5374,12 +5460,15 @@ private fun PartialCompletionDialog(
     task: Task,
     busy: Boolean,
     error: String?,
+    canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) = FeedbackDialog(
     title = stringResource(R.string.partial_completion),
     task = task,
     busy = busy, error = error,
+    canConfirm = canConfirm, readNotice = readNotice,
     requireContent = true,
     requirePartialProgress = true,
     onDismiss = onDismiss,
@@ -5391,12 +5480,15 @@ private fun ExecutionFeedbackDialog(
     task: Task,
     busy: Boolean,
     error: String?,
+    canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) = FeedbackDialog(
     title = stringResource(R.string.record_feedback),
     task = task,
     busy = busy, error = error,
+    canConfirm = canConfirm, readNotice = readNotice,
     requireContent = false,
     requirePartialProgress = false,
     notice = stringResource(R.string.feedback_does_not_change_status),
@@ -5409,12 +5501,15 @@ private fun CorrectExecutionLogDialog(
     log: TaskExecutionLog,
     busy: Boolean,
     error: String?,
+    canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     onConfirm: (TaskFeedback) -> Unit,
 ) = FeedbackDialog(
     title = stringResource(R.string.correct_log),
     task = null,
     identity = log.id, busy = busy, error = error,
+    canConfirm = canConfirm, readNotice = readNotice,
     initialFeedback = log.feedback,
     requireContent = false,
     requirePartialProgress = false,
@@ -5434,6 +5529,8 @@ private fun FeedbackDialog(
     initialFeedback: TaskFeedback = TaskFeedback(),
     requireContent: Boolean,
     requirePartialProgress: Boolean,
+    canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     showPostponeReason: Boolean = false,
     notice: String? = null,
     onDismiss: () -> Unit,
@@ -5467,6 +5564,7 @@ private fun FeedbackDialog(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
+                readNotice?.invoke()
                 notice?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -5550,7 +5648,7 @@ private fun FeedbackDialog(
                     ) onConfirm(feedback) else showValidationError = true
                 },
                 modifier = Modifier.testTag("feedback-confirm"),
-                enabled = !busy,
+                enabled = !busy && canConfirm,
             ) { Text(if (busy) "保存中…" else stringResource(R.string.confirm)) }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
@@ -5558,7 +5656,8 @@ private fun FeedbackDialog(
 }
 
 @Composable
-private fun PostponeTaskDialog(taskId: String, busy: Boolean, error: String?, onDismiss: () -> Unit, onConfirm: (String?) -> Unit) {
+private fun PostponeTaskDialog(taskId: String, busy: Boolean, error: String?, canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null, onDismiss: () -> Unit, onConfirm: (String?) -> Unit) {
     var reason by rememberSaveable(taskId) { mutableStateOf("") }
     EditorSheet(
         onDismissRequest = onDismiss,
@@ -5566,6 +5665,7 @@ private fun PostponeTaskDialog(taskId: String, busy: Boolean, error: String?, on
         title = { Text(stringResource(R.string.postpone)) },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                readNotice?.invoke()
                 Text(stringResource(R.string.postpone_notice), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedTextField(
                     value = reason,
@@ -5579,7 +5679,7 @@ private fun PostponeTaskDialog(taskId: String, busy: Boolean, error: String?, on
                     modifier = Modifier.testTag("feedback-save-error").semantics { liveRegion = androidx.compose.ui.semantics.LiveRegionMode.Polite }) }
             }
         },
-        confirmButton = { TextButton(onClick = { onConfirm(reason) }, enabled = !busy,
+        confirmButton = { TextButton(onClick = { onConfirm(reason) }, enabled = !busy && canConfirm,
             modifier = Modifier.testTag("postpone-confirm")) { Text(if (busy) "保存中…" else stringResource(R.string.confirm)) } },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
     )
@@ -5592,6 +5692,8 @@ private fun ConfirmTaskStatusDialog(
     confirmLabel: String,
     busy: Boolean = false,
     error: String? = null,
+    canConfirm: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
 ) {
@@ -5599,9 +5701,9 @@ private fun ConfirmTaskStatusDialog(
         onDismissRequest = onDismiss,
         properties = androidx.compose.ui.window.DialogProperties(dismissOnBackPress = !busy, dismissOnClickOutside = !busy),
         title = { Text(title) },
-        text = { Column { Text(message); error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
+        text = { Column { readNotice?.invoke(); Text(message); error?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
         confirmButton = {
-            TextButton(onClick = onConfirm, enabled = !busy, modifier = Modifier.testTag("cancel-task-confirm")) { Text(if (busy) "保存中…" else confirmLabel, color = MaterialTheme.colorScheme.error) }
+            TextButton(onClick = onConfirm, enabled = !busy && canConfirm, modifier = Modifier.testTag("cancel-task-confirm")) { Text(if (busy) "保存中…" else confirmLabel, color = MaterialTheme.colorScheme.error) }
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.cancel)) } },
     )

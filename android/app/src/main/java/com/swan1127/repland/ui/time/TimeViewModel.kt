@@ -16,7 +16,6 @@ import com.swan1127.repland.domain.ports.TimeRepository
 import java.time.LocalDate
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -31,7 +30,11 @@ data class TimeUiState(
     val timeConstraintsUpdatedAtEpochMillis: Long = 0L,
     val isLoading: Boolean = true,
     val timetableImport: TimetableImportState = TimetableImportState.Idle,
-)
+    val hasLoaded: Boolean = false,
+    val readError: String? = null,
+) {
+    val isTrusted: Boolean get() = hasLoaded && !isLoading && readError == null
+}
 
 sealed interface TimetableImportState {
     data object Idle : TimetableImportState
@@ -73,26 +76,25 @@ class TimeViewModel(
     val mutationState: StateFlow<TimeMutationState> = mutation
     private var retryAction: (() -> Unit)? = null
 
-    val uiState: StateFlow<TimeUiState> = combine(
-        timeRepository.observeWeeklyBlocks(),
-        timeRepository.observeDateOverrides(),
-        timeRepository.observeTimeConstraintSettings(),
-        timetableImport,
-    ) { weeklyBlocks, dateOverrides, constraintSettings, importState ->
-        TimeUiState(
-            weeklyBlocks = weeklyBlocks,
-            dateOverrides = dateOverrides,
-            semesterFirstWeekMonday = constraintSettings.semesterFirstWeekMonday,
-            timeConstraintsUpdatedAtEpochMillis = constraintSettings.updatedAtEpochMillis,
-            isLoading = false,
-            timetableImport = importState,
-        )
-    }.catch { emit(TimeUiState(isLoading = false)) }
+    private val readRetries = MutableStateFlow(0)
+    val uiState: StateFlow<TimeUiState> = com.swan1127.repland.ui.state.recoverableRead(
+        initial = TimeUiState(), retries = readRetries, errorMessage = "时间设置读取失败，请重试；未删除课程或例外。",
+    ) {
+        combine(timeRepository.observeWeeklyBlocks(), timeRepository.observeDateOverrides(),
+            timeRepository.observeTimeConstraintSettings()) { weeklyBlocks, dateOverrides, settings ->
+            TimeUiState(weeklyBlocks, dateOverrides, settings.semesterFirstWeekMonday, settings.updatedAtEpochMillis,
+                isLoading = false, hasLoaded = true)
+        }
+    }.combine(timetableImport) { read, importState ->
+        read.value.copy(isLoading = read.isLoading, hasLoaded = read.hasLoaded, readError = read.error, timetableImport = importState)
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = TimeUiState(),
         )
+
+    fun retryRead() { if (!uiState.value.isLoading && uiState.value.readError != null) readRetries.value++ }
 
     fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft) {
         mutate(TimeMutationKind.WEEKLY_SAVE, draft.id, "每周时间已保存") {
@@ -123,6 +125,11 @@ class TimeViewModel(
     private fun mutate(kind: TimeMutationKind, targetId: String?, receipt: String, action: suspend () -> Unit) {
         if (mutation.value.busy || mutation.value.receipt != null ||
             (timetableImport.value as? TimetableImportState.Review)?.saving == true) return
+        if (uiState.value.readError != null || (uiState.value.hasLoaded && uiState.value.isLoading)) {
+            mutation.value = TimeMutationState(kind, targetId, error = "请先重新读取时间设置；本次未保存，输入仍保留。")
+            retryAction = { mutate(kind, targetId, receipt, action) }
+            return
+        }
         mutation.value = TimeMutationState(kind, targetId, busy = true)
         retryAction = { mutate(kind, targetId, receipt, action) }
         viewModelScope.launch {
@@ -198,6 +205,10 @@ class TimeViewModel(
     fun confirmTimetableImport() {
         val review = timetableImport.value as? TimetableImportState.Review ?: return
         if (review.saving) return
+        if (uiState.value.readError != null || (uiState.value.hasLoaded && uiState.value.isLoading)) {
+            timetableImport.value = review.copy(error = "请先重新读取时间设置；导入预览仍保留，没有写入课程。")
+            return
+        }
         val selected = review.courses.filter { it.id in review.selectedIds }
         if (!review.clockAcknowledged || selected.isEmpty()) {
             timetableImport.value = review.copy(error = "请至少选择一门课程并核对默认节次时间")

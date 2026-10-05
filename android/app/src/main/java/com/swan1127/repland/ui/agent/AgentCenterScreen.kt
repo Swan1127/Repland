@@ -95,6 +95,7 @@ private typealias AgentTaskProposal = AssistantTaskProposal
  */
 @Composable
 fun AgentCenterScreen(
+    contextReady: Boolean = true,
     activeDate: LocalDate = LocalDate.now(),
     occupiedEntries: List<TimelineEntry> = emptyList(),
     canRefineWithAi: Boolean = false,
@@ -151,6 +152,7 @@ fun AgentCenterScreen(
         requestJob = null
         isRefining = false
     }
+    LaunchedEffect(contextReady) { if (!contextReady) invalidateRequest() }
     var queryTasks by remember { mutableStateOf<List<com.swan1127.repland.domain.model.Task>?>(null) }
     var queryScope by remember { mutableStateOf<com.swan1127.repland.domain.model.TaskQueryScope?>(null) }
     var explanation by remember { mutableStateOf<com.swan1127.repland.domain.model.LocalPriorityAssessment?>(null) }
@@ -246,7 +248,11 @@ fun AgentCenterScreen(
         } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
         catch (_: Exception) { refinementMessage = "AI 请求失败，本地任务也暂时无法读取；保留输入，请重试，没有确认任何更改。" }
     }
-    val createPreview: () -> Unit = {
+    val createPreview: () -> Unit = preview@{
+        if (!contextReady) {
+            refinementMessage = "请先重新读取任务和时间；输入与草案仍保留。"
+            return@preview
+        }
         invalidateRequest()
         followUpInstruction = ""
         queryTasks = null; explanation = null
@@ -341,6 +347,7 @@ fun AgentCenterScreen(
         }
         AgentComposer(
             prompt = prompt,
+            canPreview = contextReady,
             willUseAi = canRefineWithAi,
             isWorking = isRefining,
             onPromptChange = { invalidateRequest(); prompt = it; proposals = emptyList(); intent = null; followUpInstruction = ""; queryTasks = null; explanation = null; refinementMessage = null; persistWorkspace() },
@@ -404,9 +411,9 @@ fun AgentCenterScreen(
                 intent = intent,
                 proposals = proposals,
                 occupiedEntries = occupiedEntries,
-                canRefineWithAi = canRefineWithAi && !isSaving,
+                canRefineWithAi = contextReady && canRefineWithAi && !isSaving,
                 isRefining = isRefining,
-                canConfirm = draftDate == activeDate && draftRevision == contextRevision && !isSaving && !isRefining && followUpInstruction.isBlank() && proposals.all { it.existingTaskId == null || (onConfirmChanges != null && intent != ArrangementIntent.CAPTURE_TASKS && existingTasks.any { task -> task.id == it.existingTaskId } && it.timeHint.explicitStartMinute != null && it.durationMinutes != null) },
+                canConfirm = contextReady && draftDate == activeDate && draftRevision == contextRevision && !isSaving && !isRefining && followUpInstruction.isBlank() && proposals.all { it.existingTaskId == null || (onConfirmChanges != null && intent != ArrangementIntent.CAPTURE_TASKS && existingTasks.any { task -> task.id == it.existingTaskId } && it.timeHint.explicitStartMinute != null && it.durationMinutes != null) },
                 followUpInstruction = followUpInstruction,
                 onFollowUpChange = { invalidateRequest(); followUpInstruction = it; persistWorkspace() },
                 refinementMessage = refinementMessage,
@@ -530,7 +537,7 @@ private fun ContextPill(label: String, icon: androidx.compose.ui.graphics.vector
 }
 
 @Composable
-private fun AgentComposer(prompt: String, willUseAi: Boolean, isWorking: Boolean, onPromptChange: (String) -> Unit, onSeed: (String) -> Unit, onVoice: () -> Unit, onPreview: () -> Unit) {
+private fun AgentComposer(prompt: String, willUseAi: Boolean, isWorking: Boolean, canPreview: Boolean = true, onPromptChange: (String) -> Unit, onSeed: (String) -> Unit, onVoice: () -> Unit, onPreview: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(26.dp)) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -552,7 +559,7 @@ private fun AgentComposer(prompt: String, willUseAi: Boolean, isWorking: Boolean
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AssistChip(onClick = onVoice, modifier = Modifier.height(44.dp).testTag("agent-voice-input"), label = { Text("语音输入") }, leadingIcon = { Icon(PlannerIcons.Voice, contentDescription = null, modifier = Modifier.size(18.dp)) }, colors = AssistChipDefaults.assistChipColors(containerColor = MaterialTheme.colorScheme.secondaryContainer))
                 Spacer(Modifier.weight(1f))
-                Button(onClick = onPreview, enabled = prompt.isNotBlank() && !isWorking, modifier = Modifier.heightIn(min = 48.dp).testTag("agent-preview")) {
+                Button(onClick = onPreview, enabled = canPreview && prompt.isNotBlank() && !isWorking, modifier = Modifier.heightIn(min = 48.dp).testTag("agent-preview")) {
                     Icon(PlannerIcons.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(7.dp))
                     Text(if (isWorking) "处理中…" else if (willUseAi) "发送给助手" else "本地解析")
