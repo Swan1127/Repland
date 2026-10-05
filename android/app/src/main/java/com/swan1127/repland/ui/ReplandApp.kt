@@ -1846,8 +1846,8 @@ private fun TodayEmptyState(onAdd: () -> Unit, onVoiceCapture: () -> Unit) {
 }
 
 @Composable
-private fun CompactSectionHeader(title: String, count: Int, action: String? = null, onAction: (() -> Unit)? = null) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+private fun CompactSectionHeader(title: String, count: Int, action: String? = null, onAction: (() -> Unit)? = null, modifier: Modifier = Modifier) {
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = MaterialTheme.typography.titleMedium)
         Text("  $count", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.weight(1f))
@@ -2156,7 +2156,8 @@ private fun TaskControlCenter(
                 item(key = "heading-$title") {
                     CompactSectionHeader(title, group.size,
                         action = if (group.size > 3) { if (expandedGroup == title) "收起" else "查看全部" } else null,
-                        onAction = { expandedGroup = if (expandedGroup == title) null else title })
+                        onAction = { expandedGroup = if (expandedGroup == title) null else title },
+                        modifier = Modifier.testTag("task-group-$title"))
                 }
                 items(if (expandedGroup == title) group else group.take(3), key = Task::id) { task ->
                     Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {

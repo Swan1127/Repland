@@ -101,7 +101,11 @@ class PlacementNumericWorkflowUiTest {
         assertEquals(task, runBlocking { app.taskRepository.observeTasks().first().single { it.id == id } })
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("event-place-confirm").fetchSemanticsNodes().isEmpty() }
         visible("navigation-tasks").performClick()
-        waitTag("task-card-${task.displayName}")
+        waitTag("task-groups-scroll")
+        rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-group-更晚"))
+        val expand = hasText("查看全部") and hasAnyAncestor(hasTestTag("task-group-更晚"))
+        if (rule.onAllNodes(expand).fetchSemanticsNodes().isNotEmpty()) rule.onNode(expand).assertIsDisplayed().performClick()
+        rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-${task.displayName}"))
         rule.onNodeWithTag("task-card-${task.displayName}").assertExists()
     }
 }
