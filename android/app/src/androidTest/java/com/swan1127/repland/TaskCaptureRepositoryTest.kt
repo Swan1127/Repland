@@ -11,6 +11,28 @@ import org.junit.Test
 import java.time.LocalDate
 
 class TaskCaptureRepositoryTest {
+    @Test fun invalid_raw_duration_cannot_be_committed_as_unknown_or_another_value() = runBlocking {
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
+        try {
+            val repo = RoomTaskCaptureRepository(db)
+            listOf("-30", "+30", "3.5", "999999999999", "0", "1441").forEach { raw ->
+                val capture = TaskCaptureDraft(text = "非法时长", isCustomDuration = true, customDurationText = raw)
+                repo.saveDraft(capture)
+                listOf(null, 30).forEach { substituted ->
+                    assertTrue(runCatching { repo.commit(capture, capture.toTaskDraft().copy(totalDurationMinutes = substituted)) }.isFailure)
+                    assertEquals(capture, repo.observeDraft().first())
+                    assertTrue(db.taskDao().getAll().isEmpty())
+                }
+            }
+            val capture = TaskCaptureDraft(text = "合法原值", isCustomDuration = true, customDurationText = "45")
+            repo.saveDraft(capture)
+            assertTrue(runCatching { repo.commit(capture, capture.toTaskDraft().copy(totalDurationMinutes = 30)) }.isFailure)
+            assertEquals(capture, repo.observeDraft().first())
+            assertTrue(db.taskDao().getAll().isEmpty())
+            repo.commit(capture, capture.toTaskDraft())
+            assertEquals(45, db.taskDao().getAll().single().totalDurationMinutes)
+        } finally { db.close() }
+    }
     @Test fun draft_fields_survive_database_close_and_reopen_without_creating_task() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val name = "capture-${java.util.UUID.randomUUID()}.db"

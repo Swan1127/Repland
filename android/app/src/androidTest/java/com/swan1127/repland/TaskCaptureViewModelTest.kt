@@ -77,13 +77,15 @@ class TaskCaptureViewModelTest {
     @Test fun invalid_custom_duration_cannot_be_silently_saved_as_unknown_from_another_step() {
         val repo = Fake()
         withVm(repo) { vm ->
+            listOf("-30", "+30", "3.5", "999999999999", "0", "1441").forEach { raw ->
             val draft = vm.uiState.value.draft.copy(text = "保留输入", isCustomDuration = true,
-                customDurationText = "1441", stage = TaskCaptureStage.CAPTURE)
+                customDurationText = raw, stage = TaskCaptureStage.CAPTURE)
             InstrumentationRegistry.getInstrumentation().runOnMainSync { vm.update(draft); vm.save(draft.toTaskDraft()) }
             assertNotNull(vm.uiState.value.error)
             assertEquals(draft, vm.uiState.value.draft)
             assertEquals(0, repo.commits)
             assertNull(vm.uiState.value.receipt)
+            }
         }
     }
     @Test fun successful_data_clear_cancels_pending_autosave_and_forgets_in_memory_draft() {

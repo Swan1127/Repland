@@ -18,7 +18,9 @@ data class TaskCaptureDraft(
     val isCustomDuration: Boolean = false,
     val customDurationText: String = "",
 ) {
-    val selectedDuration: Int? get() = if (isCustomDuration) customDurationText.toIntOrNull()?.takeIf { it in 1..1440 }
+    val selectedDuration: Int? get() = if (isCustomDuration) customDurationText.takeIf { raw ->
+        raw.isNotEmpty() && raw.all { it in '0'..'9' }
+    }?.toIntOrNull()?.takeIf { it in 1..1440 }
         else duration.takeIf { it > 0 }
     val durationIsValid: Boolean get() = !isCustomDuration || selectedDuration != null
     fun toTaskDraft(): TaskDraft = TaskDraft(id, TaskName.fromDescription(text.trim()), text.trim(), category, priority,

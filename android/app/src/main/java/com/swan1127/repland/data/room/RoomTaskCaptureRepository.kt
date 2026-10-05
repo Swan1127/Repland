@@ -38,7 +38,10 @@ class RoomTaskCaptureRepository(private val database: ReplandDatabase) : TaskCap
         if (workspace.get("task-capture")?.let { TaskCaptureCodec.decode(it.payload).id } == id) workspace.remove("task-capture")
     }
     override suspend fun commit(capture: TaskCaptureDraft, task: TaskDraft) = database.withTransaction {
-        require(task.id == capture.id && TaskDraftValidator.isValid(task)) { "任务草稿无效，请检查内容。" }
+        require(task.id == capture.id && capture.durationIsValid &&
+            task.totalDurationMinutes == capture.selectedDuration && TaskDraftValidator.isValid(task)) {
+            "任务草稿无效，请检查内容与时长。"
+        }
         if (database.taskDao().getById(capture.id) != null) return@withTransaction
         require(workspace.get("task-capture")?.let { TaskCaptureCodec.decode(it.payload) } == capture) { "草稿已变化，请重新确认。" }
         tasks.save(task)

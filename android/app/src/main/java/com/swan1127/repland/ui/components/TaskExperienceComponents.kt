@@ -332,6 +332,7 @@ fun TaskCaptureSheet(
 
     fun save(value: TaskCaptureDraft = current) {
         if (saving || value.text.isBlank()) return
+        if (!value.durationIsValid) { step(TaskCaptureStage.DURATION); return }
         imeBridge.hide()
         if (value != current) update(value)
         onSave(value.toTaskDraft())
@@ -422,6 +423,13 @@ fun TaskCaptureSheet(
             }
             saveError?.let { Text(it, modifier = Modifier.testTag("task-capture-error"),
                 color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium) }
+            if (!current.durationIsValid && current.stage != TaskCaptureStage.DURATION) {
+                Text("自定义时长尚未有效，原输入仍保留。请修改时长或明确选择“不确定”。",
+                    modifier = Modifier.testTag("task-capture-duration-error"),
+                    color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { step(TaskCaptureStage.DURATION) }, enabled = !saving,
+                    modifier = Modifier.heightIn(min = 48.dp).testTag("task-capture-correct-duration")) { Text("修改时长") }
+            }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 when (current.stage) {
@@ -488,7 +496,7 @@ private fun CaptureInputStep(
             maxLines = 4,
         )
         Text(listOf("${category.captureLabel()}", "${priority.captureLabel()}优先级",
-            draft.selectedDuration?.let { "$it 分钟" } ?: "时长未知",
+            if (!draft.durationIsValid) "时长待修改" else draft.selectedDuration?.let { "$it 分钟" } ?: "时长未知",
             draft.dueDate?.let { "截止 ${taskDateLabel(it)}" } ?: "未设截止日",
             draft.scheduledForDate?.let { "计划 ${taskDateLabel(it)}" } ?: "未设计划日").joinToString(" · "),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -552,8 +560,7 @@ private fun CaptureDurationStep(
 ) {
     val isCustomDuration = draft.isCustomDuration
     val customDurationText = draft.customDurationText
-    val customDuration = customDurationText.toIntOrNull()
-    val customDurationIsValid = customDuration != null && customDuration in 1..1_440
+    val customDurationIsValid = draft.durationIsValid
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text("大约需要多久？", style = MaterialTheme.typography.headlineSmall)
         Text("不确定也没关系，后续可以用真实记录慢慢校准。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -574,6 +581,7 @@ private fun CaptureDurationStep(
             selected = !isCustomDuration && draft.duration == 0,
             onClick = { onChange(draft.copy(isCustomDuration = false, duration = 0)) },
             label = { Text("不确定") },
+            modifier = Modifier.testTag("task-capture-duration-unknown"),
         )
         OutlinedButton(
             enabled = enabled,
@@ -584,7 +592,7 @@ private fun CaptureDurationStep(
             OutlinedTextField(
                 value = customDurationText,
                 enabled = enabled,
-                onValueChange = { onChange(draft.copy(customDurationText = it.filter(Char::isDigit))) },
+                onValueChange = { onChange(draft.copy(customDurationText = it)) },
                 modifier = Modifier.fillMaxWidth().testTag("task-capture-duration-custom-input"),
                 label = { Text("自定义时长（分钟）") },
                 placeholder = { Text("1–1440") },
@@ -593,7 +601,7 @@ private fun CaptureDurationStep(
                 isError = customDurationText.isNotBlank() && !customDurationIsValid,
                 supportingText = {
                     if (customDurationText.isBlank()) Text("例如 45 分钟")
-                    else if (!customDurationIsValid) Text("请输入 1–1440 之间的分钟数")
+                    else if (!customDurationIsValid) Text("请输入 1–1440 的整数分钟；不接受负数、小数或其他字符")
                 },
             )
         }
