@@ -108,6 +108,8 @@ class SessionInputWorkflowUiTest {
         val id = UUID.randomUUID().toString(); val name = "QA-numbers25-$id"
         runBlocking { container.taskRepository.save(TaskDraft(id, name, "", TaskCategory.COURSE, TaskPriority.MEDIUM, 1, 60, null)) }
         val original = runBlocking { container.taskRepository.observeTasks().first().single { it.id == id } }
+        val (_, vm) = fault()
+        rule.waitUntil(10_000) { vm.uiState.value.isTrusted && vm.uiState.value.tasks.any { it.id == id } }
         waitTag("navigation-tasks"); rule.onNodeWithTag("navigation-tasks").performClick(); waitTag("task-groups-scroll")
         rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-$name"))
         rule.onNodeWithTag("task-card-$name").performClick(); waitTag("task-detail-scroll")
