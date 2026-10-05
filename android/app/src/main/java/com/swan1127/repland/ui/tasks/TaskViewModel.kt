@@ -14,7 +14,7 @@ import com.swan1127.repland.domain.ports.TaskRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -78,9 +78,16 @@ class TaskViewModel(
     val sessionError = MutableStateFlow<String?>(null)
     val sessionFinished = MutableStateFlow(false)
     fun dismissSessionResult() { sessionFinished.value = false }
-    val activeSession: StateFlow<ExecutionSession?> = (sessions?.observeActive() ?: flowOf(null))
-        .catch { sessionError.value = "专注记录读取失败，请重试。"; emit(null) }
+    private val sessionReadRetries = MutableStateFlow(0)
+    val sessionReadState = com.swan1127.repland.ui.state.recoverableRead<ExecutionSession?>(
+        initial = null, retries = sessionReadRetries, errorMessage = "专注记录读取失败；原会话仍保留，请重新读取后操作。",
+        source = { sessions?.observeActive() ?: flowOf(null) },
+    ).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), com.swan1127.repland.ui.state.ReadSnapshot(null))
+    val activeSession: StateFlow<ExecutionSession?> = sessionReadState.map { it.value }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    fun retrySessionRead() {
+        if (!sessionReadState.value.isLoading && sessionReadState.value.error != null) sessionReadRetries.value++
+    }
 
     fun startSession(segmentId: String) = sessionAction { it.start(segmentId); sessionFinished.value = false }
     fun pauseSession(id: String) = sessionAction { it.pause(id) }
@@ -90,10 +97,18 @@ class TaskViewModel(
 
     private fun sessionAction(action: suspend (ExecutionSessionRepository) -> Unit) {
         if (sessionBusy.value) return
+        if (sessionReadState.value.error != null || (sessionReadState.value.hasLoaded && sessionReadState.value.isLoading) ||
+            uiState.value.readError != null || (uiState.value.hasLoaded && uiState.value.isLoading)) {
+            sessionError.value = "请先重新读取专注与任务；本轮未改变。"
+            return
+        }
         sessionBusy.value = true
         viewModelScope.launch {
             sessionMutex.withLock {
                 try {
+                    check(sessionReadState.value.error == null && !(sessionReadState.value.hasLoaded && sessionReadState.value.isLoading)) {
+                        "请先重新读取专注；本轮未改变。"
+                    }
                     action(requireNotNull(sessions) { "当前版本未配置专注记录。" })
                     sessionError.value = null
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {

@@ -26,6 +26,8 @@ fun ExecutionSessionDialog(
     onPause: () -> Unit,
     onResume: () -> Unit,
     onFinish: (ExecutionOutcome, TaskFeedback) -> Unit,
+    canOperate: Boolean = true,
+    readNotice: (@Composable () -> Unit)? = null,
 ) {
     var now by remember { mutableStateOf(System.currentTimeMillis()) }
     var partial by rememberSaveable(session.id) { mutableStateOf(false) }
@@ -50,27 +52,31 @@ fun ExecutionSessionDialog(
                     style = MaterialTheme.typography.bodyMedium)
                 Text("返回页面或切到后台会继续计时；不会自动完成任务。", style = MaterialTheme.typography.bodyMedium)
                 error?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("execution-error")) }
-                OutlinedButton(onClick = if (session.isPaused) onResume else onPause, enabled = !busy,
+                readNotice?.invoke()
+                OutlinedButton(onClick = if (session.isPaused) onResume else onPause, enabled = !busy && canOperate,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-pause-resume")) {
                     Text(if (session.isPaused) "继续计时" else "暂停计时")
                 }
                 if (partial) {
-                    OutlinedTextField(progress, { progress = it.filter(Char::isDigit).take(3) }, label = { Text("任务累计进度（1–99%）") },
-                        modifier = Modifier.fillMaxWidth().testTag("execution-progress"), enabled = !busy)
+                    val validProgress = progress.all { it in '0'..'9' } && progress.toIntOrNull() in 1..99
+                    OutlinedTextField(progress, { progress = it }, label = { Text("任务累计进度（1–99%）") },
+                        modifier = Modifier.fillMaxWidth().testTag("execution-progress"), enabled = !busy,
+                        isError = progress.isNotBlank() && !validProgress,
+                        supportingText = { if (progress.isNotBlank() && !validProgress) Text("请输入 1–99 的整数百分比，不接受负数或小数。") })
                     OutlinedTextField(content, { content = it }, label = { Text("已完成内容") },
                         modifier = Modifier.fillMaxWidth().testTag("execution-content"), enabled = !busy)
                     Button(onClick = { onFinish(ExecutionOutcome.PARTIAL, TaskFeedback(progressPercent = progress.toIntOrNull(), completedContent = content)) },
-                        enabled = !busy && progress.toIntOrNull() in 1..99 && content.isNotBlank(),
+                        enabled = !busy && canOperate && validProgress && content.isNotBlank(),
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-partial-save")) { Text("记录部分完成并结束本轮") }
                     TextButton(onClick = { partial = false }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) { Text("取消填写") }
                 } else {
-                    Button(onClick = { onFinish(ExecutionOutcome.CONTINUE, TaskFeedback()) }, enabled = !busy,
+                    Button(onClick = { onFinish(ExecutionOutcome.CONTINUE, TaskFeedback()) }, enabled = !busy && canOperate,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-continue")) { Text("结束本轮 · 保留任务状态") }
                     OutlinedButton(onClick = { partial = true }, enabled = !busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("部分完成") }
-                    OutlinedButton(onClick = { onFinish(ExecutionOutcome.COMPLETED, TaskFeedback(progressPercent = 100)) }, enabled = !busy,
+                    OutlinedButton(onClick = { onFinish(ExecutionOutcome.COMPLETED, TaskFeedback(progressPercent = 100)) }, enabled = !busy && canOperate,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("execution-complete")) { Text("确认整个任务完成") }
-                    TextButton(onClick = { onFinish(ExecutionOutcome.SKIPPED, TaskFeedback(postponeReason = "本轮跳过")) }, enabled = !busy,
+                    TextButton(onClick = { onFinish(ExecutionOutcome.SKIPPED, TaskFeedback(postponeReason = "本轮跳过")) }, enabled = !busy && canOperate,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("跳过本轮 · 延后任务") }
                 }
                 TextButton(onClick = onDismiss, enabled = !busy, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("返回页面 · 保留本轮") }

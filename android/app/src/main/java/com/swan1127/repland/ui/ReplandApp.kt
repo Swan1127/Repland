@@ -278,7 +278,8 @@ fun ReplandApp(
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val taskMutation by taskViewModel.mutationState.collectAsStateWithLifecycle()
     val taskActionLocked = taskMutation.busy || taskMutation.receipt != null || !uiState.isTrusted
-    val executionSession by taskViewModel.activeSession.collectAsStateWithLifecycle()
+    val executionReadState by taskViewModel.sessionReadState.collectAsStateWithLifecycle()
+    val executionSession = executionReadState.value
     val executionBusy by taskViewModel.sessionBusy.collectAsStateWithLifecycle()
     val executionError by taskViewModel.sessionError.collectAsStateWithLifecycle()
     val executionFinished by taskViewModel.sessionFinished.collectAsStateWithLifecycle()
@@ -294,17 +295,18 @@ fun ReplandApp(
     val planningAgentUiState by planningAgentViewModel.uiState.collectAsStateWithLifecycle()
     val aiProviderConfigUiState by aiProviderConfigViewModel.uiState.collectAsStateWithLifecycle()
     val planningReadsReady = uiState.isTrusted && timeUiState.isTrusted && categoryPreferenceUiState.isTrusted &&
-        planUiState.isTrusted && workspaceUiState.isTrusted
+        planUiState.isTrusted && workspaceUiState.isTrusted && executionReadState.isTrusted
     val taskReadMessage = if (uiState.isLoading && uiState.hasLoaded) "正在重新读取任务…" else uiState.readError
     val timeReadMessage = if (timeUiState.isLoading && timeUiState.hasLoaded) "正在重新读取时间设置…" else timeUiState.readError
     val planReadMessage = if (planUiState.isLoading && planUiState.hasLoaded) "正在重新读取计划…" else planUiState.readError
     val workspaceReadMessage = if (workspaceUiState.isLoading && workspaceUiState.hasLoaded) "正在重新读取轨道与助手草稿…" else workspaceUiState.readError
     val preferenceReadMessage = if (categoryPreferenceUiState.isLoading && categoryPreferenceUiState.hasLoaded) "正在重新读取类别偏好…" else categoryPreferenceUiState.readError
-    val readMessage = listOfNotNull(taskReadMessage, timeReadMessage, planReadMessage, workspaceReadMessage, preferenceReadMessage)
+    val sessionReadMessage = if (executionReadState.isLoading && executionReadState.hasLoaded) "正在重新读取专注记录…" else executionReadState.error
+    val readMessage = listOfNotNull(taskReadMessage, timeReadMessage, planReadMessage, workspaceReadMessage, preferenceReadMessage, sessionReadMessage)
         .joinToString("\n").ifBlank { null }
     val canRetryReads = !uiState.isLoading && !timeUiState.isLoading && !planUiState.isLoading &&
-        !workspaceUiState.isLoading && !categoryPreferenceUiState.isLoading
-    val retryReads: () -> Unit = { taskViewModel.retryRead(); timeViewModel.retryRead(); planViewModel.retryRead(); categoryPreferenceViewModel.retryRead() }
+        !workspaceUiState.isLoading && !categoryPreferenceUiState.isLoading && !executionReadState.isLoading
+    val retryReads: () -> Unit = { taskViewModel.retryRead(); taskViewModel.retrySessionRead(); timeViewModel.retryRead(); planViewModel.retryRead(); categoryPreferenceViewModel.retryRead() }
     val arrangementAssistantAccess by arrangementAssistantViewModel.access.collectAsStateWithLifecycle()
     val engagementMode by engagementViewModel.mode.collectAsStateWithLifecycle()
     var activeDate by remember { mutableStateOf(LocalDate.now()) }
@@ -685,6 +687,7 @@ fun ReplandApp(
                     AppTab.TODAY -> TodayScreen(
                         executionSession = executionSession,
                         executionError = executionError,
+                        executionReadsReady = executionReadState.isTrusted && uiState.isTrusted && planUiState.isTrusted,
                         onResumeExecution = { showExecutionSession = true },
                         executionFinished = executionFinished,
                         onReplanRemaining = { taskViewModel.dismissSessionResult(); generatePlanDraft() },
@@ -749,8 +752,10 @@ fun ReplandApp(
                         onOpenTaskLibrary = { selectedTab = AppTab.TASKS },
                         onPlaceEvent = planViewModel::placeTask,
                         onFocusStarted = { segmentId ->
-                            showExecutionSession = true
-                            taskViewModel.startSession(segmentId)
+                            if (executionReadState.isTrusted && uiState.isTrusted && planUiState.isTrusted) {
+                                showExecutionSession = true
+                                taskViewModel.startSession(segmentId)
+                            }
                         },
                         onCreateCourse = { request, courseDate ->
                             timeViewModel.saveWeeklyBlock(
@@ -974,6 +979,8 @@ fun ReplandApp(
             session = executionSession!!,
             busy = executionBusy,
             error = executionError,
+            canOperate = executionReadState.isTrusted && uiState.isTrusted && planUiState.isTrusted,
+            readNotice = { readMessage?.let { DataReadNotice(it, retryReads, canRetryReads) } },
             onDismiss = { showExecutionSession = false },
             onPause = { taskViewModel.pauseSession(executionSession!!.id) },
             onResume = { taskViewModel.resumeSession(executionSession!!.id) },
@@ -1528,6 +1535,7 @@ private fun TabIcon(tab: AppTab) {
 private fun TodayScreen(
     executionSession: com.swan1127.repland.domain.model.ExecutionSession?,
     executionError: String?,
+    executionReadsReady: Boolean,
     onResumeExecution: () -> Unit,
     executionFinished: Boolean,
     onReplanRemaining: () -> Unit,
@@ -1646,7 +1654,7 @@ private fun TodayScreen(
                 TodayFocalOverview(
                     nextEntries = timelineEntries.filter { !it.taskClosed && it.end.isAfter(focusNow) }.sortedBy(TimelineEntry::startMinute),
                     now = focusNow,
-                    hasExecution = executionSession != null,
+                    hasExecution = executionSession != null || !executionReadsReady,
                     pendingCount = pendingEntries.size,
                     onOpenPending = { showPending = true },
                     onStart = onFocusStarted,
@@ -4898,8 +4906,8 @@ private fun TaskEditorDialog(
     var showValidationError by rememberSaveable { mutableStateOf(false) }
     val estimatedDays = estimatedDaysText.toIntOrNull()
     val durationMinutes = durationText.takeIf(String::isNotBlank)?.toIntOrNull()
-    val estimatedDaysInvalid = estimatedDays !in 1..30
-    val durationInvalid = durationText.isNotBlank() && durationMinutes !in 1..1_440
+    val estimatedDaysInvalid = estimatedDaysText.any { it !in '0'..'9' } || estimatedDays !in 1..30
+    val durationInvalid = durationText.isNotBlank() && (durationText.any { it !in '0'..'9' } || durationMinutes !in 1..1_440)
     val scheduleAfterDeadline = scheduledForDate?.let { scheduled ->
         dueDate?.let { deadline -> scheduled.isAfter(deadline) }
     } == true
@@ -4961,8 +4969,8 @@ private fun TaskEditorDialog(
                 OutlinedTextField(
                     value = estimatedDaysText,
                     enabled = !saving,
-                    onValueChange = { estimatedDaysText = it.filter(Char::isDigit) },
-                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = { estimatedDaysText = it },
+                    modifier = Modifier.fillMaxWidth().testTag("task-editor-days"),
                     label = { Text(stringResource(R.string.estimated_days)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -4974,7 +4982,7 @@ private fun TaskEditorDialog(
                 OutlinedTextField(
                     value = durationText,
                     enabled = !saving,
-                    onValueChange = { durationText = it.filter(Char::isDigit) },
+                    onValueChange = { durationText = it },
                     modifier = Modifier.fillMaxWidth().testTag("task-editor-duration"),
                     label = { Text(stringResource(R.string.duration_minutes_optional)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

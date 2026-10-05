@@ -68,3 +68,17 @@ internal class ReadFaultPreferences(private val base: CategoryPreferenceReposito
         }
     }
 }
+
+internal class ReadFaultSessions(private val base: ExecutionSessionRepository) : ExecutionSessionRepository by base {
+    val failed = MutableStateFlow(false)
+    val sources = AtomicInteger()
+    val mutations = AtomicInteger()
+    override fun observeActive(): Flow<ExecutionSession?> {
+        sources.incrementAndGet()
+        return base.observeActive().combine(failed) { value, fail -> check(!fail) { "QA session read failure" }; value }
+    }
+    override suspend fun start(segmentId: String) { mutations.incrementAndGet(); base.start(segmentId) }
+    override suspend fun pause(sessionId: String) { mutations.incrementAndGet(); base.pause(sessionId) }
+    override suspend fun resume(sessionId: String) { mutations.incrementAndGet(); base.resume(sessionId) }
+    override suspend fun finish(sessionId: String, outcome: ExecutionOutcome, feedback: TaskFeedback) { mutations.incrementAndGet(); base.finish(sessionId, outcome, feedback) }
+}
