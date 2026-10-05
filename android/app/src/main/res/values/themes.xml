@@ -2,4 +2,14 @@
 <resources>
 
     <style name="Theme.Repland" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <!-- Scoped to the full-screen focus dialog, not task/editor alert dialogs. -->
+    <style name="Theme.Repland.FocusDialogHost" parent="Theme.Repland">
+        <item name="android:dialogTheme">@style/Theme.Repland.FocusDialog</item>
+    </style>
+    <style name="Theme.Repland.FocusDialog" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>
