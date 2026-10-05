@@ -92,7 +92,9 @@ class SessionInputWorkflowUiTest {
             try { File(rule.activity.getExternalFilesDir(null), "qa-session25-read-failure.png").outputStream().use { check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) } }
             finally { screenshot.recycle() }
             source.failed.value = false
-            rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(hasTestTag("execution-session"))).performScrollTo().performClick()
+            rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(hasTestTag("execution-session"))).performScrollTo()
+            NativeSheetTestInput.assertControlWithinWindow(rule, "retry-data-read", "execution-session")
+            rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(hasTestTag("execution-session"))).performClick()
             rule.waitUntil(10_000) { vm.sessionReadState.value.isTrusted }
             rule.onNodeWithTag("execution-partial-save").performScrollTo().assertIsEnabled()
             NativeSheetTestInput.assertControlWithinWindow(rule, "execution-partial-save")
@@ -108,6 +110,34 @@ class SessionInputWorkflowUiTest {
         } finally {
             cleanup(id)
             if (rotateWhileOpen) rule.activityRule.scenario.onActivity { it.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED }
+        }
+    }
+    @Test fun native_keyboard_back_keeps_partial_input_then_returns_without_finishing() {
+        val id = UUID.randomUUID().toString()
+        val previous = NativeSheetTestInput.shell("settings get secure show_ime_with_hard_keyboard")
+        try {
+            NativeSheetTestInput.shell("settings put secure show_ime_with_hard_keyboard 1")
+            seed(id)
+            val original = runBlocking { container.executionSessionRepository.observeActive().first() }
+            fault(); waitTag("resume-execution")
+            rule.onNodeWithTag("resume-execution").performScrollTo().performClick(); waitTag("execution-pause-resume")
+            NativeSheetTestInput.awaitFocusedDialog(rule, "QA-session25-$id")
+            rule.onNodeWithText("部分完成").performScrollTo().performClick()
+            fill("execution-progress", "40"); fill("execution-content", "键盘返回保留输入")
+            rule.onNodeWithTag("execution-content").performClick().assertIsFocused()
+            rule.waitUntil(10_000) { NativeSheetTestInput.shell("dumpsys input_method").contains("mWindowVisible=true") }
+            NativeSheetTestInput.shell("input keyevent 4")
+            rule.waitUntil(10_000) { !NativeSheetTestInput.shell("dumpsys input_method").contains("mWindowVisible=true") }
+            rule.onNodeWithTag("execution-content").assertTextContains("键盘返回保留输入")
+            rule.onNodeWithTag("execution-progress").assertTextContains("40")
+            rule.onNodeWithTag("execution-return").performScrollTo().assertIsDisplayed()
+            NativeSheetTestInput.assertControlWithinWindow(rule, "execution-return")
+            NativeSheetTestInput.shell("input keyevent 4"); gone("execution-session")
+            assertEquals(original, runBlocking { container.executionSessionRepository.observeActive().first() })
+        } finally {
+            cleanup(id)
+            NativeSheetTestInput.shell(if (previous == "null") "settings delete secure show_ime_with_hard_keyboard"
+                else "settings put secure show_ime_with_hard_keyboard $previous")
         }
     }
     @Test fun initially_failed_round_read_has_retry_and_does_not_offer_a_false_resume() {

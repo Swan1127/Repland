@@ -4,6 +4,9 @@ import android.os.ParcelFileDescriptor
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNode
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.geometry.Offset
 import androidx.test.platform.app.InstrumentationRegistry
 
@@ -67,12 +70,14 @@ internal object NativeSheetTestInput {
         } finally { root.recycle(); screenshot.recycle() }
     }
 
-    fun assertControlWithinWindow(rule: ComposeTestRule, tag: String) {
+    fun assertControlWithinWindow(rule: ComposeTestRule, tag: String, ancestorTag: String? = null) {
         rule.waitForIdle()
         val root = requireNotNull(automation.rootInActiveWindow)
         try {
             val bounds = android.graphics.Rect().also(requireNotNull(root.window)::getBoundsInScreen)
-            val coordinates = rule.onNodeWithTag(tag).fetchSemanticsNode().layoutInfo.coordinates
+            val node = if (ancestorTag == null) rule.onNodeWithTag(tag) else
+                rule.onNode(hasTestTag(tag) and hasAnyAncestor(hasTestTag(ancestorTag)))
+            val coordinates = node.fetchSemanticsNode().layoutInfo.coordinates
             val origin = coordinates.localToWindow(Offset.Zero)
             val size = coordinates.size
             org.junit.Assert.assertTrue("$tag must be fully reachable: window=$bounds, origin=$origin, size=$size",
