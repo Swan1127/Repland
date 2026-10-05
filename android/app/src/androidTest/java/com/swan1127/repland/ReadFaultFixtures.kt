@@ -34,10 +34,22 @@ internal class ReadFaultPlans(private val base: PlanRepository) : PlanRepository
     @Volatile var failDraftWrite = false
     var draftWriteGate: CompletableDeferred<Unit>? = null
     val draftWrites = AtomicInteger()
+    val draftWriteStarted = CompletableDeferred<Unit>()
+    val draftWriteCancelled = CompletableDeferred<Unit>()
     override suspend fun saveDraft(draft: PlanDraft?) {
         draftWriteGate?.await()
         check(!failDraftWrite) { "QA draft write failure" }
         base.saveDraft(draft); draftWrites.incrementAndGet()
+    }
+    override suspend fun replaceDraftIfCurrent(expected: PlanDraft, updated: PlanDraft) {
+        draftWriteStarted.complete(Unit)
+        try {
+            draftWriteGate?.await()
+            check(!failDraftWrite) { "QA draft write failure" }
+            base.replaceDraftIfCurrent(expected, updated); draftWrites.incrementAndGet()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            draftWriteCancelled.complete(Unit); throw cancelled
+        }
     }
     val failedPart = MutableStateFlow<String?>(null)
     val mainSources = AtomicInteger()

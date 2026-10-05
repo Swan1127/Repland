@@ -24,6 +24,8 @@ data class PlanUiState(
     val hasLoaded: Boolean = false,
     val readError: String? = null,
     val readAttempt: Int = 0,
+    val draftEditError: String? = null,
+    val draftEditReceipt: String? = null,
 ) {
     val isTrusted get() = hasLoaded && !isLoading && readError == null
 }
@@ -50,6 +52,8 @@ class PlanViewModel(
     private val operation = MutableStateFlow<Pair<String?, Boolean>>(null to false)
     private val mutex = Mutex()
     private val assistantReceipt = MutableStateFlow<AssistantSaveReceipt?>(null)
+    private val draftEditFeedback = MutableStateFlow<Pair<String?, String?>>(null to null)
+    fun clearDraftEditFeedback() { if (!operation.value.second) draftEditFeedback.value = null to null }
     fun dismissAssistantReceipt() { assistantReceipt.value = null }
     suspend fun queryTasks(scope: TaskQueryScope, date: LocalDate): List<Task> = requireNotNull(operations).query(scope, date)
     suspend fun explainOrder(taskId: String): LocalPriorityAssessment = requireNotNull(operations).explainOrder(taskId)
@@ -79,6 +83,7 @@ class PlanViewModel(
     }.combine(operation) { read, operation -> read.value.copy(isLoading = read.isLoading, hasLoaded = read.hasLoaded,
         readError = read.error, errorMessage = operation.first, isWorking = operation.second) }
         .combine(assistantReceipt) { state, receipt -> state.copy(assistantReceipt = receipt) }
+        .combine(draftEditFeedback) { state, feedback -> state.copy(draftEditError = feedback.first, draftEditReceipt = feedback.second) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
     fun retryRead() {
@@ -169,6 +174,34 @@ class PlanViewModel(
 
     fun updateDraft(updatedDraft: PlanDraft) = mutate {
         if (uiState.value.draft != null) planRepository.saveDraft(updatedDraft)
+    }
+
+    fun saveDraftEdit(expected: PlanDraft, updated: PlanDraft, requestId: String) {
+        // Synchronous guard prevents duplicate taps before UI state has recomposed.
+        if (operation.value.second) return
+        if (readUnavailable()) {
+            draftEditFeedback.value = "请先重新读取草案；本次未保存，输入仍保留。" to null
+            return
+        }
+        operation.value = null to true
+        draftEditFeedback.value = null to null
+        viewModelScope.launch {
+            try {
+                mutex.withLock {
+                    require(!readUnavailable()) { "请先重新读取草案；本次未保存，输入仍保留。" }
+                    planRepository.replaceDraftIfCurrent(expected, updated)
+                    // Receipt stays in the ViewModel so a recreated editor can observe it.
+                    draftEditFeedback.value = null to requestId
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                draftEditFeedback.value = (if (error is IllegalArgumentException) error.message
+                    ?: "请检查这次修改后重试。" else "分段未保存，输入仍保留；请重试保存。") to null
+            } finally {
+                operation.value = operation.value.first to false
+            }
+        }
     }
 
     fun acceptDraft(onAccepted: (() -> Unit)? = null) {

@@ -41,6 +41,14 @@ class RoomPlanRepository(
         if (draft == null) workspace.remove("draft")
         else workspace.put(PlanningWorkspaceEntity("draft", PlanDraftCodec.encode(draft)))
     }
+    override suspend fun replaceDraftIfCurrent(expected: PlanDraft, updated: PlanDraft) = database.withTransaction {
+        require(updated.generatedAt == expected.generatedAt && updated.sourceRevision == expected.sourceRevision) {
+            "编辑不能替换另一份预览，请重新查看当前草案。"
+        }
+        val actual = workspace.get("draft")?.let { PlanDraftCodec.decode(it.payload) }
+        require(actual == expected) { "草案已经变化，本次未保存；请重新查看当前预览后重试。" }
+        workspace.put(PlanningWorkspaceEntity("draft", PlanDraftCodec.encode(updated)))
+    }
     override fun observeTaskOrder(): Flow<List<String>> = workspace.observe("order").map { row ->
         row?.let { JSONArray(it.payload).let { a -> (0 until a.length()).map(a::getString) } }.orEmpty()
     }

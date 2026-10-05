@@ -38,10 +38,40 @@ class DraftSaveWorkflowUiTest {
             rule.onNodeWithTag("draft-segment-summary-$segmentId").performScrollTo().performClick(); waitTag("plan-segment-start")
             fill("plan-segment-start", "11:00"); fill("plan-segment-end", "12:00")
             rule.onNodeWithTag("plan-segment-save").performClick()
-            rule.waitUntil(10_000) { vm.uiState.value.errorMessage != null && !vm.uiState.value.isWorking }
+            rule.waitUntil(10_000) { vm.uiState.value.draftEditError != null && !vm.uiState.value.isWorking }
             rule.onNodeWithTag("plan-segment-start").assertExists().assertTextContains("11:00")
             rule.onNodeWithTag("plan-segment-end").assertTextContains("12:00")
             assertEquals(draft, runBlocking { container.planRepository.observeDraft().first() })
+            assertEquals(originalPlan, runBlocking { container.planRepository.observeCurrentPlan().first() })
+            assertEquals(originalOrder, runBlocking { container.planRepository.observeTaskOrder().first() })
+            rule.onNodeWithTag("plan-segment-save-error").performScrollTo().assertIsDisplayed()
+            rule.activityRule.scenario.recreate(); waitTag("plan-segment-start")
+            rule.onNodeWithTag("plan-segment-start").performScrollTo().assertTextContains("11:00")
+            rule.onNodeWithTag("plan-segment-end").performScrollTo().assertTextContains("12:00")
+            NativeSheetTestInput.awaitFocusedDialog(rule, rule.activity.getString(R.string.edit_plan_segment))
+            rule.onNodeWithTag("plan-segment-save-error").performScrollTo()
+            rule.waitForIdle()
+            val screenshot = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+            try { java.io.File(rule.activity.getExternalFilesDir(null), "qa-draft27-write-failure.png").outputStream().use {
+                check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+            } } finally { screenshot.recycle() }
+            source.failDraftWrite = false; source.draftWriteGate = kotlinx.coroutines.CompletableDeferred()
+            rule.onNodeWithTag("plan-segment-save").performClick()
+            rule.waitUntil(10_000) { vm.uiState.value.isWorking }
+            rule.onNodeWithTag("plan-segment-save").assertIsNotEnabled().performClick()
+            NativeSheetTestInput.back(rule, rule.activity.getString(R.string.edit_plan_segment))
+            rule.onNodeWithTag("plan-segment-start").assertExists()
+            assertEquals(0, source.draftWrites.get())
+            rule.activityRule.scenario.recreate(); waitTag("plan-segment-save")
+            rule.onNodeWithTag("plan-segment-save").assertIsNotEnabled()
+            rule.onNodeWithTag("plan-segment-start").assertTextContains("11:00").assertIsNotEnabled()
+            source.draftWriteGate!!.complete(Unit)
+            rule.waitUntil(10_000) { vm.uiState.value.draftEditReceipt != null && !vm.uiState.value.isWorking }
+            rule.waitUntil(10_000) { rule.onAllNodesWithTag("plan-segment-start").fetchSemanticsNodes().isEmpty() }
+            assertEquals(1, source.draftWrites.get())
+            val saved = runBlocking { container.planRepository.observeDraft().first() }!!
+            assertEquals(draft.generatedAt, saved.generatedAt); assertEquals(segmentId, saved.segments.single().id)
+            assertEquals(660, saved.segments.single().startMinute); assertEquals(720, saved.segments.single().endMinute)
             assertEquals(originalPlan, runBlocking { container.planRepository.observeCurrentPlan().first() })
             assertEquals(originalOrder, runBlocking { container.planRepository.observeTaskOrder().first() })
         } finally {

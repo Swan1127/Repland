@@ -13,6 +13,8 @@ interface PlanRepository {
     suspend fun saveAssistantWorkspace(value: com.swan1127.repland.domain.model.AssistantWorkspace?)
     fun observeDraft(): Flow<PlanDraft?>
     suspend fun saveDraft(draft: PlanDraft?)
+    /** Atomically edit a still-current preview; never overwrite a replacement preview. */
+    suspend fun replaceDraftIfCurrent(expected: PlanDraft, updated: PlanDraft)
     fun observeTaskOrder(): Flow<List<String>>
     suspend fun saveTaskOrder(ids: List<String>)
     fun observeCanUndoTaskOrder(): Flow<Boolean>

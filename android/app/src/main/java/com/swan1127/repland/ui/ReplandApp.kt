@@ -1396,6 +1396,10 @@ fun ReplandApp(
                 }
             },
             onUpdateDraft = planViewModel::updateDraft,
+            onCommitSegmentDraft = planViewModel::saveDraftEdit,
+            segmentSaveReceipt = planUiState.draftEditReceipt,
+            segmentSaveError = planUiState.draftEditError,
+            onClearSegmentSaveFeedback = planViewModel::clearDraftEditFeedback,
             onAccept = {
                 if (!planningReadsReady) {
                     feedbackSnackbarScope.launch { captureSnackbar.showSnackbar("请先可靠读取任务和时间；原计划与草案仍保留。") }
@@ -3456,6 +3460,10 @@ internal fun PlanDraftDialog(
     canEdit: Boolean = true,
     retainOnDismiss: Boolean = false,
     readNotice: (@Composable () -> Unit)? = null,
+    onCommitSegmentDraft: ((PlanDraft, PlanDraft, String) -> Unit)? = null,
+    segmentSaveReceipt: String? = null,
+    segmentSaveError: String? = null,
+    onClearSegmentSaveFeedback: () -> Unit = {},
 ) {
     val tasksById = tasks.associateBy(Task::id)
     val unknownTaskLabel = stringResource(R.string.unknown_task)
@@ -3465,6 +3473,13 @@ internal fun PlanDraftDialog(
         .ifEmpty { (draft.segments.map(PlannedSegment::taskId) + draft.pendingTaskIds).distinct() }
     val priorityAssessmentsByTask = draft.priorityAssessments.associateBy(LocalPriorityAssessment::taskId)
     var editingSegmentId by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingSegmentRequest by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(segmentSaveReceipt) {
+        if (pendingSegmentRequest != null && pendingSegmentRequest == segmentSaveReceipt) {
+            editingSegmentId = null
+            pendingSegmentRequest = null
+        }
+    }
     var showTaskOrder by rememberSaveable { mutableStateOf(draft.orderOnly) }
     var showChanges by rememberSaveable { mutableStateOf(false) }
     val changes = PlanDraftReview.changes(draft, currentPlan, currentTaskOrder)
@@ -3518,7 +3533,7 @@ internal fun PlanDraftDialog(
                     weeklyBlocks = weeklyBlocks,
                     dateOverrides = dateOverrides,
                     semesterFirstWeekMonday = semesterFirstWeekMonday,
-                    onEditSegment = { editingSegmentId = it },
+                    onEditSegment = { pendingSegmentRequest = null; onClearSegmentSaveFeedback(); editingSegmentId = it },
                     canEdit = canEdit && !isSaving,
                     tracks = tracks,
                 )
@@ -3649,11 +3664,20 @@ internal fun PlanDraftDialog(
                 tracks = tracks,
                 hasConflict = { candidate -> PlanDraftEditor.overlapsAnotherSegment(draft, candidate) },
                 canSave = canEdit && !isSaving,
+                isSaving = isSaving,
+                saveError = segmentSaveError,
                 readNotice = readNotice,
-                onDismiss = { editingSegmentId = null },
+                onDismiss = { editingSegmentId = null; pendingSegmentRequest = null; onClearSegmentSaveFeedback() },
                 onSave = { updated ->
-                    onUpdateDraft(PlanDraftEditor.moveSegment(draft, updated))
-                    editingSegmentId = null
+                    val changed = PlanDraftEditor.moveSegment(draft, updated)
+                    if (onCommitSegmentDraft != null) {
+                        val requestId = java.util.UUID.randomUUID().toString()
+                        pendingSegmentRequest = requestId
+                        onCommitSegmentDraft(draft, changed, requestId)
+                    } else {
+                        onUpdateDraft(changed)
+                        editingSegmentId = null
+                    }
                 },
             )
         }
@@ -3932,6 +3956,8 @@ private fun PlanSegmentEditorDialog(
     tracks: List<RhythmTrack> = emptyList(),
     canSave: Boolean = true,
     readNotice: (@Composable () -> Unit)? = null,
+    isSaving: Boolean = false,
+    saveError: String? = null,
 ) {
     var dateText by rememberSaveable(segment.id) { mutableStateOf(segment.date.toString()) }
     var startTime by rememberSaveable(segment.id) { mutableStateOf(TimeBlockValidator.formatTime(segment.startMinute)) }
@@ -3941,7 +3967,7 @@ private fun PlanSegmentEditorDialog(
     var confirmConflict by rememberSaveable(segment.id) { mutableStateOf(false) }
     AlertDialog(
         modifier = Modifier.testTag("plan-segment-editor"),
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!isSaving) onDismiss() },
         title = { Text(stringResource(R.string.edit_plan_segment)) },
         text = {
             Column(
@@ -3949,6 +3975,8 @@ private fun PlanSegmentEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 readNotice?.invoke()
+                saveError?.let { Text(it, color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("plan-segment-save-error").semantics { liveRegion = LiveRegionMode.Polite }) }
                 Text(
                     stringResource(R.string.plan_segment_edit_note),
                     style = MaterialTheme.typography.bodySmall,
@@ -3961,6 +3989,7 @@ private fun PlanSegmentEditorDialog(
                         confirmConflict = false
                     },
                     modifier = Modifier.fillMaxWidth().testTag("plan-segment-date"),
+                    enabled = !isSaving,
                     label = { Text(stringResource(R.string.override_date)) },
                     singleLine = true,
                 )
@@ -3971,6 +4000,7 @@ private fun PlanSegmentEditorDialog(
                         confirmConflict = false
                     },
                     modifier = Modifier.fillMaxWidth().testTag("plan-segment-start"),
+                    enabled = !isSaving,
                     label = { Text(stringResource(R.string.start_time)) },
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
@@ -3982,6 +4012,7 @@ private fun PlanSegmentEditorDialog(
                         confirmConflict = false
                     },
                     modifier = Modifier.fillMaxWidth().testTag("plan-segment-end"),
+                    enabled = !isSaving,
                     label = { Text(stringResource(R.string.end_time)) },
                     placeholder = { Text(stringResource(R.string.time_hint)) },
                     singleLine = true,
@@ -3993,6 +4024,7 @@ private fun PlanSegmentEditorDialog(
                 ) {
                     availableTrackIds.forEach { trackId ->
                         FilterChip(
+                            enabled = !isSaving,
                             selected = selectedTrackId == trackId,
                             onClick = {
                                 selectedTrackId = trackId
@@ -4035,13 +4067,13 @@ private fun PlanSegmentEditorDialog(
                         onSave(updated)
                     }
                 },
-                enabled = canSave,
+                enabled = canSave && !isSaving,
                 modifier = Modifier.testTag("plan-segment-save"),
             ) {
-                Text(stringResource(if (confirmConflict) R.string.confirm_anyway else R.string.save))
+                Text(if (isSaving) "保存中…" else stringResource(if (confirmConflict) R.string.confirm_anyway else R.string.save))
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !isSaving) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
