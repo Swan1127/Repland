@@ -70,8 +70,13 @@ class PlacementNumericWorkflowUiTest {
             TaskPriority.MEDIUM, 1, 300, null)) }
         val task = runBlocking { app.taskRepository.observeTasks().first().single { it.id == id } }
         waitTag("navigation-today"); visible("navigation-today").performClick()
-        waitTag("month-schedule"); visible("month-schedule").performClick()
-        waitTag("month-date-$date"); visible("month-date-$date").performClick()
+        waitTag("today-page-scroll")
+        rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-schedule"))
+        visible("month-schedule").performClick()
+        rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-date-$date"))
+        visible("month-date-$date").performClick()
+        rule.onNodeWithTag("today-page-scroll").performScrollToNode(
+            hasTestTag("empty-event-library-trigger") or hasTestTag("event-library-trigger"))
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("empty-event-library-trigger").fetchSemanticsNodes().isNotEmpty() ||
             rule.onAllNodesWithTag("event-library-trigger").fetchSemanticsNodes().isNotEmpty() }
         val trigger = if (rule.onAllNodesWithTag("event-library-trigger").fetchSemanticsNodes().isNotEmpty())

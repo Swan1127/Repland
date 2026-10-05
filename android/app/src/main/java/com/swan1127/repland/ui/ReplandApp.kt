@@ -1625,7 +1625,7 @@ private fun TodayScreen(
     val scheduledMinutes = planSegments.sumOf { (it.endMinute - it.startMinute).coerceAtLeast(0) }
     LazyColumn(
         state = listState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("today-page-scroll"),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
