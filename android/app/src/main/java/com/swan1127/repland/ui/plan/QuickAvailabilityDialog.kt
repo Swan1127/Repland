@@ -13,8 +13,8 @@ import com.swan1127.repland.domain.model.*
 import java.time.LocalDate
 
 @Composable
-fun QuickAvailabilityDialog(busy: Boolean, error: String?, canSave: Boolean = true,
-    readNotice: (@Composable () -> Unit)? = null, onDismiss: () -> Unit, onSave: (QuickAvailability) -> Unit) {
+fun QuickAvailabilityDialog(busy: Boolean, error: String?, onDismiss: () -> Unit, onSave: (QuickAvailability) -> Unit,
+    canSave: Boolean = true, readNotice: (@Composable () -> Unit)? = null) {
     var date by rememberSaveable { mutableStateOf(LocalDate.now().toString()) }
     var start by rememberSaveable { mutableStateOf("") }
     var end by rememberSaveable { mutableStateOf("") }
