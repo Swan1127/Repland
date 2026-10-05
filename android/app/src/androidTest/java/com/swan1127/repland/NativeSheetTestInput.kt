@@ -3,6 +3,7 @@ package com.swan1127.repland
 import android.os.ParcelFileDescriptor
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.compose.ui.test.junit4.ComposeTestRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.platform.app.InstrumentationRegistry
 
 /** Native input must target the dialog, not an Activity that is still finishing its launch. */
@@ -56,9 +57,11 @@ internal object NativeSheetTestInput {
             java.io.File(context.getExternalFilesDir(null), "$evidenceName.png").outputStream().use {
                 check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
             }
-            val evidence = "focused=${window.isFocused}; display=$display; window=$bounds"
+            val contentSize = rule.onNodeWithTag("execution-session").fetchSemanticsNode().layoutInfo.coordinates.size
+            val evidence = "focused=${window.isFocused}; display=$display; window=$bounds; measuredContent=$contentSize"
             java.io.File(context.getExternalFilesDir(null), "$evidenceName.txt").writeText(evidence)
             org.junit.Assert.assertTrue(evidence, window.isFocused && display.contains(bounds))
+            org.junit.Assert.assertTrue("Content must fit native window: $evidence", contentSize.width <= bounds.width())
         } finally { root.recycle(); screenshot.recycle() }
     }
 }
