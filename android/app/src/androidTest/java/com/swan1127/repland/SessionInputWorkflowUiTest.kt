@@ -58,6 +58,8 @@ class SessionInputWorkflowUiTest {
             val plan = runBlocking { container.planRepository.observeCurrentPlan().first() }
             val (source, vm) = fault(); waitTag("resume-execution")
             rule.onNodeWithTag("resume-execution").performScrollTo().performClick(); waitTag("execution-pause-resume")
+            NativeSheetTestInput.awaitFocusedDialog(rule, "QA-session25-$id")
+            NativeSheetTestInput.assertDialogWithinDisplay(rule, "qa-focus26-open")
             rule.onNodeWithText("部分完成").performScrollTo().performClick(); fill("execution-content", "保留第一章")
             listOf("-30", "3.5", "99999999999999999999").forEach {
                 fill("execution-progress", it); rule.onNodeWithTag("execution-progress").assertTextContains(it)
@@ -71,6 +73,7 @@ class SessionInputWorkflowUiTest {
             rule.activityRule.scenario.recreate(); waitTag("execution-progress")
             rule.onNodeWithTag("execution-progress").performScrollTo().assertTextContains("40")
             rule.onNodeWithTag("execution-content").performScrollTo().assertTextContains("保留第一章")
+            NativeSheetTestInput.assertDialogWithinDisplay(rule, "qa-focus26-recreated")
             rule.mainClock.advanceTimeByFrame(); rule.waitForIdle(); InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             val screenshot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
             try { File(rule.activity.getExternalFilesDir(null), "qa-session25-read-failure.png").outputStream().use { check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) } }

@@ -39,4 +39,26 @@ internal object NativeSheetTestInput {
         awaitFocusedDialog(rule, visibleTitle)
         shell("input keyevent 4")
     }
+
+    /** Native display coordinates, not Compose's clipped semantics bounds. */
+    fun assertDialogWithinDisplay(rule: ComposeTestRule, evidenceName: String) {
+        rule.waitForIdle()
+        automation.serviceInfo = automation.serviceInfo.apply {
+            flags = flags or android.accessibilityservice.AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
+        }
+        val root = requireNotNull(automation.rootInActiveWindow)
+        val screenshot = requireNotNull(automation.takeScreenshot())
+        try {
+            val window = requireNotNull(root.window)
+            val bounds = android.graphics.Rect().also(window::getBoundsInScreen)
+            val display = android.graphics.Rect(0, 0, screenshot.width, screenshot.height)
+            val context = InstrumentationRegistry.getInstrumentation().targetContext
+            java.io.File(context.getExternalFilesDir(null), "$evidenceName.png").outputStream().use {
+                check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+            }
+            val evidence = "focused=${window.isFocused}; display=$display; window=$bounds"
+            java.io.File(context.getExternalFilesDir(null), "$evidenceName.txt").writeText(evidence)
+            org.junit.Assert.assertTrue(evidence, window.isFocused && display.contains(bounds))
+        } finally { root.recycle(); screenshot.recycle() }
+    }
 }
