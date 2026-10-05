@@ -15,6 +15,25 @@ import org.junit.Test
 class TaskCaptureSheetUiTest {
     @get:Rule val rule = createComposeRule()
 
+    @Test fun custom_duration_keeps_negative_decimal_and_overflow_raw_and_requires_explicit_correction() {
+        var result: TaskDraft? = null
+        lateinit var capture: MutableState<TaskCaptureDraft>
+        rule.setContent { ReplandTheme {
+            capture = remember { mutableStateOf(TaskCaptureDraft(text = "原始时长", stage = TaskCaptureStage.DURATION,
+                isCustomDuration = true, customDurationText = "45")) }
+            TaskCaptureSheet("", {}, { result = it }, draft = capture.value, onDraftChange = { capture.value = it })
+        } }
+        listOf("-30", "3.5", "+30", "999999999999", "0", "1441").forEach { raw ->
+            rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().performTextReplacement(raw)
+            rule.onNodeWithTag("task-capture-duration-custom-input").assertTextContains(raw)
+            rule.onNodeWithTag("task-capture-save-duration").assertIsNotEnabled().performClick()
+            rule.runOnIdle { assertEquals(raw, capture.value.customDurationText); assertNull(result) }
+        }
+        rule.onNodeWithTag("task-capture-duration-custom-input").performTextReplacement("45")
+        rule.onNodeWithTag("task-capture-save-duration").assertIsEnabled().performClick()
+        assertEquals(45, result!!.totalDurationMinutes)
+    }
+
     @Test fun saving_disables_input_save_close_and_voice() {
         var saves = 0
         var closes = 0

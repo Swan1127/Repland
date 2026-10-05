@@ -20,4 +20,15 @@ class TaskCaptureDraftTest {
         val capture = TaskCaptureDraft(text = "复习", stage = TaskCaptureStage.DURATION, duration = 30)
         assertNull(capture.copy(stage = TaskCaptureStage.CAPTURE).toTaskDraft().scheduledForDate)
     }
+    @Test fun custom_duration_rejects_non_ascii_integer_without_rewriting_raw_input() {
+        listOf("-30", "+30", "3.5", " 30", "30 ", "３0", "٣٠", "999999999999", "0", "1441", "").forEach { raw ->
+            val draft = TaskCaptureDraft(isCustomDuration = true, customDurationText = raw)
+            assertEquals(raw, draft.customDurationText)
+            assertFalse("invalid raw: $raw", draft.durationIsValid)
+            assertNull(draft.selectedDuration)
+        }
+        listOf("1" to 1, "45" to 45, "1440" to 1440, "0030" to 30).forEach { (raw, expected) ->
+            assertEquals(expected, TaskCaptureDraft(isCustomDuration = true, customDurationText = raw).selectedDuration)
+        }
+    }
 }
