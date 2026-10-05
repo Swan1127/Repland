@@ -16,8 +16,25 @@ import org.junit.Test
 /** Real Activity -> today's adapter -> ViewModel -> Room; QA package only. */
 class PlacementNumericWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
-    private fun waitTag(tag: String) = rule.waitUntil(10_000) {
-        rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+    private fun screenshot(name: String) {
+        rule.waitForIdle()
+        val frame = java.util.concurrent.CountDownLatch(1)
+        rule.runOnUiThread { rule.activity.window.decorView.postOnAnimation {
+            rule.activity.window.decorView.postOnAnimation { frame.countDown() }
+        } }
+        check(frame.await(3, java.util.concurrent.TimeUnit.SECONDS))
+        val bitmap = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        try { java.io.File(rule.activity.getExternalFilesDir(null), name).outputStream().use {
+            check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        } } finally { bitmap.recycle() }
+    }
+    private fun waitTag(tag: String) {
+        try { rule.waitUntil(10_000) {
+            rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        } } catch (failure: Throwable) {
+            screenshot("qa-placement29-navigation-failure.png")
+            throw failure
+        }
     }
     private fun visible(tag: String): SemanticsNodeInteraction {
         val node = rule.onNodeWithTag(tag)
@@ -27,6 +44,9 @@ class PlacementNumericWorkflowUiTest {
             if (rule.onAllNodes(hasTestTag(tag) and hasAnyAncestor(keyIsDefined(androidx.compose.ui.semantics.SemanticsActions.ScrollBy)))
                     .fetchSemanticsNodes().isNotEmpty()) node.performScrollTo()
             node.assertIsDisplayed()
+            val observed = node.fetchSemanticsNode()
+            val size = observed.layoutInfo.coordinates.size
+            check(observed.boundsInRoot.width >= size.width - 1 && observed.boundsInRoot.height >= size.height - 1)
         }.isSuccess }
         return node.assertIsDisplayed()
     }
@@ -60,10 +80,8 @@ class PlacementNumericWorkflowUiTest {
         rule.onNodeWithText("本次安排 240 分钟").assertExists()
         visible("event-minute-input").performTextReplacement("99")
         visible("event-place-confirm").assertIsNotEnabled().performClick()
-        val screenshot = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
-        try { java.io.File(rule.activity.getExternalFilesDir(null), "qa-placement29-invalid.png").outputStream().use {
-            check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
-        } } finally { screenshot.recycle() }
+        rule.onNodeWithTag("event-minute-input").assertTextContains("99")
+        screenshot("qa-placement29-invalid.png")
         assertEquals(before, runBlocking { app.planRepository.observeCurrentPlan().first() })
         assertEquals(task, runBlocking { app.taskRepository.observeTasks().first().single { it.id == id } })
         visible("event-hour-input").performTextReplacement((start / 60).toString())
