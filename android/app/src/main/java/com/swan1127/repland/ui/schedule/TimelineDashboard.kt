@@ -78,6 +78,8 @@ import com.swan1127.repland.domain.model.RhythmTrack
 import com.swan1127.repland.domain.model.RhythmTracks
 import com.swan1127.repland.domain.model.TimelinePhase
 import com.swan1127.repland.domain.model.TaskCategory
+import com.swan1127.repland.domain.model.UserNumericInput
+import com.swan1127.repland.domain.model.TaskPlacementPolicy
 import java.time.LocalDateTime
 import java.time.LocalDate
 import kotlinx.coroutines.delay
@@ -431,15 +433,15 @@ private fun EventLibrarySheet(
     onDismiss: () -> Unit,
     onPlace: (TimelineEventObject, String, Int) -> Unit,
 ) {
-    var selectedCategory by remember { mutableStateOf<TaskCategory?>(null) }
-    var selectedEvent by remember { mutableStateOf<TimelineEventObject?>(null) }
-    var selectedTrack by remember { mutableStateOf(tracks.firstOrNull { it.id == "focus" }?.id ?: tracks.first().id) }
-    var hourText by remember { mutableStateOf("08") }
-    var minuteText by remember { mutableStateOf("00") }
-    val selectedMinute = ((hourText.toIntOrNull() ?: -1) * 60 + (minuteText.toIntOrNull() ?: -1))
-        .takeIf { it in 0 until 1_440 }
-    val selectedDuration = selectedEvent?.durationMinutes?.coerceIn(5, 720) ?: 30
-    val sameTrackCollision = selectedMinute != null && selectedEvent != null && occupiedEntries.any { entry ->
+    var selectedCategory by rememberSaveable { mutableStateOf<TaskCategory?>(null) }
+    var selectedEventId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedEvent = events.firstOrNull { it.id == selectedEventId }
+    var selectedTrack by rememberSaveable { mutableStateOf(tracks.firstOrNull { it.id == "focus" }?.id ?: tracks.first().id) }
+    var hourText by rememberSaveable { mutableStateOf("08") }
+    var minuteText by rememberSaveable { mutableStateOf("00") }
+    val selectedMinute = UserNumericInput.clockMinute(hourText, minuteText)
+    val selectedDuration = TaskPlacementPolicy.durationForTask(selectedEvent?.durationMinutes)
+    val sameTrackCollision = selectedMinute != null && selectedDuration != null && selectedEvent != null && occupiedEntries.any { entry ->
         (entry.trackId == selectedTrack || entry.kind != TimelineKind.TASK) &&
             selectedMinute < entry.endMinute &&
             selectedMinute + selectedDuration > entry.startMinute
@@ -450,7 +452,7 @@ private fun EventLibrarySheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp).padding(bottom = 28.dp),
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp).padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text(if (selectedEvent == null) "待安排事件" else "放到日轨道", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
@@ -465,7 +467,7 @@ private fun EventLibrarySheet(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     visibleEvents.forEach { event ->
                         Surface(
-                            modifier = Modifier.fillMaxWidth().clickable { selectedEvent = event }.testTag("event-object-${event.id}"),
+                            modifier = Modifier.fillMaxWidth().clickable { selectedEventId = event.id }.testTag("event-object-${event.id}"),
                             color = MaterialTheme.colorScheme.surfaceContainerLow,
                             shape = RoundedCornerShape(16.dp),
                         ) {
@@ -484,7 +486,11 @@ private fun EventLibrarySheet(
                 Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(16.dp)) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(event.title, style = MaterialTheme.typography.titleMedium)
-                        Text("${event.category.shortLabel()} · ${event.durationMinutes?.let { "预计 ${it} 分钟" } ?: "默认 30 分钟"}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text("${event.category.shortLabel()} · ${event.durationMinutes?.let { "总预计 ${it} 分钟" } ?: "总时长未填写"}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text(selectedDuration?.let { "本次安排 $it 分钟" } ?: "任务时长无效，请先修改任务。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        if (event.durationMinutes != null && selectedDuration != event.durationMinutes && selectedDuration != null) {
+                            Text("单次安排为 15–240 分钟，不修改任务总预计时长。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
                     }
                 }
                 Text("时间", style = MaterialTheme.typography.titleSmall)
@@ -492,7 +498,7 @@ private fun EventLibrarySheet(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = hourText,
-                        onValueChange = { hourText = it.filter(Char::isDigit).take(2) },
+                        onValueChange = { hourText = it },
                         modifier = Modifier.weight(1f).testTag("event-hour-input"),
                         label = { Text("时") },
                         singleLine = true,
@@ -501,7 +507,7 @@ private fun EventLibrarySheet(
                     Text(":", style = MaterialTheme.typography.titleLarge)
                     OutlinedTextField(
                         value = minuteText,
-                        onValueChange = { minuteText = it.filter(Char::isDigit).take(2) },
+                        onValueChange = { minuteText = it },
                         modifier = Modifier.weight(1f).testTag("event-minute-input"),
                         label = { Text("分") },
                         singleLine = true,
@@ -509,6 +515,7 @@ private fun EventLibrarySheet(
                     )
                 }
                 if (selectedMinute == null) Text("请输入 00:00–23:59。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                if (selectedMinute != null && selectedDuration != null && selectedMinute + selectedDuration > 1440) Text("结束时间不能超过当天 24:00，请改早开始时间。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 if (sameTrackCollision) Text("这个时间与已有任务、课程或休息冲突，请调整时间。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 Text("轨道", style = MaterialTheme.typography.titleSmall)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -516,10 +523,10 @@ private fun EventLibrarySheet(
                         FilterChip(selected = selectedTrack == track.id, onClick = { selectedTrack = track.id }, label = { Text(track.label) })
                     }
                 }
-                Button(onClick = { onPlace(event, selectedTrack, requireNotNull(selectedMinute)) }, enabled = selectedMinute != null && selectedMinute + selectedDuration <= 1440 && !sameTrackCollision, modifier = Modifier.fillMaxWidth().testTag("event-place-confirm")) {
+                Button(onClick = { onPlace(event, selectedTrack, requireNotNull(selectedMinute)) }, enabled = selectedMinute != null && selectedDuration != null && selectedMinute + selectedDuration <= 1440 && !sameTrackCollision, modifier = Modifier.fillMaxWidth().testTag("event-place-confirm")) {
                     Text("安排到 ${selectedMinute?.let(TimeBlockValidator::formatTime) ?: "--:--"}")
                 }
-                TextButton(onClick = { selectedEvent = null }) { Text("返回事件库") }
+                TextButton(onClick = { selectedEventId = null }) { Text("返回事件库") }
             }
         }
     }
@@ -716,17 +723,16 @@ private fun CourseComposerDialog(
     onManualCreate: (CourseInsertionRequest) -> Unit,
     onBeginDrag: (PendingCourse) -> Unit,
 ) {
-    var title by remember { mutableStateOf("") }
-    var durationText by remember { mutableStateOf("90") }
-    var hourText by remember { mutableStateOf("08") }
-    var minuteText by remember { mutableStateOf("00") }
-    var trackId by remember { mutableStateOf(tracks.first().id) }
-    var placementMode by remember(allowDragPlacement) {
+    var title by rememberSaveable { mutableStateOf("") }
+    var durationText by rememberSaveable { mutableStateOf("90") }
+    var hourText by rememberSaveable { mutableStateOf("08") }
+    var minuteText by rememberSaveable { mutableStateOf("00") }
+    var trackId by rememberSaveable { mutableStateOf(tracks.first().id) }
+    var placementMode by rememberSaveable(allowDragPlacement) {
         mutableStateOf(if (allowDragPlacement) "drag" else "manual")
     }
-    val duration = durationText.toIntOrNull()?.coerceIn(15, 360)
-    val startMinute = ((hourText.toIntOrNull() ?: -1) * 60 + (minuteText.toIntOrNull() ?: -1))
-        .takeIf { it in 0 until 1_440 }
+    val duration = UserNumericInput.integerIn(durationText, 15..360)
+    val startMinute = UserNumericInput.clockMinute(hourText, minuteText)
     val manualCollision = startMinute != null && duration != null && occupiedEntries.any { entry ->
         entry.trackId == trackId && startMinute < entry.endMinute && startMinute + duration > entry.startMinute
     }
@@ -734,7 +740,7 @@ private fun CourseComposerDialog(
         onDismissRequest = onDismiss,
         title = { Text("新增课程") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -745,12 +751,13 @@ private fun CourseComposerDialog(
                 )
                 OutlinedTextField(
                     value = durationText,
-                    onValueChange = { durationText = it.filter(Char::isDigit).take(3) },
+                    onValueChange = { durationText = it },
                     modifier = Modifier.fillMaxWidth().testTag("course-duration-input"),
                     singleLine = true,
                     label = { Text("时长（分钟）") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
+                if (duration == null) Text("请输入 15–360 的整数分钟，不会自动改写时长。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 if (allowDragPlacement) {
                     Text("插入方式", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -766,11 +773,13 @@ private fun CourseComposerDialog(
                 }
                 if (placementMode == "manual") {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(value = hourText, onValueChange = { hourText = it.filter(Char::isDigit).take(2) }, modifier = Modifier.weight(1f), label = { Text("时") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                        OutlinedTextField(value = hourText, onValueChange = { hourText = it }, modifier = Modifier.weight(1f), label = { Text("时") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                         Text(":")
-                        OutlinedTextField(value = minuteText, onValueChange = { minuteText = it.filter(Char::isDigit).take(2) }, modifier = Modifier.weight(1f), label = { Text("分") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                        OutlinedTextField(value = minuteText, onValueChange = { minuteText = it }, modifier = Modifier.weight(1f), label = { Text("分") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                     }
                     if (manualCollision) Text("该轨道这个时间已有事项；请选择其他轨道或修改时间。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    if (startMinute == null) Text("请输入 00:00–23:59，时和分须分别有效。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    if (startMinute != null && duration != null && startMinute + duration > 1440) Text("结束时间不能超过当天 24:00。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
                 Text("放入轨道", style = MaterialTheme.typography.labelLarge)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -781,7 +790,7 @@ private fun CourseComposerDialog(
             }
         },
         confirmButton = {
-            val canCreate = title.isNotBlank() && duration != null && (placementMode == "drag" || startMinute != null && !manualCollision)
+            val canCreate = title.isNotBlank() && duration != null && (placementMode == "drag" || startMinute != null && startMinute + duration <= 1440 && !manualCollision)
             TextButton(
                 enabled = canCreate,
                 onClick = {

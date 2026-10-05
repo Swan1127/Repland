@@ -80,6 +80,7 @@ import com.swan1127.repland.domain.model.ArrangementExistingTask
 import com.swan1127.repland.domain.model.ArrangementAssistantAdviceRequest
 import com.swan1127.repland.domain.model.ArrangementOccupiedInterval
 import com.swan1127.repland.domain.model.AssistantSaveReceipt
+import com.swan1127.repland.domain.model.UserNumericInput
 import com.swan1127.repland.ui.components.PlannerIcons
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -143,7 +144,7 @@ fun AgentCenterScreen(
         onWorkspaceChanged(AssistantWorkspace(draftDate, prompt, proposals, intent, selectedIntent, draftRevision, followUpInstruction))
     }
     var transcriptError by rememberSaveable { mutableStateOf(false) }
-    var editingProposal by remember { mutableStateOf<AgentTaskProposal?>(null) }
+    var editingProposalId by rememberSaveable { mutableStateOf<String?>(null) }
     var isRefining by remember { mutableStateOf(false) }
     var requestJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     fun invalidateRequest() {
@@ -448,7 +449,7 @@ fun AgentCenterScreen(
                     }
                 },
                 onRemove = { item -> invalidateRequest(); proposals = proposals - item; persistWorkspace() },
-                onEdit = { editingProposal = it },
+                onEdit = { editingProposalId = it.id },
                 onConfirm = {
                     val confirmedPrompt = prompt
                     val confirmedProposals = proposals
@@ -492,15 +493,15 @@ fun AgentCenterScreen(
         }
         Spacer(Modifier.height(24.dp))
     }
-    editingProposal?.let { proposal ->
+    proposals.firstOrNull { it.id == editingProposalId }?.let { proposal ->
         AgentPlacementDialog(
             proposal = proposal,
             allProposals = proposals,
             occupiedEntries = occupiedEntries,
             availableTracks = availableTracks,
             existingTasks = existingTasks,
-            onDismiss = { editingProposal = null },
-            onSave = { updated -> invalidateRequest(); proposals = proposals.map { if (it.id == updated.id) updated else it }; editingProposal = null; persistWorkspace() },
+            onDismiss = { editingProposalId = null },
+            onSave = { updated -> invalidateRequest(); proposals = proposals.map { if (it.id == updated.id) updated else it }; editingProposalId = null; persistWorkspace() },
         )
     }
 }
@@ -724,13 +725,13 @@ private fun AgentDraftTimeline(activeDate: LocalDate, proposals: List<AgentTaskP
 @Composable
 private fun AgentPlacementDialog(proposal: AgentTaskProposal, allProposals: List<AgentTaskProposal>, occupiedEntries: List<TimelineEntry>, onDismiss: () -> Unit, onSave: (AgentTaskProposal) -> Unit, availableTracks: List<RhythmTrack> = emptyList(), existingTasks: List<ArrangementExistingTask> = emptyList()) {
     val startingMinute = proposal.timeHint.explicitStartMinute ?: 9 * 60
-    var hour by remember(proposal.id) { mutableStateOf((startingMinute / 60).toString()) }
-    var minute by remember(proposal.id) { mutableStateOf((startingMinute % 60).toString().padStart(2, '0')) }
-    var duration by remember(proposal.id) { mutableStateOf((proposal.durationMinutes ?: 30).toString()) }
-    var selectedTrack by remember(proposal.id) { mutableStateOf(proposal.trackId) }
+    var hour by rememberSaveable(proposal.id) { mutableStateOf((startingMinute / 60).toString()) }
+    var minute by rememberSaveable(proposal.id) { mutableStateOf((startingMinute % 60).toString().padStart(2, '0')) }
+    var duration by rememberSaveable(proposal.id) { mutableStateOf((proposal.durationMinutes ?: 30).toString()) }
+    var selectedTrack by rememberSaveable(proposal.id) { mutableStateOf(proposal.trackId) }
     val tracks = (availableTracks.map { it.id } + occupiedEntries.map(TimelineEntry::trackId) + listOf("focus", "parallel-2", "parallel-3") + allProposals.map(AgentTaskProposal::trackId)).distinct()
-    val start = hour.toIntOrNull()?.takeIf { it in 0..23 }?.let { h -> minute.toIntOrNull()?.takeIf { it in 0..59 }?.let { h * 60 + it } }
-    val durationMinutes = duration.toIntOrNull()?.takeIf { it in 5..720 }
+    val start = UserNumericInput.clockMinute(hour, minute)
+    val durationMinutes = UserNumericInput.integerIn(duration, 5..720)
     val collision = start != null && durationMinutes != null && (
         occupiedEntries.any { entry ->
             !(entry.kind == TimelineKind.TASK && entry.taskId != null && entry.taskId == proposal.existingTaskId) &&
@@ -745,14 +746,14 @@ private fun AgentPlacementDialog(proposal: AgentTaskProposal, allProposals: List
         onDismissRequest = onDismiss,
         title = { Text("安排「${proposal.text}」") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(if (proposal.existingTaskId == null) "新增事项" else "调整已有任务：${existingTasks.firstOrNull { it.id == proposal.existingTaskId }?.title ?: "引用已失效，请重新生成"}。不创建副本。", style = MaterialTheme.typography.bodySmall)
                 Text("可选任意时刻和轨道。课程、固定事项和休息不可重叠；普通任务可换轨并行。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedTextField(value = hour, onValueChange = { hour = it.filter(Char::isDigit).take(2) }, modifier = Modifier.weight(1f), singleLine = true, label = { Text("时") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
+                    OutlinedTextField(value = hour, onValueChange = { hour = it }, modifier = Modifier.weight(1f), singleLine = true, label = { Text("时") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
                     Text(":", style = MaterialTheme.typography.titleLarge)
-                    OutlinedTextField(value = minute, onValueChange = { minute = it.filter(Char::isDigit).take(2) }, modifier = Modifier.weight(1f), singleLine = true, label = { Text("分") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
-                    OutlinedTextField(value = duration, onValueChange = { duration = it.filter(Char::isDigit).take(3) }, modifier = Modifier.weight(1.25f), singleLine = true, label = { Text("分钟") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
+                    OutlinedTextField(value = minute, onValueChange = { minute = it }, modifier = Modifier.weight(1f), singleLine = true, label = { Text("分") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
+                    OutlinedTextField(value = duration, onValueChange = { duration = it }, modifier = Modifier.weight(1.25f), singleLine = true, label = { Text("分钟") }, keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number))
                 }
                 Text("轨道", style = MaterialTheme.typography.labelLarge)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) { tracks.forEach { track -> FilterChip(selected = selectedTrack == track, onClick = { selectedTrack = track }, label = { Text(availableTracks.firstOrNull { it.id == track }?.name ?: track.label()) }) } }

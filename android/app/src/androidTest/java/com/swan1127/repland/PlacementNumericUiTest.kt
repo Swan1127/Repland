@@ -70,6 +70,63 @@ class PlacementNumericUiTest {
         assertEquals(1, writes); assertEquals(30, duration)
     }
 
+    @Test fun event_selection_and_invalid_clock_survive_saved_state_restore() {
+        var writes = 0
+        val restoration = StateRestorationTester(rule)
+        restoration.setContent { ReplandTheme { TimelineDashboard(
+            entries = emptyList(), mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {},
+            eventObjects = listOf(com.swan1127.repland.ui.schedule.TimelineEventObject("restore29", "长任务", 300)),
+            onPlaceEvent = { _, _, _ -> writes++ },
+        ) } }
+        rule.onNodeWithTag("empty-event-library-trigger").performClick()
+        rule.onNodeWithTag("event-object-restore29").performClick()
+        rule.onNodeWithText("本次安排 240 分钟").assertExists()
+        rule.onNodeWithTag("event-minute-input").performTextReplacement("-3")
+        restoration.emulateSavedInstanceStateRestore()
+        rule.onNodeWithTag("event-minute-input").assertTextContains("-3")
+        rule.onNodeWithTag("event-place-confirm").assertIsNotEnabled()
+        rule.onNodeWithText("本次安排 240 分钟").assertExists()
+        assertEquals(0, writes)
+    }
+
+    @Test fun event_display_and_collision_use_actual_chunk_not_task_total() {
+        var writes = 0
+        rule.setContent { ReplandTheme { TimelineDashboard(
+            entries = listOf(TimelineEntry("busy29", "固定课程", TimelineKind.COURSE, LocalDate.now(), 721, 780)),
+            mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {},
+            eventObjects = listOf(com.swan1127.repland.ui.schedule.TimelineEventObject("chunk29", "长任务", 300)),
+            onPlaceEvent = { _, _, _ -> writes++ },
+        ) } }
+        rule.onNodeWithTag("event-library-trigger").performScrollTo().performClick()
+        rule.onNodeWithTag("event-object-chunk29").performClick()
+        rule.onNodeWithText("本次安排 240 分钟").assertExists()
+        // 08:00–12:00 fits; the old 300-minute check incorrectly overlapped 12:01.
+        rule.onNodeWithTag("event-place-confirm").assertIsEnabled()
+        rule.onNodeWithTag("event-minute-input").performTextReplacement("02")
+        rule.onNodeWithTag("event-place-confirm").assertIsNotEnabled()
+        rule.onNodeWithTag("event-minute-input").performTextReplacement("00")
+        rule.onNodeWithTag("event-place-confirm").assertIsEnabled().performClick()
+        assertEquals(1, writes)
+    }
+
+    @Test fun course_raw_duration_and_title_survive_saved_state_restore() {
+        var writes = 0
+        val restoration = StateRestorationTester(rule)
+        restoration.setContent { ReplandTheme { TimelineDashboard(
+            entries = listOf(TimelineEntry("restore-course29", "原课程", TimelineKind.COURSE, LocalDate.now(), 540, 600)),
+            mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {}, onCreateCourse = { writes++ },
+        ) } }
+        rule.onNodeWithTag("add-course-trigger").performClick()
+        rule.onNodeWithTag("course-title-input").performTextReplacement("保留课程")
+        rule.onNodeWithText("手动设时间").performClick()
+        rule.onNodeWithTag("course-duration-input").performTextReplacement("3.5")
+        restoration.emulateSavedInstanceStateRestore()
+        rule.onNodeWithTag("course-title-input").assertTextContains("保留课程")
+        rule.onNodeWithTag("course-duration-input").assertTextContains("3.5")
+        rule.onNodeWithText("保存课程").assertIsNotEnabled()
+        assertEquals(0, writes)
+    }
+
     @Test fun assistant_clock_raw_input_survives_saved_state_restore_without_changing_proposal() {
         val original = AssistantTaskProposal("raw29", "助手原始数字", TaskCategory.COURSE, 30,
             ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)

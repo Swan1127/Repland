@@ -1702,8 +1702,10 @@ private fun TodayScreen(
                         .filter { it.id !in placedTaskIdsForScheduleDate && it.status.isActive }
                         .map { TimelineEventObject(it.id, it.displayName, it.totalDurationMinutes, it.category) },
                     onPlaceEvent = { event, trackId, startMinute ->
-                        val duration = event.durationMinutes?.coerceIn(15, 240) ?: 30
-                        onPlaceEvent(event.id, scheduleDate, startMinute, (startMinute + duration).coerceAtMost(1440), trackId)
+                        val duration = com.swan1127.repland.domain.model.TaskPlacementPolicy.durationForTask(event.durationMinutes)
+                        if (duration != null && startMinute in 0 until 1440 && startMinute + duration <= 1440) {
+                            onPlaceEvent(event.id, scheduleDate, startMinute, startMinute + duration, trackId)
+                        }
                     },
                     scheduleDate = scheduleDate,
                     onCreateCourse = { request -> onCreateCourse(request, scheduleDate) },
@@ -3388,7 +3390,7 @@ private fun ImportedCourseEditorDialog(
                 )
                 OutlinedTextField(
                     value = startPeriodText,
-                    onValueChange = { startPeriodText = it.filter(Char::isDigit) },
+                    onValueChange = { startPeriodText = it },
                     modifier = Modifier.fillMaxWidth().testTag("import-course-start-period"),
                     label = { Text(stringResource(R.string.start_period)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -3396,7 +3398,7 @@ private fun ImportedCourseEditorDialog(
                 )
                 OutlinedTextField(
                     value = endPeriodText,
-                    onValueChange = { endPeriodText = it.filter(Char::isDigit) },
+                    onValueChange = { endPeriodText = it },
                     modifier = Modifier.fillMaxWidth().testTag("import-course-end-period"),
                     label = { Text(stringResource(R.string.end_period)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -3417,9 +3419,9 @@ private fun ImportedCourseEditorDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    val startPeriod = startPeriodText.toIntOrNull() ?: -1
-                    val endPeriod = endPeriodText.toIntOrNull() ?: -1
-                    if (title.isNotBlank() && startPeriod in 1..12 && endPeriod in startPeriod..12) {
+                    val startPeriod = com.swan1127.repland.domain.model.UserNumericInput.integerIn(startPeriodText, 1..12)
+                    val endPeriod = com.swan1127.repland.domain.model.UserNumericInput.integerIn(endPeriodText, 1..12)
+                    if (title.isNotBlank() && startPeriod != null && endPeriod != null && endPeriod >= startPeriod) {
                         onSave(
                             course.copy(
                                 title = title.trim(),
