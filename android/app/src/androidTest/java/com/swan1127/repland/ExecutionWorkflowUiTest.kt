@@ -72,5 +72,11 @@ class ExecutionWorkflowUiTest {
         rule.onNodeWithTag("execution-replan").performScrollTo().performClick()
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("accept-plan-draft").fetchSemanticsNodes().isNotEmpty() }
         assertEquals(planBefore, runBlocking { app.planRepository.observeCurrentPlan().first()!!.id })
+        // Finish the user's cancel branch rather than leave a modal QA proposal over
+        // the next Activity. Later page-navigation tests must target the page window.
+        rule.onNodeWithText(rule.activity.getString(R.string.discard_plan_draft)).performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("accept-plan-draft").fetchSemanticsNodes().isEmpty() }
+        assertNull(runBlocking { app.planRepository.observeDraft().first() })
+        assertEquals(planBefore, runBlocking { app.planRepository.observeCurrentPlan().first()!!.id })
     }
 }
