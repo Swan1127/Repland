@@ -74,7 +74,9 @@ class ContextReadIntegrityTest {
             fault.failedPart.value = null
             withContext(Dispatchers.Main) { vm.retryRead() }
             phase = "retry trusted snapshot"
-            withTimeout(10_000) { combine(vm.uiState, vm.workspaceUiState) { main, workspace -> main.isTrusted && workspace.isTrusted }.first { it } }
+            withTimeout(10_000) { combine(vm.uiState, vm.workspaceUiState) { main, workspace ->
+                main.isTrusted && workspace.isTrusted && main.readAttempt == 1 && workspace.readAttempt == 1
+            }.first { it } }
             assertEquals(2, fault.mainSources.get()); assertEquals(2, fault.workspaceSources.get())
             assertEquals(plan, vm.uiState.value.currentPlan); assertEquals(draft, vm.uiState.value.draft)
             withContext(Dispatchers.Main) { vm.discardDraft() }

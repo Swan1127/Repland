@@ -23,6 +23,7 @@ data class PlanUiState(
     val isLoading: Boolean = true,
     val hasLoaded: Boolean = false,
     val readError: String? = null,
+    val readAttempt: Int = 0,
 ) {
     val isTrusted get() = hasLoaded && !isLoading && readError == null
 }
@@ -34,6 +35,7 @@ data class InteractionWorkspaceUiState(
     val canUndoOrder: Boolean = false,
     val hasLoaded: Boolean = false,
     val readError: String? = null,
+    val readAttempt: Int = 0,
 ) {
     val isTrusted get() = hasLoaded && !isLoading && readError == null
 }
@@ -55,8 +57,9 @@ class PlanViewModel(
     val workspaceUiState = com.swan1127.repland.ui.state.recoverableRead(
         initial = InteractionWorkspaceUiState(), retries = readRetries, errorMessage = "轨道与助手草稿读取失败；原设置仍保留。本页输入暂不写入，请重试。",
     ) {
+        val attempt = readRetries.value
         combine(planRepository.observeTracks(), planRepository.observeAssistantWorkspace(), planRepository.observeCanUndoTaskOrder()) { tracks, assistant, canUndo ->
-            InteractionWorkspaceUiState(false, tracks, assistant, canUndo, hasLoaded = true)
+            InteractionWorkspaceUiState(false, tracks, assistant, canUndo, hasLoaded = true, readAttempt = attempt)
         }
     }.map { read -> read.value.copy(isLoading = read.isLoading, hasLoaded = read.hasLoaded, readError = read.error) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), InteractionWorkspaceUiState())
@@ -67,10 +70,11 @@ class PlanViewModel(
     val uiState: StateFlow<PlanUiState> = com.swan1127.repland.ui.state.recoverableRead(
         initial = PlanUiState(), retries = readRetries, errorMessage = "计划与顺序读取失败；未清空现有计划或预览，请重试。",
     ) {
+        val attempt = readRetries.value
         combine(planRepository.observeCurrentPlan(), planRepository.observePlanHistory(),
             planRepository.observeDraft(), planRepository.observeTaskOrder()) { current, history, draft, order ->
             PlanUiState(currentPlan = current, planHistory = history, draft = draft, taskOrder = order,
-                isLoading = false, hasLoaded = true)
+                isLoading = false, hasLoaded = true, readAttempt = attempt)
         }
     }.combine(operation) { read, operation -> read.value.copy(isLoading = read.isLoading, hasLoaded = read.hasLoaded,
         readError = read.error, errorMessage = operation.first, isWorking = operation.second) }
@@ -204,7 +208,8 @@ class PlanViewModel(
 
     private fun readUnavailable() = uiState.value.readError != null || workspaceUiState.value.readError != null ||
             (uiState.value.hasLoaded && uiState.value.isLoading) ||
-            (workspaceUiState.value.hasLoaded && workspaceUiState.value.isLoading)
+            (workspaceUiState.value.hasLoaded && workspaceUiState.value.isLoading) ||
+            uiState.value.readAttempt != readRetries.value || workspaceUiState.value.readAttempt != readRetries.value
 
     private fun mutate(action: suspend () -> Unit) {
         if (readUnavailable()) {
