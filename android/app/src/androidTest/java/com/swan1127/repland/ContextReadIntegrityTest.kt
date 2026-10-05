@@ -30,6 +30,7 @@ class ContextReadIntegrityTest {
         val database = db(); val store = ViewModelStore(); val base = RoomPlanRepository(database)
         val tasks = RoomTaskRepository(database); val fault = ReadFaultPlans(base)
         lateinit var vm: PlanViewModel; val observers = mutableListOf<Job>()
+        var phase = "seed"
         try {
             tasks.save(TaskDraft("original", "原任务", "", TaskCategory.COURSE, TaskPriority.MEDIUM, 1, 30, null))
             base.accept(PlanDraft(LocalDateTime.now(), listOf(PlannedSegment(taskId = "original", date = LocalDate.now().plusDays(1),
@@ -46,9 +47,11 @@ class ContextReadIntegrityTest {
             observers += launch { vm.uiState.collect() }; observers += launch { vm.workspaceUiState.collect() }
             val mainFailure = part in setOf("current", "history", "draft", "order")
             if (!initialFailure) {
-                withTimeout(10_000) { vm.uiState.first { it.isTrusted }; vm.workspaceUiState.first { it.isTrusted } }
+                phase = "initial trusted snapshot"
+                withTimeout(10_000) { combine(vm.uiState, vm.workspaceUiState) { main, workspace -> main.isTrusted && workspace.isTrusted }.first { it } }
                 fault.failedPart.value = part
             }
+            phase = "failure snapshot"
             withTimeout(10_000) {
                 if (mainFailure) vm.uiState.first { it.readError != null } else vm.workspaceUiState.first { it.readError != null }
             }
@@ -70,12 +73,16 @@ class ContextReadIntegrityTest {
             assertNotNull(if (mainFailure) vm.uiState.value.readError else vm.workspaceUiState.value.readError)
             fault.failedPart.value = null
             withContext(Dispatchers.Main) { vm.retryRead() }
-            withTimeout(10_000) { vm.uiState.first { it.isTrusted }; vm.workspaceUiState.first { it.isTrusted } }
+            phase = "retry trusted snapshot"
+            withTimeout(10_000) { combine(vm.uiState, vm.workspaceUiState) { main, workspace -> main.isTrusted && workspace.isTrusted }.first { it } }
             assertEquals(2, fault.mainSources.get()); assertEquals(2, fault.workspaceSources.get())
             assertEquals(plan, vm.uiState.value.currentPlan); assertEquals(draft, vm.uiState.value.draft)
             withContext(Dispatchers.Main) { vm.discardDraft() }
+            phase = "recovered discard"
             withTimeout(10_000) { vm.uiState.first { it.draft == null && !it.isWorking } }
             assertEquals(plan, base.observeCurrentPlan().first()); assertNull(base.observeDraft().first())
+        } catch (timeout: TimeoutCancellationException) {
+            throw AssertionError("$part/$initialFailure timed out at $phase; main=${vm.uiState.value}; workspace=${vm.workspaceUiState.value}", timeout)
         } finally { observers.forEach { it.cancelAndJoin() }; withContext(Dispatchers.Main) { store.clear() }; database.close() }
     }
 
