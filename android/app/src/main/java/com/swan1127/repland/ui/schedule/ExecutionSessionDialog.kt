@@ -10,10 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
+import android.view.WindowManager
 import com.swan1127.repland.domain.model.*
 import kotlinx.coroutines.delay
 
@@ -44,6 +47,13 @@ fun ExecutionSessionDialog(
         usePlatformDefaultWidth = true,
         decorFitsSystemWindows = false,
     )) {
+        val window = (LocalView.current.parent as DialogWindowProvider).window
+        SideEffect {
+            // Expand the native window, then let the platform pass its real
+            // measure specs to Compose. Never substitute screen dimensions.
+            val match = WindowManager.LayoutParams.MATCH_PARENT
+            if (window.attributes.width != match || window.attributes.height != match) window.setLayout(match, match)
+        }
         Surface(Modifier.fillMaxSize().testTag("execution-session"), color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
