@@ -53,7 +53,8 @@ class PlanViewModel(
     private val mutex = Mutex()
     private val assistantReceipt = MutableStateFlow<AssistantSaveReceipt?>(null)
     private val draftEditFeedback = MutableStateFlow<Pair<String?, String?>>(null to null)
-    fun clearDraftEditFeedback() { if (!operation.value.second) draftEditFeedback.value = null to null }
+    private val draftEditSaving = MutableStateFlow(false)
+    fun clearDraftEditFeedback() { if (!operation.value.second && !draftEditSaving.value) draftEditFeedback.value = null to null }
     fun dismissAssistantReceipt() { assistantReceipt.value = null }
     suspend fun queryTasks(scope: TaskQueryScope, date: LocalDate): List<Task> = requireNotNull(operations).query(scope, date)
     suspend fun explainOrder(taskId: String): LocalPriorityAssessment = requireNotNull(operations).explainOrder(taskId)
@@ -84,6 +85,7 @@ class PlanViewModel(
         readError = read.error, errorMessage = operation.first, isWorking = operation.second) }
         .combine(assistantReceipt) { state, receipt -> state.copy(assistantReceipt = receipt) }
         .combine(draftEditFeedback) { state, feedback -> state.copy(draftEditError = feedback.first, draftEditReceipt = feedback.second) }
+        .combine(draftEditSaving) { state, saving -> state.copy(isWorking = state.isWorking || saving) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
     fun retryRead() {
@@ -178,11 +180,12 @@ class PlanViewModel(
 
     fun saveDraftEdit(expected: PlanDraft, updated: PlanDraft, requestId: String) {
         // Synchronous guard prevents duplicate taps before UI state has recomposed.
-        if (operation.value.second) return
+        if (operation.value.second || draftEditSaving.value) return
         if (readUnavailable()) {
             draftEditFeedback.value = "请先重新读取草案；本次未保存，输入仍保留。" to null
             return
         }
+        draftEditSaving.value = true
         operation.value = null to true
         draftEditFeedback.value = null to null
         viewModelScope.launch {
@@ -199,6 +202,7 @@ class PlanViewModel(
                 draftEditFeedback.value = (if (error is IllegalArgumentException) error.message
                     ?: "请检查这次修改后重试。" else "分段未保存，输入仍保留；请重试保存。") to null
             } finally {
+                draftEditSaving.value = false
                 operation.value = operation.value.first to false
             }
         }
