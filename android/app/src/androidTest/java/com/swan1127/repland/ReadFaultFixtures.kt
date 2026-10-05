@@ -31,6 +31,14 @@ internal class ReadFaultTime(private val base: TimeRepository) : TimeRepository 
 }
 
 internal class ReadFaultPlans(private val base: PlanRepository) : PlanRepository by base {
+    @Volatile var failDraftWrite = false
+    var draftWriteGate: CompletableDeferred<Unit>? = null
+    val draftWrites = AtomicInteger()
+    override suspend fun saveDraft(draft: PlanDraft?) {
+        draftWriteGate?.await()
+        check(!failDraftWrite) { "QA draft write failure" }
+        base.saveDraft(draft); draftWrites.incrementAndGet()
+    }
     val failedPart = MutableStateFlow<String?>(null)
     val mainSources = AtomicInteger()
     val workspaceSources = AtomicInteger()
