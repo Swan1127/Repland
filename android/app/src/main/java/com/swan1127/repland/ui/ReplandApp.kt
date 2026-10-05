@@ -236,7 +236,14 @@ private enum class ScheduleRange { OVERVIEW, DAY, WEEK, MONTH }
 @Composable
 private fun DataReadNotice(message: String, onRetry: () -> Unit, canRetry: Boolean = true) {
     Surface(color = MaterialTheme.colorScheme.errorContainer, modifier = Modifier.fillMaxWidth().testTag("data-read-notice")) {
-        Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        if (LocalDensity.current.fontScale > 1.3f) {
+            Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(message, Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
+                    style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer)
+                TextButton(onClick = onRetry, enabled = canRetry,
+                    modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp).testTag("retry-data-read")) { Text("重试读取") }
+            }
+        } else Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(message, Modifier.weight(1f).semantics { liveRegion = LiveRegionMode.Polite },
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer)
             TextButton(onClick = onRetry, enabled = canRetry, modifier = Modifier.testTag("retry-data-read")) { Text("重试读取") }
