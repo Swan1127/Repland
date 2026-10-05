@@ -81,7 +81,10 @@ class PlacementNumericUiTest {
             onWorkspaceChanged = { workspace = it }, onSaveTasks = { saves++ },
             onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
-        rule.onNodeWithTag("agent-proposal-raw29").performScrollTo().performClick()
+        // The timeline tag includes positioning padding. Tap the rendered title,
+        // not the center of that larger semantics rectangle.
+        rule.onNode(hasText("助手原始数字") and hasAnyAncestor(hasTestTag("agent-proposal-raw29")), useUnmergedTree = true)
+            .performScrollTo().assertIsDisplayed().performClick()
         rule.onNodeWithText("时").performTextReplacement("-9")
         rule.onNodeWithText("时").assertTextContains("-9")
         rule.onNodeWithText("更新草案").assertIsNotEnabled()
