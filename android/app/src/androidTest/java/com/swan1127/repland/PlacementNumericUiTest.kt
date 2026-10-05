@@ -81,6 +81,7 @@ class PlacementNumericUiTest {
             onWorkspaceChanged = { workspace = it }, onSaveTasks = { saves++ },
             onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo()
         // The timeline tag includes positioning padding. Tap the rendered title,
         // not the center of that larger semantics rectangle.
         rule.onNode(hasText("助手原始数字") and hasAnyAncestor(hasTestTag("agent-proposal-raw29")), useUnmergedTree = true)
