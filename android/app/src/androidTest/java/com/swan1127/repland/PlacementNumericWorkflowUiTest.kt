@@ -1,6 +1,7 @@
 package com.swan1127.repland
 
 import androidx.compose.ui.test.*
+import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.swan1127.repland.domain.model.*
 import kotlinx.coroutines.flow.first
@@ -40,7 +41,7 @@ class PlacementNumericWorkflowUiTest {
             entries.none { candidate < it.endMinute && candidate + 240 > it.startMinute }
         }
         runBlocking { app.taskRepository.save(TaskDraft(id, "本次安排验收29", "", TaskCategory.COURSE,
-            TaskPriority.MEDIUM, null, 300, null)) }
+            TaskPriority.MEDIUM, 1, 300, null)) }
         val task = runBlocking { app.taskRepository.observeTasks().first().single { it.id == id } }
         waitTag("navigation-today"); visible("navigation-today").performClick()
         waitTag("month-schedule"); visible("month-schedule").performClick()
