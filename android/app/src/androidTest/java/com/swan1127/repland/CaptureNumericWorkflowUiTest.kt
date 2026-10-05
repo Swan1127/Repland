@@ -3,6 +3,7 @@ package com.swan1127.repland
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.lifecycle.ViewModelProvider
+import androidx.compose.ui.semantics.SemanticsActions
 import com.swan1127.repland.domain.model.*
 import com.swan1127.repland.ui.tasks.TaskCaptureViewModel
 import kotlinx.coroutines.flow.first
@@ -16,6 +17,11 @@ import java.util.UUID
 class CaptureNumericWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
     private fun waitTag(tag: String) = rule.waitUntil(10_000) { rule.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }
+    private fun visible(tag: String): SemanticsNodeInteraction {
+        val hasScrollParent = hasTestTag(tag) and hasAnyAncestor(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
+        if (rule.onAllNodes(hasScrollParent).fetchSemanticsNodes().isNotEmpty()) rule.onNodeWithTag(tag).performScrollTo()
+        return rule.onNodeWithTag(tag).assertIsDisplayed()
+    }
 
     @Test fun invalid_raw_survives_close_reopen_and_recreation_until_unknown_is_explicitly_selected() {
         check(rule.activity.packageName == "com.swan1127.repland.qa")
@@ -38,7 +44,7 @@ class CaptureNumericWorkflowUiTest {
             rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().performTextReplacement("-30")
             rule.onNodeWithTag("task-capture-duration-custom-input").assertTextContains("-30")
             rule.onNodeWithTag("task-capture-save-duration").assertIsNotEnabled().performClick()
-            rule.onNodeWithTag("task-capture-close").performScrollTo().performClick()
+            visible("task-capture-close").performClick()
             runBlocking { withTimeout(10_000) { container.taskCaptureRepository.observeDraft().first {
                 it?.id == id && it.customDurationText == "-30"
             } } }
@@ -48,7 +54,7 @@ class CaptureNumericWorkflowUiTest {
             rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().assertTextContains("-30")
             rule.onNodeWithTag("task-capture-save-duration").assertIsNotEnabled()
             rule.onNodeWithTag("task-capture-back").performClick(); rule.onNodeWithTag("task-capture-back").performClick()
-            rule.onNodeWithTag("task-capture-duration-error").performScrollTo().assertIsDisplayed()
+            visible("task-capture-duration-error")
             rule.onNodeWithTag("task-capture-save-inbox").performClick()
             waitTag("task-capture-duration-custom-input")
             rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().assertTextContains("-30")
