@@ -21,8 +21,13 @@ class PlacementNumericWorkflowUiTest {
     }
     private fun visible(tag: String): SemanticsNodeInteraction {
         val node = rule.onNodeWithTag(tag)
-        if (rule.onAllNodes(hasTestTag(tag) and hasAnyAncestor(keyIsDefined(androidx.compose.ui.semantics.SemanticsActions.ScrollBy)))
-                .fetchSemanticsNodes().isNotEmpty()) node.performScrollTo()
+        // Native IME resizing is not part of Compose's idle clock. Re-read and
+        // scroll within the settled window, retaining the visibility requirement.
+        rule.waitUntil(5_000) { runCatching {
+            if (rule.onAllNodes(hasTestTag(tag) and hasAnyAncestor(keyIsDefined(androidx.compose.ui.semantics.SemanticsActions.ScrollBy)))
+                    .fetchSemanticsNodes().isNotEmpty()) node.performScrollTo()
+            node.assertIsDisplayed()
+        }.isSuccess }
         return node.assertIsDisplayed()
     }
 
