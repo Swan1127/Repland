@@ -1654,7 +1654,8 @@ private fun TodayScreen(
                 TodayFocalOverview(
                     nextEntries = timelineEntries.filter { !it.taskClosed && it.end.isAfter(focusNow) }.sortedBy(TimelineEntry::startMinute),
                     now = focusNow,
-                    hasExecution = executionSession != null || !executionReadsReady,
+                    hasExecution = executionSession != null,
+                    canStart = executionReadsReady,
                     pendingCount = pendingEntries.size,
                     onOpenPending = { showPending = true },
                     onStart = onFocusStarted,
@@ -1761,6 +1762,7 @@ internal fun TodayFocalOverview(
     pendingCount: Int,
     onOpenPending: () -> Unit,
     onStart: (String) -> Unit,
+    canStart: Boolean = true,
 ) {
     val first = TodayFocus.next(nextEntries, now)
     val sameMoment = first?.let { lead -> nextEntries.count { it.startMinute == lead.startMinute } } ?: 0
@@ -1794,7 +1796,7 @@ internal fun TodayFocalOverview(
                 Text("同一时段还有 ${sameMoment - 1} 件并行事项", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
             }
             if (segmentId != null) {
-                Button(onClick = { onStart(segmentId) }, enabled = !hasExecution, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("today-focus-start")) {
+                Button(onClick = { onStart(segmentId) }, enabled = !hasExecution && canStart, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("today-focus-start")) {
                     Text(if (phase == TimelinePhase.UPCOMING) "提前开始专注" else "开始专注")
                 }
                 if (hasExecution) Text("请先返回并结束当前专注，再开始另一项。", style = MaterialTheme.typography.bodySmall)
