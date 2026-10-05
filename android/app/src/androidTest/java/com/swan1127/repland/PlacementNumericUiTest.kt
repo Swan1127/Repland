@@ -97,7 +97,7 @@ class PlacementNumericUiTest {
             eventObjects = listOf(com.swan1127.repland.ui.schedule.TimelineEventObject("chunk29", "长任务", 300)),
             onPlaceEvent = { _, _, _ -> writes++ },
         ) } }
-        rule.onNodeWithTag("event-library-trigger").performScrollTo().performClick()
+        rule.onNodeWithTag("event-library-trigger").assertIsDisplayed().performClick()
         rule.onNodeWithTag("event-object-chunk29").performClick()
         rule.onNodeWithText("本次安排 240 分钟").assertExists()
         // 08:00–12:00 fits; the old 300-minute check incorrectly overlapped 12:01.
@@ -130,11 +130,12 @@ class PlacementNumericUiTest {
     @Test fun assistant_clock_raw_input_survives_saved_state_restore_without_changing_proposal() {
         val original = AssistantTaskProposal("raw29", "助手原始数字", TaskCategory.COURSE, 30,
             ArrangementTimeHint(600), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
-        var workspace: AssistantWorkspace? = null
+        val initial = AssistantWorkspace(LocalDate.now(), "助手原始数字", listOf(original))
+        var workspace = initial
         var saves = 0
         val restoration = StateRestorationTester(rule)
         restoration.setContent { ReplandTheme { AgentCenterScreen(
-            initialWorkspace = AssistantWorkspace(LocalDate.now(), "助手原始数字", listOf(original)),
+            initialWorkspace = initial,
             onWorkspaceChanged = { workspace = it }, onSaveTasks = { saves++ },
             onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
@@ -149,7 +150,7 @@ class PlacementNumericUiTest {
         restoration.emulateSavedInstanceStateRestore()
         rule.onNodeWithText("时").assertTextContains("-9")
         rule.onNodeWithText("更新草案").assertIsNotEnabled()
-        assertEquals(listOf(original), workspace!!.proposals); assertEquals(0, saves)
+        assertEquals(listOf(original), workspace.proposals); assertEquals(0, saves)
         rule.onNodeWithText("时").performTextReplacement("09")
         rule.onNodeWithText("分").performTextReplacement("99")
         rule.onNodeWithText("更新草案").assertIsNotEnabled()
@@ -159,8 +160,8 @@ class PlacementNumericUiTest {
         rule.onNodeWithText("更新草案").assertIsNotEnabled()
         rule.onNodeWithText("分钟").performTextReplacement("45")
         rule.onNodeWithText("更新草案").assertIsEnabled().performClick()
-        assertEquals(540, workspace!!.proposals.single().timeHint.explicitStartMinute)
-        assertEquals(45, workspace!!.proposals.single().durationMinutes)
-        assertEquals(original.id, workspace!!.proposals.single().id); assertEquals(0, saves)
+        assertEquals(540, workspace.proposals.single().timeHint.explicitStartMinute)
+        assertEquals(45, workspace.proposals.single().durationMinutes)
+        assertEquals(original.id, workspace.proposals.single().id); assertEquals(0, saves)
     }
 }

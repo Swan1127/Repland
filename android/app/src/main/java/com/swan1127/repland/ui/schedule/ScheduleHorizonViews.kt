@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -221,7 +222,7 @@ private fun RowScope.MonthDayCell(
     onClick: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier.weight(1f).height(68.dp).clickable(onClick = onClick),
+        modifier = Modifier.weight(1f).height(68.dp).clickable(onClick = onClick).testTag("month-date-$date"),
         color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLow,
         shape = MaterialTheme.shapes.small,
     ) {
