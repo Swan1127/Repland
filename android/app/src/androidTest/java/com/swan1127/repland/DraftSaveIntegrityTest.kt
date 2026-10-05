@@ -18,7 +18,7 @@ class DraftSaveIntegrityTest {
     @Test fun duplicate_click_commits_once_and_only_then_emits_receipt() = scenario("duplicate")
     @Test fun replaced_preview_is_not_overwritten_by_pending_old_edit() = scenario("replacement")
     @Test fun cancellation_before_commit_keeps_preview_and_does_not_emit_receipt() = scenario("cancel")
-    @Test fun queued_generic_update_does_not_clear_pending_edit_busy_state() = scenario("queued")
+    @Test fun active_other_operation_blocks_segment_write_until_explicit_retry() = scenario("otherBusy")
 
     private fun scenario(mode: String) = runBlocking {
         val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
@@ -38,14 +38,25 @@ class DraftSaveIntegrityTest {
             withTimeout(10_000) { combine(vm.uiState, vm.workspaceUiState) { a, b -> a.isTrusted && b.isTrusted }.first { it } }
             source.failDraftWrite = mode == "failure"
             source.draftWriteGate = CompletableDeferred()
+            if (mode == "otherBusy") {
+                source.genericDraftWriteGate = CompletableDeferred()
+                withContext(Dispatchers.Main) { vm.updateDraft(draft) }
+                withTimeout(10_000) { source.genericDraftWriteStarted.await(); vm.uiState.first { it.isWorking } }
+                withContext(Dispatchers.Main) { vm.saveDraftEdit(draft, changed, "blocked") }
+                assertFalse(source.draftWriteStarted.isCompleted)
+                assertNull(vm.uiState.value.draftEditReceipt); assertEquals(0, source.draftWrites.get())
+                source.genericDraftWriteGate!!.complete(Unit)
+                withTimeout(10_000) { vm.uiState.first { !it.isWorking } }
+                assertFalse(source.draftWriteStarted.isCompleted) // No automatic queued edit.
+                assertEquals(draft, repo.observeDraft().first())
+            }
             withContext(Dispatchers.Main) {
-                if (mode == "queued") vm.updateDraft(draft)
                 vm.saveDraftEdit(draft, changed, "first"); vm.saveDraftEdit(draft, changed, "duplicate")
             }
             withTimeout(10_000) { source.draftWriteStarted.await() }
             androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().waitForIdleSync()
             assertTrue(vm.uiState.value.isWorking)
-            assertEquals(if (mode == "queued") 1 else 0, source.draftWrites.get()); assertNull(vm.uiState.value.draftEditReceipt)
+            assertEquals(if (mode == "otherBusy") 1 else 0, source.draftWrites.get()); assertNull(vm.uiState.value.draftEditReceipt)
             assertEquals(draft, repo.observeDraft().first())
             val replacement = draft.copy(generatedAt = draft.generatedAt.plusSeconds(1))
             if (mode == "replacement") repo.saveDraft(replacement)
@@ -57,9 +68,9 @@ class DraftSaveIntegrityTest {
             } else {
                 source.draftWriteGate!!.complete(Unit)
                 withTimeout(10_000) { vm.uiState.first { !it.isWorking && (it.draftEditReceipt != null || it.draftEditError != null) } }
-                if (mode == "duplicate" || mode == "queued") {
+                if (mode == "duplicate" || mode == "otherBusy") {
                     assertEquals("first", vm.uiState.value.draftEditReceipt); assertNull(vm.uiState.value.draftEditError)
-                    assertEquals(if (mode == "queued") 2 else 1, source.draftWrites.get()); assertEquals(changed, repo.observeDraft().first())
+                    assertEquals(if (mode == "otherBusy") 2 else 1, source.draftWrites.get()); assertEquals(changed, repo.observeDraft().first())
                 } else {
                     assertNotNull(vm.uiState.value.draftEditError); assertNull(vm.uiState.value.draftEditReceipt)
                     assertEquals(0, source.draftWrites.get())
