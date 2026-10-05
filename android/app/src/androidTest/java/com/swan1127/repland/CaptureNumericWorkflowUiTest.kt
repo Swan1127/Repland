@@ -43,7 +43,7 @@ class CaptureNumericWorkflowUiTest {
             waitTag("task-capture-duration-custom-input")
             rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().performTextReplacement("-30")
             rule.onNodeWithTag("task-capture-duration-custom-input").assertTextContains("-30")
-            rule.onNodeWithTag("task-capture-save-duration").assertIsNotEnabled().performClick()
+            visible("task-capture-save-duration").assertIsNotEnabled().performClick()
             visible("task-capture-close").performClick()
             runBlocking { withTimeout(10_000) { container.taskCaptureRepository.observeDraft().first {
                 it?.id == id && it.customDurationText == "-30"
@@ -53,16 +53,23 @@ class CaptureNumericWorkflowUiTest {
             rule.activityRule.scenario.recreate(); waitTag("task-capture-duration-custom-input")
             rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().assertTextContains("-30")
             rule.onNodeWithTag("task-capture-save-duration").assertIsNotEnabled()
-            rule.onNodeWithTag("task-capture-back").performClick(); rule.onNodeWithTag("task-capture-back").performClick()
+            visible("task-capture-back").performClick()
+            waitTag("task-capture-choose-duration")
+            visible("task-capture-back").performClick()
             visible("task-capture-duration-error")
-            rule.onNodeWithTag("task-capture-save-inbox").performClick()
+            rule.waitForIdle()
+            val screenshot = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+            try { java.io.File(rule.activity.getExternalFilesDir(null), "qa-capture28-invalid.png").outputStream().use {
+                check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+            } } finally { screenshot.recycle() }
+            visible("task-capture-save-inbox").performClick()
             waitTag("task-capture-duration-custom-input")
             rule.onNodeWithTag("task-capture-duration-custom-input").performScrollTo().assertTextContains("-30")
             assertEquals(tasks, runBlocking { container.taskRepository.observeTasks().first() })
             assertEquals(plan, runBlocking { container.planRepository.observeCurrentPlan().first() })
             assertEquals(order, runBlocking { container.planRepository.observeTaskOrder().first() })
             rule.onNodeWithTag("task-capture-duration-unknown").performScrollTo().performClick()
-            rule.onNodeWithTag("task-capture-save-duration").assertIsEnabled().performClick()
+            visible("task-capture-save-duration").assertIsEnabled().performClick()
             rule.waitUntil(10_000) { vm.uiState.value.receipt != null && !vm.uiState.value.saving }
             val after = runBlocking { container.taskRepository.observeTasks().first() }
             assertEquals(tasks.size + 1, after.size)
