@@ -449,7 +449,10 @@ private fun EventLibrarySheet(
     val visibleEvents = events.filter { selectedCategory == null || it.category == selectedCategory }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+        // A form measured at full height can be clipped by a partial anchor;
+        // scrolling it cannot expose controls below that anchor. Use the native
+        // expanded editor so keyboard resizing and scrolling share one viewport.
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp).padding(bottom = 28.dp),

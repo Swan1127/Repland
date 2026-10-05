@@ -35,6 +35,7 @@ class PlacementNumericWorkflowUiTest {
         check(rule.activity.packageName == "com.swan1127.repland.qa")
         val app = (rule.activity.application as ReplandApplication).appContainer
         val id = "qa-placement29-${UUID.randomUUID()}"
+        val name = "本次安排验收29-${id.takeLast(6)}"
         val date = LocalDate.now().plusDays(1)
         val before = runBlocking { app.planRepository.observeCurrentPlan().first() }
         val tasksBefore = runBlocking { app.taskRepository.observeTasks().first() }
@@ -45,7 +46,7 @@ class PlacementNumericWorkflowUiTest {
         val start = (0..20).map { it * 60 }.first { candidate ->
             entries.none { candidate < it.endMinute && candidate + 240 > it.startMinute }
         }
-        runBlocking { app.taskRepository.save(TaskDraft(id, "本次安排验收29", "", TaskCategory.COURSE,
+        runBlocking { app.taskRepository.save(TaskDraft(id, name, "", TaskCategory.COURSE,
             TaskPriority.MEDIUM, 1, 300, null)) }
         val task = runBlocking { app.taskRepository.observeTasks().first().single { it.id == id } }
         waitTag("navigation-today"); visible("navigation-today").performClick()
@@ -59,6 +60,10 @@ class PlacementNumericWorkflowUiTest {
         rule.onNodeWithText("本次安排 240 分钟").assertExists()
         visible("event-minute-input").performTextReplacement("99")
         visible("event-place-confirm").assertIsNotEnabled().performClick()
+        val screenshot = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+        try { java.io.File(rule.activity.getExternalFilesDir(null), "qa-placement29-invalid.png").outputStream().use {
+            check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        } } finally { screenshot.recycle() }
         assertEquals(before, runBlocking { app.planRepository.observeCurrentPlan().first() })
         assertEquals(task, runBlocking { app.taskRepository.observeTasks().first().single { it.id == id } })
         visible("event-hour-input").performTextReplacement((start / 60).toString())
