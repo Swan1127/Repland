@@ -71,7 +71,12 @@ class SessionInputWorkflowUiTest {
             rule.activityRule.scenario.recreate(); waitTag("execution-progress")
             rule.onNodeWithTag("execution-progress").performScrollTo().assertTextContains("40")
             rule.onNodeWithTag("execution-content").performScrollTo().assertTextContains("保留第一章")
-            source.failed.value = false; rule.onNodeWithTag("retry-data-read").performScrollTo().performClick()
+            rule.mainClock.advanceTimeByFrame(); rule.waitForIdle(); InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+            val screenshot = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+            try { File(rule.activity.getExternalFilesDir(null), "qa-session25-read-failure.png").outputStream().use { check(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) } }
+            finally { screenshot.recycle() }
+            source.failed.value = false
+            rule.onNode(hasTestTag("retry-data-read") and hasAnyAncestor(hasTestTag("execution-session"))).performScrollTo().performClick()
             rule.waitUntil(10_000) { vm.sessionReadState.value.isTrusted }
             rule.onNodeWithTag("execution-partial-save").performScrollTo().assertIsEnabled()
             assertEquals(original, runBlocking { container.executionSessionRepository.observeActive().first() })

@@ -39,7 +39,7 @@ fun ExecutionSessionDialog(
     val elapsedSeconds = session.elapsedMillis(now) / 1_000
     val remaining = (session.targetSeconds - elapsedSeconds).coerceAtLeast(0)
     Dialog(onDismissRequest = { if (!busy) onDismiss() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
+        Surface(Modifier.fillMaxSize().testTag("execution-session"), color = MaterialTheme.colorScheme.surface) {
             Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(if (session.isPaused) "本轮已暂停" else if (remaining == 0L) "计时已到 · 等待你确认结果" else "专注中",
