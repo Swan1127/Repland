@@ -111,7 +111,8 @@ class SessionInputWorkflowUiTest {
         val (_, vm) = fault()
         rule.waitUntil(10_000) { vm.uiState.value.isTrusted && vm.uiState.value.tasks.any { it.id == id } }
         waitTag("navigation-tasks"); rule.onNodeWithTag("navigation-tasks").performClick(); waitTag("task-groups-scroll")
-        rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-$name"))
+        rule.onNodeWithTag("task-filter-INBOX").performClick(); waitTag("task-list-scroll")
+        rule.onNodeWithTag("task-list-scroll").performScrollToNode(hasTestTag("task-card-$name"))
         rule.onNodeWithTag("task-card-$name").performClick(); waitTag("task-detail-scroll")
         rule.onNodeWithTag("task-detail-scroll").performScrollToNode(hasText("编辑任务")); rule.onNodeWithText("编辑任务").performClick()
         waitTag("task-editor-duration")

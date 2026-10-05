@@ -2071,7 +2071,7 @@ internal fun TasksScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             TaskCenterView.entries.forEach { option ->
-                FilterChip(selected = view == option, onClick = { view = option }, label = { Text(option.label) })
+                FilterChip(selected = view == option, onClick = { view = option }, label = { Text(option.label) }, modifier = Modifier.testTag("task-filter-${option.name}"))
             }
         }
         if (!isLoading && visibleTasks.isEmpty()) {
@@ -2165,7 +2165,7 @@ private fun TaskList(
     placementLabels: Map<String, String> = emptyMap(),
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().testTag("task-list-scroll"),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
