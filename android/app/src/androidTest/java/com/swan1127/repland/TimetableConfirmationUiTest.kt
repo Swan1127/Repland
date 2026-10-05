@@ -57,6 +57,36 @@ class TimetableConfirmationUiTest {
         } } finally { bitmap.recycle() }
     }
 
+    @Test fun invalid_period_raw_survives_recreation_without_editing_preview_or_constraints() {
+        check(rule.activity.packageName == "com.swan1127.repland.qa")
+        openImportPage()
+        val before = runBlocking { repo.observeWeeklyBlocks().first() }
+        val settings = runBlocking { repo.observeTimeConstraintSettings().first() }
+        val file = fixture("RawPeriod29")
+        try {
+            val original = read(file).courses.single()
+            rule.onNodeWithTag("import-course-edit-${original.id}").performScrollTo().performClick()
+            waitTag("import-course-start-period")
+            listOf("-3", "+3", "3.5", "999999999999", "0", "13").forEach { raw ->
+                rule.onNodeWithTag("import-course-start-period").performScrollTo().performTextReplacement(raw)
+                rule.onNodeWithTag("import-course-start-period").assertTextContains(raw)
+                rule.onNodeWithTag("import-course-save").performClick()
+                rule.onNodeWithTag("import-course-start-period").assertExists().assertTextContains(raw)
+                assertEquals(original, (vm().timetableImportState.value as TimetableImportState.Review).courses.single())
+            }
+            rule.activityRule.scenario.recreate(); waitTag("import-course-start-period")
+            rule.onNodeWithTag("import-course-start-period").performScrollTo().assertTextContains("13")
+            rule.onNodeWithTag("import-course-start-period").performTextReplacement("3")
+            rule.onNodeWithTag("import-course-end-period").performScrollTo().performTextReplacement("2.5")
+            rule.onNodeWithTag("import-course-end-period").assertTextContains("2.5")
+            rule.onNodeWithTag("import-course-save").performClick()
+            rule.onNodeWithTag("import-course-end-period").assertExists()
+            assertEquals(original, (vm().timetableImportState.value as TimetableImportState.Review).courses.single())
+            assertEquals(before, runBlocking { repo.observeWeeklyBlocks().first() })
+            assertEquals(settings, runBlocking { repo.observeTimeConstraintSettings().first() })
+        } finally { file.delete() }
+    }
+
     @Test fun preview_and_course_edit_survive_recreation_then_cancel_without_writes() {
         openImportPage()
         val before = runBlocking { repo.observeWeeklyBlocks().first() }
