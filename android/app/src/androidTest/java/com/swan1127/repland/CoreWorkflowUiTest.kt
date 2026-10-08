@@ -10,6 +10,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.state.ToggleableState
@@ -75,6 +77,20 @@ class CoreWorkflowUiTest {
         // this Compose activity remains in the same clean state as a person would leave it.
         composeRule.onNodeWithTag("task-date-picker-dismiss").performClick()
         composeRule.onNodeWithTag("task-capture-deadline-today").performClick()
+        val repository = (composeRule.activity.application as ReplandApplication).appContainer.taskRepository
+        val saved = runBlocking {
+            withTimeout(10_000) {
+                repository.observeTasks().first { tasks -> tasks.any { it.displayName == taskName } }
+                    .single { it.displayName == taskName }
+            }
+        }
+        assertEquals(java.time.LocalDate.now(), saved.dueDate)
+        // Selecting a deadline does not assert a separate intended planning date.
+        assertEquals(null, saved.scheduledForDate)
+        waitForTag("task-filter-TODAY")
+        composeRule.onNodeWithTag("task-filter-TODAY").performClick()
+        waitForTag("task-list-scroll")
+        composeRule.onNodeWithTag("task-list-scroll").performScrollToNode(hasTestTag("task-card-$taskName"))
         waitForTag("task-card-$taskName")
     }
 
@@ -114,6 +130,7 @@ class CoreWorkflowUiTest {
         waitForTag("task-capture-duration-15")
         composeRule.onNodeWithTag("task-capture-duration-15").performClick()
         composeRule.onNodeWithTag("task-capture-save-duration").performClick()
+        showSavedTask(taskName, "TODAY")
         waitForTag("task-card-$taskName")
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
         waitForTag("task-detail-scroll")
@@ -162,6 +179,7 @@ class CoreWorkflowUiTest {
         composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
 
+        showSavedTask(taskName, "INBOX")
         waitForTag("task-card-$taskName")
         composeRule.onNodeWithText("已保存“$taskName”到待安排。", useUnmergedTree = true).assertExists()
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
@@ -223,6 +241,7 @@ class CoreWorkflowUiTest {
         openTaskCapture()
         composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
+        showSavedTask(taskName, "INBOX")
         waitForTag("task-card-$taskName")
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
         waitForTag("task-detail-scroll")
@@ -252,6 +271,19 @@ class CoreWorkflowUiTest {
             }
         }
         assertEquals(TaskStatus.NOT_STARTED, task.status)
+    }
+
+    private fun showSavedTask(taskName: String, filter: String) {
+        val repository = (composeRule.activity.application as ReplandApplication).appContainer.taskRepository
+        runBlocking {
+            withTimeout(10_000) {
+                repository.observeTasks().first { tasks -> tasks.any { it.displayName == taskName } }
+            }
+        }
+        waitForTag("task-filter-$filter")
+        composeRule.onNodeWithTag("task-filter-$filter").performClick()
+        waitForTag("task-list-scroll")
+        composeRule.onNodeWithTag("task-list-scroll").performScrollToNode(hasTestTag("task-card-$taskName"))
     }
 
     private fun waitForTag(tag: String) {
