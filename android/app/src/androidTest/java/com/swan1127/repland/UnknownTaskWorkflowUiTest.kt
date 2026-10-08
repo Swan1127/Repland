@@ -2,6 +2,7 @@ package com.swan1127.repland
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.graphics.asAndroidBitmap
 import com.swan1127.repland.domain.model.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -38,6 +39,15 @@ class UnknownTaskWorkflowUiTest {
         rule.onNodeWithTag("task-filter-INBOX").performClick()
         waitTag("task-list-scroll")
         rule.onNodeWithTag("task-list-scroll").performScrollToNode(hasTestTag("task-card-$title"))
+        val cardBounds = rule.onNodeWithTag("task-card-$title").getUnclippedBoundsInRoot()
+        val listBounds = rule.onNodeWithTag("task-list-scroll").getUnclippedBoundsInRoot()
+        assertTrue("Task card must be fully inside the list before its real click: card=$cardBounds list=$listBounds",
+            cardBounds.top >= listBounds.top && cardBounds.bottom <= listBounds.bottom)
+        // Synchronize the actual draw before injecting a click after the list has scrolled.
+        val image = rule.onRoot().captureToImage().asAndroidBitmap()
+        java.io.File(rule.activity.getExternalFilesDir(null), "c04-before-open-task.png").outputStream().use {
+            assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
+        }
         rule.onNodeWithTag("task-card-$title").performClick()
         waitTag("task-detail-scroll")
         rule.onNodeWithTag("task-detail-scroll").performScrollToNode(hasText("编辑任务"))
