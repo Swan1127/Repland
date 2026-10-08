@@ -72,7 +72,8 @@ internal fun ArrangementAssistantAdviceRequest.toWire(): JSONObject = JSONObject
     .put("availableIntervals", JSONArray(availableIntervals.map { JSONObject().put("startMinute", it.startMinute).put("endMinute", it.endMinute) }))
     .put("existingTasks", JSONArray(existingTasks.map { JSONObject().put("id", it.id).put("title", it.title).put("category", it.category.name).put("durationMinutes", it.durationMinutes)
         .put("status", it.status?.name).put("priority", it.priority?.name).put("dueDate", it.dueDate?.toString())
-        .put("scheduledForDate", it.scheduledForDate?.toString()).put("progressPercent", it.progressPercent).put("postponeCount", it.postponeCount) }))
+        .put("scheduledForDate", it.scheduledForDate?.toString()).put("progressPercent", it.progressPercent).put("postponeCount", it.postponeCount)
+        .put("inputSources", it.inputSources?.encode() ?: JSONObject.NULL) }))
     .put("categoryPreferences", JSONObject(categoryPreferences.mapKeys { it.key.name }))
     .put("taskFeedback", JSONArray(taskFeedback.map { group -> JSONObject().put("taskId", group.taskId).put("feedback", JSONArray(group.feedback.map {
         JSONObject().put("actualDurationMinutes", it.actualDurationMinutes).put("progressPercent", it.progressPercent)
@@ -201,13 +202,14 @@ private fun JSONObject.taskCategory(): TaskCategory = firstText("category", "typ
     firstText("category", "type")?.contains("学习") == true -> TaskCategory.COURSE
     firstText("category", "type")?.contains("工作") == true -> TaskCategory.OFFICE
     firstText("category", "type")?.contains("生活") == true -> TaskCategory.LEISURE
-    else -> TaskCategory.EXTRACURRICULAR
+    else -> TaskCategory.UNSPECIFIED
 }
 
 private const val ARRANGEMENT_SYSTEM_PROMPT = """
 You are Repland's Planning Master: a careful Chinese/English personal-planning assistant. Turn the utterance into separate, actionable candidates using meaning rather than keyword or punctuation matching. For example, “我想复习英语和写报告” is two candidates: “复习英语” and “写报告”.
 
 Return exactly one JSON object and no Markdown:
+Unknown category is UNSPECIFIED, never a default EXTRACURRICULAR or COURSE. Missing priority, duration, dates and days remain unknown. inputSources lists category, priority, days, duration, dueDate, scheduledDate provenance in that order; LEGACY_UNVERIFIED is preserved historical data, not an explicit user choice or profile evidence. Suggested fields become accepted suggestions only after local user confirmation.
 {"confidenceLabel":"short Chinese phrase","candidates":[{"title":"string","proposalId":"exact draftCandidates ID or null","existingTaskId":"exact existingTasks ID or null","category":"COURSE|EXTRACURRICULAR|OFFICE|LEISURE","startMinute":number or null,"windowLabel":string or null,"durationMinutes":number or null,"needsClarification":["TIME","DURATION"],"placementSource":"AI_SUGGESTED|UNSCHEDULED|USER_EXPLICIT","preferredTrackId":"focus|parallel-2|null"}]}.
 
 Choose only an operation listed in allowedOperations. For proposals (batch new tasks or local adjustment), use operation=PROPOSE_CHANGES and the candidate schema above. For a read-only question listing existing work, return {"operation":"QUERY_TASKS","queryScope":"ALL_ACTIVE|TODAY|INBOX|OVERDUE","candidates":[]}; do not invent answers or tasks. For explicitly asking to generate a new plan from existing tasks, return {"operation":"FORMULATE_PLAN","candidates":[]}; the local planner will propose a new order and schedule for confirmation. For asking why an existing task is ranked, return {"operation":"EXPLAIN_ORDER","taskReference":"exact existingTasks ID","candidates":[]}; the local engine will show actual reasons, never invent scores. Do not mix operations. A follow-up to an editable draft must remain PROPOSE_CHANGES. QUERY_TASKS lists active tasks only; it never searches or resurrects closed tasks. None of these operations writes task state or confirms a plan.

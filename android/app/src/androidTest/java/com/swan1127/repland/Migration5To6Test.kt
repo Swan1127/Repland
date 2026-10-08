@@ -56,6 +56,7 @@ class Migration5To6Test {
                     ReplandDatabase.MIGRATION_17_18,
                     ReplandDatabase.MIGRATION_18_19,
                     ReplandDatabase.MIGRATION_19_20,
+                    ReplandDatabase.MIGRATION_20_21,
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -69,6 +70,20 @@ class Migration5To6Test {
             migrated.query("SELECT scheduledForEpochDay FROM tasks WHERE id = 'task-1'").use { cursor ->
                 assertTrue(cursor.moveToFirst())
                 assertTrue(cursor.isNull(0))
+            }
+            migrated.query("SELECT category, userPriority, estimatedDays, inputSources FROM tasks WHERE id = 'task-1'").use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("", cursor.getString(3))
+                assertEquals(com.swan1127.repland.domain.model.TaskInputSources.legacy,
+                    com.swan1127.repland.domain.model.TaskInputSources.decode(cursor.getString(3)))
+            }
+            migrated.query("PRAGMA table_info(tasks)").use { cursor ->
+                var foundDays = false
+                while (cursor.moveToNext()) if (cursor.getString(1) == "estimatedDays") {
+                    foundDays = true
+                    assertEquals(0, cursor.getInt(3))
+                }
+                assertTrue(foundDays)
             }
             migrated.query("SELECT COUNT(*) FROM plans").use { cursor ->
                 cursor.moveToFirst()

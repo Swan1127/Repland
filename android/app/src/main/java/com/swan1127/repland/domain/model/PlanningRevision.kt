@@ -6,7 +6,7 @@ object PlanningRevision {
         val source = listOf(
             input.tasks.sortedBy { it.id }, input.weeklyBlocks.sortedBy { it.id },
             input.dateOverrides.sortedBy { it.id }, input.semesterFirstWeekMonday,
-            TaskCategory.entries.map { CategoryPreferences.normalized(input.categoryPreferences).getValue(it) },
+            TaskCategory.knownEntries.map { CategoryPreferences.normalized(input.categoryPreferences).getValue(it) },
             current, persistedOrder,
         ).joinToString("\n")
         return java.security.MessageDigest.getInstance("SHA-256").digest(source.toByteArray(Charsets.UTF_8))

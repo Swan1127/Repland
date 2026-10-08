@@ -1,11 +1,13 @@
 package com.swan1127.repland.data.room
 
 import androidx.room.Entity
+import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.swan1127.repland.domain.model.Task
 import com.swan1127.repland.domain.model.TaskCategory
 import com.swan1127.repland.domain.model.TaskPriority
 import com.swan1127.repland.domain.model.TaskStatus
+import com.swan1127.repland.domain.model.TaskInputSources
 import java.time.LocalDate
 
 @Entity(tableName = "tasks")
@@ -15,7 +17,7 @@ data class TaskEntity(
     val displayName: String,
     val category: String,
     val userPriority: String,
-    val estimatedDays: Int,
+    val estimatedDays: Int?,
     val totalDurationMinutes: Int?,
     val dueDateEpochDay: Long?,
     val status: String,
@@ -27,6 +29,7 @@ data class TaskEntity(
     val updatedAtEpochMillis: Long,
     val completionResult: String? = null,
     val scheduledForEpochDay: Long? = null,
+    @ColumnInfo(defaultValue = "''") val inputSources: String = "",
 )
 
 fun TaskEntity.toDomain(): Task = Task(
@@ -47,4 +50,5 @@ fun TaskEntity.toDomain(): Task = Task(
     updatedAtEpochMillis = updatedAtEpochMillis,
     completionResult = completionResult,
     scheduledForDate = scheduledForEpochDay?.let(LocalDate::ofEpochDay),
+    inputSources = TaskInputSources.decode(inputSources),
 )

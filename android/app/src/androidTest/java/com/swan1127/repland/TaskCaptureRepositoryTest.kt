@@ -11,6 +11,43 @@ import org.junit.Test
 import java.time.LocalDate
 
 class TaskCaptureRepositoryTest {
+    @Test fun minimal_task_remains_unknown_after_reopen_and_export() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val name = "unknown-capture-${java.util.UUID.randomUUID()}.db"
+        var db = Room.databaseBuilder(context, ReplandDatabase::class.java, name).build()
+        val capture = TaskCaptureDraft(text = "只有一句事项")
+        try {
+            val repo = RoomTaskCaptureRepository(db)
+            repo.saveDraft(capture)
+            repo.commit(capture, capture.toTaskDraft())
+            db.close()
+            db = Room.databaseBuilder(context, ReplandDatabase::class.java, name).build()
+            val task = RoomTaskRepository(db).observeTasks().first().single()
+            assertEquals(TaskCategory.UNSPECIFIED, task.category)
+            assertEquals(TaskPriority.UNSPECIFIED, task.userPriority)
+            assertNull(task.estimatedDays)
+            assertNull(task.totalDurationMinutes)
+            assertEquals(TaskInputSource.UNKNOWN, task.inputSources.category)
+            val json = org.json.JSONObject(com.swan1127.repland.data.export.LocalDataJsonExporter.export(
+                RoomDataManagementRepository(db).snapshot())).getJSONArray("tasks").getJSONObject(0)
+            assertTrue(json.isNull("estimatedDays"))
+            assertEquals("UNSPECIFIED", json.getString("userPriority"))
+            assertEquals("UNKNOWN", json.getJSONObject("inputSources").getString("priority"))
+            assertNull(RoomPlanRepository(db).observeCurrentPlan().first())
+        } finally { db.close(); context.deleteDatabase(name) }
+    }
+
+    @Test fun legacy_draft_keeps_values_without_claiming_explicit_category_or_priority() {
+        // Build the v1 fixture without new provenance fields.
+        val json = org.json.JSONObject(TaskCaptureCodec.encode(TaskCaptureDraft(text = "旧草稿",
+            category = TaskCategory.COURSE, priority = TaskPriority.MEDIUM)))
+        json.put("version", 1); json.remove("categorySource"); json.remove("prioritySource")
+        val old = TaskCaptureCodec.decode(json.toString())
+        assertEquals(TaskCategory.COURSE, old.category)
+        assertEquals(TaskInputSource.LEGACY_UNVERIFIED, old.toTaskDraft().inputSources.category)
+        assertEquals(TaskInputSource.LEGACY_UNVERIFIED, old.toTaskDraft().inputSources.priority)
+        assertEquals(old, TaskCaptureCodec.decode(TaskCaptureCodec.encode(old)))
+    }
     @Test fun invalid_raw_duration_cannot_be_committed_as_unknown_or_another_value() = runBlocking {
         val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(), ReplandDatabase::class.java).build()
         try {

@@ -1270,6 +1270,7 @@ private fun TimelineKind.displayLabel(): String = when (this) {
 }
 
 private fun TaskCategory.shortLabel(): String = when (this) {
+    TaskCategory.UNSPECIFIED -> "未分类"
     TaskCategory.COURSE -> "课程"
     TaskCategory.EXTRACURRICULAR -> "课外"
     TaskCategory.OFFICE -> "事务"

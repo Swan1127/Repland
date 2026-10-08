@@ -9,6 +9,7 @@ import com.swan1127.repland.domain.model.TaskFeedback
 import com.swan1127.repland.domain.model.TaskLifecycleValidator
 import com.swan1127.repland.domain.model.TaskName
 import com.swan1127.repland.domain.model.TaskStatus
+import com.swan1127.repland.domain.model.TaskInputSources
 import com.swan1127.repland.domain.ports.TaskRepository
 import java.util.UUID
 import java.time.LocalDate
@@ -42,6 +43,7 @@ class RoomTaskRepository(
     }
 
     override suspend fun save(draft: TaskDraft) {
+        require(TaskDraftValidator.isValid(draft)) { "Invalid task draft." }
         val now = System.currentTimeMillis()
         val existing = if (draft.id == null) null else taskDao.getById(draft.id)
         val entity = TaskEntity(
@@ -49,9 +51,8 @@ class RoomTaskRepository(
             description = draft.description.trim(),
             displayName = draft.displayName.trim().ifBlank { TaskName.fromDescription(draft.description) },
             category = draft.category.name,
-            // A task's initial priority is evidence of the user's original intent and
-            // must not be silently rewritten by later edits.
-            userPriority = existing?.userPriority ?: draft.userPriority.name,
+            // Ordinary edits preserve the initial choice; an unknown choice can be supplied explicitly.
+            userPriority = existing?.userPriority?.takeUnless { it == "UNSPECIFIED" } ?: draft.userPriority.name,
             estimatedDays = draft.estimatedDays,
             totalDurationMinutes = draft.totalDurationMinutes,
             dueDateEpochDay = draft.dueDate?.toEpochDay(),
@@ -64,6 +65,17 @@ class RoomTaskRepository(
             updatedAtEpochMillis = now,
             completionResult = existing?.completionResult,
             scheduledForEpochDay = draft.scheduledForDate?.toEpochDay(),
+            inputSources = existing?.let { old ->
+                val previous = TaskInputSources.decode(old.inputSources)
+                draft.inputSources.copy(
+                    category = if (old.category == draft.category.name) previous.category else draft.inputSources.category,
+                    priority = if (old.userPriority != "UNSPECIFIED") previous.priority else draft.inputSources.priority,
+                    days = if (old.estimatedDays == draft.estimatedDays) previous.days else draft.inputSources.days,
+                    duration = if (old.totalDurationMinutes == draft.totalDurationMinutes) previous.duration else draft.inputSources.duration,
+                    dueDate = if (old.dueDateEpochDay == draft.dueDate?.toEpochDay()) previous.dueDate else draft.inputSources.dueDate,
+                    scheduledDate = if (old.scheduledForEpochDay == draft.scheduledForDate?.toEpochDay()) previous.scheduledDate else draft.inputSources.scheduledDate,
+                ).encode()
+            } ?: draft.inputSources.encode(),
         )
         taskDao.insert(entity)
     }
@@ -203,6 +215,7 @@ class RoomTaskRepository(
                     updatedAtEpochMillis = now,
                     completionResult = null,
                     scheduledForEpochDay = replacement.scheduledForDate?.toEpochDay(),
+                    inputSources = replacement.inputSources.encode(),
                 ),
             )
             taskDao.update(original.copy(status = TaskStatus.REPLACED.name, updatedAtEpochMillis = now))

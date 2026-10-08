@@ -26,6 +26,7 @@ object LocalDataJsonExporter {
             "dueDate" to jsonString(d.dueDate?.toString()), "scheduledForDate" to jsonString(d.scheduledForDate?.toString()),
             "duration" to d.duration.toString(), "category" to jsonString(d.category.name), "priority" to jsonString(d.priority.name),
             "isCustomDuration" to d.isCustomDuration.toString(), "customDurationText" to jsonString(d.customDurationText),
+            "categorySource" to jsonString(d.categorySource.name), "prioritySource" to jsonString(d.prioritySource.name),
         ) } ?: "null"),
         "executionLogs" to jsonArray(snapshot.executionLogs.map(::executionLogJson)),
         "executionSessions" to jsonArray(snapshot.executionSessions.map { s -> jsonObject(
@@ -76,6 +77,14 @@ object LocalDataJsonExporter {
         "category" to jsonString(task.category.name),
         "userPriority" to jsonString(task.userPriority.name),
         "estimatedDays" to task.estimatedDays.toString(),
+        "inputSources" to jsonObject(
+            "category" to jsonString(task.inputSources.category.name),
+            "priority" to jsonString(task.inputSources.priority.name),
+            "estimatedDays" to jsonString(task.inputSources.days.name),
+            "totalDurationMinutes" to jsonString(task.inputSources.duration.name),
+            "dueDate" to jsonString(task.inputSources.dueDate.name),
+            "scheduledForDate" to jsonString(task.inputSources.scheduledDate.name),
+        ),
         "totalDurationMinutes" to jsonNumber(task.totalDurationMinutes),
         "scheduledForDate" to jsonString(task.scheduledForDate?.toString()),
         "dueDate" to jsonString(task.dueDate?.toString()),

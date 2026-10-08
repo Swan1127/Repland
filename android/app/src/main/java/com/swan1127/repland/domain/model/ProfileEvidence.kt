@@ -85,6 +85,7 @@ internal object ProfileEvidenceGenerator {
         val tasksById = tasks.associateBy(Task::id)
         val learningLogs = effectiveLogs.filter { log ->
             tasksById[log.taskId]?.category == TaskCategory.COURSE &&
+                tasksById[log.taskId]?.inputSources?.category in setOf(TaskInputSource.USER_INPUT, TaskInputSource.ACCEPTED_SUGGESTION) &&
                 (!log.feedback.completedContent.isNullOrBlank() || !log.feedback.completionResult.isNullOrBlank())
         }
         if (learningLogs.isNotEmpty()) {

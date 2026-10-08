@@ -39,7 +39,8 @@ object ArrangementAvailability {
 
 data class ArrangementExistingTask(val id: String, val title: String, val category: TaskCategory, val durationMinutes: Int?,
     val status: TaskStatus? = null, val priority: TaskPriority? = null, val dueDate: LocalDate? = null,
-    val scheduledForDate: LocalDate? = null, val progressPercent: Int? = null, val postponeCount: Int? = null)
+    val scheduledForDate: LocalDate? = null, val progressPercent: Int? = null, val postponeCount: Int? = null,
+    val inputSources: TaskInputSources? = null)
 
 data class ArrangementTaskFeedback(val taskId: String, val feedback: List<AiFeedbackContext>)
 

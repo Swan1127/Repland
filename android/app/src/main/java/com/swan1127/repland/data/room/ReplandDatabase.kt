@@ -23,7 +23,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         UsageEventEntity::class,
         PlanningWorkspaceEntity::class,
     ],
-    version = 20,
+    version = 21,
     exportSchema = false,
 )
 abstract class ReplandDatabase : RoomDatabase() {
@@ -46,6 +46,34 @@ abstract class ReplandDatabase : RoomDatabase() {
     abstract fun planningWorkspaceDao(): PlanningWorkspaceDao
 
     companion object {
+        /** Preserve legacy values and history, while separating them from confirmed input. */
+        val MIGRATION_20_21 = object : Migration(20, 21) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE tasks_v21 (
+                        id TEXT NOT NULL PRIMARY KEY, description TEXT NOT NULL, displayName TEXT NOT NULL,
+                        category TEXT NOT NULL, userPriority TEXT NOT NULL, estimatedDays INTEGER,
+                        totalDurationMinutes INTEGER, dueDateEpochDay INTEGER, status TEXT NOT NULL,
+                        completionSummary TEXT, actualDurationMinutes INTEGER, progressPercent INTEGER,
+                        postponeCount INTEGER NOT NULL, createdAtEpochMillis INTEGER NOT NULL,
+                        updatedAtEpochMillis INTEGER NOT NULL, completionResult TEXT, scheduledForEpochDay INTEGER,
+                        inputSources TEXT NOT NULL DEFAULT ''
+                    )
+                """.trimIndent())
+                db.execSQL("""
+                    INSERT INTO tasks_v21 (id, description, displayName, category, userPriority, estimatedDays,
+                        totalDurationMinutes, dueDateEpochDay, status, completionSummary, actualDurationMinutes,
+                        progressPercent, postponeCount, createdAtEpochMillis, updatedAtEpochMillis,
+                        completionResult, scheduledForEpochDay)
+                    SELECT id, description, displayName, category, userPriority, estimatedDays,
+                        totalDurationMinutes, dueDateEpochDay, status, completionSummary, actualDurationMinutes,
+                        progressPercent, postponeCount, createdAtEpochMillis, updatedAtEpochMillis,
+                        completionResult, scheduledForEpochDay FROM tasks
+                """.trimIndent())
+                db.execSQL("DROP TABLE tasks")
+                db.execSQL("ALTER TABLE tasks_v21 RENAME TO tasks")
+            }
+        }
         val MIGRATION_19_20 = object : Migration(19, 20) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS planning_workspace (`key` TEXT NOT NULL, payload TEXT NOT NULL, PRIMARY KEY(`key`))")

@@ -2328,9 +2328,13 @@ private fun TaskDetailScreen(
                 DetailSection(title = stringResource(R.string.task_information), eyebrow = "任务上下文") {
                     DetailLine(stringResource(R.string.category), stringResource(task.category.labelRes()))
                     DetailLine(stringResource(R.string.priority), stringResource(task.userPriority.labelRes()))
+                    if (task.inputSources.encode().contains("LEGACY_UNVERIFIED")) {
+                        Text("旧字段来源未确认：保留原值，不作为用户明确选择或画像证据。",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     DetailLine(
                         stringResource(R.string.estimated_days),
-                        stringResource(R.string.estimated_days_format, task.estimatedDays),
+                        task.estimatedDays?.let { stringResource(R.string.estimated_days_format, it) } ?: "预计天数未知",
                     )
                     DetailLine(
                         stringResource(R.string.duration_minutes_optional),
@@ -4274,18 +4278,18 @@ private fun MineScreen(
     val weightsSaver = remember {
         mapSaver<Map<TaskCategory, String>>(
             save = { entries -> entries.mapKeys { it.key.name } },
-            restore = { entries -> TaskCategory.entries.associateWith { entries[it.name] as? String ?: "" } },
+            restore = { entries -> TaskCategory.knownEntries.associateWith { entries[it.name] as? String ?: "" } },
         )
     }
     var preferencesEdited by rememberSaveable { mutableStateOf(false) }
     var editableWeights by rememberSaveable(stateSaver = weightsSaver) {
-        mutableStateOf(TaskCategory.entries.associateWith { weights.getValue(it).toString() })
+        mutableStateOf(TaskCategory.knownEntries.associateWith { weights.getValue(it).toString() })
     }
     LaunchedEffect(weights) {
-        if (!preferencesEdited) editableWeights = TaskCategory.entries.associateWith { weights.getValue(it).toString() }
+        if (!preferencesEdited) editableWeights = TaskCategory.knownEntries.associateWith { weights.getValue(it).toString() }
     }
     var showValidationError by rememberSaveable { mutableStateOf(false) }
-    val parsedWeights = TaskCategory.entries.associateWith { category ->
+    val parsedWeights = TaskCategory.knownEntries.associateWith { category ->
         editableWeights.getValue(category).toIntOrNull() ?: -1
     }
     val valid = parsedWeights.values.all { it in 0..100 } && parsedWeights.values.sum() > 0
@@ -4367,7 +4371,7 @@ private fun MineScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        TaskCategory.entries.forEach { category ->
+        TaskCategory.knownEntries.forEach { category ->
             OutlinedTextField(
                 value = editableWeights.getValue(category),
                 onValueChange = { value ->
@@ -4926,7 +4930,7 @@ private fun TaskEditorDialog(
     initialText: String = "",
     @StringRes dialogTitle: Int? = null,
     @StringRes confirmLabel: Int = R.string.save,
-    allowPriorityChange: Boolean = task == null,
+    allowPriorityChange: Boolean = task == null || task.userPriority == TaskPriority.UNSPECIFIED,
     saving: Boolean = false,
     saveError: String? = null,
     canSave: Boolean = true,
@@ -4940,9 +4944,9 @@ private fun TaskEditorDialog(
     var description by rememberSaveable(task?.id, initialText) {
         mutableStateOf(task?.description.takeIf { it != task?.displayName } ?: initialText)
     }
-    var category by rememberSaveable(task?.id) { mutableStateOf(task?.category ?: TaskCategory.COURSE) }
-    var priority by rememberSaveable(task?.id) { mutableStateOf(task?.userPriority ?: TaskPriority.MEDIUM) }
-    var estimatedDaysText by rememberSaveable(task?.id) { mutableStateOf(task?.estimatedDays?.toString() ?: "1") }
+    var category by rememberSaveable(task?.id) { mutableStateOf(task?.category ?: TaskCategory.UNSPECIFIED) }
+    var priority by rememberSaveable(task?.id) { mutableStateOf(task?.userPriority ?: TaskPriority.UNSPECIFIED) }
+    var estimatedDaysText by rememberSaveable(task?.id) { mutableStateOf(task?.estimatedDays?.toString() ?: "") }
     var durationText by rememberSaveable(task?.id) { mutableStateOf(task?.totalDurationMinutes?.toString().orEmpty()) }
     var scheduledForDate by rememberSaveable(task?.id) { mutableStateOf(task?.scheduledForDate) }
     var dueDate by rememberSaveable(task?.id) { mutableStateOf(task?.dueDate) }
@@ -4950,7 +4954,8 @@ private fun TaskEditorDialog(
     var showValidationError by rememberSaveable { mutableStateOf(false) }
     val estimatedDays = estimatedDaysText.toIntOrNull()
     val durationMinutes = durationText.takeIf(String::isNotBlank)?.toIntOrNull()
-    val estimatedDaysInvalid = estimatedDaysText.any { it !in '0'..'9' } || estimatedDays !in 1..30
+    val estimatedDaysInvalid = estimatedDaysText.isNotEmpty() &&
+        (estimatedDaysText.any { it !in '0'..'9' } || estimatedDays !in 1..30)
     val durationInvalid = durationText.isNotBlank() && (durationText.any { it !in '0'..'9' } || durationMinutes !in 1..1_440)
     val scheduleAfterDeadline = scheduledForDate?.let { scheduled ->
         dueDate?.let { deadline -> scheduled.isAfter(deadline) }
@@ -5082,7 +5087,7 @@ private fun TaskEditorDialog(
                         description = description,
                         category = category,
                         userPriority = priority,
-                        estimatedDays = estimatedDays ?: 0,
+                        estimatedDays = estimatedDays,
                         totalDurationMinutes = durationMinutes,
                         dueDate = dueDate,
                         scheduledForDate = scheduledForDate,
@@ -5881,12 +5886,12 @@ private fun formatExecutionLogTime(epochMillis: Long): String =
 
 @Composable
 internal fun priorityReasonText(reason: PriorityReason): String = when (reason.kind) {
-    PriorityReasonKind.INITIAL_PRIORITY -> stringResource(
+    PriorityReasonKind.INITIAL_PRIORITY -> if (reason.value == null) "优先级未设置，使用中性排序值" else stringResource(
         R.string.priority_reason_initial,
         reason.value ?: 0,
     )
 
-    PriorityReasonKind.CATEGORY_PREFERENCE -> stringResource(
+    PriorityReasonKind.CATEGORY_PREFERENCE -> if (reason.value == null) "未分类，类别因子使用中性值" else stringResource(
         R.string.priority_reason_category,
         reason.value ?: 0,
     )
@@ -5912,6 +5917,7 @@ private fun UnscheduledReason.labelRes(): Int = when (this) {
 
 @StringRes
 private fun TaskPriority.labelRes(): Int = when (this) {
+    TaskPriority.UNSPECIFIED -> R.string.priority_unspecified
     TaskPriority.REQUIRED -> R.string.priority_required
     TaskPriority.HIGH -> R.string.priority_high
     TaskPriority.MEDIUM -> R.string.priority_medium
@@ -5920,6 +5926,7 @@ private fun TaskPriority.labelRes(): Int = when (this) {
 
 @StringRes
 private fun TaskCategory.labelRes(): Int = when (this) {
+    TaskCategory.UNSPECIFIED -> R.string.category_unspecified
     TaskCategory.COURSE -> R.string.category_course
     TaskCategory.EXTRACURRICULAR -> R.string.category_extracurricular
     TaskCategory.OFFICE -> R.string.category_office

@@ -461,14 +461,18 @@ fun AgentCenterScreen(
                             displayName = TaskName.fromDescription(item.text),
                             description = item.text,
                             category = item.category,
-                            userPriority = TaskPriority.MEDIUM,
-                            estimatedDays = 1,
+                            userPriority = TaskPriority.UNSPECIFIED,
+                            estimatedDays = null,
                             totalDurationMinutes = item.durationMinutes,
                             dueDate = null,
                             scheduledForDate = activeDate.takeIf {
                                 intent != ArrangementIntent.CAPTURE_TASKS && item.timeHint.explicitStartMinute != null && item.durationMinutes != null
                             },
-                        )
+                        ).let { draft -> draft.copy(inputSources =
+                            com.swan1127.repland.domain.model.TaskInputSources.forInput(
+                                draft.category, draft.userPriority, draft.estimatedDays, draft.totalDurationMinutes,
+                                draft.dueDate, draft.scheduledForDate,
+                                com.swan1127.repland.domain.model.TaskInputSource.ACCEPTED_SUGGESTION)) }
                     }
                     val segments = proposals.filter { intent != ArrangementIntent.CAPTURE_TASKS && it.timeHint.explicitStartMinute != null && it.durationMinutes != null }.map { item ->
                         val start = requireNotNull(item.timeHint.explicitStartMinute)
@@ -911,6 +915,7 @@ private fun String.label(): String = when (this) {
 }
 
 private fun previewColor(category: TaskCategory): Color = when (category) {
+    TaskCategory.UNSPECIFIED -> Color(0xFFCCD0D5)
     TaskCategory.COURSE -> Color(0xFFB7C9F5)
     TaskCategory.EXTRACURRICULAR -> Color(0xFFAFE2D2)
     TaskCategory.OFFICE -> Color(0xFFF1C78D)

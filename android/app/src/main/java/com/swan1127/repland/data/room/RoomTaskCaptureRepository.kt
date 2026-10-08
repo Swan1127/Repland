@@ -9,18 +9,22 @@ import java.time.LocalDate
 
 object TaskCaptureCodec {
     fun encode(value: TaskCaptureDraft): String = JSONObject().apply {
-        put("version", 1); put("id", value.id); put("text", value.text); put("stage", value.stage.name)
+        put("version", 2); put("id", value.id); put("text", value.text); put("stage", value.stage.name)
         put("due", value.dueDate?.toString()); put("scheduled", value.scheduledForDate?.toString())
         put("duration", value.duration); put("category", value.category.name); put("priority", value.priority.name)
         put("custom", value.isCustomDuration); put("customText", value.customDurationText)
+        put("categorySource", value.categorySource.name); put("prioritySource", value.prioritySource.name)
     }.toString()
     fun decode(payload: String): TaskCaptureDraft = JSONObject(payload).let { j ->
-        require(j.getInt("version") == 1)
+        val version = j.getInt("version")
+        require(version in 1..2)
         TaskCaptureDraft(j.getString("id"), j.getString("text"), TaskCaptureStage.valueOf(j.getString("stage")),
             if (j.isNull("due")) null else LocalDate.parse(j.getString("due")),
             if (j.isNull("scheduled")) null else LocalDate.parse(j.getString("scheduled")),
             j.getInt("duration"), TaskCategory.valueOf(j.getString("category")), TaskPriority.valueOf(j.getString("priority")),
-            j.getBoolean("custom"), j.getString("customText"))
+            j.getBoolean("custom"), j.getString("customText"),
+            if (version == 1) TaskInputSource.LEGACY_UNVERIFIED else TaskInputSource.valueOf(j.getString("categorySource")),
+            if (version == 1) TaskInputSource.LEGACY_UNVERIFIED else TaskInputSource.valueOf(j.getString("prioritySource")))
     }
 }
 

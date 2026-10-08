@@ -15,6 +15,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ProfileEvidenceGeneratorTest {
+    @Test fun legacy_category_does_not_create_learning_profile_evidence() {
+        val legacy = task("legacy").copy(inputSources = com.swan1127.repland.domain.model.TaskInputSources.legacy)
+        val evidence = ProfileEvidenceGenerator.generate(listOf(legacy),
+            listOf(log("feedback", legacy.id, feedback = TaskFeedback(completedContent = "旧反馈"))))
+        assertTrue(evidence.none { it.scope == ProfileEvidenceScope.LEARNING })
+        assertTrue(evidence.any { it.scope == ProfileEvidenceScope.GENERAL })
+    }
     @Test
     fun uses_confirmed_feedback_and_uses_correction_instead_of_the_corrected_log() {
         val task = task(id = "course")

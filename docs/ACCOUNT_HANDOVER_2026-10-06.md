@@ -1,5 +1,7 @@
 # Repland 账号交接：状态、验收与后续任务
 
+2026-10-08 当前接手状态：分支 codex/placement-numeric-integrity，7506074 基线，无远程后续提交。候选 0.1.30 / 1030 正在实施 C04，Room v21；来源、迁移和阶段证据见 [C04 功能文档](features/C04_INPUT_INTEGRITY.md)，各现有入口见 [74 项独立文档](features/README.md)。本机仓库在 outputs/Repland，Android / JDK / Gradle / AVD 位于相邻 outputs/Environment；R: 为此 outputs 的非破坏短路径映射。本机 API 36 AVD 无既有 Repland 包，不存在可直接继承的旧用户包 / 配置 / 产物。以下旧机器状态保留为历史证据。后续 C07→关联 C02/C03/C05→执行 / 系统验证→H01–H06→M5→最终只读竞品报告；未宣称全部完成。
+
 更新：2026-10-06（Asia/Shanghai）。这是下一个账号的统一接手入口，不需要原聊天历史。交接基线为源码 `5ea3338cc1e385f243b4f3dab706e3c54deb733c`，分支 `codex/placement-numeric-integrity`；本文件之后的文档提交不改变该构建来源。
 
 ## 1. 先读：当前到底完成到了哪里
