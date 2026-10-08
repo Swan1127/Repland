@@ -48,6 +48,10 @@ class UnknownTaskWorkflowUiTest {
         java.io.File(rule.activity.getExternalFilesDir(null), "c04-before-open-task.png").outputStream().use {
             assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it))
         }
+        rule.onNodeWithTag("page-save-snackbar").assertIsDisplayed()
+        val noticeBounds = rule.onNodeWithTag("page-save-snackbar").getUnclippedBoundsInRoot()
+        assertTrue("The visible save receipt must not cover the task card: card=$cardBounds receipt=$noticeBounds",
+            cardBounds.bottom <= noticeBounds.top)
         rule.onNodeWithTag("task-card-$title").performClick()
         waitTag("task-detail-scroll")
         rule.onNodeWithTag("task-detail-scroll").performScrollToNode(hasText("编辑任务"))

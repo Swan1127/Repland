@@ -168,6 +168,8 @@ import com.swan1127.repland.ui.time.TimeMutationKind
 import androidx.compose.runtime.key
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.boundsInRoot
 import com.swan1127.repland.ui.time.TimetableImportState
 import com.swan1127.repland.ui.plan.PlanViewModel
 import com.swan1127.repland.ui.preferences.CategoryPreferenceViewModel
@@ -281,7 +283,14 @@ fun ReplandApp(
     val captureSnackbar = remember { androidx.compose.material3.SnackbarHostState() }
     val feedbackSnackbarScope = rememberCoroutineScope()
     var snackbarHeightPx by remember { mutableStateOf(0) }
+    var pageContentBottomPx by remember { mutableStateOf(0f) }
+    var pageSnackbarTopPx by remember { mutableStateOf(0f) }
     val snackbarBottomInset = with(LocalDensity.current) { snackbarHeightPx.toDp() }
+    val taskSnackbarInset = with(LocalDensity.current) {
+        if (captureSnackbar.currentSnackbarData != null && pageSnackbarTopPx > 0f)
+            (pageContentBottomPx - pageSnackbarTopPx).coerceAtLeast(0f).toDp()
+        else 0.dp
+    }
     val uiState by taskViewModel.uiState.collectAsStateWithLifecycle()
     val taskMutation by taskViewModel.mutationState.collectAsStateWithLifecycle()
     val taskActionLocked = taskMutation.busy || taskMutation.receipt != null || !uiState.isTrusted
@@ -603,7 +612,9 @@ fun ReplandApp(
     } else {
         Scaffold(
             snackbarHost = { androidx.compose.material3.SnackbarHost(captureSnackbar,
-                modifier = Modifier.onSizeChanged { snackbarHeightPx = it.height }) },
+                modifier = Modifier.testTag("page-save-snackbar")
+                    .onSizeChanged { snackbarHeightPx = it.height }
+                    .onGloballyPositioned { pageSnackbarTopPx = it.boundsInRoot().top }) },
             topBar = {
                 if (selectedTab == AppTab.TASKS) TaskPageAppBar(
                     title = stringResource(selectedTab.titleRes),
@@ -681,7 +692,8 @@ fun ReplandApp(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(innerPadding)
+                    .onGloballyPositioned { pageContentBottomPx = it.boundsInRoot().bottom },
             ) {
                 readMessage?.let { DataReadNotice(it, retryReads, canRetry = canRetryReads) }
                 if (planUiState.draft != null && pausedPlanDraftIdentity == planUiState.draft?.generatedAt.toString()) {
@@ -689,7 +701,10 @@ fun ReplandApp(
                         Text("继续查看保留的计划预览")
                     }
                 }
-                Box(Modifier.weight(1f).fillMaxWidth()) {
+                // Scaffold places the snackbar above its FAB. Its height alone does not
+                // describe the covered list area, so reserve the actual vertical overlap.
+                Box(Modifier.weight(1f).fillMaxWidth()
+                    .padding(bottom = if (selectedTab == AppTab.TASKS) taskSnackbarInset else 0.dp)) {
                 when (selectedTab) {
                     AppTab.TODAY -> TodayScreen(
                         executionSession = executionSession,
