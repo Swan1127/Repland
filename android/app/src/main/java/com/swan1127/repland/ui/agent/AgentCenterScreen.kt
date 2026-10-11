@@ -134,8 +134,18 @@ fun AgentCenterScreen(
 ) {
     var prompt by rememberSaveable { mutableStateOf(initialWorkspace?.prompt.orEmpty()) }
     var proposals by remember { mutableStateOf(initialWorkspace?.proposals.orEmpty()) }
-    var intent by remember { mutableStateOf(initialWorkspace?.intent) }
     var selectedIntent by rememberSaveable { mutableStateOf(initialWorkspace?.selectedIntent) }
+    // A free-form draft with an actual time must confirm that time, including
+    // drafts saved by earlier builds. Explicit "新增事项" still saves tasks only.
+    var intent by remember { mutableStateOf(initialWorkspace?.intent?.let { saved ->
+        if (initialWorkspace.selectedIntent == null && initialWorkspace.proposals.any {
+            it.existingTaskId != null || it.timeHint.explicitStartMinute != null
+        }) ArrangementIntent.ARRANGE_TODAY else saved
+    }) }
+    fun resolveIntent(candidates: List<ArrangementCandidate>, fallback: ArrangementIntent): ArrangementIntent =
+        selectedIntent ?: if (candidates.any { it.existingTaskId != null || it.timeHint.explicitStartMinute != null }) {
+            ArrangementIntent.ARRANGE_TODAY
+        } else fallback
     var draftDate by remember { mutableStateOf(initialWorkspace?.date ?: activeDate) }
     var draftRevision by remember { mutableStateOf(initialWorkspace?.sourceRevision) }
     var requestVersion by remember { mutableStateOf(0L) }
@@ -215,7 +225,7 @@ fun AgentCenterScreen(
         queryTasks = null; explanation = null
         when (advice.operation) {
             com.swan1127.repland.domain.model.ArrangementAdviceOperation.PROPOSE_CHANGES -> {
-                if (selectedIntent == null && advice.candidates.any { it.existingTaskId != null }) intent = ArrangementIntent.ARRANGE_TODAY
+                intent = resolveIntent(advice.candidates, ArrangementIntent.CAPTURE_TASKS)
                 proposals = previewCandidates(advice.candidates)
                 refinementMessage = "AI 已生成可编辑计划：${advice.confidenceLabel}"
             }
@@ -261,8 +271,8 @@ fun AgentCenterScreen(
         draftRevision = contextRevision
         val interpretation = ArrangementAssistantInterpreter.interpret(prompt)
         val localQuery = if (selectedIntent == null && onQueryTasks != null) com.swan1127.repland.domain.model.ArrangementReadIntent.queryScope(prompt) else null
+        intent = resolveIntent(interpretation.candidates, interpretation.intent)
         proposals = if (localQuery == null) previewCandidates(interpretation.candidates) else emptyList()
-        intent = selectedIntent ?: interpretation.intent
         persistWorkspace()
         refinementMessage = if (canRefineWithAi) "AI 正在结合课程、固定事项和空档生成计划…" else "本地先拆分事项；配置 AI 后可基于今日占用提出时段建议。"
         if (canRefineWithAi) {
@@ -432,7 +442,7 @@ fun AgentCenterScreen(
                             is ArrangementAssistantAdviceResult.Advice -> {
                                 draftDate = activeDate
                                 draftRevision = contextRevision
-                                if (selectedIntent == null && result.advice.candidates.any { it.existingTaskId != null }) intent = ArrangementIntent.ARRANGE_TODAY
+                                intent = resolveIntent(result.advice.candidates, ArrangementIntent.CAPTURE_TASKS)
                                 proposals = previewCandidates(result.advice.candidates)
                                 followUpInstruction = ""
                                 refinementMessage = "AI 已校对草案：${result.advice.confidenceLabel}"

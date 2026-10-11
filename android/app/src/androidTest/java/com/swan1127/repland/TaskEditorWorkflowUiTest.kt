@@ -27,6 +27,7 @@ class TaskEditorWorkflowUiTest {
         waitTag("navigation-tasks")
         rule.onNodeWithTag("navigation-tasks").performClick()
         waitTag("task-groups-scroll")
+        expandTodayTaskGroup(rule)
         rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-$name"))
         rule.onNodeWithTag("task-card-$name").performClick()
         waitTag("task-detail-scroll")

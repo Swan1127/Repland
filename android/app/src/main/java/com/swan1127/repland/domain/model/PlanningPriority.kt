@@ -67,6 +67,7 @@ object LocalPriorityRanker {
             .toMap()
         return tasks.sortedWith(
             compareBy<Task> { task -> manualPosition[task.id] ?: Int.MAX_VALUE }
+                .thenByDescending { task -> task.userPriority == TaskPriority.REQUIRED }
                 .thenByDescending { task -> assessments.getValue(task.id).score }
                 .thenByDescending { task -> task.userPriority.score }
                 .thenBy { task -> task.dueDate ?: LocalDate.MAX }

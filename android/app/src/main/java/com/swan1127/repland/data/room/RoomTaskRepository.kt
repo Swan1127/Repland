@@ -104,6 +104,7 @@ class RoomTaskRepository(
         // Missing duration remains unknown. Planned duration and time since a status
         // change are not evidence of actual work (they include breaks/background).
         val effectiveFeedback = feedback
+        if (status == TaskStatus.IN_PROGRESS) freezeNumericOriginal(database, existing, now)
         val logCreatedAt = nextLogCreatedAt(taskId, now)
         taskDao.update(existing.withConfirmedStatus(status, effectiveFeedback, now))
         executionLogDao.insert(

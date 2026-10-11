@@ -292,6 +292,72 @@ class AgentCenterUiTest {
         assertEquals(0, placed)
     }
 
+    @Test fun free_input_ai_time_is_included_in_the_same_confirmation_that_previews_it() {
+        var placements = -1
+        var savedTasks = -1
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            canRefineWithAi = true,
+            onRefineWithAi = { _, _, _ -> ArrangementAssistantAdviceResult.Advice(
+                ArrangementAssistantAdvice(listOf(ArrangementCandidate("QA-final-AI-reading", TaskCategory.UNSPECIFIED, 30,
+                    ArrangementTimeHint(960), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)), "explicit time")) },
+            onConfirmChanges = { tasks, segments, _, _, done -> savedTasks = tasks.size; placements = segments.size; done() },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("Add a task and schedule it today at 16:00")
+        rule.onNodeWithTag("agent-preview").performScrollTo().performClick()
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo()
+        rule.waitForIdle()
+        rule.onNodeWithText("确认创建 1 项并放入 1 个时段").assertExists()
+        rule.onNodeWithTag("agent-confirm-tasks").performClick()
+        assertEquals(1, savedTasks)
+        assertEquals("Previewed time must be included in the actual confirmation", 1, placements)
+    }
+
+    @Test fun restored_free_input_draft_does_not_lose_its_previewed_time_on_confirmation() {
+        var placements = -1
+        val item = com.swan1127.repland.domain.model.AssistantTaskProposal("restore-time", "QA restored time",
+            TaskCategory.UNSPECIFIED, 30, ArrangementTimeHint(960), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            initialWorkspace = com.swan1127.repland.domain.model.AssistantWorkspace(LocalDate.now(), "at 16:00", listOf(item),
+                intent = com.swan1127.repland.domain.model.ArrangementIntent.CAPTURE_TASKS),
+            onConfirmChanges = { _, segments, _, _, done -> placements = segments.size; done() },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo().performClick()
+        assertEquals(1, placements)
+    }
+
+    @Test fun explicit_capture_still_discards_ai_placement_before_preview_and_confirmation() {
+        var placements = -1
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            canRefineWithAi = true,
+            onRefineWithAi = { _, _, _ -> ArrangementAssistantAdviceResult.Advice(
+                ArrangementAssistantAdvice(listOf(ArrangementCandidate("QA capture only", TaskCategory.UNSPECIFIED, 30,
+                    ArrangementTimeHint(960), emptySet(), ArrangementPlacementSource.USER_EXPLICIT)), "explicit time")) },
+            onConfirmChanges = { _, segments, _, _, done -> placements = segments.size; done() },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("Add a task at 16:00")
+        rule.onNodeWithTag("agent-prompt-新增事项").performScrollTo().performClick()
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo()
+        rule.waitForIdle()
+        rule.onNodeWithText("确认创建 1 项").assertExists()
+        rule.onNodeWithTag("agent-confirm-tasks").performClick()
+        assertEquals(0, placements)
+    }
+
+    @Test fun offline_free_input_with_explicit_time_confirms_the_time_it_previews() {
+        var placements = -1
+        rule.setContent { ReplandTheme { AgentCenterScreen(
+            onConfirmChanges = { _, segments, _, _, done -> placements = segments.size; done() },
+            onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
+        ) } }
+        rule.onNodeWithTag("agent-prompt").performTextInput("QA reading at 16:00 30 min")
+        rule.onNodeWithTag("agent-preview").performScrollTo().performClick()
+        rule.onNodeWithTag("agent-confirm-tasks").performScrollTo().performClick()
+        assertEquals(1, placements)
+    }
+
     @Test fun text_is_only_saved_after_explicit_confirmation() {
         var saved = 0
         rule.setContent {

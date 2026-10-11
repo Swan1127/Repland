@@ -116,11 +116,13 @@ class RoomPlanRepository(
         AssistantSaveResult(tasks.size, existingTaskIds.count { id -> signature(replaced.filter { it.taskId == id }) != signature(segments.filter { it.taskId == id }) }, segments.size, date)
     }
 
-    private suspend fun validatePlacement(candidate: PlannedSegment, existing: List<PlannedSegment>) {
+    private suspend fun validatePlacement(candidate: PlannedSegment, existing: List<PlannedSegment>, allowOrdinaryOverlap: Boolean = false) {
         PlacementValidator.requireValid(candidate, existing,
             database.timeDao().getAllWeeklyBlocks().map { it.toDomain() },
             database.timeDao().getAllDateOverrides().map { it.toDomain() },
-            database.timeDao().getSemesterSettings()?.firstWeekMondayEpochDay?.let(LocalDate::ofEpochDay))
+            database.timeDao().getSemesterSettings()?.firstWeekMondayEpochDay?.let(LocalDate::ofEpochDay),
+            unavoidableTaskIds = database.taskDao().getAll().filter { it.userPriority == TaskPriority.REQUIRED.name }.map { it.id }.toSet(),
+            allowOrdinaryOverlap = allowOrdinaryOverlap)
     }
     override fun observeCurrentPlan(): Flow<com.swan1127.repland.domain.model.ConfirmedPlan?> =
         planDao.observeCurrentPlan().map { it?.toDomain() }
@@ -133,6 +135,9 @@ class RoomPlanRepository(
     }
 
     private suspend fun acceptInTransaction(draft: PlanDraft, restoring: Boolean = false) {
+        draft.numericProfileVersion?.let { expected ->
+            require(RoomNumericProfileRepository(database).refresh().version == expected) { "画像或来源已变化，请重新生成预览；当前计划保留。" }
+        }
         require(draft.sourceRevision == null || draft.sourceRevision == revision()) { "任务、设置或计划已变化，请重新生成预览后确认。" }
         if (draft.orderOnly) {
             saveTaskOrder(draft.orderedTaskIds)
@@ -142,6 +147,13 @@ class RoomPlanRepository(
         val current = planDao.getCurrentPlanWithSegments()?.toDomain()?.segments.orEmpty()
         val activeIds = database.taskDao().getAll().map { it.toDomain() }.filter { it.status.isActive }.map { it.id }.toSet()
         val validationTime = java.time.LocalDateTime.now()
+        val unavoidableIds = database.taskDao().getAll().filter { it.userPriority == TaskPriority.REQUIRED.name }.map { it.id }.toSet()
+        require(current.filter { it.taskId in unavoidableIds && it.taskId in activeIds &&
+            (it.date > validationTime.toLocalDate() || (it.date == validationTime.toLocalDate() && it.endMinute > validationTime.hour * 60 + validationTime.minute))
+        }.all { protected -> draft.segments.any { proposed ->
+            proposed.taskId == protected.taskId && proposed.date == protected.date && proposed.startMinute == protected.startMinute &&
+                proposed.endMinute == protected.endMinute && proposed.trackId == protected.trackId
+        } }) { "草案不能移动或移除已确认的不可避免安排；请在日程中主动调整并确认。" }
         val runningTaskId = workspace.get(RoomExecutionSessionRepository.KEY)?.let { ExecutionSessionCodec.decode(it.payload).taskId }
         require(current.filter { it.taskId == runningTaskId && (it.date > validationTime.toLocalDate() ||
             (it.date == validationTime.toLocalDate() && it.endMinute > validationTime.hour * 60 + validationTime.minute)) }.all { executing ->
@@ -159,7 +171,7 @@ class RoomPlanRepository(
                 it.startMinute == segment.startMinute && it.endMinute == segment.endMinute && it.trackId == segment.trackId }
             val future = segment.date > validationTime.toLocalDate() ||
                 (segment.date == validationTime.toLocalDate() && segment.endMinute > validationTime.hour * 60 + validationTime.minute)
-            if ((!restoring && !preserved) || (restoring && future)) validatePlacement(segment, draft.segments)
+            if (future || (!restoring && !preserved)) validatePlacement(segment, draft.segments, allowOrdinaryOverlap = preserved)
         }
         val planId = UUID.randomUUID().toString()
         val now = nextPlanCreatedAt(System.currentTimeMillis())
@@ -205,87 +217,78 @@ class RoomPlanRepository(
             orderedTaskIds = source.orderedTaskIds, hasManualTaskOrder = source.hasManualTaskOrder), restoring = true)
     }
 
-    override suspend fun clearCurrentPlan() = planDao.archiveCurrentPlan()
+    override suspend fun clearCurrentPlan() = applyManualChange(ManualPlanChange.Clear)
 
-    override suspend fun setSegmentLocked(segmentId: String, isLocked: Boolean) =
-        planDao.setSegmentLocked(segmentId, isLocked)
+    override suspend fun setSegmentLocked(segmentId: String, isLocked: Boolean) = database.withTransaction {
+        val source = requireNotNull(planDao.getCurrentPlanWithSegments()) { "当前计划已不存在，请刷新。" }
+        require(source.segments.any { it.id == segmentId }) { "原安排已变化，请重新打开后调整。" }
+        val nextId = UUID.randomUUID().toString()
+        planDao.replaceCurrentPlan(PlanEntity(nextId, nextPlanCreatedAt(System.currentTimeMillis()), true),
+            source.segments.map { it.copy(id = UUID.randomUUID().toString(), planId = nextId,
+                isLocked = if (it.id == segmentId) isLocked else it.isLocked) },
+            source.taskOrder.map { it.copy(planId = nextId) })
+    }
 
-    override suspend fun placeTask(
-        taskId: String,
-        date: LocalDate,
-        startMinute: Int,
-        endMinute: Int,
-        trackId: String,
-    ) = database.withTransaction {
+    override suspend fun placeTask(taskId: String, date: LocalDate, startMinute: Int, endMinute: Int, trackId: String) =
+        applyManualChange(ManualPlanChange.Place(taskId, date, startMinute, endMinute, trackId))
+
+    override suspend fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String) =
+        applyManualChange(ManualPlanChange.Move(segmentId, startMinute, endMinute, trackId))
+
+    override suspend fun removePlacement(segmentId: String) = applyManualChange(ManualPlanChange.Remove(segmentId))
+
+    override suspend fun applyManualChange(change: ManualPlanChange, confirmedRevision: String?) = database.withTransaction {
+        val currentRevision = revision()
+        require(confirmedRevision == null || confirmedRevision == currentRevision) {
+            "任务、约束或计划已变化，本次确认已失效；请取消并重新调整。"
+        }
         val source = planDao.getCurrentPlanWithSegments()
-        validatePlacement(PlannedSegment(taskId = taskId, date = date, startMinute = startMinute,
-            endMinute = endMinute, trackId = trackId), source?.toDomain()?.segments.orEmpty())
-        val nextPlanId = UUID.randomUUID().toString()
-        val now = nextPlanCreatedAt(System.currentTimeMillis())
-        val existingOrder = source?.taskOrder
-            ?.sortedBy(PlanTaskOrderEntity::position)
-            ?.map(PlanTaskOrderEntity::taskId)
-            .orEmpty()
-        val orderedTaskIds = (existingOrder + taskId).distinct()
-        planDao.replaceCurrentPlan(
-            plan = PlanEntity(nextPlanId, now, true),
-            segments = source?.segments.orEmpty().map { it.copy(id = UUID.randomUUID().toString(), planId = nextPlanId) } +
-                PlanSegmentEntity(
-                    id = UUID.randomUUID().toString(),
-                    planId = nextPlanId,
-                    taskId = taskId,
-                    dateEpochDay = date.toEpochDay(),
-                    startMinute = startMinute,
-                    endMinute = endMinute,
-                    isLocked = false,
-                    trackId = trackId,
-                ),
-            taskOrder = orderedTaskIds.mapIndexed { position, id ->
-                PlanTaskOrderEntity(nextPlanId, id, position, true)
-            },
-        )
-    }
-
-    override suspend fun movePlacement(
-        segmentId: String,
-        startMinute: Int,
-        endMinute: Int,
-        trackId: String,
-    ) = database.withTransaction {
-        val source = planDao.getCurrentPlanWithSegments() ?: return@withTransaction
-        val target = source.toDomain().segments.firstOrNull { it.id == segmentId } ?: return@withTransaction
-        require(!target.isLocked) { "请先解除锁定，再移动这个安排。" }
-        validatePlacement(target.copy(startMinute = startMinute, endMinute = endMinute, trackId = trackId), source.toDomain().segments)
-        val nextPlanId = UUID.randomUUID().toString()
-        val now = nextPlanCreatedAt(System.currentTimeMillis())
-        planDao.replaceCurrentPlan(
-            plan = PlanEntity(nextPlanId, now, true),
-            segments = source.segments.map { segment ->
-                if (segment.id == segmentId) {
-                    segment.copy(
-                        id = UUID.randomUUID().toString(),
-                        planId = nextPlanId,
-                        startMinute = startMinute,
-                        endMinute = endMinute,
-                        trackId = trackId,
-                    )
-                } else segment.copy(id = UUID.randomUUID().toString(), planId = nextPlanId)
-            },
-            taskOrder = source.taskOrder.map { it.copy(planId = nextPlanId) },
-        )
-    }
-
-    override suspend fun removePlacement(segmentId: String) {
-        val source = planDao.getCurrentPlanWithSegments() ?: return
-        if (source.segments.none { it.id == segmentId }) return
-        val nextPlanId = UUID.randomUUID().toString()
-        val now = nextPlanCreatedAt(System.currentTimeMillis())
-        val remaining = source.segments.filterNot { it.id == segmentId }
-        planDao.replaceCurrentPlan(
-            plan = PlanEntity(nextPlanId, now, true),
-            segments = remaining.map { it.copy(id = UUID.randomUUID().toString(), planId = nextPlanId) },
-            taskOrder = source.taskOrder.map { it.copy(planId = nextPlanId) },
-        )
+        val current = source?.toDomain()?.segments.orEmpty()
+        val tasks = database.taskDao().getAll().map { it.toDomain() }.associateBy { it.id }
+        val runningTaskId = workspace.get(RoomExecutionSessionRepository.KEY)?.let { ExecutionSessionCodec.decode(it.payload).taskId }
+        val targetId = when (change) {
+            is ManualPlanChange.Move -> change.segmentId
+            is ManualPlanChange.Remove -> change.segmentId
+            else -> null
+        }
+        val target = targetId?.let { id -> requireNotNull(current.find { it.id == id }) { "原安排已变化，请重新打开后调整。" } }
+        val changed = if (change == ManualPlanChange.Clear) current else listOfNotNull(target)
+        require(changed.none { it.isLocked }) { "请先解除锁定，再调整这个安排。" }
+        require(changed.none { it.taskId == runningTaskId }) { "请先结束本轮专注，再调整安排。" }
+        val candidate = when (change) {
+            is ManualPlanChange.Place -> {
+                require(tasks[change.taskId]?.status?.isActive == true) { "任务不存在或已结束，请刷新。" }
+                PlannedSegment(taskId = change.taskId, date = change.date, startMinute = change.start, endMinute = change.end, trackId = change.track)
+            }
+            is ManualPlanChange.Move -> requireNotNull(target).copy(startMinute = change.start, endMinute = change.end, trackId = change.track)
+            else -> null
+        }
+        val others = current.filterNot { it.id == targetId }
+        // Hard guards always run before asking about ordinary overlap. Consent never bypasses them.
+        if (candidate != null) validatePlacement(candidate, others, allowOrdinaryOverlap = true)
+        val overlap = candidate != null && others.any { it.date == candidate.date && it.startMinute < candidate.endMinute && it.endMinute > candidate.startMinute }
+        require(!overlap || tasks[candidate?.taskId]?.userPriority != TaskPriority.REQUIRED) { "不可避免安排不能与其他任务重叠，请先调整时间。" }
+        val unavoidable = changed.any { tasks[it.taskId]?.userPriority == TaskPriority.REQUIRED }
+        if (confirmedRevision == null && (overlap || unavoidable)) {
+            val reason = listOfNotNull(
+                if (unavoidable) "这会调整已确认的不可避免安排。" else null,
+                if (overlap) "这会与普通任务重叠；重叠不代表同时执行。" else null,
+            ).joinToString("\n")
+            throw PlanChangeConfirmationRequired(currentRevision, reason)
+        }
+        val nextSegments = when (change) {
+            ManualPlanChange.Clear -> emptyList()
+            is ManualPlanChange.Remove -> others
+            is ManualPlanChange.Move -> others + requireNotNull(candidate)
+            is ManualPlanChange.Place -> current + requireNotNull(candidate)
+        }
+        val nextId = UUID.randomUUID().toString()
+        val order = (source?.taskOrder.orEmpty().sortedBy { it.position }.map { it.taskId } +
+            listOfNotNull((change as? ManualPlanChange.Place)?.taskId)).distinct()
+        planDao.replaceCurrentPlan(PlanEntity(nextId, nextPlanCreatedAt(System.currentTimeMillis()), true),
+            nextSegments.map { PlanSegmentEntity(UUID.randomUUID().toString(), nextId, it.taskId, it.date.toEpochDay(),
+                it.startMinute, it.endMinute, it.isLocked, it.trackId) },
+            order.mapIndexed { index, id -> PlanTaskOrderEntity(nextId, id, index, source?.taskOrder?.firstOrNull { it.taskId == id }?.isManual ?: true) })
     }
 
     /** Keeps plan-history order deterministic even when confirmations share one clock millisecond. */

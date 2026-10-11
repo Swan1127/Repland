@@ -65,7 +65,8 @@ internal object ProfileEvidenceGenerator {
             val progressLogs = feedbackLogs.filter { it.feedback.progressPercent != null }
             val facts = buildList {
                 if (durationLogs.isNotEmpty()) {
-                    add("其中 ${durationLogs.size} 次实际投入共 ${durationLogs.sumOf { it.feedback.actualDurationMinutes ?: 0 }} 分钟")
+                    add(if (durationLogs.size == 1) "1 条时长记录（${durationLogs.single().feedback.actualDurationMinutes} 分钟；单轮 / 累计口径未区分，不汇总）"
+                        else "${durationLogs.size} 条时长记录（单轮 / 累计口径未区分，不合计）")
                 }
                 if (progressLogs.isNotEmpty()) {
                     add("覆盖 ${progressLogs.map(TaskExecutionLog::taskId).distinct().size} 个任务的进度")

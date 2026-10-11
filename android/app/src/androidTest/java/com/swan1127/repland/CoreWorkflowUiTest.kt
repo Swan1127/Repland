@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
@@ -179,9 +180,11 @@ class CoreWorkflowUiTest {
         composeRule.onNodeWithTag("task-capture-input").performTextReplacement(taskName)
         composeRule.onNodeWithTag("task-capture-save-inbox").performClick()
 
+        // Verify the transient commit receipt before scrolling a retained inbox.
+        waitForTag("page-save-snackbar")
+        composeRule.onNodeWithText("已保存“$taskName”到待安排。", useUnmergedTree = true).assertExists()
         showSavedTask(taskName, "INBOX")
         waitForTag("task-card-$taskName")
-        composeRule.onNodeWithText("已保存“$taskName”到待安排。", useUnmergedTree = true).assertExists()
         composeRule.onNodeWithTag("task-card-$taskName").performClick()
         waitForTag("task-detail-scroll")
         repeat(4) {
@@ -251,8 +254,14 @@ class CoreWorkflowUiTest {
         waitForTag("request-ai-advice")
         composeRule.onNodeWithTag("request-ai-advice").performClick()
         waitForTag("assistant-prompt")
-        composeRule.onNodeWithTag("assistant-prompt").performTextInput("帮我理解这项任务")
-        composeRule.onNodeWithTag("assistant-submit").performClick()
+        // This test verifies the bounded request/confirmation contract. Use the
+        // actual suggestion chip so a retained IME cannot intercept its Send tap.
+        // Raw keyboard input is exercised by the capture and AgentCenter tests.
+        composeRule.onNodeWithText("帮我理解这项任务").performClick()
+        composeRule.onNodeWithTag("assistant-prompt").assertTextContains("帮我理解这项任务")
+        val container = (composeRule.activity.application as ReplandApplication).appContainer
+        val planBefore = runBlocking { container.planRepository.observeCurrentPlan().first() }
+        composeRule.onNodeWithTag("assistant-submit").assertIsEnabled().performClick()
         waitForTag("ai-request-confirm")
         composeRule.onNodeWithTag("ai-request-confirm").performClick()
         val workflow = (composeRule.activity.application as ReplandApplication)
@@ -271,6 +280,7 @@ class CoreWorkflowUiTest {
             }
         }
         assertEquals(TaskStatus.NOT_STARTED, task.status)
+        assertEquals(planBefore, runBlocking { container.planRepository.observeCurrentPlan().first() })
     }
 
     private fun showSavedTask(taskName: String, filter: String) {

@@ -45,6 +45,7 @@ class NativePageNavigationUiTest {
             runBlocking { repo.save(TaskDraft(id = id, displayName = name, description = "导航样例", category = TaskCategory.COURSE,
                 userPriority = TaskPriority.MEDIUM, estimatedDays = 1, totalDurationMinutes = 15, dueDate = null, scheduledForDate = LocalDate.now())) }
             waitTag("navigation-tasks"); rule.onNodeWithTag("navigation-tasks").performClick(); waitTag("task-groups-scroll")
+            expandTodayTaskGroup(rule)
             rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-$name"))
             rule.onNodeWithTag("task-card-$name").performClick(); waitTag("task-detail-scroll")
             rule.activityRule.scenario.recreate(); waitTag("task-detail-scroll")

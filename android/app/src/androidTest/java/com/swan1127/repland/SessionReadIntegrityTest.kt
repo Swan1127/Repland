@@ -53,15 +53,15 @@ class SessionReadIntegrityTest {
             assertEquals(original, sessions.observeActive().first())
             if (!active) {
                 withContext(Dispatchers.Main) { vm.startSession(segment.id) }
-                withTimeout(10_000) { vm.sessionReadState.first { it.value != null && !vm.sessionBusy.value } }
+                withTimeout(10_000) { combine(vm.sessionReadState, vm.sessionBusy) { read, busy -> read.value != null && !busy }.first { it } }
             }
             val session = sessions.observeActive().first()!!
             withContext(Dispatchers.Main) { vm.pauseSession(session.id) }
-            withTimeout(10_000) { vm.sessionReadState.first { it.value?.isPaused == true } }
+            withTimeout(10_000) { combine(vm.sessionReadState, vm.sessionBusy) { read, busy -> read.value?.isPaused == true && !busy }.first { it } }
             withContext(Dispatchers.Main) { vm.resumeSession(session.id) }
-            withTimeout(10_000) { vm.sessionReadState.first { it.value?.isPaused == false } }
+            withTimeout(10_000) { combine(vm.sessionReadState, vm.sessionBusy) { read, busy -> read.value?.isPaused == false && !busy }.first { it } }
             withContext(Dispatchers.Main) { vm.finishSession(session.id, ExecutionOutcome.CONTINUE) }
-            withTimeout(10_000) { vm.sessionReadState.first { it.value == null && vm.sessionFinished.value } }
+            withTimeout(10_000) { combine(vm.sessionReadState, vm.sessionFinished, vm.sessionBusy) { read, finished, busy -> read.value == null && finished && !busy }.first { it } }
             assertNull(sessions.observeActive().first()); assertEquals(TaskStatus.IN_PROGRESS, tasks.observeTasks().first().single().status)
             assertEquals(plan, plans.observeCurrentPlan().first())
         } finally { observer?.cancelAndJoin(); taskObserver?.cancelAndJoin(); withContext(Dispatchers.Main) { store.clear() }; db.close() }

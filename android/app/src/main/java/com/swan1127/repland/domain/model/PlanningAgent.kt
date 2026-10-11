@@ -71,8 +71,10 @@ sealed interface PlanningAgentWork {
         val currentPlan: ConfirmedPlan?,
         val localPlanInput: PlanGenerationInput,
         val constraintSummary: List<String>,
+        val persistedTaskOrder: List<String> = localPlanInput.manualTaskOrder,
     ) : PlanningAgentWork {
         override val type = PlanningAgentRequestType.REPLAN
+        val sourceRevision: String get() = PlanningRevision.of(localPlanInput, currentPlan, persistedTaskOrder)
     }
 
     data class DailySummary(
@@ -246,7 +248,7 @@ class PlanningAgent(
 
     private fun localFallback(work: PlanningAgentWork): LocalPlanningFallback = when (work) {
         is PlanningAgentWork.Replan -> LocalPlanningFallback.Draft(
-            draft = localPlanGenerator.generate(work.localPlanInput),
+            draft = localPlanGenerator.generateReplan(work.localPlanInput, work.currentPlan).copy(sourceRevision = work.sourceRevision),
             explanation = "AI 建议不可用，已生成可编辑、未确认的本地确定性规划草案。",
         )
 
@@ -460,7 +462,7 @@ private fun AiPlanDraftAdvice.toSafeDraft(
     if (proposedSegments.any { !PlanningConstraintValidator.supportsProposal(it, work.localPlanInput) }) {
         return null
     }
-    val baseline = localPlanGenerator.generate(work.localPlanInput)
+    val baseline = localPlanGenerator.generateReplan(work.localPlanInput, work.currentPlan).copy(sourceRevision = work.sourceRevision)
     // The factory aliases affected tasks in this same stable active-task order.
     val activeAffected = work.affectedTasks.filter { it.status.isActive }.distinctBy(Task::id)
     val orderedReferences = activeAffected.mapIndexed { index, task -> "affected-task-${index + 1}" to task.id }.toMap()

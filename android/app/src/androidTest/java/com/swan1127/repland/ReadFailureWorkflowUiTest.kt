@@ -67,6 +67,7 @@ class ReadFailureWorkflowUiTest {
             val original = runBlocking { container.taskRepository.observeTasks().first().single { it.id == id } }
             val (fault, vm) = taskFault()
             waitTag("navigation-tasks"); rule.onNodeWithTag("navigation-tasks").performClick(); waitTag("task-groups-scroll")
+            expandTodayTaskGroup(rule)
             rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-$name"))
             rule.onNodeWithTag("task-card-$name").performClick(); waitTag("task-detail-scroll")
             rule.onNodeWithTag("task-detail-scroll").performScrollToNode(hasText("编辑任务")); rule.onNodeWithText("编辑任务").performClick()

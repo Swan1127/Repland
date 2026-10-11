@@ -123,13 +123,15 @@ fun TimelineDashboard(
     eventObjects: List<TimelineEventObject> = emptyList(),
     onPlaceEvent: (TimelineEventObject, String, Int) -> Unit = { _, _, _ -> },
     scheduleDate: LocalDate = entries.firstOrNull()?.date ?: LocalDate.now(),
-    onCreateCourse: (CourseInsertionRequest) -> Unit = {},
+    onCreateCourse: (CourseInsertionRequest, () -> Unit) -> Unit = { _, _ -> },
     onFocusStarted: (String) -> Unit = {},
     onRemovePlacement: (String) -> Unit = {},
-    onMoveEntry: (TimelineEntry, Int) -> Unit = { _, _ -> },
-    onUpdateEntryTime: (TimelineEntry, Int, Int) -> Unit = { entry, startMinute, _ ->
-        onMoveEntry(entry, startMinute)
+    onMoveEntry: (TimelineEntry, Int, () -> Unit) -> Unit = { _, _, _ -> },
+    onUpdateEntryTime: (TimelineEntry, Int, Int, () -> Unit) -> Unit = { entry, startMinute, _, saved ->
+        onMoveEntry(entry, startMinute, saved)
     },
+    writeBusy: Boolean = false,
+    writeError: String? = null,
     persistedTracks: List<RhythmTrack>? = null,
     onTracksChanged: (List<RhythmTrack>) -> Unit = {},
 ) {
@@ -158,26 +160,27 @@ fun TimelineDashboard(
     var viewMode by rememberSaveable { mutableStateOf(TimelineViewMode.SPLIT) }
     var showCourseComposer by rememberSaveable { mutableStateOf(false) }
     var pendingCourse by remember { mutableStateOf<PendingCourse?>(null) }
-    var selectedEntry by remember { mutableStateOf<TimelineEntry?>(null) }
+    var selectedEntryId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedEntry = projectedEntries.firstOrNull { it.id == selectedEntryId }
     LaunchedEffect(Unit) {
         while (true) {
             now = LocalDateTime.now()
             delay(15_000)
         }
     }
-    val tryUpdateEntryTime: (TimelineEntry, Int, Int) -> Boolean = { entry, startMinute, endMinute ->
+    val tryUpdateEntryTime: (TimelineEntry, Int, Int, () -> Unit) -> Boolean = { entry, startMinute, endMinute, saved ->
         val validRange = startMinute in 0 until 1_440 && endMinute in 1..1_440 && startMinute < endMinute
         val conflicts = entries.any { other ->
-            other.id != entry.id && other.trackId == entry.trackId &&
+            other.id != entry.id && (entry.kind != TimelineKind.TASK || other.kind != TimelineKind.TASK) &&
                 startMinute < other.endMinute && endMinute > other.startMinute
         }
-        if (validRange && !conflicts) onUpdateEntryTime(entry, startMinute, endMinute)
+        if (validRange && !conflicts && !writeBusy) onUpdateEntryTime(entry, startMinute, endMinute, saved)
         validRange && !conflicts
     }
-    val tryMoveEntry: (TimelineEntry, Int) -> Boolean = { entry, requestedStartMinute ->
+    val tryMoveEntry: (TimelineEntry, Int, () -> Unit) -> Boolean = { entry, requestedStartMinute, saved ->
         val duration = entry.endMinute - entry.startMinute
         val startMinute = requestedStartMinute.coerceIn(0, 1_440 - duration)
-        tryUpdateEntryTime(entry, startMinute, startMinute + duration)
+        tryUpdateEntryTime(entry, startMinute, startMinute + duration, saved)
     }
     // Legacy participation preference stays readable for exports, but no longer hides schedule rows.
     val visibleEntries = projectedEntries
@@ -301,7 +304,7 @@ fun TimelineDashboard(
             val onEntryClick: (TimelineEntry) -> Unit = { entry ->
                 // A short tap always opens a stable detail sheet. Keeping actions out of the
                 // scrolling canvas avoids an expanded card covering another time block.
-                selectedEntry = entry
+                selectedEntryId = entry.id
                 onOpenEntry(entry.id)
             }
             if (viewMode == TimelineViewMode.SPLIT) {
@@ -313,11 +316,10 @@ fun TimelineDashboard(
                     motionDuration = if (motionScale == 0f) 0 else 220,
                     pendingCourse = pendingCourse,
                     onPendingCourseDropped = { course, startMinute, trackId ->
-                        onCreateCourse(CourseInsertionRequest(course.title, startMinute, course.durationMinutes, trackId))
-                        pendingCourse = null
+                        if (!writeBusy) onCreateCourse(CourseInsertionRequest(course.title, startMinute, course.durationMinutes, trackId)) { pendingCourse = null }
                     },
                     onClick = onEntryClick,
-                    onMoveEntry = tryMoveEntry,
+                    onMoveEntry = { entry, minute -> tryMoveEntry(entry, minute) {} },
                 )
             } else {
                 MergedTimelineGrid(
@@ -340,12 +342,13 @@ fun TimelineDashboard(
             }
             if (showCourseComposer) {
                 CourseComposerDialog(
+                    busy = writeBusy,
+                    saveError = writeError,
                     tracks = trackOptions.ifEmpty { listOf(TimelineTrackOption("course", "课程")) },
                     occupiedEntries = entries,
                     onDismiss = { showCourseComposer = false },
                     onManualCreate = { request ->
-                        onCreateCourse(request)
-                        showCourseComposer = false
+                        onCreateCourse(request) { showCourseComposer = false }
                     },
                     onBeginDrag = { course ->
                         pendingCourse = course
@@ -369,13 +372,14 @@ fun TimelineDashboard(
         }
         if (entries.isEmpty() && showCourseComposer) {
             CourseComposerDialog(
+                    busy = writeBusy,
+                    saveError = writeError,
                 tracks = trackOptions.ifEmpty { listOf(TimelineTrackOption("course", "课程")) },
                 occupiedEntries = entries,
                 allowDragPlacement = false,
                 onDismiss = { showCourseComposer = false },
                 onManualCreate = { request ->
-                    onCreateCourse(request)
-                    showCourseComposer = false
+                    onCreateCourse(request) { showCourseComposer = false }
                 },
                 onBeginDrag = {},
             )
@@ -384,38 +388,36 @@ fun TimelineDashboard(
             TimelineEntryDetailSheet(
                 entry = entry,
                 now = now,
-                onDismiss = { selectedEntry = null },
+                onDismiss = { selectedEntryId = null },
                 onEdit = {
-                    selectedEntry = null
+                    selectedEntryId = null
                     onEditEntry(entry)
                 },
                 onOpenTask = entry.taskId?.let { taskId ->
                     {
-                        selectedEntry = null
+                        selectedEntryId = null
                         onOpenTask(taskId)
                     }
                 },
                 onFocus = entry.taskId?.takeIf { !entry.taskClosed && entry.id.startsWith("segment:") }?.let {
                     {
-                        selectedEntry = null
+                        selectedEntryId = null
                         onFocusStarted(entry.id.removePrefix("segment:"))
                     }
                 },
-                onMove = { startMinute ->
-                    val moved = tryMoveEntry(entry, startMinute)
-                    if (moved) selectedEntry = null
-                    moved
+                onMove = { startMinute, saved ->
+                    tryMoveEntry(entry, startMinute) { selectedEntryId = null; saved() }
                 },
-                onUpdateTime = { startMinute, endMinute ->
-                    val updated = tryUpdateEntryTime(entry, startMinute, endMinute)
-                    if (updated) selectedEntry = null
-                    updated
+                onUpdateTime = { startMinute, endMinute, saved ->
+                    tryUpdateEntryTime(entry, startMinute, endMinute) { selectedEntryId = null; saved() }
                 },
+                writeBusy = writeBusy,
+                writeError = writeError,
                 onRemovePlacement = entry.id.removePrefix("segment:")
                     .takeIf { entry.id.startsWith("segment:") }
                     ?.let { segmentId ->
                         {
-                            selectedEntry = null
+                            selectedEntryId = null
                             onRemovePlacement(segmentId)
                         }
                     },
@@ -442,7 +444,7 @@ private fun EventLibrarySheet(
     val selectedMinute = UserNumericInput.clockMinute(hourText, minuteText)
     val selectedDuration = TaskPlacementPolicy.durationForTask(selectedEvent?.durationMinutes)
     val sameTrackCollision = selectedMinute != null && selectedDuration != null && selectedEvent != null && occupiedEntries.any { entry ->
-        (entry.trackId == selectedTrack || entry.kind != TimelineKind.TASK) &&
+        entry.kind != TimelineKind.TASK &&
             selectedMinute < entry.endMinute &&
             selectedMinute + selectedDuration > entry.startMinute
     }
@@ -719,6 +721,8 @@ private fun PendingCourseBlock(
 
 @Composable
 private fun CourseComposerDialog(
+    busy: Boolean,
+    saveError: String?,
     tracks: List<TimelineTrackOption>,
     occupiedEntries: List<TimelineEntry>,
     allowDragPlacement: Boolean = true,
@@ -740,7 +744,7 @@ private fun CourseComposerDialog(
         entry.trackId == trackId && startMinute < entry.endMinute && startMinute + duration > entry.startMinute
     }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!busy) onDismiss() },
         title = { Text("新增课程") },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -748,7 +752,7 @@ private fun CourseComposerDialog(
                     value = title,
                     onValueChange = { title = it },
                     modifier = Modifier.fillMaxWidth().testTag("course-title-input"),
-                    singleLine = true,
+                    enabled = !busy, singleLine = true,
                     label = { Text("课程名称") },
                     placeholder = { Text("例如：数据结构") },
                 )
@@ -756,7 +760,7 @@ private fun CourseComposerDialog(
                     value = durationText,
                     onValueChange = { durationText = it },
                     modifier = Modifier.fillMaxWidth().testTag("course-duration-input"),
-                    singleLine = true,
+                    enabled = !busy, singleLine = true,
                     label = { Text("时长（分钟）") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 )
@@ -764,8 +768,8 @@ private fun CourseComposerDialog(
                 if (allowDragPlacement) {
                     Text("插入方式", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = placementMode == "drag", onClick = { placementMode = "drag" }, label = { Text("拖入时间轴") })
-                        FilterChip(selected = placementMode == "manual", onClick = { placementMode = "manual" }, label = { Text("手动设时间") })
+                        FilterChip(enabled = !busy, selected = placementMode == "drag", onClick = { placementMode = "drag" }, label = { Text("拖入时间轴") })
+                        FilterChip(enabled = !busy, selected = placementMode == "manual", onClick = { placementMode = "manual" }, label = { Text("手动设时间") })
                     }
                 } else {
                     Text(
@@ -776,18 +780,19 @@ private fun CourseComposerDialog(
                 }
                 if (placementMode == "manual") {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(value = hourText, onValueChange = { hourText = it }, modifier = Modifier.weight(1f), label = { Text("时") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                        OutlinedTextField(value = hourText, onValueChange = { hourText = it }, modifier = Modifier.weight(1f), label = { Text("时") }, enabled = !busy, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                         Text(":")
-                        OutlinedTextField(value = minuteText, onValueChange = { minuteText = it }, modifier = Modifier.weight(1f), label = { Text("分") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                        OutlinedTextField(value = minuteText, onValueChange = { minuteText = it }, modifier = Modifier.weight(1f), label = { Text("分") }, enabled = !busy, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
                     }
                     if (manualCollision) Text("该轨道这个时间已有事项；请选择其他轨道或修改时间。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     if (startMinute == null) Text("请输入 00:00–23:59，时和分须分别有效。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     if (startMinute != null && duration != null && startMinute + duration > 1440) Text("结束时间不能超过当天 24:00。", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
+                saveError?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("timeline-write-error")) }
                 Text("放入轨道", style = MaterialTheme.typography.labelLarge)
                 Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     tracks.distinctBy(TimelineTrackOption::id).forEach { track ->
-                        FilterChip(selected = trackId == track.id, onClick = { trackId = track.id }, label = { Text(track.label) })
+                        FilterChip(enabled = !busy, selected = trackId == track.id, onClick = { trackId = track.id }, label = { Text(track.label) })
                     }
                 }
             }
@@ -795,14 +800,14 @@ private fun CourseComposerDialog(
         confirmButton = {
             val canCreate = title.isNotBlank() && duration != null && (placementMode == "drag" || startMinute != null && startMinute + duration <= 1440 && !manualCollision)
             TextButton(
-                enabled = canCreate,
+                enabled = canCreate && !busy,
                 onClick = {
                     if (placementMode == "drag") onBeginDrag(PendingCourse(title.trim(), requireNotNull(duration), trackId))
                     else onManualCreate(CourseInsertionRequest(title.trim(), requireNotNull(startMinute), requireNotNull(duration), trackId))
                 },
             ) { Text(if (placementMode == "drag") "开始拖动" else "保存课程") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("取消") } },
     )
 }
 
@@ -1073,8 +1078,10 @@ private fun TimelineEntryDetailSheet(
     onEdit: () -> Unit,
     onOpenTask: (() -> Unit)?,
     onFocus: (() -> Unit)?,
-    onMove: (Int) -> Boolean,
-    onUpdateTime: (Int, Int) -> Boolean,
+    onMove: (Int, () -> Unit) -> Boolean,
+    onUpdateTime: (Int, Int, () -> Unit) -> Boolean,
+    writeBusy: Boolean,
+    writeError: String?,
     onRemovePlacement: (() -> Unit)?,
 ) {
     val accent = entryAccent(entry)
@@ -1082,15 +1089,16 @@ private fun TimelineEntryDetailSheet(
     val durationMinutes = entry.endMinute - entry.startMinute
     val note = entry.note?.trim().takeIf { !it.isNullOrBlank() }
     var timeError by remember(entry.id) { mutableStateOf<String?>(null) }
-    var showTimeEditor by remember(entry.id) { mutableStateOf(false) }
+    var showTimeEditor by rememberSaveable(entry.id) { mutableStateOf(false) }
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false),
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = Modifier.testTag("timeline-entry-detail-${entry.id}"),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 8.dp)
                 .padding(bottom = 28.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -1140,22 +1148,22 @@ private fun TimelineEntryDetailSheet(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = {
-                        timeError = if (onMove((entry.startMinute - 15).coerceAtLeast(0))) null
+                        timeError = if (onMove((entry.startMinute - 15).coerceAtLeast(0)) {}) null
                         else "同一轨道的这个时段已有安排。"
                     },
-                    enabled = entry.startMinute >= 15,
+                    enabled = !writeBusy && entry.startMinute >= 15,
                     modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                 ) { Text("提前 15 分") }
                 OutlinedButton(
                     onClick = {
-                        timeError = if (onMove((entry.startMinute + 15).coerceAtMost(1_440 - durationMinutes))) null
+                        timeError = if (onMove((entry.startMinute + 15).coerceAtMost(1_440 - durationMinutes)) {}) null
                         else "同一轨道的这个时段已有安排。"
                     },
-                    enabled = entry.endMinute <= 1_425,
+                    enabled = !writeBusy && entry.endMinute <= 1_425,
                     modifier = Modifier.weight(1f).heightIn(min = 48.dp),
                 ) { Text("推后 15 分") }
             }
-            timeError?.let { message ->
+            (writeError ?: timeError)?.let { message ->
                 Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
             }
             OutlinedButton(
@@ -1195,10 +1203,10 @@ private fun TimelineEntryDetailSheet(
         TimelineTimeEditorDialog(
             entry = entry,
             onDismiss = { showTimeEditor = false },
-            onSave = { startMinute, endMinute ->
-                val updated = onUpdateTime(startMinute, endMinute)
-                if (updated) showTimeEditor = false
-                updated
+            busy = writeBusy,
+            saveError = writeError,
+            onSave = { startMinute, endMinute, saved ->
+                onUpdateTime(startMinute, endMinute) { showTimeEditor = false; saved() }
             },
         )
     }
@@ -1208,18 +1216,20 @@ private fun TimelineEntryDetailSheet(
 private fun TimelineTimeEditorDialog(
     entry: TimelineEntry,
     onDismiss: () -> Unit,
-    onSave: (Int, Int) -> Boolean,
+    onSave: (Int, Int, () -> Unit) -> Boolean,
+    busy: Boolean,
+    saveError: String?,
 ) {
-    var startTime by remember(entry.id) { mutableStateOf(TimeBlockValidator.formatTime(entry.startMinute)) }
-    var endTime by remember(entry.id) { mutableStateOf(TimeBlockValidator.formatTime(entry.endMinute)) }
+    var startTime by rememberSaveable(entry.id) { mutableStateOf(TimeBlockValidator.formatTime(entry.startMinute)) }
+    var endTime by rememberSaveable(entry.id) { mutableStateOf(TimeBlockValidator.formatTime(entry.endMinute)) }
     var errorMessage by remember(entry.id) { mutableStateOf<String?>(null) }
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!busy) onDismiss() },
         title = { Text("调整 ${entry.title}") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    "可以让同一时段的事项并行，只要它们在不同轨道。",
+                    "普通任务重叠需要单独确认；课程、休息、锁定或不可避免时段不能直接覆盖。",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -1229,7 +1239,7 @@ private fun TimelineTimeEditorDialog(
                     modifier = Modifier.fillMaxWidth().testTag("timeline-start-${entry.id}"),
                     label = { Text("开始时间") },
                     placeholder = { Text("09:00") },
-                    singleLine = true,
+                    enabled = !busy, singleLine = true,
                 )
                 OutlinedTextField(
                     value = endTime,
@@ -1237,9 +1247,9 @@ private fun TimelineTimeEditorDialog(
                     modifier = Modifier.fillMaxWidth().testTag("timeline-end-${entry.id}"),
                     label = { Text("结束时间") },
                     placeholder = { Text("10:00") },
-                    singleLine = true,
+                    enabled = !busy, singleLine = true,
                 )
-                errorMessage?.let { message ->
+                (saveError ?: errorMessage)?.let { message ->
                     Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
                 }
             }
@@ -1251,14 +1261,15 @@ private fun TimelineTimeEditorDialog(
                     val endMinute = TimeBlockValidator.parseEndTime(endTime)
                     errorMessage = when {
                         startMinute == null || endMinute == null || startMinute >= endMinute -> "请输入有效的开始与结束时间。"
-                        !onSave(startMinute, endMinute) -> "同一轨道的这个时段已有安排；可换时间或保留并行轨道。"
+                        !onSave(startMinute, endMinute) {} -> "这个时间与受保护安排冲突，请调整时间。"
                         else -> null
                     }
                 },
+                enabled = !busy,
                 modifier = Modifier.testTag("timeline-time-save-${entry.id}"),
             ) { Text("保存时间") }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("取消") } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !busy) { Text("取消") } },
     )
 }
 

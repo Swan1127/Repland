@@ -96,8 +96,10 @@ class TimeViewModel(
 
     fun retryRead() { if (!uiState.value.isLoading && uiState.value.readError != null) readRetries.value++ }
 
-    fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft) {
-        mutate(TimeMutationKind.WEEKLY_SAVE, draft.id, "每周时间已保存") {
+    fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft) = saveWeeklyBlock(draft) {}
+
+    fun saveWeeklyBlock(draft: WeeklyTimeBlockDraft, onSaved: () -> Unit) {
+        mutate(TimeMutationKind.WEEKLY_SAVE, draft.id, "每周时间已保存", onSaved) {
             require(TimeBlockValidator.isValid(draft))
             timeRepository.saveWeeklyBlock(draft)
         }
@@ -107,8 +109,10 @@ class TimeViewModel(
         mutate(TimeMutationKind.WEEKLY_DELETE, id, "每周时间已删除") { timeRepository.deleteWeeklyBlock(id) }
     }
 
-    fun saveDateOverride(draft: DateOverrideDraft) {
-        mutate(TimeMutationKind.OVERRIDE_SAVE, draft.id, "单日例外已保存") {
+    fun saveDateOverride(draft: DateOverrideDraft) = saveDateOverride(draft) {}
+
+    fun saveDateOverride(draft: DateOverrideDraft, onSaved: () -> Unit) {
+        mutate(TimeMutationKind.OVERRIDE_SAVE, draft.id, "单日例外已保存", onSaved) {
             require(TimeBlockValidator.isValid(draft))
             timeRepository.saveDateOverride(draft)
         }
@@ -122,21 +126,22 @@ class TimeViewModel(
         mutate(TimeMutationKind.SEMESTER_SAVE, null, "学期起点已保存") { timeRepository.saveSemesterFirstWeekMonday(date) }
     }
 
-    private fun mutate(kind: TimeMutationKind, targetId: String?, receipt: String, action: suspend () -> Unit) {
+    private fun mutate(kind: TimeMutationKind, targetId: String?, receipt: String, onSaved: () -> Unit = {}, action: suspend () -> Unit) {
         if (mutation.value.busy || mutation.value.receipt != null ||
             (timetableImport.value as? TimetableImportState.Review)?.saving == true) return
         if (uiState.value.readError != null || (uiState.value.hasLoaded && uiState.value.isLoading)) {
             mutation.value = TimeMutationState(kind, targetId, error = "请先重新读取时间设置；本次未保存，输入仍保留。")
-            retryAction = { mutate(kind, targetId, receipt, action) }
+            retryAction = { mutate(kind, targetId, receipt, onSaved, action) }
             return
         }
         mutation.value = TimeMutationState(kind, targetId, busy = true)
-        retryAction = { mutate(kind, targetId, receipt, action) }
+        retryAction = { mutate(kind, targetId, receipt, onSaved, action) }
         viewModelScope.launch {
             try {
                 action()
                 retryAction = null
                 mutation.value = TimeMutationState(kind, targetId, receipt = "$receipt；现有任务计划未自动重新安排")
+                onSaved()
             } catch (cancelled: CancellationException) {
                 retryAction = null
                 mutation.value = TimeMutationState()

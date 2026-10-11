@@ -15,19 +15,52 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ExecutionWorkflowUiTest {
     @get:Rule val rule = createAndroidComposeRule<MainActivity>()
-    @Test fun today_header_starts_confirmed_slot_and_keeps_plan_on_return() {
+    @Before fun retain_history_but_remove_previous_placements_owned_by_this_qa_fixture() = runBlocking {
+        check(rule.activity.packageName == "com.swan1127.repland.qa")
         val app = (rule.activity.application as ReplandApplication).appContainer
-        val now = java.time.LocalDateTime.now()
-        val start = now.hour * 60 + now.minute + 2
-        org.junit.Assume.assumeTrue("Requires room for a future slot today", start + 30 <= 1440)
+        val activeTask = app.executionSessionRepository.observeActive().first()?.taskId
+        // Repeated runs retain the QA database. Use the real guarded operation only
+        // for this fixture's ordinary placements; keep tasks, logs and plan history.
+        // Each change creates a new plan and new segment IDs; reread before removal.
+        while (true) {
+            val owned = app.planRepository.observeCurrentPlan().first()?.segments.orEmpty().firstOrNull {
+                (it.taskId.startsWith("qa-header-") || it.taskId.startsWith("qa-execution-")) && it.taskId != activeTask
+            } ?: break
+            app.planRepository.removePlacement(owned.id)
+        }
+    }
+    private suspend fun freeSlot(id: String, firstOnDay: Boolean = false): PlannedSegment {
+        val app = (rule.activity.application as ReplandApplication).appContainer
+        val tasks = app.taskRepository.observeTasks().first()
+        val plan = app.planRepository.observeCurrentPlan().first()
+        val weekly = app.timeRepository.observeWeeklyBlocks().first()
+        val overrides = app.timeRepository.observeDateOverrides().first()
+        val semester = app.timeRepository.observeTimeConstraintSettings().first().semesterFirstWeekMonday
+        return (1L..20L).asSequence().flatMap { offset ->
+            val day = LocalDate.now().plusDays(offset)
+            val entries = ScheduleTimeline.entries(day, weekly, overrides, plan?.segments.orEmpty(), tasks, semester)
+            (0..1380 step 30).asSequence().filter { start -> !firstOnDay || entries.none { it.startMinute < start + 30 } }
+                .map { start -> PlannedSegment(taskId = id, date = day, startMinute = start, endMinute = start + 30) }
+        }.first { candidate -> runCatching {
+            PlacementValidator.requireValid(candidate, plan?.segments.orEmpty(), weekly, overrides, semester,
+                tasks.filter { it.userPriority == TaskPriority.REQUIRED }.map { it.id }.toSet())
+        }.isSuccess }
+    }
+    @Test fun selected_day_header_starts_confirmed_slot_and_keeps_plan_on_return() {
+        val app = (rule.activity.application as ReplandApplication).appContainer
         val id = "qa-header-${System.currentTimeMillis()}"
         val slot = runBlocking {
             app.taskRepository.save(TaskDraft(id, "今日开始入口", "", TaskCategory.COURSE, TaskPriority.HIGH, 1, 30, null))
-            app.planRepository.placeTask(id, now.toLocalDate(), start, start + 30, "focus")
+            val candidate = freeSlot(id, firstOnDay = true)
+            app.planRepository.placeTask(id, candidate.date, candidate.startMinute, candidate.endMinute, "focus")
             app.planRepository.observeCurrentPlan().first()!!.segments.first { it.taskId == id }
         }
         val planId = runBlocking { app.planRepository.observeCurrentPlan().first()!!.id }
         val draftBefore = runBlocking { app.planRepository.observeDraft().first() }
+        rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-schedule"))
+        rule.onNodeWithTag("month-schedule").performClick()
+        rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-date-${slot.date}"))
+        rule.onNodeWithTag("month-date-${slot.date}").performClick()
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("today-focus-start").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithTag("today-focus-start").performScrollTo().performClick()
         runBlocking { withTimeout(5_000) { app.executionSessionRepository.observeActive().first { it?.segmentId == slot.id } } }
@@ -48,7 +81,8 @@ class ExecutionWorkflowUiTest {
         val id = "qa-execution-${System.currentTimeMillis()}"
         runBlocking {
             app.taskRepository.save(TaskDraft(id, "执行闭环测试", "", TaskCategory.COURSE, TaskPriority.HIGH, 1, 60, null))
-            app.planRepository.placeTask(id, LocalDate.now().plusDays(1), 600, 630, "focus")
+            val candidate = freeSlot(id)
+            app.planRepository.placeTask(id, candidate.date, candidate.startMinute, candidate.endMinute, "focus")
             val slot = app.planRepository.observeCurrentPlan().first()!!.segments.first { it.taskId == id }
             app.executionSessionRepository.start(slot.id)
         }

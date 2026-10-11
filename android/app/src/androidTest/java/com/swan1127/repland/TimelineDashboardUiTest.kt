@@ -57,7 +57,7 @@ class TimelineDashboardUiTest {
                     onOpenEntry = { inspected = it },
                     onOpenTask = { opened = it },
                     onEditEntry = { editRequested = it.id },
-                    onMoveEntry = { _, _ -> },
+                    onMoveEntry = { _, _, _ -> },
                 )
             }
         }
@@ -85,7 +85,7 @@ class TimelineDashboardUiTest {
                     mode = EngagementMode.GUIDED,
                     onOpenEntry = {},
                     onOpenTask = {},
-                    onUpdateEntryTime = { _, startMinute, endMinute ->
+                    onUpdateEntryTime = { _, startMinute, endMinute, saved -> saved()
                         savedStart = startMinute
                         savedEnd = endMinute
                     },
@@ -112,7 +112,7 @@ class TimelineDashboardUiTest {
                     mode = EngagementMode.GUIDED,
                     onOpenEntry = {},
                     onOpenTask = {},
-                    onMoveEntry = { _, _ -> },
+                    onMoveEntry = { _, _, _ -> },
                 )
             }
         }
@@ -155,7 +155,7 @@ class TimelineDashboardUiTest {
                     mode = EngagementMode.GUIDED,
                     onOpenEntry = {},
                     onOpenTask = {},
-                    onCreateCourse = { request ->
+                    onCreateCourse = { request, saved -> saved()
                         createdTitle = request.title
                         createdStart = request.startMinute
                     },
@@ -191,7 +191,7 @@ class TimelineDashboardUiTest {
                         placedEntries.value = listOf(TimelineEntry("placed", event.title, TimelineKind.TASK, day,
                             minute, minute + 30, taskId = event.id, trackId = track))
                     },
-                    onCreateCourse = { request -> createdTitle = request.title },
+                    onCreateCourse = { request, saved -> saved(); createdTitle = request.title },
                 )
             }
         }
@@ -221,7 +221,7 @@ class TimelineDashboardUiTest {
                     onOpenTask = {},
                     eventObjects = listOf(TimelineEventObject("event-1", "跑步", 30)),
                     onPlaceEvent = { event, _, _ -> placedId = event.id },
-                    onMoveEntry = { _, _ -> },
+                    onMoveEntry = { _, _, _ -> },
                 )
             }
         }
@@ -242,7 +242,7 @@ class TimelineDashboardUiTest {
                     onOpenEntry = {},
                     onOpenTask = {},
                     eventObjects = listOf(TimelineEventObject("event-1", "跑步", 30)),
-                    onMoveEntry = { _, _ -> },
+                    onMoveEntry = { _, _, _ -> },
                 )
             }
         }
