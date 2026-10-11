@@ -29,6 +29,9 @@ data class PlanDraft(
     val hasManualTaskOrder: Boolean = false,
     val sourceRevision: String? = null,
     val orderOnly: Boolean = false,
+    val numericProfileVersion: String? = null,
+    val numericParameters: List<String> = emptyList(),
+    val numericAdvice: List<String> = emptyList(),
 )
 
 /** The explicit request/response boundary for the local planner and a future AI suggestion adapter. */
@@ -273,11 +276,12 @@ object PlanGenerator : PlanDraftGenerator {
         val day = now.toLocalDate()
         val minute = now.hour * 60 + now.minute
         val activeIds = input.tasks.filter { it.status.isActive }.map { it.id }.toSet()
+        val unavoidableIds = input.tasks.filter { it.status.isActive && it.userPriority == TaskPriority.REQUIRED }.map { it.id }.toSet()
         fun ended(s: PlannedSegment) = s.date < day || (s.date == day && s.endMinute <= minute)
         val hasAvailability = PlanningConstraintValidator.hasExplicitAvailability(input)
         val history = current?.segments.orEmpty().filter(::ended)
         val retained = current?.segments.orEmpty().filter { s -> !ended(s) && s.taskId in activeIds &&
-            (!hasAvailability || s.isLocked || (s.date == day && s.startMinute <= minute) || (todayOnly && s.date != day)) }
+            (!hasAvailability || s.isLocked || s.taskId in unavoidableIds || (s.date == day && s.startMinute <= minute) || (todayOnly && s.date != day)) }
         val effectiveLocks = (retained + input.lockedSegments.filter { !ended(it) && it.taskId in activeIds })
             .distinctBy { listOf(it.taskId, it.date, it.startMinute, it.endMinute, it.trackId) }
         val generated = generate(input.tasks, input.weeklyBlocks, input.dateOverrides, input.semesterFirstWeekMonday,
@@ -314,8 +318,9 @@ object PlanGenerator : PlanDraftGenerator {
         val now = LocalDateTime.now(clock)
         val activeTasks = tasks.filter { it.status.isActive }
         val activeTaskIds = activeTasks.mapTo(mutableSetOf(), Task::id)
+        val unavoidableIds = activeTasks.filter { it.userPriority == TaskPriority.REQUIRED }.map { it.id }.toSet()
         val preservedLocks = lockedSegments.filter { segment ->
-            segment.isLocked && segment.taskId in activeTaskIds
+            (segment.isLocked || segment.taskId in unavoidableIds) && segment.taskId in activeTaskIds
         }
         fun rankActiveTasks(): List<LocalPriorityAssessment> = LocalPriorityRanker.rank(
             tasks = activeTasks,

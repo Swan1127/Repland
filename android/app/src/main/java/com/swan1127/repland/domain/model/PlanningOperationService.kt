@@ -18,6 +18,7 @@ class PlanningOperationService(
     private val plans: PlanRepository,
     private val generator: PlanDraftGenerator,
     private val sessions: ExecutionSessionRepository? = null,
+    private val numericProfile: com.swan1127.repland.domain.ports.NumericProfileRepository? = null,
 ) {
     suspend fun query(scope: TaskQueryScope, date: LocalDate = LocalDate.now()): List<Task> {
         val source = reads.snapshot()
@@ -55,7 +56,21 @@ class PlanningOperationService(
             if (kind == PlanningPreviewKind.ARRANGE_TODAY) PlanGenerator.generateToday(input, source.current)
             else generator.generateReplan(input, source.current)
         }.copy(sourceRevision = source.revision, orderOnly = kind == PlanningPreviewKind.SORT_ONLY)
-        val draft = if (result.orderOnly) result.copy(segments = emptyList(), unscheduledTasks = emptyList()) else result
+        var draft = if (result.orderOnly) result.copy(segments = emptyList(), unscheduledTasks = emptyList()) else result
+        // Optional read-only advice. A failed/disabled profile cannot prevent basic local planning.
+        if (!draft.orderOnly && numericProfile != null) {
+            val profile = try { numericProfile.refresh() } catch (c: kotlinx.coroutines.CancellationException) { throw c } catch (_: Exception) { null }
+            if (profile?.enabled == true) {
+                val estimates = source.input.tasks.filter { it.status.isActive }.mapNotNull { task ->
+                    try { numericProfile.durationAdvice(task.id) } catch (c: kotlinx.coroutines.CancellationException) { throw c } catch (_: Exception) { null }
+                }.filter { it.profileVersion == profile.version }
+                val round = profile.parameters.singleOrNull { it.id == "rounds" && it.availability == NumericAvailability.USABLE }
+                val used = estimates.map { it.parameterId }.distinct() + listOfNotNull(round?.id)
+                if (used.isNotEmpty()) draft = draft.copy(numericProfileVersion = profile.version, numericParameters = used,
+                    numericAdvice = estimates.map { "任务 ${it.taskId}：未修正基准 ${it.originalMinutes} 分钟 × ${it.factor} = ${it.suggestedMinutes} 分钟；请在画像来源页单独采纳后重新生成。本草案沿用当前已确认输入。" } +
+                        listOfNotNull(round?.let { "可选拆分参考：实际执行段中位 ${it.value} 分钟，${it.count} 个样本；不是偏好，不自动改变时段。" }))
+            }
+        }
         require(reads.snapshot().revision == source.revision) { "生成期间任务、时间或偏好已变化，请重新预览。" }
         plans.saveDraft(draft)
         return draft
@@ -65,6 +80,7 @@ class PlanningOperationService(
         // No fallback empty context at the write boundary. Repository transactions
         // still revalidate revisions and hard constraints immediately before commit.
         reads.snapshot()
+        require(draft.sourceRevision != null) { "这份旧草案缺少来源版本，请重新生成预览；原草案和计划仍保留。" }
         plans.accept(draft)
     }
     suspend fun confirmChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingIds: Set<String>, date: LocalDate): AssistantSaveResult =

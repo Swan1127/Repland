@@ -85,6 +85,7 @@ class PlanningAgentViewModel(
         currentPlan: ConfirmedPlan?,
         localPlanInput: PlanGenerationInput,
         constraintSummary: List<String>,
+        persistedTaskOrder: List<String> = localPlanInput.manualTaskOrder,
     ) = begin(
         PlanningAgentWork.Replan(
             affectedTasks = affectedTasks,
@@ -92,6 +93,7 @@ class PlanningAgentViewModel(
             currentPlan = currentPlan,
             localPlanInput = localPlanInput,
             constraintSummary = constraintSummary,
+            persistedTaskOrder = persistedTaskOrder,
         ),
     )
 

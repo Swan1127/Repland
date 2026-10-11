@@ -6,6 +6,15 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
 interface PlanRepository {
+    suspend fun applyManualChange(change: com.swan1127.repland.domain.model.ManualPlanChange, confirmedRevision: String? = null) {
+        require(confirmedRevision == null) { "此存储不支持确认调整。" }
+        when (change) {
+            is com.swan1127.repland.domain.model.ManualPlanChange.Place -> placeTask(change.taskId, change.date, change.start, change.end, change.track)
+            is com.swan1127.repland.domain.model.ManualPlanChange.Move -> movePlacement(change.segmentId, change.start, change.end, change.track)
+            is com.swan1127.repland.domain.model.ManualPlanChange.Remove -> removePlacement(change.segmentId)
+            com.swan1127.repland.domain.model.ManualPlanChange.Clear -> clearCurrentPlan()
+        }
+    }
     suspend fun saveAssistantChanges(tasks: List<com.swan1127.repland.domain.model.TaskDraft>, segments: List<com.swan1127.repland.domain.model.PlannedSegment>, existingTaskIds: Set<String>, date: java.time.LocalDate): com.swan1127.repland.domain.model.AssistantSaveResult
     fun observeTracks(): Flow<List<com.swan1127.repland.domain.model.RhythmTrack>>
     suspend fun saveTracks(tracks: List<com.swan1127.repland.domain.model.RhythmTrack>)

@@ -23,6 +23,7 @@ interface TaskDao {
                 WHEN 'REQUIRED' THEN 4
                 WHEN 'HIGH' THEN 3
                 WHEN 'MEDIUM' THEN 2
+                WHEN 'UNSPECIFIED' THEN 2
                 ELSE 1
             END DESC,
             createdAtEpochMillis DESC

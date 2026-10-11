@@ -289,10 +289,15 @@ fun CapacitySummary(
 
 private val CaptureDraftSaver = listSaver<TaskCaptureDraft, String>(
     save = { listOf(it.id, it.text, it.stage.name, it.dueDate?.toString().orEmpty(), it.scheduledForDate?.toString().orEmpty(),
-        it.duration.toString(), it.category.name, it.priority.name, it.isCustomDuration.toString(), it.customDurationText) },
+        it.duration.toString(), it.category.name, it.priority.name, it.isCustomDuration.toString(), it.customDurationText,
+        it.categorySource.name, it.prioritySource.name) },
     restore = { TaskCaptureDraft(it[0], it[1], TaskCaptureStage.valueOf(it[2]), it[3].takeIf(String::isNotEmpty)?.let(LocalDate::parse),
         it[4].takeIf(String::isNotEmpty)?.let(LocalDate::parse), it[5].toInt(), TaskCategory.valueOf(it[6]),
-        TaskPriority.valueOf(it[7]), it[8].toBoolean(), it[9]) },
+        TaskPriority.valueOf(it[7]), it[8].toBoolean(), it[9],
+        it.getOrNull(10)?.let(com.swan1127.repland.domain.model.TaskInputSource::valueOf)
+            ?: com.swan1127.repland.domain.model.TaskInputSource.LEGACY_UNVERIFIED,
+        it.getOrNull(11)?.let(com.swan1127.repland.domain.model.TaskInputSource::valueOf)
+            ?: com.swan1127.repland.domain.model.TaskInputSource.LEGACY_UNVERIFIED) },
 )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -419,8 +424,10 @@ fun TaskCaptureSheet(
                     )
                     TaskCaptureStage.DETAILS -> CaptureDetailsStep(
                         category = current.category, priority = current.priority,
-                        onCategory = { update(current.copy(category = it)) },
-                        onPriority = { update(current.copy(priority = it)) },
+                        onCategory = { update(current.copy(category = it,
+                            categorySource = if (it == TaskCategory.UNSPECIFIED) com.swan1127.repland.domain.model.TaskInputSource.UNKNOWN else com.swan1127.repland.domain.model.TaskInputSource.USER_INPUT)) },
+                        onPriority = { update(current.copy(priority = it,
+                            prioritySource = if (it == TaskPriority.UNSPECIFIED) com.swan1127.repland.domain.model.TaskInputSource.UNKNOWN else com.swan1127.repland.domain.model.TaskInputSource.USER_INPUT)) },
                         enabled = !saving,
                     )
                 }
@@ -682,6 +689,7 @@ private fun Task.summaryLabel(): String = when {
 }
 
 private fun TaskCategory.captureLabel(): String = when (this) {
+    TaskCategory.UNSPECIFIED -> "未分类"
     TaskCategory.COURSE -> "课程"
     TaskCategory.EXTRACURRICULAR -> "课外"
     TaskCategory.OFFICE -> "事务"
@@ -689,7 +697,8 @@ private fun TaskCategory.captureLabel(): String = when (this) {
 }
 
 private fun TaskPriority.captureLabel(): String = when (this) {
-    TaskPriority.REQUIRED -> "必须"
+    TaskPriority.UNSPECIFIED -> "未设置"
+    TaskPriority.REQUIRED -> "不可避免"
     TaskPriority.HIGH -> "高"
     TaskPriority.MEDIUM -> "中"
     TaskPriority.LOW -> "低"

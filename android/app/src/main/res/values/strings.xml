@@ -307,7 +307,9 @@
     <string name="log_event_partial_completion">部分完成</string>
     <string name="log_event_correction">历史更正</string>
     <string name="log_event_replacement">替换任务</string>
-    <string name="priority_required">必做</string>
+    <string name="priority_required">不可避免</string>
+    <string name="priority_unspecified">未设置</string>
+    <string name="category_unspecified">未分类</string>
     <string name="priority_high">高</string>
     <string name="priority_medium">中</string>
     <string name="priority_low">低</string>

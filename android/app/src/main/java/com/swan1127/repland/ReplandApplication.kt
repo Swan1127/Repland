@@ -68,6 +68,7 @@ class AppContainer(context: Context) {
         ReplandDatabase.MIGRATION_17_18,
         ReplandDatabase.MIGRATION_18_19,
         ReplandDatabase.MIGRATION_19_20,
+        ReplandDatabase.MIGRATION_20_21,
     ).build()
 
     val taskRepository: TaskRepository = RoomTaskRepository(database)
@@ -80,9 +81,10 @@ class AppContainer(context: Context) {
     val reminderSettingsRepository: ReminderSettingsRepository =
         RoomReminderSettingsRepository(database.reminderSettingsDao())
     val profileEvidenceRepository: ProfileEvidenceRepository = RoomProfileEvidenceRepository(database)
+    val aiProviderConfigRepository: AiProviderConfigRepository = SecureAiProviderConfigRepository(context)
+    val numericProfileRepository = com.swan1127.repland.data.room.RoomNumericProfileRepository(database, aiProviderConfigRepository)
     val dataManagementRepository: DataManagementRepository = RoomDataManagementRepository(database)
     val aiSettingsRepository: AiSettingsRepository = RoomAiSettingsRepository(database.aiSettingsDao())
-    val aiProviderConfigRepository: AiProviderConfigRepository = SecureAiProviderConfigRepository(context)
     val engagementRepository = RoomEngagementRepository(database)
     /** QA/internal share the optional BYOK provider; release stays local-only. */
     val aiAdvisor: AiAdvisor = runCatching {
@@ -96,8 +98,12 @@ class AppContainer(context: Context) {
             .newInstance(aiProviderConfigRepository) as ArrangementAssistantAdvisor
     }.getOrDefault(NoOpArrangementAssistantAdvisor)
     val planDraftGenerator: PlanDraftGenerator = PlanGenerator
+    val numericProfileAdvisor: com.swan1127.repland.domain.model.NumericProfileAdvisor = runCatching {
+        Class.forName("com.swan1127.repland.data.ai.CompatibleNumericProfileAdvisor")
+            .getDeclaredConstructor(AiProviderConfigRepository::class.java).newInstance(aiProviderConfigRepository) as com.swan1127.repland.domain.model.NumericProfileAdvisor
+    }.getOrDefault(com.swan1127.repland.domain.model.NoOpNumericProfileAdvisor)
     val planningReadService = com.swan1127.repland.domain.model.PlanningReadService(taskRepository, timeRepository, planRepository, categoryPreferenceRepository)
-    val planningOperationService = com.swan1127.repland.domain.model.PlanningOperationService(planningReadService, planRepository, planDraftGenerator, executionSessionRepository)
+    val planningOperationService = com.swan1127.repland.domain.model.PlanningOperationService(planningReadService, planRepository, planDraftGenerator, executionSessionRepository, numericProfileRepository)
     /** Local bounded workflow; it has no repository write capability. */
     val planningAgentWorkflow = PlanningAgentWorkflow(
         planningAgent = PlanningAgent(aiAdvisor, planDraftGenerator),

@@ -141,6 +141,7 @@ private fun TextButtonCompact(label: String, onClick: () -> Unit, modifier: Modi
 }
 
 private fun categoryLabel(task: Task): String = when (task.category) {
+    com.swan1127.repland.domain.model.TaskCategory.UNSPECIFIED -> "未分类"
     com.swan1127.repland.domain.model.TaskCategory.COURSE -> "课程"
     com.swan1127.repland.domain.model.TaskCategory.OFFICE -> "事务"
     com.swan1127.repland.domain.model.TaskCategory.LEISURE -> "生活"

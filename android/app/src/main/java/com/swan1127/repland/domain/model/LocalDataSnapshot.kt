@@ -17,4 +17,5 @@ data class LocalDataSnapshot(
     val usageEvents: List<UsageEvent> = emptyList(),
     val executionSessions: List<ExecutionSession> = emptyList(),
     val taskCaptureDraft: TaskCaptureDraft? = null,
+    val numericProfileRecords: Map<String, String> = emptyMap(),
 )

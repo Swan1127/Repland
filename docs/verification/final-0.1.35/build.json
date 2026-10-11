@@ -1,0 +1,17 @@
+{
+  "versionName": "0.1.35",
+  "versionCode": 1035,
+  "roomVersion": 21,
+  "buildConfigSource": "85c75f04117b9421786fa37fdaf1236481b3b865",
+  "productionManifestSha256Lf": "25a6c9f4e7e1917886c05d0a5dee7b3be6262adebaa5c8a412dafab32108ec75",
+  "apkSha256": {
+    "app-internal.apk": "9c5a54385aad72ca6e0d8ac2e4477862c83bb93ac4f23acccfd12722267341b2",
+    "app-debug.apk": "184c98ced09237f09aa91a5b3548fd37bae38599d1002fb69bf6c79fbbaa4d07",
+    "app-debug-androidTest.apk": "eb081a78253ba71358900695b6158f3c55622da41cffe6e531ca32a59e589ebc"
+  },
+  "automaticPackage": "com.swan1127.repland.qa",
+  "actualCurrentPackage": "com.swan1127.repland.current",
+  "automaticDevice": "emulator-5556 / Repland_API_36 / Android 16 API 36 / x86_64",
+  "scope": "310 QA device tests and 150 JVM tests; internal current has separately documented real UI/API checks, not the complete QA suite.",
+  "verifiedSourceCommit": "32d766f95224b3851dbb832bd9644b541b3436cf"
+}

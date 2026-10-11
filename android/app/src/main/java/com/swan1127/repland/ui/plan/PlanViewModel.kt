@@ -26,6 +26,7 @@ data class PlanUiState(
     val readAttempt: Int = 0,
     val draftEditError: String? = null,
     val draftEditReceipt: String? = null,
+    val pendingManualChange: PendingManualPlanChange? = null,
 ) {
     val isTrusted get() = hasLoaded && !isLoading && readError == null
 }
@@ -54,6 +55,8 @@ class PlanViewModel(
     private val assistantReceipt = MutableStateFlow<AssistantSaveReceipt?>(null)
     private val draftEditFeedback = MutableStateFlow<Pair<String?, String?>>(null to null)
     private val draftEditSaving = MutableStateFlow(false)
+    private val pendingManualChange = MutableStateFlow<PendingManualPlanChange?>(null)
+    private var manualChangeSaved: (() -> Unit)? = null
     fun clearDraftEditFeedback() { if (!operation.value.second && !draftEditSaving.value) draftEditFeedback.value = null to null }
     fun dismissAssistantReceipt() { assistantReceipt.value = null }
     suspend fun queryTasks(scope: TaskQueryScope, date: LocalDate): List<Task> = requireNotNull(operations).query(scope, date)
@@ -86,6 +89,7 @@ class PlanViewModel(
         .combine(assistantReceipt) { state, receipt -> state.copy(assistantReceipt = receipt) }
         .combine(draftEditFeedback) { state, feedback -> state.copy(draftEditError = feedback.first, draftEditReceipt = feedback.second) }
         .combine(draftEditSaving) { state, saving -> state.copy(isWorking = state.isWorking || saving) }
+        .combine(pendingManualChange) { state, pending -> state.copy(pendingManualChange = pending) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
     fun retryRead() {
@@ -234,13 +238,34 @@ class PlanViewModel(
         }
 
     fun restore(planId: String) = mutate { planRepository.restore(planId) }
-    fun clearCurrentPlan() = mutate { planRepository.clearCurrentPlan() }
+    fun clearCurrentPlan() = requestManualChange(ManualPlanChange.Clear)
     fun setSegmentLocked(segmentId: String, isLocked: Boolean) = mutate { planRepository.setSegmentLocked(segmentId, isLocked) }
     fun placeTask(taskId: String, date: LocalDate, startMinute: Int, endMinute: Int, trackId: String) =
-        mutate { planRepository.placeTask(taskId, date, startMinute, endMinute, trackId) }
-    fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String) =
-        mutate { planRepository.movePlacement(segmentId, startMinute, endMinute, trackId) }
-    fun removePlacement(segmentId: String) = mutate { planRepository.removePlacement(segmentId) }
+        requestManualChange(ManualPlanChange.Place(taskId, date, startMinute, endMinute, trackId))
+    fun movePlacement(segmentId: String, startMinute: Int, endMinute: Int, trackId: String, onSaved: () -> Unit = {}) =
+        requestManualChange(ManualPlanChange.Move(segmentId, startMinute, endMinute, trackId), onSaved)
+    fun removePlacement(segmentId: String) = requestManualChange(ManualPlanChange.Remove(segmentId))
+    private fun requestManualChange(change: ManualPlanChange, onSaved: () -> Unit = {}) = mutate {
+        require(pendingManualChange.value == null) { "请先确认或取消上次调整。" }
+        try {
+            planRepository.applyManualChange(change)
+            onSaved()
+        } catch (confirmation: PlanChangeConfirmationRequired) {
+            manualChangeSaved = onSaved
+            pendingManualChange.value = PendingManualPlanChange(change, confirmation.revision, confirmation.message.orEmpty())
+        }
+    }
+    fun cancelManualChange() { if (!operation.value.second) { pendingManualChange.value = null; manualChangeSaved = null; dismissError() } }
+    fun confirmManualChange() {
+        val pending = pendingManualChange.value ?: return
+        if (operation.value.second) return
+        mutate {
+            require(pendingManualChange.value == pending) { "本次调整已取消。" }
+            planRepository.applyManualChange(pending.change, pending.revision)
+            pendingManualChange.value = null
+            val saved = manualChangeSaved; manualChangeSaved = null; saved?.invoke()
+        }
+    }
     fun dismissError() { operation.value = null to operation.value.second }
 
     private fun readUnavailable() = uiState.value.readError != null || workspaceUiState.value.readError != null ||

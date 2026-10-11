@@ -18,13 +18,14 @@ data class AiTaskContext(
     val category: TaskCategory,
     val initialPriority: TaskPriority,
     val currentStatus: TaskStatus,
-    val estimatedDays: Int,
+    val estimatedDays: Int?,
     val expectedDurationMinutes: Int?,
     val dueDate: LocalDate?,
     val recentFeedback: List<AiFeedbackContext>,
     val confirmedSegments: List<AiSegmentContext>,
     /** User-stated preferred workday; it is distinct from a deadline. */
     val scheduledForDate: LocalDate? = null,
+    val inputSources: TaskInputSources? = null,
 )
 
 data class AiFeedbackContext(
@@ -402,6 +403,7 @@ object AiRequestFactory {
         initialPriority = task.userPriority,
         currentStatus = task.status,
         estimatedDays = task.estimatedDays,
+        inputSources = task.inputSources,
         expectedDurationMinutes = task.totalDurationMinutes,
         dueDate = task.dueDate,
         recentFeedback = effectiveFeedback(executionLogs.filter { it.taskId == task.id }),

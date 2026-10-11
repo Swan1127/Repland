@@ -12,6 +12,11 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DebugAgnesArrangementAdvisorParserTest {
+    @Test fun missing_category_stays_unknown_instead_of_becoming_extracurricular() {
+        val result = decodeArrangementAdvice("""{"candidates":[{"title":"一件事项","durationMinutes":null}]}""")
+        assertEquals(TaskCategory.UNSPECIFIED, result.candidates.single().category)
+        assertEquals(null, result.candidates.single().durationMinutes)
+    }
     @Test fun structured_queries_and_explanations_decode_without_candidate_creation() {
         val query = decodeArrangementAdvice("""{"operation":"QUERY_TASKS","queryScope":"TODAY","candidates":[]}""")
         assertEquals(com.swan1127.repland.domain.model.ArrangementAdviceOperation.QUERY_TASKS, query.operation)

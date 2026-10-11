@@ -13,6 +13,14 @@ data class PlanningWorkspaceEntity(@PrimaryKey val key: String, val payload: Str
 
 @Dao
 interface PlanningWorkspaceDao {
+    @Query("SELECT * FROM planning_workspace WHERE `key` LIKE 'numeric-input:%' OR `key` IN ('numeric-snapshot', 'numeric-description') ORDER BY `key`")
+    suspend fun getNumericExport(): List<PlanningWorkspaceEntity>
+    @Query("SELECT * FROM planning_workspace WHERE `key` LIKE 'numeric-input:%' ORDER BY `key`")
+    fun observeNumericInputs(): Flow<List<PlanningWorkspaceEntity>>
+    @Query("SELECT * FROM planning_workspace WHERE `key` LIKE 'numeric-input:%' ORDER BY `key`")
+    suspend fun getNumericInputs(): List<PlanningWorkspaceEntity>
+    @Query("SELECT * FROM planning_workspace WHERE `key` LIKE 'execution-session-history:%' ORDER BY `key`")
+    fun observeEndedSessions(): Flow<List<PlanningWorkspaceEntity>>
     @Query("SELECT * FROM planning_workspace WHERE `key` = 'active-execution-session' OR `key` LIKE 'execution-session-history:%' ORDER BY `key`")
     suspend fun getExecutionSessions(): List<PlanningWorkspaceEntity>
     @Query("SELECT * FROM planning_workspace WHERE `key` = :key")
@@ -32,6 +40,9 @@ object PlanDraftCodec {
         put("generatedAt", draft.generatedAt.toString())
         put("revision", draft.sourceRevision)
         put("orderOnly", draft.orderOnly)
+        put("numericProfileVersion", draft.numericProfileVersion)
+        put("numericParameters", JSONArray(draft.numericParameters))
+        put("numericAdvice", JSONArray(draft.numericAdvice))
         put("manual", draft.hasManualTaskOrder)
         put("order", JSONArray(draft.orderedTaskIds))
         put("pending", JSONArray(draft.pendingTaskIds))
@@ -70,6 +81,9 @@ object PlanDraftCodec {
             } } },
             hasManualTaskOrder = j.getBoolean("manual"), sourceRevision = if (j.isNull("revision")) null else j.getString("revision"),
             orderOnly = j.optBoolean("orderOnly"),
+            numericProfileVersion = if (j.isNull("numericProfileVersion")) null else j.getString("numericProfileVersion"),
+            numericParameters = if (j.has("numericParameters")) strings("numericParameters") else emptyList(),
+            numericAdvice = if (j.has("numericAdvice")) strings("numericAdvice") else emptyList(),
         )
     }
 }

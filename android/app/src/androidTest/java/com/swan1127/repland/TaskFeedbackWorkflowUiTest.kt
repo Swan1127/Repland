@@ -30,8 +30,11 @@ class TaskFeedbackWorkflowUiTest {
         return id to name
     }
     private fun open(name: String) {
-        waitTag("navigation-tasks"); rule.onNodeWithTag("navigation-tasks").performClick(); waitTag("task-groups-scroll")
-        rule.onNodeWithTag("task-groups-scroll").performScrollToNode(hasTestTag("task-card-$name"))
+        waitTag("navigation-tasks"); rule.onNodeWithTag("navigation-tasks").performClick()
+        // Retained QA tasks can exceed the overview's three-card group preview.
+        // Use the real Today filter for this explicitly today-scheduled fixture.
+        waitTag("task-filter-TODAY"); rule.onNodeWithTag("task-filter-TODAY").performClick(); waitTag("task-list-scroll")
+        rule.onNodeWithTag("task-list-scroll").performScrollToNode(hasTestTag("task-card-$name"))
         rule.onNodeWithTag("task-card-$name").performClick(); waitTag("task-detail-scroll")
     }
     private fun action(tag: String) {

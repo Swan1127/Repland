@@ -40,7 +40,7 @@ class PlanningReadService(
         val lockedIds = snapshot.current?.segments.orEmpty().filter { it.isLocked }.map { "segment:${it.id}" }.toSet()
         return request.copy(
             existingTasks = availableTasks.map { ArrangementExistingTask(it.id, it.displayName.take(120), it.category, it.totalDurationMinutes,
-                it.status, it.userPriority, it.dueDate, it.scheduledForDate, it.progressPercent, it.postponeCount) },
+                it.status, it.userPriority, it.dueDate, it.scheduledForDate, it.progressPercent, it.postponeCount, it.inputSources) },
             occupiedIntervals = entries.filter { !it.taskClosed }.map { ArrangementOccupiedInterval(it.title.take(120), it.startMinute, it.endMinute,
                 it.trackId, it.kind != TimelineKind.TASK || it.id in lockedIds, it.taskId) },
             availableIntervals = ArrangementAvailability.forDay(snapshot.input, request.date, now()),

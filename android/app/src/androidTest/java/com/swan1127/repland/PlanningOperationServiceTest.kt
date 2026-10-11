@@ -27,6 +27,26 @@ class PlanningOperationServiceTest {
         operations = PlanningOperationService(reads, plans, PlanGenerator, RoomExecutionSessionRepository(db))
     }
     @After fun close() { db.close() }
+    @Test fun all_local_preview_kinds_keep_unavoidable_interval_and_sort_does_not_move_it() = runBlocking {
+        val date = LocalDate.now().plusDays(1)
+        tasks.save(TaskDraft(id = "required", displayName = "不可避免", userPriority = TaskPriority.REQUIRED, totalDurationMinutes = 45))
+        tasks.save(TaskDraft(id = "ordinary", displayName = "其他", userPriority = TaskPriority.HIGH, totalDurationMinutes = 30))
+        RoomTimeRepository(db.timeDao()).saveDateOverride(DateOverrideDraft(title = "可用", type = DateOverrideType.AVAILABLE,
+            date = date, startMinute = 540, endMinute = 660))
+        plans.placeTask("required", date, 555, 600, "custom")
+        for (kind in PlanningPreviewKind.entries) {
+            val original = plans.observeCurrentPlan().first()!!
+            val draft = operations.preview(kind)
+            assertEquals(original, plans.observeCurrentPlan().first())
+            if (kind == PlanningPreviewKind.SORT_ONLY) assertTrue(draft.segments.isEmpty())
+            else assertEquals(original.segments.single { it.taskId == "required" }, draft.segments.single { it.taskId == "required" })
+            operations.confirm(draft)
+            val confirmed = plans.observeCurrentPlan().first()!!
+            assertEquals(555, confirmed.segments.single { it.taskId == "required" }.startMinute)
+            assertEquals("custom", confirmed.segments.single { it.taskId == "required" }.trackId)
+            assertFalse(confirmed.segments.single { it.taskId == "required" }.isLocked)
+        }
+    }
     private suspend fun seed() {
         tasks.save(TaskDraft("low", "低优先级", "", TaskCategory.COURSE, TaskPriority.LOW, 1, 30, null))
         tasks.save(TaskDraft("high", "高优先级", "", TaskCategory.COURSE, TaskPriority.HIGH, 1, 30, null))
@@ -79,6 +99,36 @@ class PlanningOperationServiceTest {
         try { operations.confirm(draft); fail("Stale draft must fail") } catch (_: IllegalArgumentException) { }
         assertNull(plans.observeCurrentPlan().first())
         assertEquals(listOf("low", "high"), plans.observeTaskOrder().first())
+    }
+    @Test fun legacy_draft_without_source_revision_is_preserved_and_cannot_restore_closed_work() = runBlocking {
+        seed()
+        val legacy = PlanDraft(LocalDateTime.now(), listOf(PlannedSegment(taskId = "high", date = LocalDate.now().plusDays(1),
+            startMinute = 600, endMinute = 630)), emptyList(), emptyList(), listOf("high", "low"))
+        plans.saveDraft(legacy)
+        tasks.confirmStatus("high", TaskStatus.COMPLETED)
+        val evidence = tasks.observeExecutionLogs("high").first()
+        assertTrue(runCatching { operations.confirm(legacy) }.isFailure)
+        assertNull(plans.observeCurrentPlan().first())
+        assertEquals(legacy, plans.observeDraft().first())
+        assertEquals(evidence, tasks.observeExecutionLogs("high").first())
+        assertEquals(listOf("low", "high"), plans.observeTaskOrder().first())
+    }
+    @Test fun agent_fallback_draft_keeps_generation_revision_and_rejects_later_task_changes() = runBlocking {
+        seed()
+        val snapshot = reads.snapshot()
+        val advisor = object : AiAdvisor {
+            override suspend fun request(request: AiAdvisorRequest): AiAdvisorResult = error("Disabled advisor must not run")
+        }
+        val workflow = PlanningAgentWorkflow(PlanningAgent(advisor, PlanGenerator))
+        workflow.begin(PlanningAgentWork.Replan(snapshot.input.tasks, emptyList(), snapshot.current, snapshot.input,
+            emptyList(), snapshot.order), PlanningAgentAccess(false, true))
+        val draft = ((workflow.state.value as PlanningAgentState.FailedFallback).fallback as LocalPlanningFallback.Draft).draft
+        assertEquals(snapshot.revision, draft.sourceRevision)
+        plans.saveDraft(draft)
+        tasks.confirmStatus("high", TaskStatus.COMPLETED)
+        assertTrue(runCatching { operations.confirm(draft) }.isFailure)
+        assertNull(plans.observeCurrentPlan().first())
+        assertEquals(draft, plans.observeDraft().first())
     }
     @Test fun non_aligned_confirmed_lock_remains_safe_through_preview_and_confirmation() = runBlocking {
         val date = LocalDate.now().plusDays(1)

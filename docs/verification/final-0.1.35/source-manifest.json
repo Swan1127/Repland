@@ -1,0 +1,1574 @@
+{
+  "baseCommit": "85c75f04117b9421786fa37fdaf1236481b3b865",
+  "note": "APK BuildConfig contains the base commit plus the preserved worktree. LF hashes bind actual tested source; this is not a clean-base build.",
+  "productionManifestSha256Lf": "25a6c9f4e7e1917886c05d0a5dee7b3be6262adebaa5c8a412dafab32108ec75",
+  "files": [
+    {
+      "path": "android/app/build.gradle.kts",
+      "group": "production",
+      "sha256": "f711b8f0e6d625965f4277ac033b88593c1323201d8ebde4f5553090333f4df2",
+      "sha256Lf": "d75f254374e8aa4179ee3058e8f3c451efe68b62333e0b9493f262fb8cb94774"
+    },
+    {
+      "path": "android/app/proguard-rules.pro",
+      "group": "production",
+      "sha256": "82f3c8d97177c94933bc13a1561edf2e81777f894d8ce45245d45ae07b799b5e",
+      "sha256Lf": "b5288a4d50c31e20d9b3708916a176ca2365862f984480d26363dbfad57dc5d9"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/AgentCenterUiTest.kt",
+      "group": "device",
+      "sha256": "908bfbceb6b5ab52ca3666073630169840a8200ddf8c1c3f03a008d0c7f7dad2",
+      "sha256Lf": "6aeee9e9d9bfede871b1a2518326c9571497ba95d1f343d0098034c41bd0b15a"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/AiProviderSettingsUiTest.kt",
+      "group": "device",
+      "sha256": "f2e7e72b6bdf54d9037093b561b87bb7077be2975d8a09f2e6b80b9f8cdee7d7",
+      "sha256Lf": "a0273daea15d15be07136e23f9444b23326b71a9583677fce3f70d7a836ef121"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/AiSettingsRepositoryTest.kt",
+      "group": "device",
+      "sha256": "fed020582f3d56aa74d4027c6644f373d987d7c5c3c72ca687930c5ee56eb921",
+      "sha256Lf": "d8171fe94cba25f354259bf22697aaf1bc350af86e082757cb213b3ed43e7f94"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ArrangementAssistantAccessTest.kt",
+      "group": "device",
+      "sha256": "ace93d4b7ac77a5c8204f51aa31b1cf41d33a98ea1a928c5dc8b1ab0862d4402",
+      "sha256Lf": "ffb7d8ea84039c3a73b8d838731fe306d0bcc7f43da6e3ae5e3820dcbb1f95ea"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/AssistantChangesRepositoryTest.kt",
+      "group": "device",
+      "sha256": "7b3509d8a085c4d46eb5ef3d122fdca571750fd08902ab2b46bc20b17a197d72",
+      "sha256Lf": "e06e59a57da05b67247ddf0b7029d6ba6d6f80fc45e22d81474d70fffef6938e"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/AssistantReadOperationUiTest.kt",
+      "group": "device",
+      "sha256": "3c8f744919b2b24c18ae7ef9f5cbef776667f88c093eb8f0586e30479ea66f58",
+      "sha256Lf": "533727183fb191d0e3f3693ee199be52fc26db714717272d87fafdb486f964db"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/AssistantSaveReceiptTest.kt",
+      "group": "device",
+      "sha256": "7862cd5c105fdca598359ab94e03aabd35b1ee8eba8e2f5ca9585f75cc056cb4",
+      "sha256Lf": "5f30495ef7b983b993e01e5a393094479e469dd2910d9307848bb5403602af9a"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/CaptureNumericWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "815f4f0d35734ea6138dfb93e9b70257401a96bb05f7e5d67ad1d73bc7b74f5a",
+      "sha256Lf": "28be81fa474e0d6a3fcc1df8a9a86aa02005ee7539d24ebc5645bbbb52ae7503"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/CategoryPreferenceRepositoryTest.kt",
+      "group": "device",
+      "sha256": "afaf99961db7bab04e8189ba43b068eb0348bc2785f463834224da051ad5fa4f",
+      "sha256Lf": "dfc0f70c54a8ee49fe43e823a6d0313b012ccebf22d2e65d72ef308d61088079"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/CompatibleTransportTest.kt",
+      "group": "device",
+      "sha256": "56b5fc4c45209957e75090155ea7dec9b12c78bd0bfd490652729e70cfed0233",
+      "sha256Lf": "e67b4ac5da87d5bfb4188cd4ea65dd421e05f249abebd76deda8ab3ff18ca7ec"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ContextReadIntegrityTest.kt",
+      "group": "device",
+      "sha256": "ba82c6940db3ce963200cd40ac7609ee2596f89582a51faab0ab08a40c71fc37",
+      "sha256Lf": "e2e963f9829450360815e5aec5add9f06c01c7f9a3265a8f30c3dc94e81b9a4c"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ContextReadWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "e6adaf16d94070d90d6b930d9727e819ea9b1d303bbed073c388c5ca11cfa725",
+      "sha256Lf": "3147b9689a9ad866bd1a25e3c29a8958404c34323917a3528ac549968d91c236"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/CoreWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "6e4ac74e684dbffa21daa3d03cbb9edc434bb794542df60e6f01e03bfd19c455",
+      "sha256Lf": "50f088edb416270e7cc31b19bca016cf2f0b312676d5fe940edd9b9fab911169"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/DebugAgnesArrangementAdvisorParserTest.kt",
+      "group": "device",
+      "sha256": "233c1cd354a6bd82a86e7a5aedbfeb3668a6a7777f0fb7e7c6e87debbb24f63a",
+      "sha256Lf": "113f29f5b14e6e108160310622b74d081d8b78ef0ea3e5e466c0a401b54c6857"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/DraftSaveIntegrityTest.kt",
+      "group": "device",
+      "sha256": "d534b8164da8d8c8c64bce14232a39ed5f38abcfbbc9ba326a0617928daa683a",
+      "sha256Lf": "9bbf5f8d5dd6f822633303d772b6ca6369e295df1dd19721bde768510626cf11"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/DraftSaveWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "42e7864314d99f34bb66e053f9584c7a3b02f6d059c2f7b23d5eccf82859d115",
+      "sha256Lf": "588edd4568a98358a650e8a47ae71632b8ca2cf280d839604115d0c5bbf7575f"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/EditorSheetUiTest.kt",
+      "group": "device",
+      "sha256": "f6e722a19b65988144e9f8e32da1e1431408a801effd169e88212592c91d563c",
+      "sha256Lf": "c6eafc887cf91fb087d1a2684e3c9e15861d6635169db8b2aeaed0091cc6623d"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/EngagementRepositoryTest.kt",
+      "group": "device",
+      "sha256": "4ca119350089246fab19f47634688a07a85efc3552677184e730a5d5caa09989",
+      "sha256Lf": "d5d4523320b9d7af935d46a34fca0c9ecb759bb9032f76a8f8486ed085d22b93"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ExampleInstrumentedTest.kt",
+      "group": "device",
+      "sha256": "646bf883b5aae8d43799aee6a88d0d20dd9a710b23944143848cf9b8b3e53038",
+      "sha256Lf": "ad43813c98c3118d3719eb9172b09bd59183823274df20c34959fc614f8245b6"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ExecutionSessionRepositoryTest.kt",
+      "group": "device",
+      "sha256": "5b18d12547ad796568376071930cbfece755b606b06004a42456ffbfa90c5f69",
+      "sha256Lf": "872730153fa722e5efd346eadfeb585eadc891ac533cff2a5e118a0b279c74a5"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ExecutionSessionUiTest.kt",
+      "group": "device",
+      "sha256": "8fdae93bb47466cd8e8036a59bc22682dc800370e5c7f8742d8199f022873256",
+      "sha256Lf": "1298e74ec237f4bcb0dbfeef5353284abee22d1695b638d1865893de33ce7755"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ExecutionWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "45b06dee6cca86882a1c24e1efd1b832529b013eca8fd331339c2db3842119b8",
+      "sha256Lf": "9727c15e9c1521f7096bad1caea5f4122c5cdd22f33d5d113c4b6e9b286e3e18"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/HistoryRestoreWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "5987a3f1bbe1b666cf398a1d6c33569b6a1bbaf551acd141463db3a6717790b7",
+      "sha256Lf": "5987a3f1bbe1b666cf398a1d6c33569b6a1bbaf551acd141463db3a6717790b7"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/InteractionWorkspaceRepositoryTest.kt",
+      "group": "device",
+      "sha256": "5d61e8914b0f8f74f89db0a0731650a51437e6bafd6629b740d3095c7b7ab514",
+      "sha256Lf": "18db00a38eca1b4f1fbc620798bf711699048d6f22a8f225dbae3bf381f14342"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ManualPlanChangeRepositoryTest.kt",
+      "group": "device",
+      "sha256": "0185b6774af8b20bc36941c02a71fddcf972f256f55bfd96e0d9afd09e188c7b",
+      "sha256Lf": "0185b6774af8b20bc36941c02a71fddcf972f256f55bfd96e0d9afd09e188c7b"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/Migration20To21Test.kt",
+      "group": "device",
+      "sha256": "29658496769f5641716a3bfaf5adb129136834a48be95676d5f7546cf38b7fcd",
+      "sha256Lf": "29658496769f5641716a3bfaf5adb129136834a48be95676d5f7546cf38b7fcd"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/Migration5To6Test.kt",
+      "group": "device",
+      "sha256": "3f22384c2f33b71b644957326e3075e112b6063fb515c2bf8eb17a0913e1cb87",
+      "sha256Lf": "4295bf3636ca9f435ce41f8f5b9b7fbdeed445a955cdb6073d1363b4ca098796"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/NativePageNavigationUiTest.kt",
+      "group": "device",
+      "sha256": "d82c5da8299df0a6098531d80686afe01203b6fb16e3d7f9d103f3a7256cb3b2",
+      "sha256Lf": "dc510c963b04518e25a06cbb347497c6ef4d4ede5d537d49bff9fc46d8afab81"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/NativeSheetTestInput.kt",
+      "group": "device",
+      "sha256": "c5a662eafdd823a3426047f32f7f998c67159e5fe02f3d605c3353c456668924",
+      "sha256Lf": "e22e6d2b0c19957ea231aa7abc6736cffdc0ff802b8317eb80676f7eb7145ac6"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/NumericNarrationContractTest.kt",
+      "group": "device",
+      "sha256": "fdcb689103896631f79b59f08911d6803c2396ee7b9a06b24ed48a33016d1034",
+      "sha256Lf": "a432d66563b06cc5421e7f9d8a55817238bf78bccda31a5fd52a609f328ed9d0"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/NumericProfileAiWorkflowTest.kt",
+      "group": "device",
+      "sha256": "ac30f518c477e8336e6ca3932b0699965e0cdd2e83002c885a635bc5b4a8c585",
+      "sha256Lf": "8e514030e52adde84b4a70e1b85b65ec65adca5e3f78904067d59dfb849dae20"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/NumericProfileRepositoryTest.kt",
+      "group": "device",
+      "sha256": "82468279ef22e262a96fbb132d3dd837284bea9090b75cb85988c337d3a09569",
+      "sha256Lf": "82468279ef22e262a96fbb132d3dd837284bea9090b75cb85988c337d3a09569"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/NumericProfileWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "b4df4a18a3077cbf374d4e44ccad532a560ed409449694298b26053871fb3fee",
+      "sha256Lf": "bc5ad9842849eaf2dc6566554dc9537dea1a0c554c2b60ec883649826bc8f0f7"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PdfTimetableImporterTest.kt",
+      "group": "device",
+      "sha256": "b322fd84781311294c1dfb691ad99efc68fb7b940e41c8d3e517c869d309e7a0",
+      "sha256Lf": "f2506da512d4d08c8c78dca389c8623a96ea7694f0341ec5c21b56d1995fca53"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlacementNumericUiTest.kt",
+      "group": "device",
+      "sha256": "6e255f478a9b34472de806218ae26aceadfdf469fb36ed15f8244ac0c7707604",
+      "sha256Lf": "223795f4ce9ce3a3d32c1ba600306ad4ee7c31935e499a03d5f7f59225724813"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlacementNumericWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "def8c689b5a044faf1d2dd7d214503cfd4b8f48afcb67357d5b27e98bc7ff6eb",
+      "sha256Lf": "8690fce678ed6d06a048f304b015d2b4ad0eef50a1ea92dff2799efbb6996902"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlacementRepositoryTest.kt",
+      "group": "device",
+      "sha256": "c1736aeab8a3911c1603d39274555b709834add9b4a645fe35edc90f909f6f3e",
+      "sha256Lf": "b50e98918d27b3e1d8e5c96da5877b9a0e929df70cc427cb4a8c5d2b12ce2f57"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanDraftPreviewUiTest.kt",
+      "group": "device",
+      "sha256": "530ca3a3fe568f2c0e8f7b4450a0c627f9d86a1c57dad7622a023cee73599988",
+      "sha256Lf": "5fc28ea8dea0d2d80e90b5bbf29e485a5edf2a9b05a5bca94483feabee5a26dc"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanRestoreRepositoryTest.kt",
+      "group": "device",
+      "sha256": "1f83c319afa85f27a6db0b859b2c1a1253d778068f415e517aaff3bac58e8aca",
+      "sha256Lf": "b2196b4e9555d9661364b14a71ef6545c98e333af7988d8e46b0f7f7a10b5e14"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanningIsolationWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "8a0d5d0aa687a8bd0ebe40fab59311bead35bd432e4a1bb1ac3a27ee89667c08",
+      "sha256Lf": "8a0d5d0aa687a8bd0ebe40fab59311bead35bd432e4a1bb1ac3a27ee89667c08"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanningOperationServiceTest.kt",
+      "group": "device",
+      "sha256": "c487982108d12fe31c02803998938242f29a6cb6d4c133dc62f8fc8070d5c549",
+      "sha256Lf": "fb2b8270904fcdf7f6ea4618c75b2efa4f1523f03f3806c98751cd854ff7f8ee"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanningProtectionWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "7be2bbe6f43d196a74405453ea0e95cd1a880a1fac29881f67f4f78d4204d656",
+      "sha256Lf": "7be2bbe6f43d196a74405453ea0e95cd1a880a1fac29881f67f4f78d4204d656"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanningReadFailureTest.kt",
+      "group": "device",
+      "sha256": "1321264f88b2cfbd8c6ade80b2aa3033ef90251a21a3ea3ef44bccb0397bb3b4",
+      "sha256Lf": "00269b8c36f238173540ae5e78af14b98f2df9eea01ce9f89fdd7835a87df8f2"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanningReadServiceTest.kt",
+      "group": "device",
+      "sha256": "f9dc1dabbf456e2e086ec65de731bd761c5f2cdf2837aba973de71553288901f",
+      "sha256Lf": "c34f645ba070e9f3208db26c201cb8c5bf99995ce9ba3b8abb143216939a98fb"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/PlanningWorkspaceRepositoryTest.kt",
+      "group": "device",
+      "sha256": "6d3a898d3a06881aea7bc18a074afa6b34118b9fe5c738031388a0826f9196af",
+      "sha256Lf": "8a33b54085c758839444451636a131fd2a912928e17c2c7933917313bffa59ff"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ProfileEvidenceAndDataManagementRepositoryTest.kt",
+      "group": "device",
+      "sha256": "52975104219ddfc771139a5e0a5e44ba817e8e98023acf23c3c4f3ead708e5ff",
+      "sha256Lf": "a39976e08fd0e294832ce33f07def751d2ea7a8110882bf4992b3433bb27fea6"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ProtectedOverlapWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "9f1ff35912ea0a2ac93cbe8f0f4200e0d5c3b3a98c1df9b08ef79ac5e5281569",
+      "sha256Lf": "9f1ff35912ea0a2ac93cbe8f0f4200e0d5c3b3a98c1df9b08ef79ac5e5281569"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/QuickAvailabilityTest.kt",
+      "group": "device",
+      "sha256": "f828f2299472b296e6f39d9d39eda3892ec45f42f1fa7161747b5de116e251a2",
+      "sha256Lf": "fecc1ded0bf8fb4adfb9a1252d9e8d21eb775baf67ca854948a5257a3065e0fe"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ReadFailureWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "01784a45b0e700d3d1d235ae253f4da746f876853d15abb3c796ff6f54779570",
+      "sha256Lf": "202923d426441f16bef65b450f33613ed8f6906f38867f2889db8d6049b088e6"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ReadFaultFixtures.kt",
+      "group": "device",
+      "sha256": "cfc8e7c91ea3fdf4323fd7ae964fac5381aa4b0edae44a07af073bde42627c5a",
+      "sha256Lf": "3636db3958f86fa20d83e0b438f4da4f0f74a1fcc06a24135c266d8cd6c15c04"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/RecoverableReadViewModelTest.kt",
+      "group": "device",
+      "sha256": "b82a1ae16d0247f61b1460fb0690f323d6f196e364f080d94608358375648be4",
+      "sha256Lf": "afe6ca7c0bcc7045e9d9c34c98c15ffb907c408431221edb5a7fa8f4e7dd7111"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ReminderDeliveryIntegrityTest.kt",
+      "group": "device",
+      "sha256": "322950fd8de99cc0c568d689538f2c4ab8aff7f87d490d548143fbb9362b8e96",
+      "sha256Lf": "322950fd8de99cc0c568d689538f2c4ab8aff7f87d490d548143fbb9362b8e96"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/ReminderSettingsRepositoryTest.kt",
+      "group": "device",
+      "sha256": "ce4ce0e011a3f64d416df7b6a853b2838e3af9ec91e28fec51bf9f13414a2fc1",
+      "sha256Lf": "ca90e88afcc5895df3caa40d5e2829452dfe1d3a7b4bc63601f96dd5f24d6a24"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/SessionInputWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "4c9e019b177b24c98d6ee6d611d3e100900a7e83d4c9f156876fb4e5a9aad15c",
+      "sha256Lf": "16c9f8a2d7d3d9a3e502ac1e871b53e55da0cc939a97799c1f28f8210190e853"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/SessionReadIntegrityTest.kt",
+      "group": "device",
+      "sha256": "a1c9d5f84fd0a75bfe6dbd1fbef8f8e60261f20f8512373be98e4a593f3a352b",
+      "sha256Lf": "f3b6e819deb41b678effcb4281a0a374439272d42ec358ae4df9c1acf9097a39"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskCaptureRepositoryTest.kt",
+      "group": "device",
+      "sha256": "d37b6346a19ae4cb9126cc81169576466891d004af5b791d2d12bf4a6f93081d",
+      "sha256Lf": "1ac891316b6f955bb56f0ca51b637c4dc73789fa158f336bd4e7ac3a0dd8a03b"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskCaptureSheetUiTest.kt",
+      "group": "device",
+      "sha256": "bbf53075e439e0ab001e0366b094bc05d7b2cc3921dede5053640347cf863cab",
+      "sha256Lf": "d7716f04132eec35f96f16aa83e2444ab70826c7843394c99bd6be00bd41b000"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskCaptureViewModelTest.kt",
+      "group": "device",
+      "sha256": "6a3d0529ef29455a8b98c27ca96678a0afa9e8007fb9d4178fbf80717bb91faa",
+      "sha256Lf": "ffc2aebfda2efa35a3d560297ffdd4f6992742738a13d8a50a264c99b05d135c"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskEditorIntegrityTest.kt",
+      "group": "device",
+      "sha256": "3dc3e415a65b66dd73c74b2a6bd1a15e43bf715b6d6b05e1a16196b949095f52",
+      "sha256Lf": "5a5faa3e04b41529bced2f62a68e95a609529fdf4c08bdd9338747fe6f9a94bf"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskEditorWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "1a5fd78a092ff8092c2809fe3fed59177becbfe2c5b5cb08a0b7bc2c82da98a6",
+      "sha256Lf": "71367e7ac7a33977bf045c815f2daf37239ffbe95bfc3a80ff63fe6ff6c344d3"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskFeedbackIntegrityTest.kt",
+      "group": "device",
+      "sha256": "fa6910c131ed112c494cd7bef1e30a53d3239a932f01413206156efaad6e13b9",
+      "sha256Lf": "033c85f9408cdc8b9824baf24b0c2a0fe63abb549038bd7edc094054942b9e46"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskFeedbackWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "eefe44af082bba2008c74a9a05ebd37b04192a8df684cb1f93b19e583674bb9c",
+      "sha256Lf": "dee505caabdf55d5ab567bfefbfd8fa2c480d621464034f344a43f4d5bf190ce"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskLifecycleRepositoryTest.kt",
+      "group": "device",
+      "sha256": "117e7fe5a8115bd62c4b52e5c84d49a798a3a67b1e6c3010c92f7bea5b8a51b7",
+      "sha256Lf": "7287ae1c60a26360b284945af825bc8c115820f062bfd739ac41472ad1904701"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskOverviewTestNavigation.kt",
+      "group": "device",
+      "sha256": "8392280ae8bc2931433c2a62b9cc0c8237f8ec656da542d4f71219f96aa440d2",
+      "sha256Lf": "8392280ae8bc2931433c2a62b9cc0c8237f8ec656da542d4f71219f96aa440d2"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskPageAppBarUiTest.kt",
+      "group": "device",
+      "sha256": "57a5493ae2ff507026584a5b7b909e6fc68917b3975c0eb0a22ade30554daeba",
+      "sha256Lf": "bffd5c40a5f63e23851c69571d1db599be434bff0456e55d901b29caa70759f1"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TaskPlanMembershipUiTest.kt",
+      "group": "device",
+      "sha256": "8b7d2be52a120c41480cb0b5903e025e14d5e63ce6c58d4871827f8e1d63aa14",
+      "sha256Lf": "40f291d71e1c867339968da66b5568b58031d3ffe3fa1d7084669db3ee6feea0"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimeConstraintRevisionRepositoryTest.kt",
+      "group": "device",
+      "sha256": "e7c35cd3c6b077b8787b3f6b0ce5920b62d43bfdd975351b1b5c333182a0d4ec",
+      "sha256Lf": "0e43ef7f695cf1fdb089b55d25cf259aab32cfef01d6e6fbde4ff35a42d7cac1"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimeSettingsIntegrityTest.kt",
+      "group": "device",
+      "sha256": "66f6f9dc4fe7a4b6a4d8a201c6a0cd9f82e93034dfeb3ed44197eac31e30dfaf",
+      "sha256Lf": "7f1bad9708f6c7134f1e4b8878fe6f223402971079ac1bc39d54460941a85b37"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimeSettingsWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "03ffa992fd671374f853ad874427352b015a8b620cceeda981b6b150b34bbc0f",
+      "sha256Lf": "d0bfe09e5e918533a59dd7f947f9dc6cf2c11353250077e6abbb8c0149494c3b"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimelineDashboardUiTest.kt",
+      "group": "device",
+      "sha256": "f0a75f71788159db1e62572e3969f9d845715008c01e23498c562ecefebe5cdb",
+      "sha256Lf": "2f44e24418f4250c88db2f5411b24106da84091158298b7dead28655884528ee"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimelineWriteReceiptWorkflowTest.kt",
+      "group": "device",
+      "sha256": "c4e1329925235c9f85b83b4681b1f7086e9af61fd53857e4aa55a9c08896b139",
+      "sha256Lf": "8fd7d250f56a27af7dc8812b1f14399b32f5213d4d26a1baaecd859adb8fea45"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimetableConfirmationTest.kt",
+      "group": "device",
+      "sha256": "08a095dcf44c49fedadde74c5a6f4cc559d438f141d0aef5f7edce6a1236c410",
+      "sha256Lf": "ac095dca3323982e67cdc998ab4bb33af616e309561a6f7518c7956068730f57"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TimetableConfirmationUiTest.kt",
+      "group": "device",
+      "sha256": "50e781024109b6fbd6f343952af224255a58da2bdc1d2caef85630e9afd293b9",
+      "sha256Lf": "2302c76095d0e0238f9a7614bffa55aaecb30afd383a746486f4b197a994992f"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/TodayFocusUiTest.kt",
+      "group": "device",
+      "sha256": "8437dc7011f4b376c6b7ccbce01b000c9a4f9eada55b0e6be7736c61050d9ffd",
+      "sha256Lf": "e02d0a326ab7f7eb4acd0508630d3527bb5ee6dc2679255c7731cbe60d30c580"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/UnavoidableRepositoryTest.kt",
+      "group": "device",
+      "sha256": "175f47597ea4b3f6523cdbfafe076c61d885c607a3825d052e7449d6c2f94697",
+      "sha256Lf": "175f47597ea4b3f6523cdbfafe076c61d885c607a3825d052e7449d6c2f94697"
+    },
+    {
+      "path": "android/app/src/androidTest/java/com/swan1127/repland/UnknownTaskWorkflowUiTest.kt",
+      "group": "device",
+      "sha256": "60755161bcacdef404480436b3a1ae6457948d3ca3df54acf15d09fe0abcc8b0",
+      "sha256Lf": "f88ee48fab1bf11fb31a7f3292d27c3d549cf20fad99334d611cad4986ec96ed"
+    },
+    {
+      "path": "android/app/src/main/AndroidManifest.xml",
+      "group": "production",
+      "sha256": "21fd6650a29a328301643c6cc229e4b4b878e358f59965fb81ba50ce2dd9a123",
+      "sha256Lf": "becd349ab667693fbb201f93698d3425664b513201bad88311e79b5237b74030"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/MainActivity.kt",
+      "group": "production",
+      "sha256": "96cfbd3c3cfa44526429bf81641c80507558ad24cb984514734694d7dab463bf",
+      "sha256Lf": "09d0e45505d3b9935ed3f1131b17c2592e5a1a03ee89ca2eb8f03c3fe4f255df"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ReplandApplication.kt",
+      "group": "production",
+      "sha256": "efa818e6551c6854ca0f505691334ca01b0f1aa30931b9903b229b75d31c131e",
+      "sha256Lf": "86d5cab82d9d4325b9938eb6851a406d9edc871c4b43e1cd18f49623a90f422b"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/export/LocalDataJsonExporter.kt",
+      "group": "production",
+      "sha256": "13ef78c2e86e5a5cedfb403b50abbeb4763104f9ab6107d37776ea02ddb8b932",
+      "sha256Lf": "3c64c70b329861dae18bf45fefbb7ba0e19e13856ef206a3f0e9e2103ba972d9"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/importer/PdfTimetableImporter.kt",
+      "group": "production",
+      "sha256": "49fc8fb6a91ef0247f0037067265665e88d09b3e6931456fe6ff484f92c83738",
+      "sha256Lf": "0692f6a395764475b47a0111b36038670aa57574455bac469e30ac84bde15162"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/AiSettingsDao.kt",
+      "group": "production",
+      "sha256": "9574eac748e54c8e249d6d4b17a67272c2ab6d08bcba1585e3ca4bbb629470e5",
+      "sha256Lf": "6ecd357609d910b3a708000da72962445bc55cfe4b3aadea5806a21dc89f6ae0"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/AiSettingsEntity.kt",
+      "group": "production",
+      "sha256": "09cefd4e1c07b1fcad885c1f5f5ec46bd4ed55fdc1c40b1354debb1ec1b3a3b3",
+      "sha256Lf": "ed08905ca9806f3df3d022e0c39f76710cff4146d071e39d0a42e32656da8a8b"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/CategoryPreferenceDao.kt",
+      "group": "production",
+      "sha256": "dfd928fcea5843aa8f10d23fa067f4780f451af5806511af3c053bf56c0bf748",
+      "sha256Lf": "176918bee961385a1c2b5eaeda1b0ea46f7261fa9c79178f70f33ce42c6bf69f"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/CategoryPreferenceEntity.kt",
+      "group": "production",
+      "sha256": "be1023f136b1f5f10f3e6c7a5cdbbfc93ba56e027d916f1cdaf6020f7ef1ccdb",
+      "sha256Lf": "9ca480e6ba0413d559fadb70541828e12492199757b52ceaf0bfae4d95c9aebd"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/EngagementDao.kt",
+      "group": "production",
+      "sha256": "b695e5163ffac87b41c32999e5ccd76703de0f1c3907e8cb2e5770933feacd57",
+      "sha256Lf": "aa55633ceac83e54a8255525f1d7e0e69d018c9a4279bef762bf05f66e82ef5b"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/EngagementEntities.kt",
+      "group": "production",
+      "sha256": "b11d4641a4753557520be8d67b3054f7191530170f13ea74824ec13a815ba9d7",
+      "sha256Lf": "dd68845fc556c48f97560833482be5c66c091194fd8174b16cb0d0d68f3ac4d4"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ExecutionLogDao.kt",
+      "group": "production",
+      "sha256": "d5270a5b7b4562aa42e8f5f0c47659583cfa7e392de1a8592f3f8c4e161cf0f2",
+      "sha256Lf": "030bfa8eb941cad91f97624e44dceb7911a357710935daf29cf2c38a8a09ed95"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ExecutionLogEntity.kt",
+      "group": "production",
+      "sha256": "4f4071c3a5a4a4d16b9918d7e5adfff918d8b9c986401b98b0b5c39d99dcfffc",
+      "sha256Lf": "4047f71c50ec76fcb64f806b5a7393be3d211a04daefea9712b0de5759e6b76e"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/InteractionWorkspaceCodec.kt",
+      "group": "production",
+      "sha256": "f7e2757e8e080ba66721902e80952e53cd2de56b7dd7c48a9a1171c131c12c1f",
+      "sha256Lf": "4776203e819e6ca315f19b6a844136aa4096c7de7657bc4ee9f205eb67b05a93"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/NumericProfileCodec.kt",
+      "group": "production",
+      "sha256": "494ecc12efd2f66a789d8a46de6e925f2d1aa54f0c6f87868685f795000e8799",
+      "sha256Lf": "494ecc12efd2f66a789d8a46de6e925f2d1aa54f0c6f87868685f795000e8799"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/PlanDao.kt",
+      "group": "production",
+      "sha256": "334fb1c3a9830737aa55f3bb92dfc944f79ae6be5d03288a3bfb910aa00a8882",
+      "sha256Lf": "2f075342b84bc19fe0ae0079d79759eacb3724b3e624b45d6f9a78bbdc18b05c"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/PlanEntities.kt",
+      "group": "production",
+      "sha256": "2e9e1e92c65c9aab36ee5c6253f51164eda3315b25b6e8f97cafe872f78da1b4",
+      "sha256Lf": "7ed319146e84dd017980d5648c72a4cf90316c5f7c2348a4ce7ef06e4fe5d795"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/PlanningWorkspace.kt",
+      "group": "production",
+      "sha256": "59ba343b8bba2ac938d6038cb281b014eb9cd8f6905e5ddb973a7fdb53a98c9d",
+      "sha256Lf": "b8013b586de460d624fc8188425e366f414ade386fce70999ae4f18d297a8fe6"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ProfileEvidenceDao.kt",
+      "group": "production",
+      "sha256": "1b6e2b34ae1f857e5d4fb9283ac6cf59bba7af6515a6bc3c83838b501392c89a",
+      "sha256Lf": "e31b64c649618d6760634059208f27fd253d5a05130995448ae07cd12cdb2a29"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ProfileEvidenceEntity.kt",
+      "group": "production",
+      "sha256": "5a54a3cc4d64257076f2293711dcc55afab1341c57057beeb740f2951449449a",
+      "sha256Lf": "90c603cd59de60f089d76254f39c67056c1ba32f05914e22bca2ae270db7f6e4"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ReminderSettingsDao.kt",
+      "group": "production",
+      "sha256": "2d8e78403ca6f9a484877dc1554316379ae39f37e30af81c293e309b33ee1b65",
+      "sha256Lf": "4ad01bfa1b19f04a8a59a4101fd6297901084762b78d1ce66730618698a65792"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ReminderSettingsEntity.kt",
+      "group": "production",
+      "sha256": "6201a29dd47f043ec8041f76cca63ee99c143b1520a2be3ccc56a5e1c7163ff2",
+      "sha256Lf": "37e15d8c21204c9b7d063cb641ba8b07343c98e63df9b9bad65742894972609a"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/ReplandDatabase.kt",
+      "group": "production",
+      "sha256": "e48414db7529eb723434bd902874c24fc5bbaa3267e5546253bc3be7490d973a",
+      "sha256Lf": "bff0ede0baef99028d43a41144dca94df6c79fbf6d28adc3eefae3a42bd4b983"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomAiSettingsRepository.kt",
+      "group": "production",
+      "sha256": "8503787ae1b09367532cf8340d5ef7b41d236780a206c3128bd58f08e56dbc75",
+      "sha256Lf": "2a027f33e670064876df0068c7984cf933993a5747f4f25e6169a4752738c82a"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomCategoryPreferenceRepository.kt",
+      "group": "production",
+      "sha256": "622026245aad9fa85c4848a3b4d5ebff143173a22b52891d72e0fd9130a9470e",
+      "sha256Lf": "ca7d8ed36c2a89b6ce8a420054ed05d4dcb69865ec6c27c529d63956ee232b2b"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomDataManagementRepository.kt",
+      "group": "production",
+      "sha256": "2f28016dae50b5c6ec8c087446e2d0fb9a6ec5e0fd0c4267c306a40457bfe897",
+      "sha256Lf": "c51681802a970f9b4c8293ea76b1377a4c941d0991d3b547760ddd11441e4e49"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomEngagementRepository.kt",
+      "group": "production",
+      "sha256": "c62929134296d776c119e73d0c2e04a83b0b6d9458128debc66cdd9513650b9c",
+      "sha256Lf": "8787438318c9f7d822a5ea3e73b4a8f94a77a8c2731fab19c9230c7d83940575"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomExecutionSessionRepository.kt",
+      "group": "production",
+      "sha256": "8cbc8ef1236b17a0735bee3a117f92a8b13e0ee4188daadb9f99dfb1bbfc6aff",
+      "sha256Lf": "688260a1d0b39aea3435cff9554a0ab04a85d64e8c22ed0af6acb697cf0123b4"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomNumericProfileRepository.kt",
+      "group": "production",
+      "sha256": "0e4583b4dc41d02c5b824b1fd06b643ef3c0e02b027a064e6a61dfb74ae13317",
+      "sha256Lf": "0e4583b4dc41d02c5b824b1fd06b643ef3c0e02b027a064e6a61dfb74ae13317"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomPlanRepository.kt",
+      "group": "production",
+      "sha256": "10aa7f5db9cd49b57ac7ce25dfd2ec026bdeb315fcde85df9b52d9136a554b3b",
+      "sha256Lf": "0c7d0643a86eb67e8bf7fe8f4a3a006fc0b425b5b7cc8caebc0b01f6b801c3db"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomProfileEvidenceRepository.kt",
+      "group": "production",
+      "sha256": "68d1349dd6d9854b5de503f43121e2bfddc22f115237aeea598898d62c6a2d98",
+      "sha256Lf": "95ea934945b7db643679599b7968d630dc03cc449f521cad921479bcd73afbfe"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomReminderSettingsRepository.kt",
+      "group": "production",
+      "sha256": "7a4c5b409de20a338e5d387b59f750b08a947af7814b7e689956d0ea9d3c5148",
+      "sha256Lf": "9bf4aa992027095feb397023d08e0836a5987acf8354e0113714d248007a8e30"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomTaskCaptureRepository.kt",
+      "group": "production",
+      "sha256": "4775e2f2776b128923612b5d8de74769520097531dbdd354b1451c539aaca212",
+      "sha256Lf": "055a92067d3498d4155824de191c732187ab3b293c119def1bca1babfe748337"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomTaskRepository.kt",
+      "group": "production",
+      "sha256": "ae4c6eb5825b9dd5b83c697e9114e8a60b1d9ff0d609ea4c5c4d803d8a854730",
+      "sha256Lf": "17bd3c5c9e5802fafb4e7d84d225a96f857a9f531faf67cd8e80adaedbf1d02e"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/RoomTimeRepository.kt",
+      "group": "production",
+      "sha256": "bfb66459bd4d60199c916de2dd4f5b382477b7a34567b76651cc6c1c520c3db3",
+      "sha256Lf": "a671de9abeba49c173bea42c1215dc19e9227d9de76b94f15d91ea143d499d8c"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/TaskDao.kt",
+      "group": "production",
+      "sha256": "3a10c545636bbfaa5f719113e69764fb16b58f521d0d40ae99db2a5fba69c538",
+      "sha256Lf": "08f90b9e1f0184bc142fa4e19ddc1d7117508fbda14c53bb92e8d56d84130185"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/TaskEntity.kt",
+      "group": "production",
+      "sha256": "577c50a7abc1b3189df48eefbb68fddce5eb8191949f2353b46cce05b3d1248f",
+      "sha256Lf": "11f654d8750f64de83ab1d143608b73080e0148dc0e2fbe78e04228218a2832f"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/TimeDao.kt",
+      "group": "production",
+      "sha256": "ff6ac23dc59cf2f9f37e32294d507151a4408124880f56baa3f6b2a87ebb3c09",
+      "sha256Lf": "4113107f15fa1de865eb97488e683f6d7de96759f7dd79f30a086c0395e8151f"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/room/TimeEntities.kt",
+      "group": "production",
+      "sha256": "f0605fbeb7f694f6846bf1234e9e50fe3ff38d75f6491fde2911e043e7ebe087",
+      "sha256Lf": "46a9a7ba2cc2582f6abd22f9340e7f707bc08fdaf0143f57de02a92fdb6bd309"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/data/security/SecureAiProviderConfigRepository.kt",
+      "group": "production",
+      "sha256": "94245d4b5abb16ff1fdbf7a5ab2afcdf4781ca1cdff167c031935ba854bdb8fe",
+      "sha256Lf": "aa7f29b8508b19ce52bb3a6711f50a8399e62df42707cc6661038accf00bc047"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/AiAdvisorContract.kt",
+      "group": "production",
+      "sha256": "a339371e69391aa50a4c0d1c9e4baacf351e49129607301bcf962425d519634f",
+      "sha256Lf": "ffcb96e3170a191ac10bc501cb148b2bb946118f2e8d23f81265dacfd7396b40"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/AiProviderConfig.kt",
+      "group": "production",
+      "sha256": "b5c89eaf9d31371c104f6a97cce5b2a1069b5a5a8642497becea9438a9d86c57",
+      "sha256Lf": "cd9c7ec386b506a76d10284f2b342cdc478eb05438a7c7eab1d461b54f25f699"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/AiSettings.kt",
+      "group": "production",
+      "sha256": "03d88282dd0107652c36791852529b23f68f359a4d61590c8dc22dc66c6a1c83",
+      "sha256Lf": "5e6b56ba6808fa9bcd8178f5991843f81d853e8198332d763550ee9a8d536be6"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ArrangementAssistant.kt",
+      "group": "production",
+      "sha256": "97b98e9ec3e990b27be9377048593f68d29b9768176065439eee4a331556cf07",
+      "sha256Lf": "693a56f60baa10de12154c8599bdaa6dddfa3b46e22f02365657c046feebc1b2"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ArrangementAssistantAdvisor.kt",
+      "group": "production",
+      "sha256": "6905a7b5cc7cc0ec67e1940a17e4aec77f2fd53108e3702bb3be0c40834e5904",
+      "sha256Lf": "bc960d7f13ba581fd818409b89799a8bba7494ce2f1c89cdc73310c8e54c0fb0"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ArrangementReadIntent.kt",
+      "group": "production",
+      "sha256": "a494b38213419ead35700c8ab8409f52da1b0ed87fee4878bfe12f059ce7700f",
+      "sha256Lf": "a22b79dee6bd563837d43f7a64af5147b8c99bd668835948d966c18905acab81"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/Engagement.kt",
+      "group": "production",
+      "sha256": "2e4bc134d0eb944f5487390340bcaa24cf65bf4a1e21e7f753689d2249968eb8",
+      "sha256Lf": "0bebb4880b334b50e3af3561d2fe0605349bcbe49ad8eef6347c3f704a42dd46"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ExecutionSession.kt",
+      "group": "production",
+      "sha256": "08f6c25d25e436db6bdcfad1d2b3987ded3e8383ce4a147058e6f0c49abdac7b",
+      "sha256Lf": "f50c5c6dc0cdf29bacb7631b456acbb7c0aa542d60ecfdbaa1cab2a554551963"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/InteractionWorkspace.kt",
+      "group": "production",
+      "sha256": "7832cf684e02c090a44ac434a4305599e881627242d43706c12e3448f26dc364",
+      "sha256Lf": "2f4cac1bd664ad2d9ad2edb979592b45a5f71d1beb8318cce220d7dfe79e6625"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/LocalDataSnapshot.kt",
+      "group": "production",
+      "sha256": "84ba1254a748a11291af171dc499f5ead0506ee5e9b4f08d73da597f36367004",
+      "sha256Lf": "88983e83d177fe03c05dd0e1ce4267e36477108afb69b52325cc8b72760a95fe"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ManualPlanChange.kt",
+      "group": "production",
+      "sha256": "2439aa22913f01b718edef54d03294b0bfa51ad2ee06c1cfac99feb0d9a5c06b",
+      "sha256Lf": "2439aa22913f01b718edef54d03294b0bfa51ad2ee06c1cfac99feb0d9a5c06b"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/NumericProfile.kt",
+      "group": "production",
+      "sha256": "a3184f5f0171091073c22a0a8b99eb5e0aefec32c2c55fbe69f504b72ef20d3e",
+      "sha256Lf": "a3184f5f0171091073c22a0a8b99eb5e0aefec32c2c55fbe69f504b72ef20d3e"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlacementValidator.kt",
+      "group": "production",
+      "sha256": "b3d796b849af6363e32c8f8a5fa96847256f4f1c96ae2c3f19ad6e0b151e1133",
+      "sha256Lf": "bde1799bc3da9a8be74c265b4e56a95aa3fdfdda8ba7c444bd8e56dad1972876"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/Plan.kt",
+      "group": "production",
+      "sha256": "ddb6deb4b900f3485571cb4a057c740c374979e5628b3d29e27d7e4e34900dd5",
+      "sha256Lf": "c80e96752f72403b082423768ed8977edada65ee4543e7dae959d91c2eb9de58"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlanDraftReview.kt",
+      "group": "production",
+      "sha256": "1dbb215e863b89b1426e1cb3c2326cecf0ecbacf547eae0226cbac3de6128348",
+      "sha256Lf": "35cdd3a31505614e8b07ef8ed99bce57063bee31b56a44da733470b7f6f80d74"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlanningAgent.kt",
+      "group": "production",
+      "sha256": "4ed29376e9972b9783bc1b0c5b2f19df3b3653a4692d41e0a28924d298b64819",
+      "sha256Lf": "6f0886383917070900ae16304fd0c1342b7192118f72c746c5510cc63c7e7aba"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlanningOperationService.kt",
+      "group": "production",
+      "sha256": "8494b1476babc70ac7028387630a7839ea37593044b7ac54efa4433d53f84e0a",
+      "sha256Lf": "2c169db75077a3b7156165274f62c455c5e375145244957bd1c490c787669394"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlanningPriority.kt",
+      "group": "production",
+      "sha256": "dd643618ce72a7e9d1385beabe1134d0f0bf295eb7390c9e487c2d538b49ee7c",
+      "sha256Lf": "b094f46ebac523695c7f8cfc9a04dec2205e3f7187c51012d9cd55aaed4182fe"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlanningReadService.kt",
+      "group": "production",
+      "sha256": "954ea15392abbf2b21457a60ccb16996509dcc0cdbef6f5c5eeedaa269a05312",
+      "sha256Lf": "69249ef465738d687b8f38a3fb4c054b094f82b1d839094cc451ec948886603f"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/PlanningRevision.kt",
+      "group": "production",
+      "sha256": "046405a2b3b1af2a01921e63a5cb31775363a11575d24f8dae6b30314354e18a",
+      "sha256Lf": "ee8ad0992437e0854704254aae0f271b406883757e4d37938e146f2a02d85bf9"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ProfileEvidence.kt",
+      "group": "production",
+      "sha256": "a248f30a6d9373a711ab229b99d34d6c1456db65548e7b4fa48e9594b5e1080d",
+      "sha256Lf": "ce7a0577cb009b83ac640164edee952ddddc23eabe97646178a8d2ba34f0afcf"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/QuickAvailability.kt",
+      "group": "production",
+      "sha256": "115451d5e18ab76fc7ac2d5be7c30e969a1da6cbf7108f0b7c1272539b2e07e9",
+      "sha256Lf": "84636b84c7523ede08e00b260e95515e26d1277c019c46ecce03ca6fc1f16536"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/Reminders.kt",
+      "group": "production",
+      "sha256": "97949cfe519b68f7a164c024a6db40b98b26be5b3ef5403280b21a2d314971c2",
+      "sha256Lf": "2b4b1fbe6440cecd04585edf34469056ef57f38fbfa876c64a91139fa7bfbd70"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/ScheduleTimeline.kt",
+      "group": "production",
+      "sha256": "30c39eb2dffbc8564023793cb5e27d37c8ccb5a2efdb7ccd3aca159fbbb55880",
+      "sha256Lf": "3e885a2b9fc7de2a2f377951d688f532800b47ef32a56e0cb904ac37890efd3f"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/Task.kt",
+      "group": "production",
+      "sha256": "1872ead2e2f1bec3a17ea44d99dc2cf76dc3772b9cbd859adb17223afe3956ce",
+      "sha256Lf": "ed005b72add05256e7b199ecdfb7dd6539fcb412e72491a718da58d40943dad4"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TaskCaptureDraft.kt",
+      "group": "production",
+      "sha256": "737bce224492ffcc886378ee373723af36493a778f34f81dde943246344d8a26",
+      "sha256Lf": "97ed49bfe7276283838e9704bec5d6ea579085dfe52750749bccfe59e2d51298"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TaskExecution.kt",
+      "group": "production",
+      "sha256": "4ecd517528263bcb765e600d44d0e3b1db7e25d8b2462ae679b70d04ebe4931c",
+      "sha256Lf": "f67a3f679d33330a3b204c0993ee8d54590c535516d62679a7992f062f83ded1"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TaskInputSources.kt",
+      "group": "production",
+      "sha256": "25a314b5a8b9af589a1ed56dbf22fe31c1b9a51e17958ca6d0a3cc1774747ed6",
+      "sha256Lf": "25a314b5a8b9af589a1ed56dbf22fe31c1b9a51e17958ca6d0a3cc1774747ed6"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TaskPlanMembership.kt",
+      "group": "production",
+      "sha256": "088f2a2e4f3eab97f379f445087b83b2bc1960c2ebff43b36911ca22ac41b2a4",
+      "sha256Lf": "8ce27e3ab921fb98d91ceb515bf480f624db0af812f75fa5dae7350a3ae51e24"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TimeArrangement.kt",
+      "group": "production",
+      "sha256": "a90d645b32178294e4724c103a3315c114e973d702df33533cc7a931096092f9",
+      "sha256Lf": "b15c07efa50253a18c12e7097af2766aa08c2f03fa22572accb70c3690a731ba"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TimetableImport.kt",
+      "group": "production",
+      "sha256": "f418d418f5c69110bd11c2a4e336d87c4736040edf91f1d02120785af24d8e4a",
+      "sha256Lf": "69949ea8d467f6eb366064c6f19d2fc951f5c66634c0dd57e3b99829fb478ac8"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/TodayFocus.kt",
+      "group": "production",
+      "sha256": "74d809bea39c13da7d4b96052fc3c547edacb0b9731027caa3a3cea0f376b5d0",
+      "sha256Lf": "69aa58346c7dadb093f9ae131d27c5293bbb4892e7e92bb07cfb70ffe4241ed1"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/model/UserNumericInput.kt",
+      "group": "production",
+      "sha256": "c8c3ef56a38987de0339ee3bee0cd10ef59185c15180ccaf567d0e5f59597ce1",
+      "sha256Lf": "c0565bca5ae7a43b5eb6517abc5b66abbcbb5b9462a18934b6283f178f5f69f2"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/AiProviderConfigRepository.kt",
+      "group": "production",
+      "sha256": "6bcc9b2af7cf679cb7766dfab7c87b70cbc428cfad37eed28efd2f39a1e29847",
+      "sha256Lf": "456a24b18bbc85291351431dfc83d77c85f6def6912d2a00d6f57978206a47d1"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/AiSettingsRepository.kt",
+      "group": "production",
+      "sha256": "259041fda2b2a43e40ed93b3fc97e338d70db6acf37ae5cb7d78cc0ebbca194b",
+      "sha256Lf": "9bde9c6ea69102db830693b788e96e62216b43beb9c3883d4a6fae03dab02961"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/CategoryPreferenceRepository.kt",
+      "group": "production",
+      "sha256": "e56a40d89ed23959d6e6cb865c8a4834d7f39a73fb7d2652e44e1a6654d32873",
+      "sha256Lf": "0c9f1ba0fa281bb8b2e8ceae97eaf5f50540b82dd8a4c9b42f9f057c88d93e78"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/DataManagementRepository.kt",
+      "group": "production",
+      "sha256": "a42f77408915219eaaff985712c19dd5e711eb86fb89f8f01ac7687f689bdc6b",
+      "sha256Lf": "3b7ad1829089c69b1d6f3c4677fb29163d6a7976227b4280de751ae93ad39361"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/EngagementRepository.kt",
+      "group": "production",
+      "sha256": "2c4c041eb5d9f4ab13d22a2a898e42c8fe3abe5c6d912da3bd8bf030021bc590",
+      "sha256Lf": "9e81cf5446519a304201854deb8ea5c39cfab5df211046ce6077ff4266cddd35"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/ExecutionSessionRepository.kt",
+      "group": "production",
+      "sha256": "6e46ee09740a58689b3c7f66b178449c9b024a0aa847dcbb655be56652810e07",
+      "sha256Lf": "c1d22e32c2c225fde895e01e37ad03a2585cebd10b0dbb182b4ddbf846bb8572"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/NumericProfileRepository.kt",
+      "group": "production",
+      "sha256": "b125a9dc25176a74b3b3b738642a54c917e4fec70f236d745ba8a9033737ecc5",
+      "sha256Lf": "b125a9dc25176a74b3b3b738642a54c917e4fec70f236d745ba8a9033737ecc5"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/PlanRepository.kt",
+      "group": "production",
+      "sha256": "7343340b8addc8349ec9db08c5b9efdab712fb8444a1b356721bec54dc592094",
+      "sha256Lf": "930fea5f50d918172aff405db895232db733688f3b558b5ff6e0eaecc2c70148"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/ProfileEvidenceRepository.kt",
+      "group": "production",
+      "sha256": "b62cc615e9c9ba0bbea9c11f9d9ed70a24e6beccd523ee1c8479da37d56b1942",
+      "sha256Lf": "2f87bd2bebe3fc550a2bc507e1745f1f5aedecff900e2a000ae50f9d91b89a3a"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/ReminderSettingsRepository.kt",
+      "group": "production",
+      "sha256": "4c2add35ef9f0dc30e193b2f6941c91901a9f96f13aefde1256b1523d658f389",
+      "sha256Lf": "6ff4010263c3619ca574dddca1d741ce844bea18ed4e06549ad43a0ecdd69dec"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/TaskCaptureRepository.kt",
+      "group": "production",
+      "sha256": "9817d34e4adedf4c0cf044e5ad0ab296337632ae22efc49bb8bf2993695fd9f1",
+      "sha256Lf": "77acdc697d5fa5c06a37db0285a238b2d80c232a115fb42024acbf674546c490"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/TaskRepository.kt",
+      "group": "production",
+      "sha256": "e4f231bf4de6851928fcacd2d946f573df1f574c39b10460512fd23f793323b2",
+      "sha256Lf": "7a365ad5066ff6ad84ecd61f71d423e81b108ee399f5da3409ec2bc15c303575"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/domain/ports/TimeRepository.kt",
+      "group": "production",
+      "sha256": "bbe46420d5ab00220889097b283b2cdc4a281a852d26ab7e4c69b49b5513061d",
+      "sha256Lf": "8e0af767347243cae191e107bda2b4436e3cbd530bc5b832f2cfb7f220419b64"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/reminders/LocalReminderReceiver.kt",
+      "group": "production",
+      "sha256": "8dd82fc4968dc7f4981e192f26379f1028a69425a2f23ea2f705843beb73d00d",
+      "sha256Lf": "71e9db00508f93f6bdb71c0860292252271650f8f239a167cee0857a23874297"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/reminders/LocalReminderScheduler.kt",
+      "group": "production",
+      "sha256": "9f29b32459aeb4b1e78b93598e7757e09661f89bde9d8f2043dc4c0c9a3ffaf1",
+      "sha256Lf": "38394215eed11f9a86e8ec6aa2e08e6bfe470e3796d4718cd174127f51cc9ee5"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/reminders/ReminderRescheduleReceiver.kt",
+      "group": "production",
+      "sha256": "2d47a1a820f46fed09ba0a40881eaba4dbd5ff3772394c789d7365a3c3ae258a",
+      "sha256Lf": "2445b52ec8ac64db976e77e510eee9d047118a2c5efbffea384173d82720fc2e"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/ReplandApp.kt",
+      "group": "production",
+      "sha256": "fce4a85cb1052f5c50d9c8ea9255c5e06caa1457269065cd2c627c744f9bb3be",
+      "sha256Lf": "f8815e0fbfe89ca747c00bfb91de75a403f6fb7d31ab9fc8856fa1ffadb92f74"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/TaskPageAppBar.kt",
+      "group": "production",
+      "sha256": "d44f2281a91bea71c23cf9f82be3c854cb23bd3fa8ab33d2c15601e9238c2603",
+      "sha256Lf": "2b1b061c2d72123b577b2ad15dfa7b3d5a702bc41365bcd0d114bcf6f46fac47"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/agent/AgentCenterScreen.kt",
+      "group": "production",
+      "sha256": "3ad78e0a3835532d78ee25486b47a588de1cd6dd1592622a70a5402012117905",
+      "sha256Lf": "adf64b19cc2001fa4764be85d2b0b7de468ad3e77d3e243483d94c441dcba513"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/agent/ArrangementAssistantViewModel.kt",
+      "group": "production",
+      "sha256": "62a0d122fb4e10255809c48f7c1d75311011c0c90532de9be97cc9fef8816e86",
+      "sha256Lf": "98d621f805ad3317e83a8514c05e7334dc82f60d5390bbe4fab4200135d71b97"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/ai/AiProviderConfigViewModel.kt",
+      "group": "production",
+      "sha256": "7239810ae3de0657cacfec310187aa4ab09cbbb7a71092b29fda1951b00f06ed",
+      "sha256Lf": "0219cdc544d2d3bb351c00dc6334b9e30a0a3bd48b55aa53c6bde146247a9132"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/ai/PlanningAgentViewModel.kt",
+      "group": "production",
+      "sha256": "108eb5b3420b585e77d2d87f5b2461de7021026e904c2bb0834859f73aed4e7d",
+      "sha256Lf": "b6acdc48e4c7c4287ca13668b5932a89c6fff65c3d5f5019b43f831c06351a32"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/components/AssistantSheet.kt",
+      "group": "production",
+      "sha256": "bab403fa748a15902792962650f4129c5dcf23673d76bf555c1ddf327a2a994d",
+      "sha256Lf": "f3745de71aa01a2f9cee3f638f3ad3fda0ceead3f761b9d2468da5841d299636"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/components/EditorSheet.kt",
+      "group": "production",
+      "sha256": "31e3ef06a7af3c7d4cb06af8401861b39514360fecce2852f2639c964b1f21ee",
+      "sha256Lf": "e1f7c978c725155ba0129897e1a49ab19abe70c066df3459964a8f2f3d3fdaeb"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/components/PlannerIcons.kt",
+      "group": "production",
+      "sha256": "7d0e25c4f0bedef48c67579154a1146cf84edc2e75c27cf8efb684b77ce2e238",
+      "sha256Lf": "694b2170b51bb67b0361f56fe6062adc62ac2fe6f48fc7e73a6845e1b897e396"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/components/TaskDatePicker.kt",
+      "group": "production",
+      "sha256": "1e9d5db6ae374318eae97d0d25af1b38b48990bffd95102cb8acd0c9e22438ad",
+      "sha256Lf": "1e6d828eee10f83c9ecd66b5f8a883ca214ad6240686690a17446cd3cc2abbff"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/components/TaskExperienceComponents.kt",
+      "group": "production",
+      "sha256": "04767e6d89bafd3af8a101d2e7f0687722896508ee9d76c4aa2e71e6a5df7540",
+      "sha256Lf": "a3d691b22568ca5602ca0f52b42a13e91234933b0491989c6b08b23fc4946692"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/data/DataManagementViewModel.kt",
+      "group": "production",
+      "sha256": "0442baa9965a10c6d8b238d18237d4291e4619987b67b934416ccd2df2e536a1",
+      "sha256Lf": "ae342ae6e1c12577389ef30d2ca63737d7feb43c615d662e61544a5ffe52f6d5"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/engagement/EngagementViewModel.kt",
+      "group": "production",
+      "sha256": "109a87265cc0879682a69d0060cee8be074c506a04e3e294aa056a9cb7df1e5d",
+      "sha256Lf": "ae3e68063e45a1aaaddbf21d72c814d5f9f3efd3b93573d4242c8de6df9a548c"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/plan/PlanViewModel.kt",
+      "group": "production",
+      "sha256": "53147d519dfd14776498a09ec8c6b83efc1d5f84f4356db45868d27f4ba05c58",
+      "sha256Lf": "82fcfa9fb0f29b969ec73bf526b11603d0e577a40ab089a306e9caf8d0033278"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/plan/QuickAvailabilityDialog.kt",
+      "group": "production",
+      "sha256": "fd972eccc48543eaa557bb3eebbc8e8566b34bcc39a73547f64789b8b02d64c6",
+      "sha256Lf": "37ede03b55485f3211626251434338817fe461475d1e856fa2dc8d46c076189e"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/preferences/CategoryPreferenceViewModel.kt",
+      "group": "production",
+      "sha256": "92242bc87e17a11124af637b15d1ec9daf5e43a2637f2f81d17e9c0a6a33fb67",
+      "sha256Lf": "145f2e9c7e4ac03dc2bd92b280444fe6c44dab3791bedb7b62502993aca97ec8"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/profile/NumericProfileSection.kt",
+      "group": "production",
+      "sha256": "5f5f057989b5de8f0c8be6d97c1679e4d669df91eca8f525b4f3f5ac5b6c4803",
+      "sha256Lf": "5f5f057989b5de8f0c8be6d97c1679e4d669df91eca8f525b4f3f5ac5b6c4803"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/profile/NumericProfileViewModel.kt",
+      "group": "production",
+      "sha256": "5337c0fc44635b8429dc4fe567b00207dac5201fc7426720a4d0be2dc8ccbd2c",
+      "sha256Lf": "5337c0fc44635b8429dc4fe567b00207dac5201fc7426720a4d0be2dc8ccbd2c"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/profile/ProfileEvidenceViewModel.kt",
+      "group": "production",
+      "sha256": "060d917ef329ea0bd9806b7189a9347f6be7437f7b0d5a66db064043af59136e",
+      "sha256Lf": "de67d2d1c52fa0a438c0280c6bd65279acc956a9fe93c9d88afbb447b2156863"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/reminders/ReminderSettingsViewModel.kt",
+      "group": "production",
+      "sha256": "7b71a7a59f646f095e5c585957da716ff14180d042f18bda471ccf7120fbf3f8",
+      "sha256Lf": "7c87ccfa329ffbc62edae42a3d97107e44aabae88b7c5e58cf9478028e3a3e27"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/schedule/DailyDesk.kt",
+      "group": "production",
+      "sha256": "248ecc09044ff8e43912d3aab3d626c4147a84204fb80293388f57321d9e5dc5",
+      "sha256Lf": "58b183bc370a54c1d8649b8b672b72ef69685c83528f341e117b8b132e4ab5ba"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/schedule/ExecutionSessionDialog.kt",
+      "group": "production",
+      "sha256": "ddbbfe622a58cb6652c235f13459dd7b7b4cf6366139f62876c5656ededf905a",
+      "sha256Lf": "77dcf47061ece13f189c720be8684d4a34b5537675f7a1541995885c0f3c38a0"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/schedule/ScheduleHorizonViews.kt",
+      "group": "production",
+      "sha256": "486f80a8671902acd68cc0ad3379a73c9b43fa9d1b9dbf89027f1ea1c6cfb110",
+      "sha256Lf": "fc97d090ae71de919c7e42581aab1c103d2a1cdeb3d410791fec9caa3b36e9de"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/schedule/TimelineDashboard.kt",
+      "group": "production",
+      "sha256": "a195e67a0eb9f81dc6e67b3ea858ba6d1924e0dd8b724a9162beb92a9f2ecade",
+      "sha256Lf": "1a54a86dcba4b9c9e1e353af922f0e9af60591ed54454c3644fec796afca2d61"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/state/RecoverableRead.kt",
+      "group": "production",
+      "sha256": "71723214966a790942844fc6d87a6cc1103b403b2a3d8c3c1c5a9b0760c7f271",
+      "sha256Lf": "b4820fbc8591bf69e976c26a5ee6bef3d3f3d0967832b76fc148f155b3527521"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/tasks/FeedbackFormValidation.kt",
+      "group": "production",
+      "sha256": "5e574e3831c31764da5b2a4d9b40a1725602e0231bd062e6e6c7634d0d9c3e80",
+      "sha256Lf": "b470583cfc1b26b392b109ed0bd62fa75a024e86caef21e912ea7f9cf49545d4"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/tasks/TaskCaptureViewModel.kt",
+      "group": "production",
+      "sha256": "de4868b903173067ffa591154edb583b5df03e428a5e6a99ac673d457d2534b4",
+      "sha256Lf": "1027d48d81cc80929d0846298369c8f3390b8b8dc9f0560a234bd090f0b8053b"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/tasks/TaskViewModel.kt",
+      "group": "production",
+      "sha256": "027f75b5e0037de3d860bee433c6d0df444187250d1f70fe6843ad8596273c31",
+      "sha256Lf": "6f6cdf5a7bc031a41d2d0989e4971982f102b6090a1b1c86f99cdc865cc41e31"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/Color.kt",
+      "group": "production",
+      "sha256": "3072e5068a8fedadda6900131ee4244b09f4abfcbde4ac26d516de5031116d67",
+      "sha256Lf": "0a497634203f510aaae43e4cb52c23b0f0626d04f49259f04be25adc33aa16ae"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/Theme.kt",
+      "group": "production",
+      "sha256": "d7d0588ac0561ab2cf24d00682b92deaa6833ee9f16456f2df751872a92e972c",
+      "sha256Lf": "9f42a116994a7474e77eb58f6c6f2e499f63512e7091b81b126e0b406ba1468a"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/Type.kt",
+      "group": "production",
+      "sha256": "1e9d93f1e531ec6fd9db90139229168c7649287c8375c13d5435bf782d28db4a",
+      "sha256Lf": "f767a460b02ec6355b4c98cc96a4eaeba307c80b66f0f4f03c9903aaafb9fb37"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/time/TimeViewModel.kt",
+      "group": "production",
+      "sha256": "cf680cddaa7751c3fc16b6e9373e48ebab971c5220585f2e8dcbe2d8a3ac5c6f",
+      "sha256Lf": "c8bd9e0bb02cdeb03de7cf920e5c9dcebab03c2b4e7d288990c1ab9f36cc0b85"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/ic_launcher_background.xml",
+      "group": "production",
+      "sha256": "38381d0d0a64770d992c98e5b5e492555690af40e2fc6ee59e5a1c2a7c0fdcde",
+      "sha256Lf": "ed423c73a6f40a4d2909f0901e60527b3a807cd59e1b5593bcaae1808b1c6321"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "group": "production",
+      "sha256": "6e3c1bb64d9bec079cf0030d867c58b064d2fb19ca6c5a691543c43134f64a2a",
+      "sha256Lf": "01d1a6a6c1234eb7fe270d097eb283d72b9c95ae5118886f1b6573aad280f1f7"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/repland_icon_background.xml",
+      "group": "production",
+      "sha256": "81e0853e993142c8c5a52be94e3b7fe8d687f9099e62c3d36b8a2a1329fef515",
+      "sha256Lf": "a432cb7e8b94626ec490f5005a56248250cce0d9157d4e8c2e9a89ff51df6da7"
+    },
+    {
+      "path": "android/app/src/main/res/drawable/repland_icon_foreground.xml",
+      "group": "production",
+      "sha256": "6f45e7a7257e6ee177ce46852c63f5f648d78b3c33e3c19133cd45edf8e43960",
+      "sha256Lf": "b2b32255b59c42f2c08484a7ce5a4f896d851afdefc87ddcd9428ed5c3c07978"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "group": "production",
+      "sha256": "f78c569fe6dac9851497adc0ec4839ad541f88517a28e8e7953fc86269bc42d6",
+      "sha256Lf": "6a20383ff08452b054c3eb1f191973c97ffd45e10fc2dfdc9efd906979b2b4aa"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "group": "production",
+      "sha256": "f78c569fe6dac9851497adc0ec4839ad541f88517a28e8e7953fc86269bc42d6",
+      "sha256Lf": "6a20383ff08452b054c3eb1f191973c97ffd45e10fc2dfdc9efd906979b2b4aa"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher.webp",
+      "group": "production",
+      "sha256": "dd00996198640ed28fbc09cdcd7a3807cf8707f3eb255b659634da3ca6a6ff01",
+      "sha256Lf": "dd00996198640ed28fbc09cdcd7a3807cf8707f3eb255b659634da3ca6a6ff01"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp",
+      "group": "production",
+      "sha256": "1ed73f5341a69d3b41c7e02e126803f50cc8c3284adf4bbb737f0c93577aef07",
+      "sha256Lf": "1ed73f5341a69d3b41c7e02e126803f50cc8c3284adf4bbb737f0c93577aef07"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher.webp",
+      "group": "production",
+      "sha256": "846219e6f72fe9a6c104ca8919cbee36a101e7d2ff8da9da67b689a5888f060d",
+      "sha256Lf": "846219e6f72fe9a6c104ca8919cbee36a101e7d2ff8da9da67b689a5888f060d"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp",
+      "group": "production",
+      "sha256": "4e2c58b91de01130e6479e00cbbaaf6e77cd961dd2c8e303cf13cd077fa92632",
+      "sha256Lf": "4e2c58b91de01130e6479e00cbbaaf6e77cd961dd2c8e303cf13cd077fa92632"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher.webp",
+      "group": "production",
+      "sha256": "398340dad816fc9a6338cb151a8cf1e45b926f9bfb70628b24c4bd2523cc94d4",
+      "sha256Lf": "398340dad816fc9a6338cb151a8cf1e45b926f9bfb70628b24c4bd2523cc94d4"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp",
+      "group": "production",
+      "sha256": "91b490aef86574901137f0a252272e1f1add99c1ad709e0696ed68929b88d261",
+      "sha256Lf": "91b490aef86574901137f0a252272e1f1add99c1ad709e0696ed68929b88d261"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp",
+      "group": "production",
+      "sha256": "58ae87fa0c5b5d1562d27fd648d2c061553fe20e3ed570bde588162d01ea7a27",
+      "sha256Lf": "58ae87fa0c5b5d1562d27fd648d2c061553fe20e3ed570bde588162d01ea7a27"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp",
+      "group": "production",
+      "sha256": "3009fad079f5772f30ecd767f98924367fbe0f81c30048d672d4fda2d5ca7d12",
+      "sha256Lf": "3009fad079f5772f30ecd767f98924367fbe0f81c30048d672d4fda2d5ca7d12"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+      "group": "production",
+      "sha256": "f98fef5bc3bfe5b65692c40ad1cbae2bec4faf9f1b249c397626740db71b62d8",
+      "sha256Lf": "f98fef5bc3bfe5b65692c40ad1cbae2bec4faf9f1b249c397626740db71b62d8"
+    },
+    {
+      "path": "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp",
+      "group": "production",
+      "sha256": "5faf033745c8c882c43bb1b372d4e4a5890caec63d9892a2e756c954108b85dc",
+      "sha256Lf": "5faf033745c8c882c43bb1b372d4e4a5890caec63d9892a2e756c954108b85dc"
+    },
+    {
+      "path": "android/app/src/main/res/values/colors.xml",
+      "group": "production",
+      "sha256": "31e0230ab2d96fa128a11705e85e590f3462745dc3c04bc851bc724a445921c1",
+      "sha256Lf": "b5626527d503417f0d8e5b1e08f338de7b31173bf0e122815f03e64932adbd88"
+    },
+    {
+      "path": "android/app/src/main/res/values/strings.xml",
+      "group": "production",
+      "sha256": "140b29f880432f2eea8075a7bcf5e04cdb863e9d6225740dae6e76187fc1475f",
+      "sha256Lf": "03641be00b813af76eae0197d521b68282429034085a54439ecda407460f31cd"
+    },
+    {
+      "path": "android/app/src/main/res/values/themes.xml",
+      "group": "production",
+      "sha256": "428a869d002e92d089440ab96ba7c009a69df632559111c03f4b08215399cab4",
+      "sha256Lf": "6643b738e15ac67bc5bd2d8f23154954f50875584e027e64268d60ef81d10abe"
+    },
+    {
+      "path": "android/app/src/main/res/xml/backup_rules.xml",
+      "group": "production",
+      "sha256": "facaaef2162be6dd86544a819278042729ed481c38933a410651b81424da7ea7",
+      "sha256Lf": "6cf1a27e6807b1d24e41d3fbe7ddc1bfe1f42226027964f6eaf477d71b43b283"
+    },
+    {
+      "path": "android/app/src/main/res/xml/data_extraction_rules.xml",
+      "group": "production",
+      "sha256": "940f48fb2ba4d9ec5a55671126796fefa71661c0a5d7b434dc1e9be23da41690",
+      "sha256Lf": "cb1fc47ab4a984530ed60e0e6ee638929c3038290e7e7e0b4b03a3a30fbe7381"
+    },
+    {
+      "path": "android/app/src/remote/AndroidManifest.xml",
+      "group": "production",
+      "sha256": "bcb2a718e9035524cb6779f9d69b6d396e28e0f80831ff380bdcbc68e71cfaec",
+      "sha256Lf": "36105995d040c06fc3b0ddd8fd5cca0b6d4f8ce4ce53807a9eb1e47eae6cd1ba"
+    },
+    {
+      "path": "android/app/src/remote/java/com/swan1127/repland/data/ai/CompatibleAiAdvisor.kt",
+      "group": "production",
+      "sha256": "d6df4c2fcf06bf9121d07205c5d2e6abed5cad00a16598a57a8fbbac72758615",
+      "sha256Lf": "b1abd83eed37be45c0ae0e393823363deca793d014f6c4c61d7bf960c2247fb3"
+    },
+    {
+      "path": "android/app/src/remote/java/com/swan1127/repland/data/ai/CompatibleArrangementAdvisor.kt",
+      "group": "production",
+      "sha256": "ec560739c6c39012c1243e543af264b90c4e55287b40c038dbe637f23147af90",
+      "sha256Lf": "decfb895567119c70106d03942ecb7ab187ed5059abd40040565f8989d69c1d6"
+    },
+    {
+      "path": "android/app/src/remote/java/com/swan1127/repland/data/ai/CompatibleChatTransport.kt",
+      "group": "production",
+      "sha256": "816cb56e615a8165adc6cdb2d705889f1999e5f49a8fead3c2f5f0a752b46722",
+      "sha256Lf": "e61311a34cabda8fdba434326e8427593760b32fba6cfaf037cb51d16e1f44ab"
+    },
+    {
+      "path": "android/app/src/remote/java/com/swan1127/repland/data/ai/CompatibleNumericProfileAdvisor.kt",
+      "group": "production",
+      "sha256": "2191239e58cffa197fc8faf04b75e19f21c8f955ba06a9ec4f260429825e2af2",
+      "sha256Lf": "2191239e58cffa197fc8faf04b75e19f21c8f955ba06a9ec4f260429825e2af2"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/AiAdvisorContractTest.kt",
+      "group": "unit",
+      "sha256": "0d0a2f2e3f1abc56fc5d1c50bb649be8b9a50fba86dc8efc8ba6d9bc8678a234",
+      "sha256Lf": "415eaca37be9919d75e4fdc5dd2c2cd4b66db69749f694664574b28d607604c1"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/ArrangementAssistantAdviceValidatorTest.kt",
+      "group": "unit",
+      "sha256": "ba9d5ccd1ef80a7e495df13a831feeb043b2876ccd2fe66f3ce6b8b764724627",
+      "sha256Lf": "bd72a5301a01f3d29fefb1a4f23ced8a9f7a753644afce83a9b6f0913b78e434"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/ArrangementAssistantInterpreterTest.kt",
+      "group": "unit",
+      "sha256": "8fab9e8f95d5245e44bb7693bec97087a023a2b070c90e3d357de4b3db6de246",
+      "sha256Lf": "b110be36bb12af77ee6b02f57a9fddfceddd37f90a1a7758500dd86d702107b8"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/ArrangementAvailabilityTest.kt",
+      "group": "unit",
+      "sha256": "c592f8f8ff50b6e704d2904596f706460d08eb8161d95768f872a473e3d3e93a",
+      "sha256Lf": "bb8556420444533a7a16801cfe275b6c7885c875f8073959b6a3d023ed2299d2"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/ArrangementOperationContractTest.kt",
+      "group": "unit",
+      "sha256": "6f3c398f048a9281e77705e7ac1907505f9980e89a13688b1def8961b07ad99d",
+      "sha256Lf": "bbfca4fb7142be54106a9aa035b454df3bdff73a31a8c90cc3bf931a80f42818"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/ExampleUnitTest.kt",
+      "group": "unit",
+      "sha256": "d7611d7f51457454db9884143293606b9514ec90879cad1e6ce6124e99c25475",
+      "sha256Lf": "214156a3614f35d6a743263b7ad04a8d64a82ebaeabf4e5802a069c6b2f97c06"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/FeedbackFormValidationTest.kt",
+      "group": "unit",
+      "sha256": "625f34c04f1830c34d9f47957780c50e9a3f4ff65d8c14d7fee1470e757fa269",
+      "sha256Lf": "e23bb5aa13d2303e40a1ea62f1f2eea3010d5ab199fcc679e8776ee9eab9187b"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/LocalDataJsonExporterTest.kt",
+      "group": "unit",
+      "sha256": "c1a88eed468b9fd381306fefd5fda84d155d7b7681608a6520957c4aecffaba1",
+      "sha256Lf": "285644611f81d9d8bb0afe91287bc6fed9f65f2037de19fb0a38654d1bcfbfcc"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/LocalPriorityRankerTest.kt",
+      "group": "unit",
+      "sha256": "a9e22baf1ef7a1de7ff6a429a5d463c5fd01b8d1d5003e65a633b230ea616648",
+      "sha256Lf": "2b59936dcea287364402ce5dc94bd8a543d5be5d141cebf16b0f29e84483cc9b"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/LocalReminderPlannerTest.kt",
+      "group": "unit",
+      "sha256": "3d97ccd43bdb20c4c4238dbea3a89965a14ffd709077c6274c0de3260f3588a5",
+      "sha256Lf": "f76d0ad6cd36656ce8e916b461c34b911a0db565321f008c31f209db55bc3c30"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/NumericNarrationValidatorTest.kt",
+      "group": "unit",
+      "sha256": "287b4ad9b2b6d21f849d8604e723b7754704c934083b821d613411a231d10b9f",
+      "sha256Lf": "15980ed68498ffdd41ed341b860a6d9a686b43fa5560d6f656a3e21d354a787d"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/NumericProfilePresentationTest.kt",
+      "group": "unit",
+      "sha256": "3295f4931af7ffab1207f0a54557c53b304d23c7e928810304cb4ac98fa5ab5e",
+      "sha256Lf": "3295f4931af7ffab1207f0a54557c53b304d23c7e928810304cb4ac98fa5ab5e"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/NumericProfileTest.kt",
+      "group": "unit",
+      "sha256": "cd0ac9233b5d2dd6cf5f5bcc168b1ae55374257797dd39e463a6da95dfca648f",
+      "sha256Lf": "cd0ac9233b5d2dd6cf5f5bcc168b1ae55374257797dd39e463a6da95dfca648f"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/PlacementValidatorTest.kt",
+      "group": "unit",
+      "sha256": "bcb78ff6e436fead0b59f6f3b1f516a00bac28420b148a56ceaee2535ea22aab",
+      "sha256Lf": "b0c0778efe88b7bc0e036189dc197aab4d16d4b6cdfc034243eb868b03c65768"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/PlanDraftEditorTest.kt",
+      "group": "unit",
+      "sha256": "09a1cd9ebc6c8b28854096aa7c9cdbe2813eeba152fc59b2f878b6ec1b84bc82",
+      "sha256Lf": "6afed7cdf3e86ebaeb45f0b7da5ef585b54173f59c653478c94112d167781187"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/PlanDraftReviewTest.kt",
+      "group": "unit",
+      "sha256": "4e48380fc062d71e95b3625bd8fd825ca56e2d527064122e942d88402333c49e",
+      "sha256Lf": "30217f6c671b651414120496e8b5a475b4990d38f9ca8f887aaf7ec8869f867d"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/PlanningAgentWorkflowTest.kt",
+      "group": "unit",
+      "sha256": "1527303484067a04b3c76f1887583c0d1028a5bd6dbff5eb9cd5cd8b0888189e",
+      "sha256Lf": "8661aa60af493e465a9239ff7a9959c4791cd79cf65a40a39d22fd08f3262921"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/ProfileEvidenceGeneratorTest.kt",
+      "group": "unit",
+      "sha256": "82a90539467391111a4274ae3e1b64ac4fb41f102478fe3de44f90a85c2e9e3a",
+      "sha256Lf": "db4ab1ff48e446564e11148c8940dd84164bf35f225c3e5920aa93893a0173d9"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/RecoverableReadTest.kt",
+      "group": "unit",
+      "sha256": "bde2518ca503ecc87fee88cda117c5133e1db7e1ecc6f76b9167902fdb32c60d",
+      "sha256Lf": "dd827bee17daccbf7422cad282a54fbbf7f9abed8efb53f487af63d6cc08f695"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/RhythmTracksTest.kt",
+      "group": "unit",
+      "sha256": "c6906d76c7af5f34c17b899163abd46e0d0dc7743a59a2ddf66435408de259b6",
+      "sha256Lf": "0d01b13a7c22217624186c5eec8e7c37067afc882e990b8bdf91d3b89a638397"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TaskCaptureDraftTest.kt",
+      "group": "unit",
+      "sha256": "5e62893f1042236f220c36f01a98374e31977c1be7ca8d22a39d5c3cc37656a8",
+      "sha256Lf": "ab6739145884e175df99ed4d8962c7530834910144350fb924df5ad126d4417f"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TaskInputSourcesTest.kt",
+      "group": "unit",
+      "sha256": "ca03f4d29f7912b4dd848574383eed09b545f2c77ac5b13ccb2b19f5182a0f3e",
+      "sha256Lf": "ca03f4d29f7912b4dd848574383eed09b545f2c77ac5b13ccb2b19f5182a0f3e"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TaskLifecycleValidatorTest.kt",
+      "group": "unit",
+      "sha256": "3f3433bfbac9b68bb75ef566e9b10a65b7e9fce886b153b1255d83c1b8d10ef5",
+      "sha256Lf": "685d071275c585b2e621c70ce6bab492c6886a65766135a76d9067e6788c8134"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TaskPlanMembershipTest.kt",
+      "group": "unit",
+      "sha256": "246f2da5f484bdc904a3a68d18216e052c264a474ebfd1b87cb426180b20f234",
+      "sha256Lf": "3f88f421617e00ab3c594d75bcc9e269805ada112ee38723a5d9e6792ef320f1"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TimeConstraintPlannerTest.kt",
+      "group": "unit",
+      "sha256": "71d8504e49ed873e32d2df5e59f36953d2846ec11de293338ef21fe32b8f33a9",
+      "sha256Lf": "c76ea2daed250ce054fc31267421e8397e1e4e98059d9317655d0d6792399329"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TimeEndBoundaryTest.kt",
+      "group": "unit",
+      "sha256": "02c27eb6c57babdee029e45accbfc199a7935d1ac934745f2d2581b718519f74",
+      "sha256Lf": "4decd0764e923fcd9f8aed8266bd22a6d56ab819f664f5b409592c361bd4e1c4"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/TodayFocusTest.kt",
+      "group": "unit",
+      "sha256": "05033e7037b39144a18cc1c1da61949ce03b223f79815020a640e58626c1d8c5",
+      "sha256Lf": "4377e8545b6d48fe34f0d6fe9518ec1598c415091f5ed8426e0f355f23c43677"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/UnavoidablePlanningTest.kt",
+      "group": "unit",
+      "sha256": "85611f9da5c034ad7dfc2cf0c85f5ec1471501609717cf7b8ba1c092068a6be5",
+      "sha256Lf": "85611f9da5c034ad7dfc2cf0c85f5ec1471501609717cf7b8ba1c092068a6be5"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/UserNumericInputTest.kt",
+      "group": "unit",
+      "sha256": "ec89e238d2c83bd918660da83727e353750deb1c3817807b510a10af3c1be622",
+      "sha256Lf": "9ba5d24e62fda399033c7200e2cea6e46012e6c7df7fb484cc5c340b7e3b14a4"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/domain/model/ExecutionSessionTest.kt",
+      "group": "unit",
+      "sha256": "04959c9ead6fbeb649b75137c6a776ebff08ed807c9e5b06bde0bc1c1fdb7ba9",
+      "sha256Lf": "fb566f4ebb8a56a3d5d80f6bbcd27d263889a79c1fe100cb849d54ac3d9dabf9"
+    },
+    {
+      "path": "android/app/src/test/java/com/swan1127/repland/domain/model/ScheduleTimelineTest.kt",
+      "group": "unit",
+      "sha256": "2a8148d96e060508ce8b83286384a673a29908881aaad65f729befe58f1362a7",
+      "sha256Lf": "507760c7044e22bb98d7531fcd3a6bb95583ba96522faffe4c521fbf7cde5190"
+    },
+    {
+      "path": "android/build.gradle.kts",
+      "group": "production",
+      "sha256": "bf201bea9626c6c810630cc9958481500d49bed343b213097a3187ae7f1a352e",
+      "sha256Lf": "ce4a47634d8621ce3cae8a43364305753944aaf6c3fce67b8a61d8670d240249"
+    },
+    {
+      "path": "android/gradle.properties",
+      "group": "production",
+      "sha256": "0b471470c8d6dd1a20a17fe50e6137baf959b28d5c3aa8e428bedc68d9980c97",
+      "sha256Lf": "5d74aa7690e46b0f4195bd3de8fd8264f6a4b887fbc8a3f901f8e2d00e87bd42"
+    },
+    {
+      "path": "android/gradle/libs.versions.toml",
+      "group": "production",
+      "sha256": "2841a3adb373d6586347f1a8e3b6dbf4f9cb0116ed02fa037bc8898bc8e42217",
+      "sha256Lf": "6e6c01b3c8ca5c47be312cf168d581261e527a3fae5fd7d04b5ad27726a6eea1"
+    },
+    {
+      "path": "android/gradle/wrapper/gradle-wrapper.properties",
+      "group": "production",
+      "sha256": "61fec00e27b08ffdc3d713812f5cef5774c96358ee515d4e960ae082467ef54c",
+      "sha256Lf": "a63aebbcff2a1850ee2adce169b64e6ac39c051ed11e37d13a1dd64bd06f6eb0"
+    },
+    {
+      "path": "android/settings.gradle.kts",
+      "group": "production",
+      "sha256": "a0aff97e57f2ad9d0057e7fd3b671c523d29a6ae295f7e7bfdb4a066709671b9",
+      "sha256Lf": "bdf25ab5dbb432a6aeb33851f229a44d2b0f7ddb9630354e548f414c11a58ccc"
+    }
+  ],
+  "verifiedSourceCommit": "32d766f95224b3851dbb832bd9644b541b3436cf"
+}

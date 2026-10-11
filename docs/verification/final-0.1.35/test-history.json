@@ -1,0 +1,267 @@
+[
+  {
+    "file": "receipt-repro.xml",
+    "counts": {
+      "failure": 2
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+        "tests": "2",
+        "failures": "2",
+        "errors": "0",
+        "skipped": "0",
+        "time": "41.654",
+        "timestamp": "2026-10-10T14:16:59"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+        "name": "failed_exact_move_keeps_raw_times_and_retry_preserves_task_and_logs",
+        "seconds": "21.886",
+        "status": "failure"
+      },
+      {
+        "class": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+        "name": "failed_course_save_keeps_form_and_retry_commits_once",
+        "seconds": "19.212",
+        "status": "failure"
+      }
+    ]
+  },
+  {
+    "file": "receipt-fixed.xml",
+    "counts": {
+      "passed": 13
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+        "tests": "13",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "45.128",
+        "timestamp": "2026-10-10T14:45:33"
+      }
+    ],
+    "failedCases": []
+  },
+  {
+    "file": "ai-intent-red.xml",
+    "counts": {
+      "failure": 1,
+      "passed": 1
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.AgentCenterUiTest",
+        "tests": "2",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.847",
+        "timestamp": "2026-10-11T01:11:00"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.AgentCenterUiTest",
+        "name": "free_input_ai_time_is_included_in_the_same_confirmation_that_previews_it",
+        "seconds": "2.095",
+        "status": "failure"
+      }
+    ]
+  },
+  {
+    "file": "ai-intent-fixed.xml",
+    "counts": {
+      "passed": 28
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.AgentCenterUiTest",
+        "tests": "28",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "45.715",
+        "timestamp": "2026-10-11T01:16:00"
+      }
+    ],
+    "failedCases": []
+  },
+  {
+    "file": "full-307-first.xml",
+    "counts": {
+      "passed": 306,
+      "failure": 1
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.AgentCenterUiTest",
+        "tests": "307",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "293.621",
+        "timestamp": "2026-10-11T01:22:13"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.ExecutionWorkflowUiTest",
+        "name": "today_header_starts_confirmed_slot_and_keeps_plan_on_return",
+        "seconds": "0.717",
+        "status": "failure"
+      }
+    ]
+  },
+  {
+    "file": "full-309-first.xml",
+    "counts": {
+      "passed": 307,
+      "failure": 2
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.AgentCenterUiTest",
+        "tests": "309",
+        "failures": "2",
+        "errors": "0",
+        "skipped": "0",
+        "time": "343.035",
+        "timestamp": "2026-10-11T01:39:25"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.HistoryRestoreWorkflowUiTest",
+        "name": "restore_from_mine_keeps_completed_task_and_execution_records_and_excludes_its_old_future_slot",
+        "seconds": "3.404",
+        "status": "failure"
+      },
+      {
+        "class": "com.swan1127.repland.ProtectedOverlapWorkflowUiTest",
+        "name": "course_fixed_rest_locked_and_unavoidable_overlap_are_rejected_without_execution_changes",
+        "seconds": "17.076",
+        "status": "failure"
+      }
+    ]
+  },
+  {
+    "file": "course-recreation-first.xml",
+    "counts": {
+      "passed": 2,
+      "failure": 1
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+        "tests": "3",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "32.452",
+        "timestamp": "2026-10-11T01:41:27"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.ProtectedOverlapWorkflowUiTest",
+        "name": "course_fixed_rest_locked_and_unavoidable_overlap_are_rejected_without_execution_changes",
+        "seconds": "21.523",
+        "status": "failure"
+      }
+    ]
+  },
+  {
+    "file": "constraints-receipts-final.xml",
+    "counts": {
+      "passed": 5
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.HistoryRestoreWorkflowUiTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "30.76",
+        "timestamp": "2026-10-11T01:47:43"
+      }
+    ],
+    "failedCases": []
+  },
+  {
+    "file": "full-310-first.xml",
+    "counts": {
+      "passed": 309,
+      "failure": 1
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.AgentCenterUiTest",
+        "tests": "310",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "352.091",
+        "timestamp": "2026-10-11T01:55:03"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.CoreWorkflowUiTest",
+        "name": "bounded_agent_requires_preview_then_falls_back_without_changing_the_task_or_plan",
+        "seconds": "15.51",
+        "status": "failure"
+      }
+    ]
+  },
+  {
+    "file": "agent-confirm-isolation.xml",
+    "counts": {
+      "passed": 1
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.CoreWorkflowUiTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.542",
+        "timestamp": "2026-10-11T02:34:06"
+      }
+    ],
+    "failedCases": []
+  },
+  {
+    "file": "full-310-flow-first.xml",
+    "counts": {
+      "passed": 309,
+      "failure": 1
+    },
+    "suites": [
+      {
+        "name": "com.swan1127.repland.AgentCenterUiTest",
+        "tests": "310",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "346.108",
+        "timestamp": "2026-10-11T02:42:33"
+      }
+    ],
+    "failedCases": [
+      {
+        "class": "com.swan1127.repland.NumericProfileWorkflowUiTest",
+        "name": "actual_source_exclusion_invalid_total_confirmation_advice_cancel_adoption_and_recreation_preserve_plan",
+        "seconds": "2.573",
+        "status": "failure"
+      }
+    ]
+  }
+]

@@ -46,7 +46,7 @@ class PlacementNumericUiTest {
         rule.setContent { ReplandTheme { TimelineDashboard(
             entries = listOf(TimelineEntry("course", "原课程", TimelineKind.COURSE, LocalDate.now(), 540, 600)),
             mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {},
-            onCreateCourse = { writes++; duration = it.durationMinutes },
+            onCreateCourse = { request, saved -> writes++; duration = request.durationMinutes; saved() },
         ) } }
         rule.onNodeWithTag("add-course-trigger").performClick()
         rule.onNodeWithTag("course-title-input").performTextReplacement("数字边界")
@@ -114,7 +114,7 @@ class PlacementNumericUiTest {
         val restoration = StateRestorationTester(rule)
         restoration.setContent { ReplandTheme { TimelineDashboard(
             entries = listOf(TimelineEntry("restore-course29", "原课程", TimelineKind.COURSE, LocalDate.now(), 540, 600)),
-            mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {}, onCreateCourse = { writes++ },
+            mode = EngagementMode.GUIDED, onOpenEntry = {}, onOpenTask = {}, onCreateCourse = { _, saved -> writes++; saved() },
         ) } }
         rule.onNodeWithTag("add-course-trigger").performClick()
         rule.onNodeWithTag("course-title-input").performTextReplacement("保留课程")

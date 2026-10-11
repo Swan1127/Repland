@@ -5,10 +5,10 @@ import kotlin.math.roundToInt
 
 /** User-owned relative weights for the four task categories. */
 object CategoryPreferences {
-    val defaults: Map<TaskCategory, Int> = TaskCategory.entries.associateWith(TaskCategory::defaultWeight)
+    val defaults: Map<TaskCategory, Int> = TaskCategory.knownEntries.associateWith(TaskCategory::defaultWeight)
 
     fun normalized(weights: Map<TaskCategory, Int>): Map<TaskCategory, Int> =
-        TaskCategory.entries.associateWith { category -> weights[category] ?: defaults.getValue(category) }
+        TaskCategory.knownEntries.associateWith { category -> weights[category] ?: defaults.getValue(category) }
 
     fun isValid(weights: Map<TaskCategory, Int>): Boolean {
         val normalized = normalized(weights)
@@ -67,6 +67,7 @@ object LocalPriorityRanker {
             .toMap()
         return tasks.sortedWith(
             compareBy<Task> { task -> manualPosition[task.id] ?: Int.MAX_VALUE }
+                .thenByDescending { task -> task.userPriority == TaskPriority.REQUIRED }
                 .thenByDescending { task -> assessments.getValue(task.id).score }
                 .thenByDescending { task -> task.userPriority.score }
                 .thenBy { task -> task.dueDate ?: LocalDate.MAX }
@@ -95,8 +96,9 @@ object LocalPriorityRanker {
             taskId = task.id,
             score = score,
             reasons = buildList {
-                add(PriorityReason(PriorityReasonKind.INITIAL_PRIORITY, task.userPriority.score))
-                add(PriorityReason(PriorityReasonKind.CATEGORY_PREFERENCE, categoryPreferences.getValue(task.category)))
+                add(PriorityReason(PriorityReasonKind.INITIAL_PRIORITY,
+                    task.userPriority.takeUnless { it == TaskPriority.UNSPECIFIED }?.score))
+                add(PriorityReason(PriorityReasonKind.CATEGORY_PREFERENCE, categoryPreferences[task.category]))
                 if (task.dueDate != null) {
                     val days = java.time.temporal.ChronoUnit.DAYS.between(today, task.dueDate).toInt()
                     add(
@@ -118,6 +120,7 @@ object LocalPriorityRanker {
         category: TaskCategory,
         preferences: Map<TaskCategory, Int>,
     ): Double {
+        if (category == TaskCategory.UNSPECIFIED) return 50.0
         val maximum = preferences.values.maxOrNull()?.takeIf { it > 0 } ?: return 0.0
         return preferences.getValue(category).toDouble() / maximum * 100.0
     }

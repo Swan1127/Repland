@@ -56,6 +56,11 @@ class MainActivity : ComponentActivity() {
                 val profileEvidenceViewModel: ProfileEvidenceViewModel = viewModel(
                     factory = ProfileEvidenceViewModel.Factory(appContainer.profileEvidenceRepository),
                 )
+                val numericProfileViewModel: com.swan1127.repland.ui.profile.NumericProfileViewModel = viewModel(
+                    factory = com.swan1127.repland.ui.profile.NumericProfileViewModel.Factory(appContainer.numericProfileRepository,
+                        appContainer.taskRepository, appContainer.aiSettingsRepository, appContainer.aiProviderConfigRepository,
+                        appContainer.numericProfileAdvisor, appContainer.numericProfileAdvisor !== com.swan1127.repland.domain.model.NoOpNumericProfileAdvisor),
+                )
                 val dataManagementViewModel: DataManagementViewModel = viewModel(
                     factory = DataManagementViewModel.Factory(appContainer.dataManagementRepository),
                 )
@@ -94,6 +99,7 @@ class MainActivity : ComponentActivity() {
                     arrangementAssistantViewModel,
                     engagementViewModel,
                     taskCaptureViewModel,
+                    numericProfileViewModel,
                 )
             }
         }

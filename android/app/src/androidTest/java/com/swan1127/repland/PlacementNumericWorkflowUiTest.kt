@@ -54,6 +54,18 @@ class PlacementNumericWorkflowUiTest {
     @Test fun event_chunk_shown_in_sheet_is_exactly_committed_without_rewriting_task_duration() {
         check(rule.activity.packageName == "com.swan1127.repland.qa")
         val app = (rule.activity.application as ReplandApplication).appContainer
+        // Retained QA runs must not fill every tomorrow slot. Remove only this
+        // fixture's ordinary placements through the real guarded operation;
+        // retain tasks, execution records and all plan versions.
+        val activeTask = runBlocking { app.executionSessionRepository.observeActive().first()?.taskId }
+        runBlocking {
+            while (true) {
+                val owned = app.planRepository.observeCurrentPlan().first()?.segments.orEmpty().firstOrNull {
+                    it.taskId.startsWith("qa-placement29-") && it.taskId != activeTask
+                } ?: break
+                app.planRepository.removePlacement(owned.id)
+            }
+        }
         val id = "qa-placement29-${UUID.randomUUID()}"
         val name = "本次安排验收29-${id.takeLast(6)}"
         val date = LocalDate.now().plusDays(1)

@@ -9,7 +9,7 @@ data class Task(
     val displayName: String,
     val category: TaskCategory,
     val userPriority: TaskPriority,
-    val estimatedDays: Int,
+    val estimatedDays: Int?,
     val totalDurationMinutes: Int?,
     val dueDate: LocalDate?,
     val status: TaskStatus,
@@ -22,19 +22,21 @@ data class Task(
     val completionResult: String? = null,
     /** The day the user intends to work on it; unlike [dueDate], this is not a deadline. */
     val scheduledForDate: LocalDate? = null,
+    val inputSources: TaskInputSources = TaskInputSources.forInput(category, userPriority, estimatedDays, totalDurationMinutes, dueDate, scheduledForDate),
 )
 
 data class TaskDraft(
     val id: String? = null,
-    val displayName: String,
-    val description: String,
-    val category: TaskCategory,
-    val userPriority: TaskPriority,
-    val estimatedDays: Int,
-    val totalDurationMinutes: Int?,
-    val dueDate: LocalDate?,
+    val displayName: String = "",
+    val description: String = "",
+    val category: TaskCategory = TaskCategory.UNSPECIFIED,
+    val userPriority: TaskPriority = TaskPriority.UNSPECIFIED,
+    val estimatedDays: Int? = null,
+    val totalDurationMinutes: Int? = null,
+    val dueDate: LocalDate? = null,
     /** Optional planned day, kept independent from a final deadline. */
     val scheduledForDate: LocalDate? = null,
+    val inputSources: TaskInputSources = TaskInputSources.forInput(category, userPriority, estimatedDays, totalDurationMinutes, dueDate, scheduledForDate),
 )
 
 enum class TaskStatus {
@@ -51,6 +53,7 @@ enum class TaskStatus {
 }
 
 enum class TaskPriority(val score: Int) {
+    UNSPECIFIED(50),
     REQUIRED(100),
     HIGH(80),
     MEDIUM(50),
@@ -58,10 +61,16 @@ enum class TaskPriority(val score: Int) {
 }
 
 enum class TaskCategory(val defaultWeight: Int) {
+    UNSPECIFIED(0),
     COURSE(30),
     EXTRACURRICULAR(25),
     OFFICE(25),
     LEISURE(20),
+    ;
+
+    companion object {
+        val knownEntries: List<TaskCategory> = entries.filter { it != UNSPECIFIED }
+    }
 }
 
 object TaskName {
@@ -75,7 +84,7 @@ object TaskName {
 
 object TaskDraftValidator {
     fun isValid(draft: TaskDraft): Boolean =
-        draft.displayName.isNotBlank() &&
-            draft.estimatedDays in 1..30 &&
+        (draft.displayName.isNotBlank() || draft.description.isNotBlank()) &&
+            (draft.estimatedDays == null || draft.estimatedDays in 1..30) &&
             (draft.totalDurationMinutes == null || draft.totalDurationMinutes in 1..1_440)
 }

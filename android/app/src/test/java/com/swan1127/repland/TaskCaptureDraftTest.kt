@@ -5,6 +5,19 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class TaskCaptureDraftTest {
+    @Test fun minimal_capture_does_not_invent_optional_user_choices() {
+        val task = TaskCaptureDraft(text = "只记一件事").toTaskDraft()
+        assertEquals("只记一件事", task.displayName)
+        assertEquals("UNSPECIFIED", task.category.name)
+        assertEquals("UNSPECIFIED", task.userPriority.name)
+        assertNull(task.estimatedDays)
+        assertTrue(TaskDraftValidator.isValid(task))
+    }
+
+    @Test fun description_alone_is_a_valid_task_input() {
+        val task = TaskCaptureDraft(text = "描述形成标题").toTaskDraft().copy(displayName = "")
+        assertTrue(TaskDraftValidator.isValid(task))
+    }
     @Test fun unknown_duration_and_dates_stay_unknown() {
         val task = TaskCaptureDraft(text = " 一件事 ").toTaskDraft()
         assertNull(task.totalDurationMinutes); assertNull(task.dueDate); assertNull(task.scheduledForDate)

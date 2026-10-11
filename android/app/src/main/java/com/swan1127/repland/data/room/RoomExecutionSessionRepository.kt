@@ -26,6 +26,7 @@ class RoomExecutionSessionRepository(
         val segment = requireNotNull(plan.segments.firstOrNull { it.id == segmentId }) { "安排已变化，请重新打开。" }
         val task = requireNotNull(database.taskDao().getById(segment.taskId)) { "任务不存在。" }
         require(TaskStatus.valueOf(task.status).isActive) { "已结束的任务不能开始专注。" }
+        freezeNumericOriginal(database, task, clock())
         if (task.status != TaskStatus.IN_PROGRESS.name) tasks.confirmStatus(task.id, TaskStatus.IN_PROGRESS)
         store(ExecutionSession(UUID.randomUUID().toString(), task.id, task.displayName,
             plan.plan.id, segment.id, minOf(25 * 60, (segment.endMinute - segment.startMinute) * 60), clock()))
@@ -70,6 +71,9 @@ class RoomExecutionSessionRepository(
         }
         val ended = session.copy(accumulatedMillis = elapsed, runningSinceEpochMillis = null,
             endedAtEpochMillis = now, outcome = outcome)
+        val latestLog = database.executionLogDao().getForTask(session.taskId).lastOrNull()
+        workspace.put(PlanningWorkspaceEntity("numeric-input:session:${session.id}", numericRow()
+            .put("logs", org.json.JSONArray(listOfNotNull(latestLog?.id))).toString()))
         workspace.put(PlanningWorkspaceEntity("execution-session-history:${session.id}", ExecutionSessionCodec.encode(ended)))
         workspace.remove(KEY)
     }
