@@ -58,3 +58,11 @@
 真机、完整历史用户库、自然提醒 / OEM 后台、真实画像描述等边界，以及 QA-062 / QA-066 / QA-067 / QA-072 未定位 P2，继续保留。后三画像维度、主表单内嵌和性能扩展尚未完成。详见[最终技术验收](FINAL_TECH_ACCEPTANCE_2026-10-10.md)、[源码与用例清单](verification/final-0.1.35/README.md)、[当前交接](ACCOUNT_HANDOVER_2026-10-06.md)。
 
 本次使用正常分支提交与推送；不强推、不重写历史、不删除原分支或用户数据。产品分析报告中的建议仍未自动实施。
+
+## 实际上传回执
+
+个人 Fork 已正常 push，创建 `Henry-Yang666/Repland:codex/placement-numeric-integrity`；首次上传提交为 `2ff4d8d8e27a4c72eb740887335780c1d7939191`，随后 `ls-remote` 与本地 HEAD 完全一致。原仓库同名分支的实际 push 返回 `Permission to Swan1127/Repland.git denied to Henry-Yang666` / HTTP 403，已停止上游推送，未自行切换账号或修改权限。
+
+后续回执文档继续提交个人工作分支；生产源码与验收 APK 不变。个人 main 和原仓库 main 均未被本次操作更新。当前成果与原仓库 main 的差异包含此前 121 个接手前提交；向上游审核本次接续时应选择 `codex/placement-numeric-integrity` 为基线。
+
+上游审核可使用[跨 Fork 比较入口](https://github.com/Swan1127/Repland/compare/codex%2Fplacement-numeric-integrity...Henry-Yang666:codex%2Fplacement-numeric-integrity?expand=1)。该链接是比较 / 发起 PR 的入口，不是已创建的 PR；本轮没有创建或合并 PR。直接更新原仓库仍需具有该仓库写权限的已授权身份，不要求发送凭据。

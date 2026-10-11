@@ -2,6 +2,10 @@
 
 更新：2026-10-11（Asia/Shanghai）。历史交接原文[完整保留](archive/2026-10-10-pre-final/ACCOUNT_HANDOVER_2026-10-06.md)。
 
+本轮个人 Fork 上传已成功：`Henry-Yang666/Repland:codex/placement-numeric-integrity`，首次上传提交 `2ff4d8d8e27a4c72eb740887335780c1d7939191`，已用远程引用逐字核对。后续仅追加本次回执文档，最终提交见 Git。新增本地 remote `personal` 指向该 Fork，原 `origin` 继续指向 `Swan1127/Repland`。原仓库同名分支推送再次被 HTTP 403 拒绝，已停止上游写入；个人分支上传不等于原仓库合入。
+
+与原版的双基线差异、祖先关系及修改范围见[差异核对](UPSTREAM_DIFF_REVIEW_2026-10-11.md)。上游需要仓库所有者授权写入，或通过 Pull Request 由其审核合入；本轮没有创建或合并 PR，没有改动任一仓库的 main。
+
 ## 当前项目与源码
 
 - 分支 codex/placement-numeric-integrity；源码提交 32d766f95224b3851dbb832bd9644b541b3436cf；261 项源码 / 构建输入与验收清单逐文件一致。后续仅文档提交，最终 HEAD 以 Git 为准。
