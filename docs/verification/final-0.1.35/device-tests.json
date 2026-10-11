@@ -1,0 +1,1878 @@
+{
+  "counts": {
+    "passed": 310
+  },
+  "suites": [
+    {
+      "name": "com.swan1127.repland.AgentCenterUiTest",
+      "tests": "310",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "413.933",
+      "timestamp": "2026-10-11T02:50:58"
+    }
+  ],
+  "cases": [
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "configured_ai_is_called_by_generate_and_can_return_two_semantic_actions",
+      "seconds": "1.932",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "explicit_capture_still_discards_ai_placement_before_preview_and_confirmation",
+      "seconds": "1.397",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "text_is_only_saved_after_explicit_confirmation",
+      "seconds": "1.435",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "capture_workflow_keeps_text_and_saves_no_placements",
+      "seconds": "1.378",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "offline_free_input_with_explicit_time_confirms_the_time_it_previews",
+      "seconds": "1.245",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "incomplete_existing_task_cannot_be_confirmed_as_a_new_task",
+      "seconds": "0.566",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "assistant_text_and_proposals_restore_after_page_recreation",
+      "seconds": "1.08",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "stale_restored_workspace_requires_regeneration",
+      "seconds": "0.606",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "provider_change_invalidates_an_inflight_reply_even_when_ai_remains_enabled",
+      "seconds": "1.148",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "free_input_ai_time_is_included_in_the_same_confirmation_that_previews_it",
+      "seconds": "1.224",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "preview_keeps_existing_day_entries_visible_as_context",
+      "seconds": "1.068",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "missing_availability_exposes_a_real_configuration_action",
+      "seconds": "0.714",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "late_ai_response_does_not_restore_proposals_after_user_edits",
+      "seconds": "1.157",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "consecutive_follow_ups_replace_the_same_draft_without_saving",
+      "seconds": "2.12",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "formulate_plan_is_independent_of_composer",
+      "seconds": "0.765",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "late_follow_up_reply_cannot_erase_a_new_instruction",
+      "seconds": "2.084",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "simultaneous_explicit_events_are_previewed_on_separate_tracks",
+      "seconds": "1.091",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "restored_free_input_draft_does_not_lose_its_previewed_time_on_confirmation",
+      "seconds": "0.806",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "successful_confirmation_makes_the_receipt_visible_from_the_bottom",
+      "seconds": "1.097",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "existing_task_reply_confirms_adjustment_without_creating_a_copy",
+      "seconds": "1.207",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "failed_follow_up_keeps_instruction_and_draft_until_explicit_discard",
+      "seconds": "1.547",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "failed_ai_refresh_does_not_validate_a_stale_workspace",
+      "seconds": "0.766",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AgentCenterUiTest",
+      "name": "saved_receipt_exposes_task_and_correct_date_schedule_destinations",
+      "seconds": "0.803",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AiProviderSettingsUiTest",
+      "name": "deepseek_preset_edits_metadata_only_until_explicit_save",
+      "seconds": "1.294",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AiProviderSettingsUiTest",
+      "name": "large_text_dark_mode_keeps_fields_errors_and_actions_reachable",
+      "seconds": "0.907",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AiSettingsRepositoryTest",
+      "name": "advisor_is_opt_in_requires_consent_and_can_be_disabled",
+      "seconds": "0.159",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ArrangementAssistantAccessTest",
+      "name": "disabled_or_unconsented_requests_never_reach_the_advisor",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ArrangementAssistantAccessTest",
+      "name": "disabling_during_response_drops_advice",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ArrangementAssistantAccessTest",
+      "name": "oversized_context_never_reaches_the_advisor",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "locked_placement_cannot_be_replaced",
+      "seconds": "0.059",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "unchanged_placement_is_not_reported_as_an_adjustment",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "assistant_adjustment_preserves_the_independent_task_order",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "mixed_collision_rolls_back_new_task_and_keeps_existing_plan_and_draft",
+      "seconds": "0.053",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "started_placement_cannot_be_replaced",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "unapplied_follow_up_survives_round_trip_and_blocks_confirmation",
+      "seconds": "0.027",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "adjustment_preserves_task_facts_other_days_and_rejects_duplicate_confirmation",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantChangesRepositoryTest",
+      "name": "changed_task_facts_make_an_existing_task_draft_stale",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "pending_model_response_disables_provisional_confirmation",
+      "seconds": "1.087",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "dark_large_text_query_keeps_send_and_task_navigation_reachable",
+      "seconds": "1.428",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "explanation_uses_local_reasons_and_does_not_apply_model_scores",
+      "seconds": "1.101",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "editing_input_cancels_previous_request_and_keeps_new_text",
+      "seconds": "1.101",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "offline_query_uses_local_service_without_advisor_or_capture",
+      "seconds": "1.154",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "failed_remote_query_falls_back_to_local_facts_without_capture",
+      "seconds": "1.001",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "query_displays_local_facts_opens_same_task_and_never_offers_confirmation",
+      "seconds": "1.071",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "explicit_cancel_stops_advisor_preserves_input_and_does_not_save",
+      "seconds": "1.039",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantReadOperationUiTest",
+      "name": "formulate_dispatches_to_shared_preview_and_keeps_prompt",
+      "seconds": "1.071",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.AssistantSaveReceiptTest",
+      "name": "receipt_requires_commit_and_failed_retry_does_not_report_success",
+      "seconds": "0.16",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CaptureNumericWorkflowUiTest",
+      "name": "invalid_raw_survives_close_reopen_and_recreation_until_unknown_is_explicitly_selected",
+      "seconds": "4.91",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CategoryPreferenceRepositoryTest",
+      "name": "category_preferences_default_then_persist_user_adjustment",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CompatibleTransportTest",
+      "name": "unsafe_urls_and_oversized_requests_never_open_a_connection",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CompatibleTransportTest",
+      "name": "changing_service_without_new_key_is_rejected_and_revision_is_monotonic",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CompatibleTransportTest",
+      "name": "request_is_bounded_https_and_redirects_are_disabled",
+      "seconds": "0.004",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CompatibleTransportTest",
+      "name": "cancellation_disconnects_the_active_request",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CompatibleTransportTest",
+      "name": "oversized_responses_are_rejected",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CompatibleTransportTest",
+      "name": "http_failures_are_classified_without_following_redirects",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_assistant_read_keeps_workspace_and_retries",
+      "seconds": "0.054",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_undo_read_keeps_workspace_and_retries",
+      "seconds": "0.056",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_order_read_keeps_plan_draft_order_and_retries",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_tracks_read_keeps_workspace_and_retries",
+      "seconds": "0.057",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_history_read_keeps_plan_draft_order_and_retries",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "cancelling_pending_preferences_save_does_not_commit_or_create_a_receipt",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "initial_preferences_failure_is_not_default_success_and_blocks_save_until_read_retry",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "initial_workspace_failure_is_not_default_tracks_and_does_not_end_scope",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "initial_plan_failure_is_not_no_plan_and_does_not_end_scope",
+      "seconds": "0.055",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "preferences_write_failure_duplicate_and_success_follow_the_real_commit",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_current_read_keeps_plan_draft_order_and_retries",
+      "seconds": "0.055",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "failed_draft_read_keeps_plan_draft_order_and_retries",
+      "seconds": "0.055",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadIntegrityTest",
+      "name": "later_preferences_failure_keeps_saved_weights_and_write_error_cannot_heal_it",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadWorkflowUiTest",
+      "name": "preference_input_read_and_write_failures_recreation_and_real_receipt_keep_current_plan",
+      "seconds": "4.473",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadWorkflowUiTest",
+      "name": "plan_segment_clock_keeps_unsaved_input_through_failed_read_and_recreation",
+      "seconds": "5.151",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadWorkflowUiTest",
+      "name": "unreadable_persisted_preview_can_be_kept_closed_recreated_and_resumed_without_writing",
+      "seconds": "5.848",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ContextReadWorkflowUiTest",
+      "name": "failed_assistant_workspace_read_keeps_new_input_through_retry_and_recreation",
+      "seconds": "4.175",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "task_entry_feedback_and_local_controls_are_user_driven",
+      "seconds": "6.162",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "bounded_agent_requires_preview_then_falls_back_without_changing_the_task_or_plan",
+      "seconds": "5.163",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "status_start_then_complete_without_timer_keeps_actual_duration_unknown",
+      "seconds": "3.743",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "capture_accepts_a_custom_duration_without_forcing_a_preset",
+      "seconds": "3.018",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "editable_voice_capture_can_become_a_task_draft_without_auto_saving",
+      "seconds": "2.329",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "staged_capture_keeps_draft_unsaved_until_duration_is_confirmed",
+      "seconds": "2.138",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "capture_exposes_a_free_deadline_picker_beyond_shortcuts",
+      "seconds": "3.369",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.CoreWorkflowUiTest",
+      "name": "capture_close_reopen_and_activity_recreation_keep_custom_duration_without_creating_task",
+      "seconds": "4.473",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "structured_queries_and_explanations_decode_without_candidate_creation",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "wrapped_and_alias_shaped_model_json_is_still_an_editable_plan",
+      "seconds": "0.008",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "existing_task_id_is_decoded_without_converting_it_to_a_new_task",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "proposal_id_is_decoded_for_continuous_refinement",
+      "seconds": "0.004",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "context_wire_contains_bounded_facts_but_no_local_revision_or_notes",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "missing_category_stays_unknown_instead_of_becoming_extracurricular",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DebugAgnesArrangementAdvisorParserTest",
+      "name": "unknown_operations_scopes_and_mixed_writes_are_rejected",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DraftSaveIntegrityTest",
+      "name": "cancellation_before_commit_keeps_preview_and_does_not_emit_receipt",
+      "seconds": "0.08",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DraftSaveIntegrityTest",
+      "name": "active_other_operation_blocks_segment_write_until_explicit_retry",
+      "seconds": "0.054",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DraftSaveIntegrityTest",
+      "name": "failed_write_has_no_receipt_and_preserves_original_preview",
+      "seconds": "0.031",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DraftSaveIntegrityTest",
+      "name": "replaced_preview_is_not_overwritten_by_pending_old_edit",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DraftSaveIntegrityTest",
+      "name": "duplicate_click_commits_once_and_only_then_emits_receipt",
+      "seconds": "0.058",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.DraftSaveWorkflowUiTest",
+      "name": "failed_segment_write_keeps_editor_input_and_original_plan",
+      "seconds": "4.874",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.EditorSheetUiTest",
+      "name": "pending_save_blocks_back_and_drag_then_returns_normally",
+      "seconds": "1.107",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.EditorSheetUiTest",
+      "name": "real_keyboard_back_keeps_editor_then_next_back_closes",
+      "seconds": "2.016",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.EngagementRepositoryTest",
+      "name": "modeAndMinimalUsageEventsPersistTogether",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExampleInstrumentedTest",
+      "name": "useAppContext",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "replacement_during_round_can_end_without_mutating_original",
+      "seconds": "0.032",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "accepting_draft_cannot_remove_a_round_started_early_even_if_task_was_already_in_progress",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "only_one_session_and_terminal_task_cannot_be_resurrected",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "completed_outcome_removes_active_session_and_zero_elapsed_is_not_fabricated",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "pause_resume_recreation_and_finish_keep_exact_evidence",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "invalid_partial_feedback_rolls_back_and_valid_partial_only_changes_confirmed_progress",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionRepositoryTest",
+      "name": "active_round_survives_database_close_and_reopen",
+      "seconds": "0.059",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionUiTest",
+      "name": "busy_disables_completion_and_saved_errors_are_visible",
+      "seconds": "0.636",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionUiTest",
+      "name": "paused_session_can_resume_and_return_without_finishing",
+      "seconds": "0.888",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionUiTest",
+      "name": "dark_mode_with_large_text_keeps_pause_and_end_controls_reachable",
+      "seconds": "0.628",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionSessionUiTest",
+      "name": "partial_requires_content_and_cumulative_progress",
+      "seconds": "1.509",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionWorkflowUiTest",
+      "name": "selected_day_header_starts_confirmed_slot_and_keeps_plan_on_return",
+      "seconds": "2.919",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ExecutionWorkflowUiTest",
+      "name": "activity_recreation_restores_round_and_finishing_offers_preview_without_completing_task",
+      "seconds": "11.413",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.HistoryRestoreWorkflowUiTest",
+      "name": "restore_from_mine_keeps_completed_task_and_execution_records_and_excludes_its_old_future_slot",
+      "seconds": "3.639",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.InteractionWorkspaceRepositoryTest",
+      "name": "conflicting_batch_preserves_assistant_workspace_but_success_clears_it_atomically",
+      "seconds": "0.053",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.InteractionWorkspaceRepositoryTest",
+      "name": "deferred_decision_survives_workspace_round_trip",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.InteractionWorkspaceRepositoryTest",
+      "name": "changed_context_blocks_assistant_batch_without_clearing_input",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.InteractionWorkspaceRepositoryTest",
+      "name": "duplicate_track_name_is_rejected_without_replacing_definitions",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.InteractionWorkspaceRepositoryTest",
+      "name": "undo_restores_only_order_without_moving_the_plan",
+      "seconds": "0.027",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.InteractionWorkspaceRepositoryTest",
+      "name": "tracks_and_editable_assistant_workspace_survive_database_reopen",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ManualPlanChangeRepositoryTest",
+      "name": "transaction_failure_preserves_history_and_allows_retry_of_same_consent",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ManualPlanChangeRepositoryTest",
+      "name": "ordinary_overlap_requires_confirmation_on_same_and_other_tracks_and_does_not_record_execution",
+      "seconds": "0.055",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ManualPlanChangeRepositoryTest",
+      "name": "changing_constraints_invalidates_pending_overlap_without_losing_plan_or_draft",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ManualPlanChangeRepositoryTest",
+      "name": "confirmed_unavoidable_move_and_removal_require_separate_fresh_consent",
+      "seconds": "0.027",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ManualPlanChangeRepositoryTest",
+      "name": "consent_never_bypasses_locked_or_unavoidable_work_or_hard_time_constraints",
+      "seconds": "0.034",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.Migration20To21Test",
+      "name": "legacy_defaults_and_related_user_data_survive_upgrade_without_becoming_confirmed_evidence",
+      "seconds": "0.129",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.Migration5To6Test",
+      "name": "migration_adds_execution_log_storage_without_losing_existing_task_plan_or_constraint_rows",
+      "seconds": "0.082",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NativePageNavigationUiTest",
+      "name": "native_back_returns_to_mine_after_time_page_recreation",
+      "seconds": "1.848",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NativePageNavigationUiTest",
+      "name": "native_back_returns_to_assistant_and_sheet_back_does_not_pop_page",
+      "seconds": "3.16",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NativePageNavigationUiTest",
+      "name": "native_back_from_recreated_task_detail_returns_to_task_list",
+      "seconds": "3.2",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericNarrationContractTest",
+      "name": "same_isolated_evidence_and_parameter_payload_preserve_facts_and_record_actual_sizes",
+      "seconds": "0.005",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericNarrationContractTest",
+      "name": "minimal_payload_excludes_task_prose_raw_sources_and_disabled_parameters_and_strict_reply_rejects_prose",
+      "seconds": "0.031",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileAiWorkflowTest",
+      "name": "explicit_generation_minimal_payload_cache_fallback_cancel_disable_configuration_and_changed_evidence",
+      "seconds": "0.332",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "window_cannot_be_rejuvenated_by_reconfirming_an_old_completion_and_future_data_is_unknown",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "correction_invalidates_total_and_explicit_reconfirmation_replaces_instead_of_adding",
+      "seconds": "0.054",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "original_is_frozen_before_start_and_later_edits_do_not_rewrite_category_or_estimate",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "repeated_adoption_uses_original_basis_and_never_changes_confirmed_plan",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "changing_category_before_start_does_not_reuse_another_categorys_accepted_basis",
+      "seconds": "0.052",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "read_or_write_failure_preserves_snapshot_and_user_data_and_retry_recovers",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "snapshot_settings_exclusion_and_sources_survive_database_reopen_and_are_in_safe_export",
+      "seconds": "0.055",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "legacy_started_values_cannot_be_promoted_to_historical_estimates_by_same_value_confirmation",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "planning_preview_records_parameters_and_rejects_changed_profile_without_changing_current_plan",
+      "seconds": "0.18",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "active_round_is_unknown_and_ended_paused_round_is_counted_once_without_feedback_double_counting",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileRepositoryTest",
+      "name": "cached_future_total_becomes_eligible_when_clock_reaches_it_and_invalidates_old_description_version",
+      "seconds": "0.031",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.NumericProfileWorkflowUiTest",
+      "name": "actual_source_exclusion_invalid_total_confirmation_advice_cancel_adoption_and_recreation_preserve_plan",
+      "seconds": "7.948",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PdfTimetableImporterTest",
+      "name": "parsed_pdf_stays_a_preview_until_the_user_confirms_selected_courses",
+      "seconds": "0.227",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericUiTest",
+      "name": "course_duration_is_not_clamped_into_validity_and_clock_parts_do_not_carry",
+      "seconds": "3.242",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericUiTest",
+      "name": "course_raw_duration_and_title_survive_saved_state_restore",
+      "seconds": "2.493",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericUiTest",
+      "name": "event_minutes_are_individually_validated_without_carrying_or_rewriting",
+      "seconds": "2.429",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericUiTest",
+      "name": "event_display_and_collision_use_actual_chunk_not_task_total",
+      "seconds": "1.915",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericUiTest",
+      "name": "assistant_clock_raw_input_survives_saved_state_restore_without_changing_proposal",
+      "seconds": "3.023",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericUiTest",
+      "name": "event_selection_and_invalid_clock_survive_saved_state_restore",
+      "seconds": "1.638",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementNumericWorkflowUiTest",
+      "name": "event_chunk_shown_in_sheet_is_exactly_committed_without_rewriting_task_duration",
+      "seconds": "5.528",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlacementRepositoryTest",
+      "name": "rejected_course_rest_commitment_and_date_conflicts_preserve_current_plan",
+      "seconds": "0.169",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanDraftPreviewUiTest",
+      "name": "review_discloses_old_and_new_times",
+      "seconds": "1.135",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanDraftPreviewUiTest",
+      "name": "early_and_late_explicit_segments_are_visible_in_the_preview",
+      "seconds": "1.583",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanDraftPreviewUiTest",
+      "name": "locked_task_cannot_be_deferred_and_capacity_has_action",
+      "seconds": "1.241",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanDraftPreviewUiTest",
+      "name": "defer_changes_only_the_proposal_and_can_be_confirmed",
+      "seconds": "1.5",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanDraftPreviewUiTest",
+      "name": "preview_uses_real_time_tracks_and_opens_segment_editor",
+      "seconds": "1.295",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanDraftPreviewUiTest",
+      "name": "order_only_preview_explains_that_schedule_is_unchanged",
+      "seconds": "0.848",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "completed_future_work_is_not_restored_but_source_and_execution_history_are_retained",
+      "seconds": "0.121",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "unchanged_future_slot_is_revalidated_against_new_constraints",
+      "seconds": "0.044",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "new_course_cannot_be_overridden_by_history",
+      "seconds": "0.001",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "running_round_cannot_be_moved_by_history",
+      "seconds": "0.039",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "new_commitment_cannot_be_overridden_by_history",
+      "seconds": "0.044",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "new_rest_cannot_be_overridden_by_history",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "workspace_failure_rolls_back_plan_version_order_and_draft_clearing",
+      "seconds": "0.038",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "successful_restore_keeps_original_version_and_publishes_order_and_reminders_from_new_current",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "current_locked_placement_cannot_be_dropped_by_history",
+      "seconds": "0.047",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanRestoreRepositoryTest",
+      "name": "past_history_is_not_retroactively_rejected_by_new_constraints",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningIsolationWorkflowUiTest",
+      "name": "sort_keeps_schedule_and_formulate_keeps_unsent_text_through_draft_recreation_and_discard",
+      "seconds": "13.677",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "explicit_early_and_late_slots_can_be_confirmed_without_inventing_availability",
+      "seconds": "0.344",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "all_local_preview_kinds_keep_unavoidable_interval_and_sort_does_not_move_it",
+      "seconds": "0.198",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "legacy_draft_without_source_revision_is_preserved_and_cannot_restore_closed_work",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "batch_capture_and_arrange_is_atomic_and_duplicate_confirm_is_rejected",
+      "seconds": "0.038",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "agent_fallback_draft_keeps_generation_revision_and_rejects_later_task_changes",
+      "seconds": "0.042",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "active_round_is_retained_even_when_future_and_not_manually_locked",
+      "seconds": "0.045",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "non_aligned_confirmed_lock_remains_safe_through_preview_and_confirmation",
+      "seconds": "0.043",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "sort_only_contains_no_placements_and_commits_only_order",
+      "seconds": "0.045",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "stale_preview_is_rejected_by_shared_confirmation_transaction",
+      "seconds": "0.042",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "formulate_reranks_while_regular_replan_keeps_manual_order_and_neither_confirms",
+      "seconds": "0.077",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningOperationServiceTest",
+      "name": "query_and_explanation_share_page_membership_without_writing_facts",
+      "seconds": "0.044",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningProtectionWorkflowUiTest",
+      "name": "ordinary_overlap_cancel_stale_confirmation_and_explicit_confirmation_preserve_execution_facts",
+      "seconds": "8.571",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningProtectionWorkflowUiTest",
+      "name": "unavoidable_manual_move_can_be_cancelled_or_confirmed_and_history_lock_rejects_restore",
+      "seconds": "13.221",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadFailureTest",
+      "name": "settings_read_failure_preserves_confirmed_plan_draft_order_and_tasks",
+      "seconds": "0.093",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadFailureTest",
+      "name": "weekly_read_failure_preserves_confirmed_plan_draft_order_and_tasks",
+      "seconds": "0.106",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadFailureTest",
+      "name": "date_read_failure_preserves_confirmed_plan_draft_order_and_tasks",
+      "seconds": "0.106",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadFailureTest",
+      "name": "task_read_failure_preserves_confirmed_plan_draft_order_and_tasks",
+      "seconds": "0.136",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadServiceTest",
+      "name": "reads_actual_facts_preferences_and_corrected_feedback_only",
+      "seconds": "0.044",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadServiceTest",
+      "name": "recomputes_available_and_protected_intervals_without_trusting_ui",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadServiceTest",
+      "name": "changing_preference_while_provider_runs_drops_response_without_writes",
+      "seconds": "0.039",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadServiceTest",
+      "name": "feedback_is_bounded_to_relevant_tasks_and_field_lengths",
+      "seconds": "0.045",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadServiceTest",
+      "name": "disabled_context_never_reads_or_calls_provider_and_closed_refs_do_not_resurrect",
+      "seconds": "0.043",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningReadServiceTest",
+      "name": "stale_source_is_rejected_before_provider_call",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningWorkspaceRepositoryTest",
+      "name": "draft_cannot_remove_a_protected_future_placement",
+      "seconds": "0.004",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningWorkspaceRepositoryTest",
+      "name": "batch_confirmation_keeps_task_ids_and_rejects_repeat_without_duplicates",
+      "seconds": "0.031",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningWorkspaceRepositoryTest",
+      "name": "conflicting_batch_is_atomic_and_writes_no_tasks",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningWorkspaceRepositoryTest",
+      "name": "draft_and_order_survive_database_close_and_reopen",
+      "seconds": "0.039",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningWorkspaceRepositoryTest",
+      "name": "a_task_change_invalidates_a_stored_preview",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.PlanningWorkspaceRepositoryTest",
+      "name": "stored_order_does_not_create_or_move_a_plan_and_draft_survives_repository_recreation",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ProfileEvidenceAndDataManagementRepositoryTest",
+      "name": "generated_evidence_is_traceable_and_user_correction_or_deletion_never_changes_logs",
+      "seconds": "0.034",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ProfileEvidenceAndDataManagementRepositoryTest",
+      "name": "export_snapshot_is_complete_and_explicit_clear_removes_local_rows_only",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ProtectedOverlapWorkflowUiTest",
+      "name": "course_fixed_rest_locked_and_unavoidable_overlap_are_rejected_without_execution_changes",
+      "seconds": "12.188",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.QuickAvailabilityTest",
+      "name": "minimal_card_requires_times_and_does_not_select_recurrence_by_default",
+      "seconds": "1.835",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.QuickAvailabilityTest",
+      "name": "saved_slot_generates_revision_valid_preview_and_retry_does_not_duplicate_slot",
+      "seconds": "0.798",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.QuickAvailabilityTest",
+      "name": "failed_generation_keeps_slot_and_original_plan_without_claiming_success",
+      "seconds": "0.72",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ReadFailureWorkflowUiTest",
+      "name": "persisted_sort_preview_cannot_be_confirmed_during_failed_reads_but_cancel_remains_available",
+      "seconds": "5.711",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ReadFailureWorkflowUiTest",
+      "name": "weekly_edit_retains_original_constraints_and_input_until_actual_retry_succeeds",
+      "seconds": "3.942",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ReadFailureWorkflowUiTest",
+      "name": "initial_task_failure_blocks_formulate_and_preview_without_losing_composer_input",
+      "seconds": "3.458",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ReadFailureWorkflowUiTest",
+      "name": "task_edit_keeps_input_identity_and_disabled_save_through_read_failure_and_recreation",
+      "seconds": "6.447",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "settings_failure_retains_complete_time_snapshot",
+      "seconds": "0.182",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "initial_task_failure_is_not_empty_success_and_blocks_save_until_retry",
+      "seconds": "0.162",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "date_failure_retains_complete_time_snapshot",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "initial_time_failure_is_not_empty_success_and_recovers_all_three_sources",
+      "seconds": "0.038",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "weekly_failure_retains_complete_time_snapshot",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "import_edits_do_not_heal_read_failure_and_review_can_be_confirmed_after_retry",
+      "seconds": "0.037",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.RecoverableReadViewModelTest",
+      "name": "later_task_failure_keeps_identity_and_action_errors_cannot_heal_read",
+      "seconds": "0.044",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ReminderDeliveryIntegrityTest",
+      "name": "delivered_reminder_does_not_start_or_complete_and_disabled_delivery_is_ignored",
+      "seconds": "0.162",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.ReminderSettingsRepositoryTest",
+      "name": "local_reminders_are_opt_in_and_the_user_can_turn_them_back_off",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionInputWorkflowUiTest",
+      "name": "initially_failed_round_read_has_retry_and_does_not_offer_a_false_resume",
+      "seconds": "3.083",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionInputWorkflowUiTest",
+      "name": "rotating_open_round_keeps_native_viewport_and_partial_input",
+      "seconds": "9.893",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionInputWorkflowUiTest",
+      "name": "native_keyboard_back_keeps_partial_input_then_returns_without_finishing",
+      "seconds": "4.394",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionInputWorkflowUiTest",
+      "name": "task_editor_keeps_illegal_raw_numbers_and_unknown_duration_without_changing_identity",
+      "seconds": "8.066",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionInputWorkflowUiTest",
+      "name": "failed_round_read_keeps_partial_input_and_identity_through_recreation_and_retry",
+      "seconds": "5.487",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionReadIntegrityTest",
+      "name": "failed_empty_read_does_not_allow_starting_a_round",
+      "seconds": "0.158",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionReadIntegrityTest",
+      "name": "initial_failure_does_not_claim_no_round_or_allow_mutations",
+      "seconds": "0.055",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.SessionReadIntegrityTest",
+      "name": "later_failure_preserves_round_and_refuses_all_mutations_until_retry",
+      "seconds": "0.056",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "invalid_raw_duration_cannot_be_committed_as_unknown_or_another_value",
+      "seconds": "0.031",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "minimal_task_remains_unknown_after_reopen_and_export",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "draft_fields_survive_database_close_and_reopen_without_creating_task",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "stale_capture_is_rejected_and_discard_does_not_delete_tasks",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "legacy_draft_keeps_values_without_claiming_explicit_category_or_priority",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "failed_draft_consumption_rolls_back_task_and_keeps_full_draft",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureRepositoryTest",
+      "name": "commit_consumes_draft_and_retries_do_not_duplicate_or_resurrect_it",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "custom_duration_keeps_negative_decimal_and_overflow_raw_and_requires_explicit_correction",
+      "seconds": "1.92",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "large_text_keeps_primary_operation_visible_and_options_scrollable",
+      "seconds": "0.852",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "real_soft_keyboard_back_hides_ime_before_dismissing_capture",
+      "seconds": "2.662",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "save_failure_retains_custom_input_and_exposes_retry",
+      "seconds": "0.979",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "invalid_duration_correction_retains_newly_selected_deadline_without_creating_task",
+      "seconds": "1.542",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "returning_with_selected_dates_keeps_them_and_names_the_save_action_honestly",
+      "seconds": "1.005",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureSheetUiTest",
+      "name": "saving_disables_input_save_close_and_voice",
+      "seconds": "0.936",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "failed_data_clear_keeps_original_draft_and_allows_editing_again",
+      "seconds": "0.007",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "invalid_custom_duration_cannot_be_silently_saved_as_unknown_from_another_step",
+      "seconds": "0.135",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "failure_keeps_input_and_options_and_retry_has_real_receipt",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "dated_task_receipt_does_not_falsely_claim_inbox_or_today",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "successful_data_clear_cancels_pending_autosave_and_forgets_in_memory_draft",
+      "seconds": "0.017",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "duplicate_save_is_ignored_while_pending_and_receipt_only_follows_commit",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskCaptureViewModelTest",
+      "name": "load_failure_does_not_overwrite_existing_draft",
+      "seconds": "0.004",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskEditorIntegrityTest",
+      "name": "save_failure_has_no_receipt_retry_and_pending_duplicate_follow_real_commit",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskEditorIntegrityTest",
+      "name": "edit_requires_existing_identity_and_never_recreates_removed_task",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskEditorIntegrityTest",
+      "name": "edit_preserves_status_initial_priority_history_and_identity",
+      "seconds": "0.005",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskEditorWorkflowUiTest",
+      "name": "editing_survives_recreation_rejects_overflow_and_saves_same_identity",
+      "seconds": "5.438",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackIntegrityTest",
+      "name": "failure_retains_target_retry_is_exact_and_pending_duplicates_make_one_log",
+      "seconds": "0.04",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackIntegrityTest",
+      "name": "correction_rejects_foreign_or_missing_identity_and_keeps_immutable_history",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackIntegrityTest",
+      "name": "log_insert_failure_rolls_back_all_lifecycle_mutations_and_replacement",
+      "seconds": "0.033",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackIntegrityTest",
+      "name": "postponement_duplicate_is_one_explicit_delay_and_cancellation_is_not_failure",
+      "seconds": "0.003",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackWorkflowUiTest",
+      "name": "write_failure_keeps_feedback_input_through_recreation_retry_has_one_real_receipt",
+      "seconds": "5.315",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackWorkflowUiTest",
+      "name": "postpone_reason_and_cancel_target_restore_after_recreation_and_commit_once",
+      "seconds": "6.747",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackWorkflowUiTest",
+      "name": "replacement_restores_input_and_commits_one_new_identity_without_erasing_original",
+      "seconds": "5.052",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackWorkflowUiTest",
+      "name": "partial_input_recreation_and_invalid_numbers_do_not_write_then_correction_keeps_history",
+      "seconds": "8.42",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackWorkflowUiTest",
+      "name": "removed_feedback_target_is_not_recreated_or_redirected_after_recreation",
+      "seconds": "4.19",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskFeedbackWorkflowUiTest",
+      "name": "postponement_plan_preview_dismisses_to_assistant_not_pdf_settings",
+      "seconds": "11.618",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "user_lock_on_current_confirmed_segment_is_persisted",
+      "seconds": "0.105",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "confirmed_statuses_and_partial_completion_append_ordered_logs",
+      "seconds": "0.079",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "historical_feedback_correction_is_appended_without_overwriting_source",
+      "seconds": "0.079",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "replacement_creates_new_task_and_preserves_original_plan_and_log_history",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "planned_day_and_deadline_persist_independently",
+      "seconds": "0.029",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "editing_an_existing_task_preserves_its_initial_priority",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskLifecycleRepositoryTest",
+      "name": "restoring_history_creates_a_new_current_version_without_rewriting_the_source",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskPageAppBarUiTest",
+      "name": "large_text_title_is_not_clipped_with_both_actions",
+      "seconds": "0.619",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskPageAppBarUiTest",
+      "name": "capture_button_clears_horizontal_insets_without_duplicate_vertical_padding",
+      "seconds": "0.854",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskPageAppBarUiTest",
+      "name": "actions_keep_callbacks_and_disabled_semantics",
+      "seconds": "0.825",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskPageAppBarUiTest",
+      "name": "standard_text_keeps_compact_title",
+      "seconds": "0.8",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskPageAppBarUiTest",
+      "name": "narrow_phone_large_text_keeps_title_and_actions",
+      "seconds": "0.801",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TaskPlanMembershipUiTest",
+      "name": "confirmed_plan_updates_today_and_inbox_without_changing_task_facts",
+      "seconds": "1.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeConstraintRevisionRepositoryTest",
+      "name": "notes_on_recurring_and_one_day_entries_survive_a_save_and_reload",
+      "seconds": "0.033",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeConstraintRevisionRepositoryTest",
+      "name": "every_time_constraint_change_including_delete_advances_the_draft_revision",
+      "seconds": "0.001",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsIntegrityTest",
+      "name": "invalid_input_is_not_partially_saved_and_concurrent_writes_advance_revision",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsIntegrityTest",
+      "name": "revision_failure_rolls_back_every_time_mutation",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsIntegrityTest",
+      "name": "existing_identity_and_metadata_survive_and_deleted_targets_cannot_resurrect",
+      "seconds": "0.028",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsIntegrityTest",
+      "name": "failed_save_keeps_target_retry_is_guarded_and_receipt_means_one_commit",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsIntegrityTest",
+      "name": "delete_failure_has_stable_identity_and_cancel_is_not_a_business_error",
+      "seconds": "0.002",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsWorkflowUiTest",
+      "name": "single_day_and_semester_forms_restore_input_validate_and_commit_only_after_save",
+      "seconds": "7.819",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsWorkflowUiTest",
+      "name": "mine_entry_new_and_existing_weekly_edit_keep_identity_fields_and_day_end_after_recreation",
+      "seconds": "7.865",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimeSettingsWorkflowUiTest",
+      "name": "database_failure_keeps_weekly_fields_and_retry_shows_a_real_success_receipt",
+      "seconds": "4.223",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "event_object_requires_explicit_time_and_track_confirmation",
+      "seconds": "1.309",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "tapping_a_track_block_opens_detail_with_note_edit_and_task_actions",
+      "seconds": "1.954",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "empty_day_can_create_a_named_track_with_a_stable_id",
+      "seconds": "0.793",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "canAddNamedTrackWithoutRebuildingExistingSchedule",
+      "seconds": "1.255",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "empty_day_keeps_explicit_event_and_course_entry_points",
+      "seconds": "2.351",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "mergedViewGroupsOverlappingEntriesWithoutDiscardingTheirTimes",
+      "seconds": "0.919",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "event_object_cannot_overlap_on_the_same_track",
+      "seconds": "1.823",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "courseCanBeCreatedWithAnExactManualTime",
+      "seconds": "2.127",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineDashboardUiTest",
+      "name": "timeline_detail_can_adjust_an_exact_time_without_forcing_note_entry",
+      "seconds": "2.248",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+      "name": "failed_exact_move_keeps_raw_times_and_retry_preserves_task_and_logs",
+      "seconds": "5.051",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+      "name": "failed_course_save_keeps_form_and_retry_commits_once",
+      "seconds": "3.62",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimelineWriteReceiptWorkflowTest",
+      "name": "course_saved_after_activity_recreation_closes_the_restored_form_once",
+      "seconds": "4.548",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationTest",
+      "name": "import_deduplicates_against_current_database_and_preserves_existing_course",
+      "seconds": "0.081",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationTest",
+      "name": "revision_write_failure_rolls_back_all_imported_rows_and_invalid_batch_never_partially_saves",
+      "seconds": "0.03",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationTest",
+      "name": "cancelled_noncooperative_read_cannot_restore_preview_or_write",
+      "seconds": "0.037",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationTest",
+      "name": "save_failure_keeps_review_retry_commits_once_and_pending_cannot_cancel_or_replace",
+      "seconds": "0.053",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationTest",
+      "name": "preview_selection_edit_clock_validation_and_cancel_never_write",
+      "seconds": "0.006",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationUiTest",
+      "name": "actual_generated_pdf_requires_clock_acknowledgement_and_confirm_to_save_with_receipt",
+      "seconds": "2.25",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationUiTest",
+      "name": "preview_and_course_edit_survive_recreation_then_cancel_without_writes",
+      "seconds": "4.949",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TimetableConfirmationUiTest",
+      "name": "invalid_period_raw_survives_recreation_without_editing_preview_or_constraints",
+      "seconds": "5.264",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TodayFocusUiTest",
+      "name": "course_has_no_start_action",
+      "seconds": "0.544",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TodayFocusUiTest",
+      "name": "active_round_disables_another_start_and_zero_pending_is_disabled",
+      "seconds": "0.855",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TodayFocusUiTest",
+      "name": "dark_large_text_keeps_all_actions_reachable_in_scroll_container",
+      "seconds": "1.058",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TodayFocusUiTest",
+      "name": "upcoming_task_explicitly_labels_early_start",
+      "seconds": "0.698",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.TodayFocusUiTest",
+      "name": "starts_exact_slot_and_secondary_actions_are_independent",
+      "seconds": "0.847",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.UnavoidableRepositoryTest",
+      "name": "generated_draft_cannot_move_or_drop_confirmed_unavoidable_work",
+      "seconds": "0.233",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.UnavoidableRepositoryTest",
+      "name": "another_track_cannot_cover_a_confirmed_unavoidable_interval",
+      "seconds": "0.056",
+      "status": "passed"
+    },
+    {
+      "class": "com.swan1127.repland.UnknownTaskWorkflowUiTest",
+      "name": "minimal_capture_and_unchanged_edit_keep_optional_fields_unknown",
+      "seconds": "6.838",
+      "status": "passed"
+    }
+  ]
+}

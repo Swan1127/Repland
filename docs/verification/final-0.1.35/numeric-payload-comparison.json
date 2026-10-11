@@ -1,0 +1,8 @@
+{
+  "fixtureTasks": 12,
+  "fullNecessaryEvidenceBytes": 2872,
+  "parameterPayloadBytes": 354,
+  "courseMedian": 1.5,
+  "factsMatch": true,
+  "scope": "isolated synthetic fixture; no real model request or token\/cost claim"
+}
