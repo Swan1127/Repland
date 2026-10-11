@@ -7,7 +7,8 @@
 - 分支 codex/placement-numeric-integrity；源码提交 32d766f95224b3851dbb832bd9644b541b3436cf；261 项源码 / 构建输入与验收清单逐文件一致。后续仅文档提交，最终 HEAD 以 Git 为准。
 - 本次 fetch 成功，远程原为 7506074f36d822b4c3d57777e40ba50a78ccdb15；无后续提交待审查，无强制同步或覆盖修改。
 - 实际 .current：0.1.35-internal / 1035 / Room 21，APK 9c5a54385aad72ca6e0d8ac2e4477862c83bb93ac4f23acccfd12722267341b2，与安装 base.apk 比对一致。APK 的 BuildConfig 为基底加当时工作区，完整源码身份见[可携带证据](verification/final-0.1.35/README.md)。
-- 本机候选验收完成；源码已提交，本轮技术证据、独立功能文档与后置产品报告随文档提交交付。最终 HEAD 和正常推送结果以 Git 及最终交付回执为准。没有将外部未验证矩阵写成通过。
+- 本机候选验收完成；源码提交 `32d766f`，技术证据、独立功能文档与后置产品报告提交 `de4513d63fe0cf908beef73b2385aaa9c08f3ac0`。后续仅追加本次交付阻断记录，最终 HEAD 以 Git 为准。没有将外部未验证矩阵写成通过。
+- **GitHub 推送未完成**：两次直连失败；使用 Windows 已配置的本机代理后，远程返回 403，拒绝身份 `Henry-Yang666` 写入 `Swan1127/Repland`。已停止推送，未切换账号、修改授权或强制推送。需要在本机使用具备写权限的已授权身份后再正常推送，不发送凭据。最后成功 fetch 的远程基线为 `7506074`。
 
 ## 环境
 
@@ -24,7 +25,7 @@ Windows / PowerShell；项目 outputs/Repland，环境 outputs/Environment。JDK
 - QA-069 课程 / 精确时间失败输入保留、重试与保存途中 Activity 重建；QA-070 自由输入预览与确认时段不一致已先复现再修复，本机候选范围关闭阻断。
 - 当前生产源码 150 JVM、最终 310 QA 设备全套均 0 失败 / 错误 / 跳过；internal、release Kotlin / Manifest、离线边界与构建清单通过。QA 组件 / 仓储 / Activity 的入口层级在各独立文档列明。
 - .current 真实模型：未确认不写任务，草案冷恢复，确认新增 1 / 写入 1、日程一致；安排后未开始且无执行记录。当前画像 0 样本未知，类别权重标默认，未开始任务未纳入。
-- 80 项独立文档和四层状态见[功能索引](features/README.md)；构建、失败历史、用例、截图、来源清单见[最终验收](FINAL_TECH_ACCEPTANCE_2026-10-10.md)。原始大文件在本机 build 报告保留，可携带摘要随 Git 交付。
+- 80 项独立文档和四层状态见[功能索引](features/README.md)；构建、失败历史、用例、截图、来源清单见[最终验收](FINAL_TECH_ACCEPTANCE_2026-10-10.md)。原始大文件在本机 build 报告保留，可携带摘要已纳入本地 Git 提交，远程交付等待写权限。
 
 ## 未解决问题与后续任务
 
