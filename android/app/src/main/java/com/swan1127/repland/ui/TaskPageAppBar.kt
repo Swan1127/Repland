@@ -9,6 +9,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import com.swan1127.repland.ui.theme.pressMotion
+import com.swan1127.repland.ui.theme.replandAccent
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalDensity
@@ -75,10 +79,14 @@ private fun PlannerFloatingButton(
     safeAreaTag: String,
     insets: WindowInsets,
 ) {
+    val interaction = remember { MutableInteractionSource() }
+    val accent = replandAccent(1)
     Box(Modifier.testTag(safeAreaTag).windowInsetsPadding(insets.only(WindowInsetsSides.Horizontal))) {
-        androidx.compose.material3.FloatingActionButton(onClick = onClick, modifier = Modifier.testTag(tag),
+        androidx.compose.material3.FloatingActionButton(onClick = onClick,
+            modifier = Modifier.testTag(tag).then(pressMotion(interaction, true, .93f)),
+            interactionSource = interaction,
             shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-            containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary) {
+            containerColor = accent.highlight, contentColor = accent.ink) {
             androidx.compose.material3.Icon(icon, contentDescription = description)
         }
     }

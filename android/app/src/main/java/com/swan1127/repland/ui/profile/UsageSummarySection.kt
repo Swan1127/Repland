@@ -1,5 +1,6 @@
 package com.swan1127.repland.ui.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,11 +13,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.swan1127.repland.ui.components.EditorSheet
+import com.swan1127.repland.ui.components.DesignButton
+import com.swan1127.repland.ui.components.DesignOutlinedButton
+import com.swan1127.repland.ui.components.DesignIcons
+import com.swan1127.repland.ui.components.DesignSectionHeading
+import com.swan1127.repland.ui.theme.replandSettingsAccent
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -32,21 +37,26 @@ fun UsageSummarySection(viewModel: UsageSummaryViewModel) {
 @OptIn(ExperimentalLayoutApi::class)
 internal fun UsageSummaryCard(state: UsageSummaryUiState) {
     var showSources by rememberSaveable { mutableStateOf(false) }
+    val accent = replandSettingsAccent(0)
     Card(
         modifier = Modifier.fillMaxWidth().testTag("usage-summary-card"),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("近期使用总结", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            DesignSectionHeading("近期使用总结", DesignIcons.Clock, accent = accent)
             Text(
                 state.text,
                 style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 26.sp),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.testTag("usage-summary-text"),
             )
             if (state.loading || state.updating) {
-                LinearProgressIndicator(Modifier.fillMaxWidth().testTag("usage-summary-progress"))
+                LinearProgressIndicator(Modifier.fillMaxWidth().testTag("usage-summary-progress"),
+                    color = accent.ink, trackColor = accent.surface)
             }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             val status = state.readError ?: state.notice ?: when {
                 state.loading -> "正在整理你的使用记录…"
                 state.updating -> "正在自动更新，先保留上次总结。"
@@ -71,8 +81,10 @@ internal fun UsageSummaryCard(state: UsageSummaryUiState) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = 16.dp).testTag("usage-summary-updated-at"),
                 )
-                TextButton(
+                DesignOutlinedButton(
                     onClick = { showSources = true },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = accent.ink),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     modifier = Modifier.heightIn(min = 48.dp).testTag("usage-summary-sources"),
                 ) { Text("查看依据") }
             }
@@ -95,7 +107,8 @@ internal fun UsageSummaryCard(state: UsageSummaryUiState) {
                         Text("目前记录还不多。照常使用 App，有记录后会自动更新。")
                     } else {
                         state.basis.forEach { fact ->
-                            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+                            Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
                                 Text(fact.text, Modifier.fillMaxWidth().padding(16.dp), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
@@ -105,7 +118,7 @@ internal fun UsageSummaryCard(state: UsageSummaryUiState) {
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showSources = false }, modifier = Modifier.heightIn(min = 48.dp).testTag("usage-summary-close")) { Text("关闭") }
+                DesignButton(onClick = { showSources = false }, modifier = Modifier.heightIn(min = 48.dp).testTag("usage-summary-close")) { Text("关闭") }
             },
         )
     }

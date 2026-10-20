@@ -6,6 +6,7 @@ import android.os.Looper
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -27,13 +28,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 object ReplandMotion {
     const val Press = 90
     const val Release = 140
-    const val Page = 240
+    const val Page = 280
     const val Expand = 260
     const val Collapse = 180
+    val PageEasing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
 }
 
 val LocalReducedMotion = staticCompositionLocalOf { false }
@@ -66,22 +70,47 @@ fun MotionPage(
 ) {
     val reduce = LocalReducedMotion.current
     val progress = remember { Animatable(if (reduce) 1f else 0f) }
+    val direction = remember { Animatable(1f) }
     var previousOrder by remember { mutableIntStateOf(order) }
-    var direction by remember { mutableFloatStateOf(1f) }
-    val distance = with(LocalDensity.current) { (if (lateral) 20.dp else 12.dp).toPx() }
+    var previousKey by remember { mutableStateOf(targetKey) }
+    var presented by remember { mutableStateOf(false) }
+    val distance = with(LocalDensity.current) { (if (lateral) 32.dp else 18.dp).toPx() }
     LaunchedEffect(targetKey, reduce) {
-        direction = if (order < previousOrder) -1f else 1f
+        val targetChanged = previousKey != targetKey
+        val firstPresentation = !presented
+        val nextDirection = if (order < previousOrder) -1f else 1f
         previousOrder = order
-        if (reduce) progress.snapTo(1f) else {
-            progress.snapTo(0f)
-            progress.animateTo(1f, tween(ReplandMotion.Page, easing = FastOutSlowInEasing))
+        previousKey = targetKey
+        presented = true
+        // Changing the accessibility preference never replays a page entrance.
+        if (reduce || (!firstPresentation && !targetChanged)) {
+            progress.snapTo(1f)
+        } else {
+            val interrupted = !firstPresentation && progress.value < 1f
+            if (!interrupted) {
+                direction.snapTo(nextDirection)
+                progress.snapTo(0f)
+            }
+            coroutineScope {
+                // Preserve opacity and travel on quick switches; a reversal redirects
+                // the remaining movement instead of snapping to the opposite edge.
+                launch {
+                    direction.animateTo(nextDirection, tween(ReplandMotion.Press, easing = FastOutSlowInEasing))
+                }
+                val duration = (ReplandMotion.Page * (1f - progress.value)).toInt().coerceAtLeast(ReplandMotion.Release)
+                progress.animateTo(1f, tween(duration, easing = ReplandMotion.PageEasing))
+            }
         }
     }
     Box(modifier.graphicsLayer {
         val fraction = if (reduce) 1f else progress.value
-        alpha = 0.72f + fraction * 0.28f
-        translationX = if (lateral) distance * direction * (1f - fraction) else 0f
-        translationY = if (lateral) 0f else distance * (1f - fraction)
+        val remaining = 1f - fraction
+        alpha = 0.84f + (fraction / 0.55f).coerceIn(0f, 1f) * 0.16f
+        translationX = if (lateral) distance * direction.value * remaining else 0f
+        translationY = if (lateral) 0f else distance * remaining
+        val scale = 1f - (if (lateral) 0.006f else 0.012f) * remaining
+        scaleX = scale
+        scaleY = scale
     }) { content() }
 }
 

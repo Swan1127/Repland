@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repland 前端运行验证 · 2026-10-18</title>
+<style>
+body{font-family:system-ui,"Microsoft YaHei",sans-serif;background:#f7f8fc;color:#242831;margin:0 auto;max-width:1100px;padding:24px;line-height:1.6}
+h1{font-size:28px}h2{font-size:20px}a{color:#326b75}section{margin:28px 0}video{max-height:75vh;max-width:100%;background:#171921;border-radius:20px}img{max-width:100%;border-radius:16px}.grid{display:flex;flex-wrap:wrap;gap:20px}.grid>div{flex:1;min-width:260px}figure{margin:0}figcaption{font-size:14px;color:#606572}
+</style>
+<h1>Repland 前端运行验证</h1>
+<p>以 Swan1127/Repland 的 <code>32cac60</code> 为基线。新版为独立安装包，业务模型、自动规划与使用总结沿用最新主分支。</p>
+<p><a href="README.md">查看范围、测试与限制</a> · <a href="build-manifest.json">构建标识</a> · <a href="device-tests.json">本轮设备回归</a></p>
+<section class="grid">
+<div><h2>实际应用操作</h2><video controls preload="metadata" src="main-app.mp4"></video><p>真实任务详情、处理回执与撤销、个人资料、总结依据及设置返回。数据来自隔离包的实际录入。</p></div>
+<div><h2>总计与详细</h2><video controls preload="metadata" src="schedule-demo.mp4"></video><p>画面明确标注的只读固定示例，不代表用户的真实计划；展示重叠区间、优先级、详情与展开收起。</p></div>
+</section>
+<section><h2>修改前：最新主分支</h2><figure><img src="before-overview.jpg" alt="修改前的助手、个人主页和设置页"><figcaption>来自 32cac60 的实际运行，未使用历史版本冒充修改前状态。</figcaption></figure></section>
+<section><h2>修改后</h2><figure><img src="after-overview.jpg" alt="修改后的助手、使用总结与设置入口"><figcaption>使用现有浅蓝、薄荷、浅紫和淡粉主题，并保留最新三项导航。</figcaption></figure></section>
+<section class="grid"><div><h2>窄屏与键盘</h2><img src="narrow-username-keyboard-final.png" alt="375dp 窄屏下用户名编辑与系统键盘"></div><div><h2>深色与 200% 字体</h2><img src="large-dark-profile.png" alt="深色模式和 200% 字体下的个人主页"></div></section>
+<section><h2>横屏键盘修复</h2><img src="landscape-username-keyboard-final.png" alt="横屏时输入框与保存取消并排，保持在系统键盘上方"></section>
+</html>

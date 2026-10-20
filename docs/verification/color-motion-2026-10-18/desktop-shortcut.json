@@ -1,0 +1,6 @@
+{
+  "Path": "<desktop>\\Repland 前端新版.lnk",
+  "Target": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "Arguments": "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File \"<repo>\\Start-Frontend.ps1\"",
+  "Verified": true
+}

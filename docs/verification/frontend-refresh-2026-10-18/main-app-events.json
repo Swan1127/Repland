@@ -1,0 +1,70 @@
+[
+  {
+    "seconds": 0.0,
+    "action": "实际日程首页与三项导航"
+  },
+  {
+    "seconds": 2.0,
+    "action": "任务列表中的真实录入事项"
+  },
+  {
+    "seconds": 5.37,
+    "action": "打开任务详情"
+  },
+  {
+    "seconds": 8.64,
+    "action": "返回任务列表"
+  },
+  {
+    "seconds": 9.6,
+    "action": "回到日程"
+  },
+  {
+    "seconds": 12.81,
+    "action": "打开一句话处理与真实保存回执"
+  },
+  {
+    "seconds": 16.26,
+    "action": "撤销实际测试操作"
+  },
+  {
+    "seconds": 19.88,
+    "action": "关闭助手"
+  },
+  {
+    "seconds": 23.1,
+    "action": "我的与自动使用总结"
+  },
+  {
+    "seconds": 26.43,
+    "action": "编辑用户名"
+  },
+  {
+    "seconds": 29.69,
+    "action": "输入用户名"
+  },
+  {
+    "seconds": 33.68,
+    "action": "保存资料"
+  },
+  {
+    "seconds": 36.71,
+    "action": "查看真实总结依据"
+  },
+  {
+    "seconds": 39.77,
+    "action": "关闭依据"
+  },
+  {
+    "seconds": 42.87,
+    "action": "进入设置"
+  },
+  {
+    "seconds": 46.43,
+    "action": "返回我的"
+  },
+  {
+    "seconds": 47.38,
+    "action": "回到日程首页"
+  }
+]

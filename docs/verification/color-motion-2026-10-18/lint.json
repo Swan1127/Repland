@@ -1,0 +1,7 @@
+{
+  "counts": {
+    "Warning": 79
+  },
+  "errors": 0,
+  "report": "android/app/build/reports/lint-results-debug.xml"
+}

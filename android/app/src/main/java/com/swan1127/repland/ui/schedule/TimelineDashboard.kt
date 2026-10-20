@@ -227,7 +227,7 @@ fun TimelineDashboard(
             FilterChip(selected = viewMode == TimelineViewMode.MERGED, onClick = { viewMode = TimelineViewMode.MERGED },
                 label = { Text("总计") }, modifier = Modifier.testTag("schedule-summary-mode"))
             FilterChip(selected = viewMode == TimelineViewMode.SPLIT, onClick = { viewMode = TimelineViewMode.SPLIT },
-                label = { Text("详细") }, modifier = Modifier.testTag("schedule-detail-mode"), accentIndex = 2)
+                label = { Text("详细") }, modifier = Modifier.testTag("schedule-detail-mode"))
             Spacer(Modifier.weight(1f))
             IconButton(onClick = { showEventLibrary = true }, modifier = Modifier.size(48.dp).testTag("schedule-arrange-task")) {
                 Icon(Icons.Outlined.Add, "安排已有事项", tint = MaterialTheme.colorScheme.primary)

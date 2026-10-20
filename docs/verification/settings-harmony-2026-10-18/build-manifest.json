@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-10-18T17:30:07.988584+08:00",
+  "source_head": "0343c1e050e2d750d9782a64409ce9d0232bbefd",
+  "branch": "codex/frontend-refresh-2026-10-18",
+  "working_tree_changes": true,
+  "package": "com.swan1127.repland.frontend",
+  "apk": "android/app/build/outputs/apk/frontendPreview/app-frontendPreview.apk",
+  "apk_sha256": "32a04f92810f51bb8073c24bc2ae91425f54a1d5bfe601ddee2ccb3b2b5334eb",
+  "apk_bytes": 22614914,
+  "backend_unchanged": true,
+  "unit": {
+    "tests": 218,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 39
+  },
+  "device_distinct_passed": 21,
+  "lint": {
+    "Warning": 79
+  },
+  "videos": [
+    {
+      "file": "settings-harmony.mp4",
+      "duration_seconds": 51.69,
+      "frames": 499,
+      "fully_decoded": true,
+      "all_recorded_events_within_duration": true,
+      "bytes": 4001629
+    }
+  ],
+  "source_sha256": {
+    "FRONTEND_REFRESH.md": "77c609713803821ba061738f7fee322d8940fea08792a6d0816fbee1c1dc1fa7",
+    "README.md": "d1b3f2fa9f6428ee10a73a773ff258794b987140c2a486b98f128fb7f9b31081",
+    "android/app/src/main/java/com/swan1127/repland/ui/ReplandApp.kt": "34e3d1593e56e23842bd12ed959f156e40c2299c3745500542d0b5565f64807d",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/DesignControls.kt": "0ee2515160c396dfdd7b59bcfbf091412c8c66a1db2efb76a8006222a47abc06",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/DesignSectionHeading.kt": "69306f3535c3e450898536c7f4da32771b3f6af2581b725dc890727a3afea465",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/SettingsComponents.kt": "8799d3b6379c019b06bba34b927ce15fd2994f8b3e23c38fe45eeab193764c05",
+    "android/app/src/main/java/com/swan1127/repland/ui/profile/PersonalProfileHeader.kt": "26f80196cb172c14951fb35bd70d1352a6f62645384c5fbf393db45681c7ee08",
+    "android/app/src/main/java/com/swan1127/repland/ui/profile/UsageSummarySection.kt": "eab83d04efd8e12908958f1e21af89c4cd6699751d700e7bad6df2d5dbff01d7",
+    "android/app/src/main/java/com/swan1127/repland/ui/theme/VisualTokens.kt": "36360fd3a984beca4b117b187fd5bd6a9bf737c3cec2ad7efd02217dcec76b3c"
+  }
+}

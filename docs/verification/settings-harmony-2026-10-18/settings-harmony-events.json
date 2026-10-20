@@ -1,0 +1,58 @@
+[
+  {
+    "seconds": 0.0,
+    "action": "我的与设置统一青绿色系"
+  },
+  {
+    "seconds": 2.0,
+    "action": "进入设置，日常设置分组"
+  },
+  {
+    "seconds": 4.94,
+    "action": "日常设置的同色渐变标题与统一行"
+  },
+  {
+    "seconds": 6.94,
+    "action": "打开时间设置"
+  },
+  {
+    "seconds": 12.32,
+    "action": "返回保留设置页"
+  },
+  {
+    "seconds": 13.03,
+    "action": "滚动查看智能与个性化"
+  },
+  {
+    "seconds": 18.8,
+    "action": "打开模型服务配置"
+  },
+  {
+    "seconds": 21.76,
+    "action": "关闭配置，不修改模型或密钥"
+  },
+  {
+    "seconds": 24.87,
+    "action": "查看类别偏好入口"
+  },
+  {
+    "seconds": 30.53,
+    "action": "展开类别偏好"
+  },
+  {
+    "seconds": 33.7,
+    "action": "查看偏好表单"
+  },
+  {
+    "seconds": 35.46,
+    "action": "收起类别偏好"
+  },
+  {
+    "seconds": 50.29,
+    "action": "返回我的"
+  },
+  {
+    "seconds": 51.01,
+    "action": "展示统一后的我的页面"
+  }
+]

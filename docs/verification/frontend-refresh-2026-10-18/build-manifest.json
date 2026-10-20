@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-18 Asia/Shanghai",
+  "source_base": "32cac605e8cd61ee7dd608dc4d1f5fe707a4aa9a",
+  "branch": "codex/frontend-refresh-2026-10-18",
+  "working_tree_changes": true,
+  "package": "com.swan1127.repland.frontend",
+  "apk": "<repo>\\android\\app\\build\\outputs\\apk\\frontendPreview\\app-frontendPreview.apk",
+  "apk_bytes": 22614914,
+  "apk_sha256": "0f3cfa8010ac0987ed7a7b2d8b3b301fb8aba6130921fe91eccc7007eb51e95e",
+  "backend_unchanged_from_base": true,
+  "unit": {
+    "tests": 218,
+    "failures": 0,
+    "errors": 0,
+    "suites": 39
+  },
+  "device_distinct_passed": 147,
+  "final_profile_settings_retests_passed": 9,
+  "videos": [
+    {
+      "file": "main-app.mp4",
+      "duration_seconds": 51.8,
+      "fully_decoded": true
+    },
+    {
+      "file": "schedule-demo.mp4",
+      "duration_seconds": 36.37,
+      "fully_decoded": true
+    }
+  ],
+  "reference_zip_sha256": "138c1d47196de2b75d11ecdbaf2ffe476cf06a6e8cddb32c9b9c216cc2903cfa",
+  "changed_source_sha256": {
+    ".gitignore": "7947e9bf4ddf31ca09be7b735bde0deaa7d7ecaf85eaabbd5fbf7b3488e2922a",
+    "Build-Frontend.ps1": "6b13425550019d5529749b78bbf8ef0b5b95c61ee57d1d269e109091943501fe",
+    "Open-Frontend-Schedule.cmd": "6617a4543d8aa4f85d5b102fb97d88dcb6f5cdd7917463bfcb5e0737d3fc91c8",
+    "Open-Frontend.cmd": "98cee6477a3cf9ee266ff85688e51b6040bf40a610e7483754e1ba9fac263b5e",
+    "README.md": "80fe2a7757bcb3eef8c03cc4df0555906eb911ee5c1fa4e10b6c03611687e9ad",
+    "Start-Frontend.ps1": "42dede4a878945a55aa2006036dd8de9548253ea6ade445837750aabb633138f",
+    "android/app/build.gradle.kts": "0b9d8ad2bcdf77aafb248eaa860ba046af3ad045e54d66e4a498632d79feac71",
+    "android/app/src/designPreview/java/com/swan1127/repland/designpreview/SchedulePreviewActivity.kt": "58c74d93c4c3cfcc7b17320ab5f202b488c0e732045c72cb20d4fe87a16c6e4f",
+    "android/app/src/main/java/com/swan1127/repland/ui/ReplandApp.kt": "6220daca2a80e13fd809c11be04a3a6976bb71e964ed4f204c3114a042316d38",
+    "android/app/src/main/java/com/swan1127/repland/ui/TaskPageAppBar.kt": "b5d310f4002dd4b56ab472af7ae28f0e434a9b3aaf99ea1ab9e35923310ef406",
+    "android/app/src/main/java/com/swan1127/repland/ui/agent/AutonomousAssistantScreen.kt": "01398d351391516b881e1a172a6d2b77d564c3b6786eee8ead449d1515e3b0b4",
+    "android/app/src/main/java/com/swan1127/repland/ui/agent/AutonomousAssistantSheet.kt": "31e468c2ab4ae421792aff87e0fb5449d75ad1a6fcd1181ddbc2f262a239cdad",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/DesignSectionHeading.kt": "0ea5e443556fb6b7964b77df590846f8d82bbdf36e94a2f9306a33396caca748",
+    "android/app/src/main/java/com/swan1127/repland/ui/profile/PersonalProfileHeader.kt": "78e394cb447ab44c92a404826db18a810bfcf2eb0bb97f9585c21bf631442ee1",
+    "android/app/src/main/java/com/swan1127/repland/ui/profile/UsageSummarySection.kt": "db0917cd54c2b0f496adeef80d324f3ad7336113d5564156e7d748bc8e5c74a6"
+  }
+}

@@ -1,0 +1,176 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=<workspace>/outputs/Environment/java-home
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+WARNING: BuildType(designPreview): resValue 'string/app_name' value is being replaced.
+WARNING: BuildType(frontendPreview): resValue 'string/app_name' value is being replaced.
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preFrontendPreviewBuild UP-TO-DATE
+> Task :app:mergeFrontendPreviewNativeDebugMetadata NO-SOURCE
+> Task :app:generateFrontendPreviewBuildConfig
+> Task :app:generateFrontendPreviewResValues UP-TO-DATE
+> Task :app:generateFrontendPreviewResources UP-TO-DATE
+> Task :app:packageFrontendPreviewResources UP-TO-DATE
+> Task :app:processFrontendPreviewNavigationResources UP-TO-DATE
+> Task :app:parseFrontendPreviewLocalResources UP-TO-DATE
+> Task :app:generateFrontendPreviewRFile UP-TO-DATE
+> Task :app:javaPreCompileFrontendPreview UP-TO-DATE
+> Task :app:generateFrontendPreviewAssets UP-TO-DATE
+> Task :app:mergeFrontendPreviewAssets UP-TO-DATE
+> Task :app:compressFrontendPreviewAssets UP-TO-DATE
+> Task :app:l8DexDesugarLibFrontendPreview UP-TO-DATE
+> Task :app:checkFrontendPreviewDuplicateClasses UP-TO-DATE
+> Task :app:desugarFrontendPreviewFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFrontendPreview UP-TO-DATE
+> Task :app:mergeLibDexFrontendPreview UP-TO-DATE
+> Task :app:checkFrontendPreviewAarMetadata UP-TO-DATE
+> Task :app:compileFrontendPreviewNavigationResources UP-TO-DATE
+> Task :app:mapFrontendPreviewSourceSetPaths UP-TO-DATE
+> Task :app:mergeFrontendPreviewResources UP-TO-DATE
+> Task :app:createFrontendPreviewCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksFrontendPreview UP-TO-DATE
+> Task :app:processFrontendPreviewMainManifest UP-TO-DATE
+> Task :app:processFrontendPreviewManifest UP-TO-DATE
+> Task :app:processFrontendPreviewManifestForPackage UP-TO-DATE
+> Task :app:processFrontendPreviewResources UP-TO-DATE
+> Task :app:mergeFrontendPreviewJniLibFolders UP-TO-DATE
+> Task :app:mergeFrontendPreviewNativeLibs UP-TO-DATE
+> Task :app:stripFrontendPreviewDebugSymbols UP-TO-DATE
+> Task :app:validateSigningFrontendPreview UP-TO-DATE
+> Task :app:writeFrontendPreviewAppMetadata UP-TO-DATE
+> Task :app:writeFrontendPreviewSigningConfigVersions UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin
+> Task :app:kspFrontendPreviewKotlin
+> Task :app:compileFrontendPreviewKotlin
+> Task :app:compileDebugKotlin
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac
+> Task :app:compileFrontendPreviewJavaWithJavac
+> Task :app:processFrontendPreviewJavaRes
+> Task :app:mergeFrontendPreviewJavaResource
+> Task :app:dexBuilderFrontendPreview
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:l8DexDesugarLibDebug UP-TO-DATE
+> Task :app:processDebugJavaRes
+> Task :app:mergeProjectDexFrontendPreview
+> Task :app:mergeDebugJavaResource
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:packageFrontendPreview
+> Task :app:createFrontendPreviewApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFrontendPreview
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:processDebugAndroidTestManifest UP-TO-DATE
+> Task :app:generateDebugAndroidTestBuildConfig
+> Task :app:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :app:generateDebugAndroidTestResources UP-TO-DATE
+> Task :app:packageDebugAndroidTestResources UP-TO-DATE
+> Task :app:processDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:parseDebugAndroidTestLocalResources UP-TO-DATE
+> Task :app:generateDebugAndroidTestRFile UP-TO-DATE
+> Task :app:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :app:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :app:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :app:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :app:mergeLibDexDebugAndroidTest UP-TO-DATE
+> Task :app:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :app:compileDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :app:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :app:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :app:processDebugAndroidTestResources UP-TO-DATE
+> Task :app:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :app:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :app:kspDebugAndroidTestKotlin
+> Task :app:bundleFrontendPreviewClassesToRuntimeJar
+> Task :app:bundleFrontendPreviewClassesToCompileJar
+> Task :app:kspFrontendPreviewUnitTestKotlin
+> Task :app:preFrontendPreviewUnitTestBuild UP-TO-DATE
+> Task :app:compileFrontendPreviewUnitTestKotlin
+> Task :app:javaPreCompileFrontendPreviewUnitTest UP-TO-DATE
+> Task :app:compileFrontendPreviewUnitTestJavaWithJavac NO-SOURCE
+> Task :app:packageFrontendPreviewUnitTestForUnitTest UP-TO-DATE
+> Task :app:processFrontendPreviewUnitTestManifest UP-TO-DATE
+> Task :app:generateFrontendPreviewUnitTestConfig UP-TO-DATE
+> Task :app:processFrontendPreviewUnitTestJavaRes UP-TO-DATE
+
+> Task :app:testFrontendPreviewUnitTest
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=<workspace>/outputs/Environment/java-home
+
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:generateDebugLintReportModel
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:compileDebugAndroidTestKotlin
+w: file:///<repo>/android/app/src/androidTest/java/com/swan1127/repland/NativeSheetTestInput.kt:32:87 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///<repo>/android/app/src/androidTest/java/com/swan1127/repland/NativeSheetTestInput.kt:37:32 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///<repo>/android/app/src/androidTest/java/com/swan1127/repland/NativeSheetTestInput.kt:69:26 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+w: file:///<repo>/android/app/src/androidTest/java/com/swan1127/repland/NativeSheetTestInput.kt:85:26 'fun recycle(): Unit' is deprecated. Deprecated in Java.
+
+> Task :app:compileDebugAndroidTestJavaWithJavac
+> Task :app:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :app:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebugAndroidTest
+> Task :app:mergeProjectDexDebugAndroidTest
+> Task :app:packageDebugAndroidTest
+> Task :app:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebugAndroidTest
+> Task :app:lintAnalyzeDebug
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:verifyOfflineMvpBoundary
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///<repo>/android/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+
+BUILD SUCCESSFUL in 3m 41s
+133 actionable tasks: 40 executed, 93 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html

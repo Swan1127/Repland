@@ -36,6 +36,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import com.swan1127.repland.ui.components.DesignIcons
+import com.swan1127.repland.ui.components.DesignSectionHeading
 
 private class AssistantImeBridge {
     var visible = false
@@ -96,7 +98,8 @@ fun AutonomousAssistantSheet(
             .heightIn(max = (LocalConfiguration.current.screenHeightDp * .85f).dp)
             .padding(bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(0.dp)) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("一句话处理", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                DesignSectionHeading("一句话处理", DesignIcons.Assistant, accentIndex = 2,
+                    modifier = Modifier.weight(1f), large = true)
                 IconButton(onClick = ::close, enabled = !busy, modifier = Modifier.testTag("assistant-close")) {
                     Icon(Icons.Outlined.Close, contentDescription = "关闭并保留输入")
                 }

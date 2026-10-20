@@ -1,0 +1,107 @@
+{
+  "created_at": "2026-10-18T05:29:51.974557+00:00",
+  "source_base": "32cac605e8cd61ee7dd608dc4d1f5fe707a4aa9a",
+  "branch": "codex/frontend-refresh-2026-10-18",
+  "working_tree_changes": true,
+  "package": "com.swan1127.repland.frontend",
+  "apk": "<repo>\\android\\app\\build\\outputs\\apk\\frontendPreview\\app-frontendPreview.apk",
+  "apk_bytes": 23552898,
+  "apk_sha256": "4b558e9d2bc158a74ccb2ac9cab857443dfd46884870d2129422955410ed2dfb",
+  "backend_unchanged_from_base": true,
+  "unit": {
+    "tests": 218,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "suites": 39
+  },
+  "lint": {
+    "Warning": 79
+  },
+  "device_distinct_passed": 147,
+  "contrast": {
+    "checks": 66,
+    "pass_count": 66,
+    "failure_count": 0,
+    "pass": true,
+    "minimum_ratio": 4.561657,
+    "minimum_case": "light.accent[2].onSurfaceVariant_on_highlight",
+    "modes": {
+      "light": {
+        "checks": 33,
+        "pass_count": 33,
+        "failure_count": 0,
+        "minimum_ratio": 4.561657,
+        "minimum_case": "light.accent[2].onSurfaceVariant_on_highlight"
+      },
+      "dark": {
+        "checks": 33,
+        "pass_count": 33,
+        "failure_count": 0,
+        "minimum_ratio": 4.562105,
+        "minimum_case": "dark.accent[1].onSurfaceVariant_on_highlight"
+      }
+    }
+  },
+  "shortcut": {
+    "path": "<desktop>\\Repland 前端新版.lnk",
+    "launched_at": "2026-10-18T13:15:31.8364657+08:00",
+    "pid": 20916,
+    "actual_shortcut_opened": true,
+    "package": "com.swan1127.repland.frontend",
+    "activity": "com.swan1127.repland.MainActivity",
+    "installed_apk_sha256": "4b558e9d2bc158a74ccb2ac9cab857443dfd46884870d2129422955410ed2dfb",
+    "matches_built_apk": true,
+    "cold_start": true,
+    "previous_crash_prompt_dismissed_without_sending": true
+  },
+  "videos": [
+    {
+      "file": "color-motion.mp4",
+      "duration_seconds": 40.75,
+      "frames": 499,
+      "fully_decoded": true,
+      "all_recorded_events_within_duration": true,
+      "bytes": 2798251
+    }
+  ],
+  "fixture_cleanup": {
+    "title": "UI color review",
+    "method": "assistant whole-operation undo through actual UI",
+    "active_task_absent": true,
+    "direct_database_writes": false
+  },
+  "changed_source_sha256": {
+    ".gitignore": "534b305c49b2a67788ecaa01fda593798c3a39d02ba95ccf1cc59460a564cc27",
+    "Build-Frontend.ps1": "6b13425550019d5529749b78bbf8ef0b5b95c61ee57d1d269e109091943501fe",
+    "Create-Desktop-Shortcut.ps1": "80f563e70a36c5018d47b8a13c1471d6f1b3c727097f45d339b594dd6e8a6dae",
+    "FRONTEND_REFRESH.md": "dd25671a355799d3cac4128dede7673d868a38465f46b90d5b654dcdd51c2f5c",
+    "Open-Frontend-Schedule.cmd": "6617a4543d8aa4f85d5b102fb97d88dcb6f5cdd7917463bfcb5e0737d3fc91c8",
+    "Open-Frontend.cmd": "98cee6477a3cf9ee266ff85688e51b6040bf40a610e7483754e1ba9fac263b5e",
+    "README.md": "1be3448158002ded1f83168882a0c99935f445a2f05d4338b8d8df9377b95d74",
+    "Start-Frontend.ps1": "04ece77e4bc2822063139639dfd78ff4d4184859285c5a84696f5f629590fd4b",
+    "android/app/build.gradle.kts": "0b9d8ad2bcdf77aafb248eaa860ba046af3ad045e54d66e4a498632d79feac71",
+    "android/app/src/designPreview/java/com/swan1127/repland/designpreview/SchedulePreviewActivity.kt": "58c74d93c4c3cfcc7b17320ab5f202b488c0e732045c72cb20d4fe87a16c6e4f",
+    "android/app/src/main/java/com/swan1127/repland/ui/ReplandApp.kt": "d3947323029698fd13fa784c3e92b7b098912d8d2a09d5dc7af00f2be86541c0",
+    "android/app/src/main/java/com/swan1127/repland/ui/TaskPageAppBar.kt": "a9c89a06d6adc9b52720ebc09a2d5e2d640ee7dba9e107fc330164a00a3e378d",
+    "android/app/src/main/java/com/swan1127/repland/ui/agent/AutonomousAssistantScreen.kt": "530a9b91f0b5c35a85fdbbc96ac366f8ed9217bd6c1eca03f2d7b2a869904dff",
+    "android/app/src/main/java/com/swan1127/repland/ui/agent/AutonomousAssistantSheet.kt": "31e468c2ab4ae421792aff87e0fb5449d75ad1a6fcd1181ddbc2f262a239cdad",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/DesignControls.kt": "182918eec9dac566e39ef808b6257235049b549ba9f98d32c7c7537ce3abc4bb",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/DesignSectionHeading.kt": "0ea5e443556fb6b7964b77df590846f8d82bbdf36e94a2f9306a33396caca748",
+    "android/app/src/main/java/com/swan1127/repland/ui/components/TaskExperienceComponents.kt": "1606ff7eeced4a362a60b7f21d5eaf9d1838594905977b49f5210f2be44e9cee",
+    "android/app/src/main/java/com/swan1127/repland/ui/profile/PersonalProfileHeader.kt": "04b5302d6a3cab6d840ce8bfd7451b9c15d9ad843742b8d0c4c9d05b86033eb0",
+    "android/app/src/main/java/com/swan1127/repland/ui/profile/UsageSummarySection.kt": "5eb7bbd71d8a6a997ff36d3163f38589b87d51dc8878a186ab7eb4b52614a176",
+    "android/app/src/main/java/com/swan1127/repland/ui/schedule/TimelineDashboard.kt": "1f3b6e0b6c93657c6fd2c3adf1f21179fad54bcdebee43ea122f70659a8b7a66",
+    "android/app/src/main/java/com/swan1127/repland/ui/theme/Motion.kt": "56ae01f2bcdeb23dd498b6c14482f10b78980bcd4c13bcf4a1c9ef5f5a3af376",
+    "android/app/src/main/java/com/swan1127/repland/ui/theme/VisualTokens.kt": "5b5038f1e7af73752ed251fbbf4c2cce92060d1cab46f6c79790abebfd3250bf"
+  },
+  "supersedes": "../frontend-refresh-2026-10-18/build-manifest.json",
+  "publication_notes": {
+    "local_paths_redacted": true,
+    "raw_evidence_retained_locally": true,
+    "gallery_thumbnail_evidence_excluded": true,
+    "ui_sources_unchanged_since_recorded_tests": true,
+    "launcher_sdk_environment_fallback_checked_separately": true,
+    "artifact": "Locally built APK; regenerate with Build-Frontend.ps1. APK is not committed."
+  }
+}

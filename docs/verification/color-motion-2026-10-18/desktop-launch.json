@@ -1,0 +1,12 @@
+{
+  "path": "<desktop>\\Repland 前端新版.lnk",
+  "launched_at": "2026-10-18T13:15:31.8364657+08:00",
+  "pid": 20916,
+  "actual_shortcut_opened": true,
+  "package": "com.swan1127.repland.frontend",
+  "activity": "com.swan1127.repland.MainActivity",
+  "installed_apk_sha256": "4b558e9d2bc158a74ccb2ac9cab857443dfd46884870d2129422955410ed2dfb",
+  "matches_built_apk": true,
+  "cold_start": true,
+  "previous_crash_prompt_dismissed_without_sending": true
+}

@@ -2,12 +2,14 @@
 
 当前源码版本：**0.1.35（1035）**，更新于 **2026-10-18**。
 
-- 保留原有多色界面；底部导航为日程、任务、我的。
+前端续作基于最新 `main` 的 `32cac60`，延续参考包视觉并统一新增助手、自动使用总结与设置入口。最新调整将“我的”与设置统一为淡青绿相近色系，设置采用三组卡片、统一入口行和小面积标题渐变。双击桌面 **Repland 前端新版** 或 [Open-Frontend.cmd](Open-Frontend.cmd) 打开独立新版；范围与接口映射见 [前端改造说明](FRONTEND_REFRESH.md)，最新实测见 [设置排版与配色验证](docs/verification/settings-harmony-2026-10-18/README.md)。上一轮 147 项设备验证与录屏保留在 [配色与动效验证](docs/verification/color-motion-2026-10-18/README.md)。
+
+- 以中性白色卡片为主，日程浅蓝、任务薄荷、我的与设置淡青绿点缀；底部导航为日程、任务、我的。
 - 日程右下角提供“一句话处理”悬浮入口，支持任务录入、明确进度指令、安排与受保护的整次撤销。
 - “我的”保留头像、用户名和自动使用总结，其余选项集中到“设置”。
 - 用户画像根据最近 30 天的真实操作记录自动总结，无需填写、补录或逐项确认；可选查看依据。已有 AI 授权与模型配置有效时自动生成，失败保留本地能力与缓存。
 
-本轮已验证 **218 项 JVM 测试、108 个不同的设备回归用例**，Debug、DesignPreview、AndroidTest 构建、Lint 和离线边界检查通过。设备回归为本轮针对性范围，未声称重跑全部历史设备测试。参见 [验证摘要](docs/verification/automatic-usage-summary-2026-10-18/README.md)。
+上游自动总结阶段验证了 **218 项 JVM 测试、108 个不同的设备回归用例**，Debug、DesignPreview、AndroidTest 构建、Lint 和离线边界检查通过；此处作为该功能阶段的历史记录。参见 [验证摘要](docs/verification/automatic-usage-summary-2026-10-18/README.md)。最新前端验证以首段链接为准，未声称重跑全部历史设备测试。
 
 功能与变更记录：[自动使用总结](docs/AUTOMATIC_USAGE_SUMMARY_2026-10-18.md)、[悬浮助手与设置](docs/SCHEDULE_ASSISTANT_AND_SETTINGS_2026-10-17.md)、[产品主思路](REPLAND_IDEA.md)。本地使用设计副本包 `com.swan1127.repland.design`；模型密钥通过设备内设置提供，仓库不包含密钥或个人数据库。
 

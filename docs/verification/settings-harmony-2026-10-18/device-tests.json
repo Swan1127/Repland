@@ -1,0 +1,30 @@
+{
+  "requested": 21,
+  "passed": 21,
+  "failures": [],
+  "elapsed_seconds": 57.1,
+  "process_exit": 0,
+  "cases": [
+    "com.swan1127.repland.AiProviderSettingsUiTest.deepseek_preset_edits_metadata_only_until_explicit_save",
+    "com.swan1127.repland.AiProviderSettingsUiTest.large_text_dark_mode_keeps_fields_errors_and_actions_reachable",
+    "com.swan1127.repland.AiProviderSettingsUiTest.replacement_key_requires_successful_save_before_connection_test",
+    "com.swan1127.repland.AiProviderSettingsUiTest.editing_provider_cannot_test_old_saved_configuration_or_show_its_success",
+    "com.swan1127.repland.ContextReadWorkflowUiTest.preference_input_read_and_write_failures_recreation_and_real_receipt_keep_current_plan",
+    "com.swan1127.repland.DataManagementWorkflowUiTest.confirmed_clear_from_mine_removes_data_and_shows_success",
+    "com.swan1127.repland.DesignMotionUiTest.disclosure_can_reverse_before_enter_finishes_without_duplicate_controls",
+    "com.swan1127.repland.MineSettingsNavigationUiTest.my_landing_page_keeps_personal_profile_and_portrait_without_settings_content",
+    "com.swan1127.repland.MineSettingsNavigationUiTest.usage_summary_evidence_recreation_and_settings_return_do_not_change_tasks_or_plan",
+    "com.swan1127.repland.MineSettingsNavigationUiTest.time_settings_nested_navigation_returns_to_settings_before_profile",
+    "com.swan1127.repland.MineSettingsNavigationUiTest.settings_recreation_native_back_and_my_tab_return_to_profile",
+    "com.swan1127.repland.PersonalProfileUiTest.photo_picker_cancel_preserves_the_profile_and_requests_images_only",
+    "com.swan1127.repland.PersonalProfileUiTest.large_dark_reduced_motion_keeps_avatar_and_editing_reachable",
+    "com.swan1127.repland.PersonalProfileUiTest.cancel_keeps_the_saved_username",
+    "com.swan1127.repland.PersonalProfileUiTest.invalid_names_keep_the_dialog_open_and_valid_save_commits_once",
+    "com.swan1127.repland.PersonalProfileUiTest.save_failure_retains_input_and_busy_state_disables_duplicate_actions",
+    "com.swan1127.repland.UsageSummaryUiTest.automatic_summary_and_update_time_appear_without_generation_or_confirmation_actions",
+    "com.swan1127.repland.UsageSummaryUiTest.no_usage_records_show_an_automatic_plain_language_fallback_without_forms",
+    "com.swan1127.repland.UsageSummaryUiTest.large_dark_reduced_motion_keeps_summary_and_evidence_actions_reachable",
+    "com.swan1127.repland.UsageSummaryUiTest.evidence_is_optional_and_open_sheet_survives_saved_state_restoration",
+    "com.swan1127.repland.UsageSummaryUiTest.refreshing_or_failed_reads_keep_the_last_successful_summary_and_timestamp"
+  ]
+}

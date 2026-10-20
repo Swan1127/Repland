@@ -46,8 +46,8 @@ class SchedulePreviewActivity : ComponentActivity() {
                     }
                 } },
                 bottomBar = { NavigationBar(containerColor = MaterialTheme.colorScheme.surfaceContainerLow, tonalElevation = 0.dp) {
-                    listOf("日程" to DesignIcons.Calendar, "任务" to DesignIcons.Tasks, "助手" to DesignIcons.Assistant, "我的" to DesignIcons.Profile).forEachIndexed { index, (label, icon) ->
-                        DesignNavigationItem(selected = index == 0, onClick = { if (index != 0) finish() }, icon = { Icon(icon, null) }, label = { Text(label) }, accentIndex = if (index == 3) 4 else index)
+                    listOf("日程" to DesignIcons.Calendar, "任务" to DesignIcons.Tasks, "我的" to DesignIcons.Profile).forEachIndexed { index, (label, icon) ->
+                        DesignNavigationItem(selected = index == 0, onClick = { if (index != 0) finish() }, icon = { Icon(icon, null) }, label = { Text(label) }, accentIndex = if (index == 2) 4 else index)
                     }
                 } },
             ) { padding ->
@@ -58,7 +58,7 @@ class SchedulePreviewActivity : ComponentActivity() {
                 }
             }
             if (message) AlertDialog(onDismissRequest = { message = false }, title = { Text("这是演示日程") },
-                text = { Text("可以切换总计、详细，查看时间与优先级。实际新增和编辑请返回设计副本主页。") },
+                text = { Text("可以切换总计、详细，查看时间与优先级。实际新增和编辑请返回应用主页。") },
                 confirmButton = { TextButton(onClick = { message = false }) { Text("知道了") } })
         } }
     }

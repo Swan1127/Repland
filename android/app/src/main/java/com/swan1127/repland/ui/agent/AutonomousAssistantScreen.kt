@@ -40,6 +40,7 @@ import com.swan1127.repland.domain.model.TaskStatus
 import com.swan1127.repland.ui.components.DesignButton
 import com.swan1127.repland.ui.components.DesignClickableSurface
 import com.swan1127.repland.ui.components.DesignIcons
+import com.swan1127.repland.ui.components.DesignSectionHeading
 import com.swan1127.repland.ui.theme.replandAccent
 
 /** One utterance, one operation. The parent owns execution, receipts, errors and undo. */
@@ -98,45 +99,49 @@ fun AutonomousAssistantScreen(
             .testTag("autonomous-assistant-scroll").padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        OutlinedTextField(
-            value = input,
-            onValueChange = { input = it },
-            enabled = !working,
-            label = { Text("告诉我需要处理的事") },
-            placeholder = { Text("例如：明天复习物理 45 分钟") },
-            modifier = Modifier.fillMaxWidth().testTag("autonomous-input"),
-            minLines = 3,
-            maxLines = 5,
-            shape = RoundedCornerShape(12.dp),
-        )
-        state.error?.takeIf(String::isNotBlank)?.let { error ->
-            Text(
-                error,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.testTag("autonomous-error")
-                    .semantics { liveRegion = LiveRegionMode.Polite },
-            )
-        }
-        DesignButton(
-            onClick = {
-                if (state.ready && !state.busy && !awaitingReply && input.isNotBlank()) {
-                    awaitingReply = true
-                    focus.clearFocus()
-                    onSubmit(input.trim())
+        Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = RoundedCornerShape(24.dp)) {
+            Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it },
+                    enabled = !working,
+                    label = { Text("告诉我需要处理的事") },
+                    placeholder = { Text("例如：明天复习物理 45 分钟") },
+                    modifier = Modifier.fillMaxWidth().testTag("autonomous-input"),
+                    minLines = 3,
+                    maxLines = 5,
+                    shape = RoundedCornerShape(12.dp),
+                )
+                state.error?.takeIf(String::isNotBlank)?.let { error ->
+                    Text(
+                        error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag("autonomous-error")
+                            .semantics { liveRegion = LiveRegionMode.Polite },
+                    )
                 }
-            },
-            enabled = canSend,
-            modifier = Modifier.align(Alignment.End).testTag("autonomous-submit"),
-        ) {
-            Text(if (working) "正在处理…" else if (!state.ready) "正在准备…" else "发送并处理")
-            Spacer(Modifier.width(8.dp))
-            Icon(DesignIcons.ArrowRight, null, Modifier.size(20.dp))
+                DesignButton(
+                    onClick = {
+                        if (state.ready && !state.busy && !awaitingReply && input.isNotBlank()) {
+                            awaitingReply = true
+                            focus.clearFocus()
+                            onSubmit(input.trim())
+                        }
+                    },
+                    enabled = canSend,
+                    modifier = Modifier.align(Alignment.End).testTag("autonomous-submit"),
+                ) {
+                    Text(if (working) "正在处理…" else if (!state.ready) "正在准备…" else "发送并处理")
+                    Spacer(Modifier.width(8.dp))
+                    Icon(DesignIcons.ArrowRight, null, Modifier.size(20.dp))
+                }
+            }
         }
         response?.let {
-            Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(20.dp)) {
+            Surface(color = replandAccent(1).surface, shape = RoundedCornerShape(24.dp)) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("处理结果", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    DesignSectionHeading("处理结果", DesignIcons.Tasks, accentIndex = 1)
                     Text(it, style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.testTag("autonomous-response")
                             .semantics { liveRegion = LiveRegionMode.Polite })
@@ -160,7 +165,7 @@ fun AutonomousAssistantScreen(
 
 @Composable
 private fun AssistantTaskResult(task: Task, enabled: Boolean, onOpen: () -> Unit) {
-    val accent = replandAccent(task.id.hashCode())
+    val accent = replandAccent(1)
     val status = when (task.status) {
         TaskStatus.NOT_STARTED -> "待开始"
         TaskStatus.IN_PROGRESS -> "进行中"

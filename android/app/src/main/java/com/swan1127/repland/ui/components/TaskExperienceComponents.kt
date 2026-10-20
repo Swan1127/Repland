@@ -8,6 +8,12 @@ import com.swan1127.repland.ui.theme.ReplandMotion
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.border
+import com.swan1127.repland.ui.theme.replandAccent
+import com.swan1127.repland.ui.theme.pressMotion
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -113,6 +119,8 @@ fun TaskRow(
     emphasis: TaskRowEmphasis = TaskRowEmphasis.NORMAL,
     planningSummary: String? = null,
 ) {
+    val accent = replandAccent(1)
+    val interaction = remember { MutableInteractionSource() }
     val statusColor = when {
         task.status == TaskStatus.COMPLETED -> MaterialTheme.colorScheme.onSurfaceVariant
         task.status == TaskStatus.IN_PROGRESS -> MaterialTheme.colorScheme.primary
@@ -125,11 +133,14 @@ fun TaskRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 68.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .clickable(role = Role.Button, onClick = onOpen)
+            .heightIn(min = 80.dp)
+            .then(pressMotion(interaction, true, .985f))
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+            .clickable(interactionSource = interaction, indication = LocalIndication.current, role = Role.Button, onClick = onOpen)
             .testTag("task-card-${task.displayName}")
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -137,7 +148,7 @@ fun TaskRow(
             onClick = if (task.status == TaskStatus.NOT_STARTED || task.status == TaskStatus.POSTPONED) onStart else onOpen,
             modifier = Modifier
                 .size(48.dp)
-                .background(statusColor.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
+                .background(accent.highlight, RoundedCornerShape(14.dp))
                 .testTag("task-start-${task.id}")
                 .semantics { contentDescription = if (task.status == TaskStatus.NOT_STARTED || task.status == TaskStatus.POSTPONED) "开始 ${task.displayName}" else "查看 ${task.displayName}" },
         ) {
@@ -148,7 +159,7 @@ fun TaskRow(
                     else -> Icons.Outlined.PlayArrow
                 },
                 contentDescription = null,
-                tint = statusColor,
+                tint = if (task.dueDate?.isBefore(LocalDate.now()) == true && task.status.isActive) statusColor else accent.ink,
             )
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -179,11 +190,13 @@ fun TaskRow(
                 TaskStatus.COMPLETED -> 1f
                 else -> (task.progressPercent ?: 0).coerceIn(0, 100) / 100f
             }
+            val animatedProgress by animateFloatAsState(progress,
+                tween(if (LocalReducedMotion.current) 0 else ReplandMotion.Expand), label = "task progress")
             if (progress > 0f || task.status == TaskStatus.IN_PROGRESS) LinearProgressIndicator(
-                progress = { progress },
+                progress = { animatedProgress },
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                 color = statusColor,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                trackColor = accent.highlight,
             )
         }
         Icon(
@@ -197,7 +210,7 @@ fun TaskRow(
 
 @Composable
 private fun TaskMetaLabel(label: String) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerHigh, shape = RoundedCornerShape(6.dp)) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = RoundedCornerShape(6.dp)) {
         Text(
             label,
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),

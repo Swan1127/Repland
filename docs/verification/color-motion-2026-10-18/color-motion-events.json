@@ -1,0 +1,58 @@
+[
+  {
+    "seconds": 0.0,
+    "action": "日程与统一淡色入口"
+  },
+  {
+    "seconds": 2.0,
+    "action": "切换任务页"
+  },
+  {
+    "seconds": 4.92,
+    "action": "查看今日任务与筛选过渡"
+  },
+  {
+    "seconds": 8.01,
+    "action": "返回任务总览"
+  },
+  {
+    "seconds": 11.05,
+    "action": "打开真实任务详情"
+  },
+  {
+    "seconds": 13.9,
+    "action": "查看详情操作与主次按钮"
+  },
+  {
+    "seconds": 21.22,
+    "action": "返回任务列表"
+  },
+  {
+    "seconds": 21.89,
+    "action": "切换我的，查看收敛后的单色布局"
+  },
+  {
+    "seconds": 24.76,
+    "action": "展示个人资料和自动使用总结"
+  },
+  {
+    "seconds": 27.76,
+    "action": "查看真实总结依据"
+  },
+  {
+    "seconds": 30.55,
+    "action": "关闭依据"
+  },
+  {
+    "seconds": 33.41,
+    "action": "进入设置"
+  },
+  {
+    "seconds": 36.18,
+    "action": "返回我的"
+  },
+  {
+    "seconds": 36.85,
+    "action": "回到日程"
+  }
+]

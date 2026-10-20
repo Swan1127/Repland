@@ -1,0 +1,9 @@
+{
+  "passed": 9,
+  "failures": 0,
+  "scope": [
+    "PersonalProfileUiTest",
+    "MineSettingsNavigationUiTest"
+  ],
+  "distinct_total_with_initial_run": 147
+}

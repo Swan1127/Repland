@@ -1,0 +1,35 @@
+[
+  {
+    "mode": "landscape",
+    "keyboard_top": 429,
+    "input_bounds": [
+      402,
+      225,
+      1778,
+      393
+    ],
+    "save_and_cancel": "passed"
+  },
+  {
+    "mode": "narrow",
+    "keyboard_top": 1315,
+    "input_bounds": [
+      135,
+      541,
+      849,
+      768
+    ],
+    "save_and_cancel": "passed"
+  },
+  {
+    "mode": "large-dark",
+    "keyboard_top": 1517,
+    "input_bounds": [
+      183,
+      528,
+      897,
+      969
+    ],
+    "save_and_cancel": "passed"
+  }
+]

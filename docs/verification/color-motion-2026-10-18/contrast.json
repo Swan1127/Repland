@@ -1,0 +1,780 @@
+{
+  "created_at": "2026-10-18T05:10:08.483256+00:00",
+  "method": {
+    "standard": "WCAG 2.2 relative luminance and contrast ratio, sRGB",
+    "normal_text_minimum_ratio": 4.5,
+    "channel_linearization": "c = sRGB_byte / 255; c_linear = c / 12.92 when c <= 0.04045, otherwise ((c + 0.055) / 1.055)^2.4",
+    "relative_luminance": "L = 0.2126 R_linear + 0.7152 G_linear + 0.0722 B_linear",
+    "contrast_ratio": "(max(L_foreground, L_background) + 0.05) / (min(L_foreground, L_background) + 0.05)",
+    "pass_evaluation": "Computed using full-precision ratios before rounding output to six decimal places.",
+    "scope": "All five accent ink/onSurface/onSurfaceVariant foregrounds on each accent surface and highlight in each mode; focusText/focusMuted on focusSurface and onFocusAction on focusAction in each mode.",
+    "assumptions": [
+      "All evaluated Color(0xFF...) tokens are fully opaque.",
+      "Static LightColorScheme/DarkColorScheme are used; dynamicColor defaults to false and device-generated palettes are outside this source-token check.",
+      "Results verify token color pairs only; rendered screenshots, transparent blends, and platform text antialiasing are outside this calculation."
+    ]
+  },
+  "sources": [
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/VisualTokens.kt",
+      "sha256": "5b5038f1e7af73752ed251fbbf4c2cce92060d1cab46f6c79790abebfd3250bf"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/Theme.kt",
+      "sha256": "434902121e09c2eda273544fd3037bedb12b709d2c45d12abe584fc346f5ba11"
+    }
+  ],
+  "summary": {
+    "checks": 66,
+    "pass_count": 66,
+    "failure_count": 0,
+    "pass": true,
+    "minimum_ratio": 4.561657,
+    "minimum_case": "light.accent[2].onSurfaceVariant_on_highlight",
+    "modes": {
+      "light": {
+        "checks": 33,
+        "pass_count": 33,
+        "failure_count": 0,
+        "minimum_ratio": 4.561657,
+        "minimum_case": "light.accent[2].onSurfaceVariant_on_highlight"
+      },
+      "dark": {
+        "checks": 33,
+        "pass_count": 33,
+        "failure_count": 0,
+        "minimum_ratio": 4.562105,
+        "minimum_case": "dark.accent[1].onSurfaceVariant_on_highlight"
+      }
+    }
+  },
+  "failures": [],
+  "checks": [
+    {
+      "id": "light.accent[0].ink_on_surface",
+      "mode": "light",
+      "foreground_token": "LightAccents[0].ink",
+      "background_token": "LightAccents[0].surface",
+      "foreground": "#3F6094",
+      "background": "#EAF2FF",
+      "contrast_ratio": 5.628816,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[0].onSurface_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[0].surface",
+      "foreground": "#242831",
+      "background": "#EAF2FF",
+      "contrast_ratio": 13.102532,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[0].onSurfaceVariant_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[0].surface",
+      "foreground": "#606572",
+      "background": "#EAF2FF",
+      "contrast_ratio": 5.176099,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[0].ink_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightAccents[0].ink",
+      "background_token": "LightAccents[0].highlight",
+      "foreground": "#3F6094",
+      "background": "#DCEAFF",
+      "contrast_ratio": 5.210027,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[0].onSurface_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[0].highlight",
+      "foreground": "#242831",
+      "background": "#DCEAFF",
+      "contrast_ratio": 12.127692,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[0].onSurfaceVariant_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[0].highlight",
+      "foreground": "#606572",
+      "background": "#DCEAFF",
+      "contrast_ratio": 4.790992,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[1].ink_on_surface",
+      "mode": "light",
+      "foreground_token": "LightAccents[1].ink",
+      "background_token": "LightAccents[1].surface",
+      "foreground": "#39634D",
+      "background": "#EAF7EF",
+      "contrast_ratio": 6.213303,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[1].onSurface_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[1].surface",
+      "foreground": "#242831",
+      "background": "#EAF7EF",
+      "contrast_ratio": 13.387765,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[1].onSurfaceVariant_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[1].surface",
+      "foreground": "#606572",
+      "background": "#EAF7EF",
+      "contrast_ratio": 5.288779,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[1].ink_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightAccents[1].ink",
+      "background_token": "LightAccents[1].highlight",
+      "foreground": "#39634D",
+      "background": "#DAF2E4",
+      "contrast_ratio": 5.806578,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[1].onSurface_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[1].highlight",
+      "foreground": "#242831",
+      "background": "#DAF2E4",
+      "contrast_ratio": 12.511398,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[1].onSurfaceVariant_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[1].highlight",
+      "foreground": "#606572",
+      "background": "#DAF2E4",
+      "contrast_ratio": 4.942574,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[2].ink_on_surface",
+      "mode": "light",
+      "foreground_token": "LightAccents[2].ink",
+      "background_token": "LightAccents[2].surface",
+      "foreground": "#68558F",
+      "background": "#F2EDFF",
+      "contrast_ratio": 5.581463,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[2].onSurface_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[2].surface",
+      "foreground": "#242831",
+      "background": "#F2EDFF",
+      "contrast_ratio": 12.884514,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[2].onSurfaceVariant_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[2].surface",
+      "foreground": "#606572",
+      "background": "#F2EDFF",
+      "contrast_ratio": 5.089972,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[2].ink_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightAccents[2].ink",
+      "background_token": "LightAccents[2].highlight",
+      "foreground": "#68558F",
+      "background": "#E8DFFF",
+      "contrast_ratio": 5.002133,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[2].onSurface_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[2].highlight",
+      "foreground": "#242831",
+      "background": "#E8DFFF",
+      "contrast_ratio": 11.547162,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[2].onSurfaceVariant_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[2].highlight",
+      "foreground": "#606572",
+      "background": "#E8DFFF",
+      "contrast_ratio": 4.561657,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[3].ink_on_surface",
+      "mode": "light",
+      "foreground_token": "LightAccents[3].ink",
+      "background_token": "LightAccents[3].surface",
+      "foreground": "#786020",
+      "background": "#FFF5DC",
+      "contrast_ratio": 5.539231,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[3].onSurface_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[3].surface",
+      "foreground": "#242831",
+      "background": "#FFF5DC",
+      "contrast_ratio": 13.596661,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[3].onSurfaceVariant_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[3].surface",
+      "foreground": "#606572",
+      "background": "#FFF5DC",
+      "contrast_ratio": 5.371303,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[3].ink_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightAccents[3].ink",
+      "background_token": "LightAccents[3].highlight",
+      "foreground": "#786020",
+      "background": "#FFEAC2",
+      "contrast_ratio": 5.0965,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[3].onSurface_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[3].highlight",
+      "foreground": "#242831",
+      "background": "#FFEAC2",
+      "contrast_ratio": 12.50993,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[3].onSurfaceVariant_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[3].highlight",
+      "foreground": "#606572",
+      "background": "#FFEAC2",
+      "contrast_ratio": 4.941994,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[4].ink_on_surface",
+      "mode": "light",
+      "foreground_token": "LightAccents[4].ink",
+      "background_token": "LightAccents[4].surface",
+      "foreground": "#92465F",
+      "background": "#FFEFF3",
+      "contrast_ratio": 5.789114,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[4].onSurface_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[4].surface",
+      "foreground": "#242831",
+      "background": "#FFEFF3",
+      "contrast_ratio": 13.277864,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[4].onSurfaceVariant_on_surface",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[4].surface",
+      "foreground": "#606572",
+      "background": "#FFEFF3",
+      "contrast_ratio": 5.245363,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[4].ink_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightAccents[4].ink",
+      "background_token": "LightAccents[4].highlight",
+      "foreground": "#92465F",
+      "background": "#FFDFE9",
+      "contrast_ratio": 5.204129,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[4].onSurface_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurface",
+      "background_token": "LightAccents[4].highlight",
+      "foreground": "#242831",
+      "background": "#FFDFE9",
+      "contrast_ratio": 11.936145,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.accent[4].onSurfaceVariant_on_highlight",
+      "mode": "light",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "background_token": "LightAccents[4].highlight",
+      "foreground": "#606572",
+      "background": "#FFDFE9",
+      "contrast_ratio": 4.715323,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.focusText_on_focusSurface",
+      "mode": "light",
+      "foreground_token": "LightVisuals.focusText",
+      "background_token": "LightVisuals.focusSurface",
+      "foreground": "#293C58",
+      "background": "#EAF2FF",
+      "contrast_ratio": 9.908537,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.focusMuted_on_focusSurface",
+      "mode": "light",
+      "foreground_token": "LightVisuals.focusMuted",
+      "background_token": "LightVisuals.focusSurface",
+      "foreground": "#526279",
+      "background": "#EAF2FF",
+      "contrast_ratio": 5.512623,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "light.onFocusAction_on_focusAction",
+      "mode": "light",
+      "foreground_token": "LightVisuals.onFocusAction",
+      "background_token": "LightVisuals.focusAction",
+      "foreground": "#39634D",
+      "background": "#DAF2E4",
+      "contrast_ratio": 5.806578,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[0].ink_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[0].ink",
+      "background_token": "DarkAccents[0].surface",
+      "foreground": "#BBD2F5",
+      "background": "#29374B",
+      "contrast_ratio": 7.834272,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[0].onSurface_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[0].surface",
+      "foreground": "#E9EBF1",
+      "background": "#29374B",
+      "contrast_ratio": 10.111715,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[0].onSurfaceVariant_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[0].surface",
+      "foreground": "#B8BECA",
+      "background": "#29374B",
+      "contrast_ratio": 6.460384,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[0].ink_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[0].ink",
+      "background_token": "DarkAccents[0].highlight",
+      "foreground": "#BBD2F5",
+      "background": "#334963",
+      "contrast_ratio": 6.002821,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[0].onSurface_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[0].highlight",
+      "foreground": "#E9EBF1",
+      "background": "#334963",
+      "contrast_ratio": 7.747857,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[0].onSurfaceVariant_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[0].highlight",
+      "foreground": "#B8BECA",
+      "background": "#334963",
+      "contrast_ratio": 4.950112,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[1].ink_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[1].ink",
+      "background_token": "DarkAccents[1].surface",
+      "foreground": "#B5DCC5",
+      "background": "#293E35",
+      "contrast_ratio": 7.635013,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[1].onSurface_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[1].surface",
+      "foreground": "#E9EBF1",
+      "background": "#293E35",
+      "contrast_ratio": 9.602571,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[1].onSurfaceVariant_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[1].surface",
+      "foreground": "#B8BECA",
+      "background": "#293E35",
+      "contrast_ratio": 6.135091,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[1].ink_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[1].ink",
+      "background_token": "DarkAccents[1].highlight",
+      "foreground": "#B5DCC5",
+      "background": "#355342",
+      "contrast_ratio": 5.67746,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[1].onSurface_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[1].highlight",
+      "foreground": "#E9EBF1",
+      "background": "#355342",
+      "contrast_ratio": 7.140553,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[1].onSurfaceVariant_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[1].highlight",
+      "foreground": "#B8BECA",
+      "background": "#355342",
+      "contrast_ratio": 4.562105,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[2].ink_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[2].ink",
+      "background_token": "DarkAccents[2].surface",
+      "foreground": "#D4C4F0",
+      "background": "#383149",
+      "contrast_ratio": 7.60331,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[2].onSurface_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[2].surface",
+      "foreground": "#E9EBF1",
+      "background": "#383149",
+      "contrast_ratio": 10.34126,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[2].onSurfaceVariant_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[2].surface",
+      "foreground": "#B8BECA",
+      "background": "#383149",
+      "contrast_ratio": 6.60704,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[2].ink_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[2].ink",
+      "background_token": "DarkAccents[2].highlight",
+      "foreground": "#D4C4F0",
+      "background": "#493C62",
+      "contrast_ratio": 6.150808,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[2].onSurface_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[2].highlight",
+      "foreground": "#E9EBF1",
+      "background": "#493C62",
+      "contrast_ratio": 8.365712,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[2].onSurfaceVariant_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[2].highlight",
+      "foreground": "#B8BECA",
+      "background": "#493C62",
+      "contrast_ratio": 5.344861,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[3].ink_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[3].ink",
+      "background_token": "DarkAccents[3].surface",
+      "foreground": "#E8D59E",
+      "background": "#413B2C",
+      "contrast_ratio": 7.654868,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[3].onSurface_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[3].surface",
+      "foreground": "#E9EBF1",
+      "background": "#413B2C",
+      "contrast_ratio": 9.338027,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[3].onSurfaceVariant_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[3].surface",
+      "foreground": "#B8BECA",
+      "background": "#413B2C",
+      "contrast_ratio": 5.966074,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[3].ink_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[3].ink",
+      "background_token": "DarkAccents[3].highlight",
+      "foreground": "#E8D59E",
+      "background": "#54472D",
+      "contrast_ratio": 6.235597,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[3].onSurface_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[3].highlight",
+      "foreground": "#E9EBF1",
+      "background": "#54472D",
+      "contrast_ratio": 7.606686,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[3].onSurfaceVariant_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[3].highlight",
+      "foreground": "#B8BECA",
+      "background": "#54472D",
+      "contrast_ratio": 4.859918,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[4].ink_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[4].ink",
+      "background_token": "DarkAccents[4].surface",
+      "foreground": "#F0BDD0",
+      "background": "#45313B",
+      "contrast_ratio": 7.345347,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[4].onSurface_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[4].surface",
+      "foreground": "#E9EBF1",
+      "background": "#45313B",
+      "contrast_ratio": 10.035905,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[4].onSurfaceVariant_on_surface",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[4].surface",
+      "foreground": "#B8BECA",
+      "background": "#45313B",
+      "contrast_ratio": 6.411948,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[4].ink_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkAccents[4].ink",
+      "background_token": "DarkAccents[4].highlight",
+      "foreground": "#F0BDD0",
+      "background": "#5C3B4B",
+      "contrast_ratio": 5.909,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[4].onSurface_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "background_token": "DarkAccents[4].highlight",
+      "foreground": "#E9EBF1",
+      "background": "#5C3B4B",
+      "contrast_ratio": 8.073434,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.accent[4].onSurfaceVariant_on_highlight",
+      "mode": "dark",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "background_token": "DarkAccents[4].highlight",
+      "foreground": "#B8BECA",
+      "background": "#5C3B4B",
+      "contrast_ratio": 5.158124,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.focusText_on_focusSurface",
+      "mode": "dark",
+      "foreground_token": "DarkVisuals.focusText",
+      "background_token": "DarkVisuals.focusSurface",
+      "foreground": "#E7EDFA",
+      "background": "#283446",
+      "contrast_ratio": 10.714607,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.focusMuted_on_focusSurface",
+      "mode": "dark",
+      "foreground_token": "DarkVisuals.focusMuted",
+      "background_token": "DarkVisuals.focusSurface",
+      "foreground": "#BDC9DD",
+      "background": "#283446",
+      "contrast_ratio": 7.523097,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "dark.onFocusAction_on_focusAction",
+      "mode": "dark",
+      "foreground_token": "DarkVisuals.onFocusAction",
+      "background_token": "DarkVisuals.focusAction",
+      "foreground": "#173B44",
+      "background": "#A8D9DE",
+      "contrast_ratio": 7.817234,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    }
+  ]
+}

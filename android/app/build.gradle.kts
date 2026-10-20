@@ -95,6 +95,13 @@ android {
             resValue("string", "app_name", "Repland 设计副本")
             matchingFallbacks += listOf("debug")
         }
+        create("frontendPreview") {
+            initWith(getByName("designPreview"))
+            applicationIdSuffix = ".frontend"
+            versionNameSuffix = "-frontend"
+            resValue("string", "app_name", "Repland 前端新版")
+            matchingFallbacks += listOf("debug")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -126,6 +133,10 @@ android {
         getByName("debug") { kotlin.directories.add("src/remote/java"); manifest.srcFile("src/remote/AndroidManifest.xml") }
         getByName("internal") { kotlin.directories.add("src/remote/java"); manifest.srcFile("src/remote/AndroidManifest.xml") }
         getByName("designPreview") { kotlin.directories.add("src/remote/java"); manifest.srcFile("src/designPreview/AndroidManifest.xml") }
+        getByName("frontendPreview") {
+            kotlin.directories.addAll(listOf("src/remote/java", "src/designPreview/java"))
+            manifest.srcFile("src/designPreview/AndroidManifest.xml")
+        }
     }
     buildFeatures {
         compose = true
@@ -145,6 +156,9 @@ android {
 
 androidComponents {
     beforeVariants(selector().withBuildType("designPreview")) { variant ->
+        (variant as com.android.build.api.variant.HasUnitTestBuilder).enableUnitTest = true
+    }
+    beforeVariants(selector().withBuildType("frontendPreview")) { variant ->
         (variant as com.android.build.api.variant.HasUnitTestBuilder).enableUnitTest = true
     }
 }
@@ -241,4 +255,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     add("designPreviewImplementation", libs.androidx.compose.ui.test.manifest)
+    add("frontendPreviewImplementation", libs.androidx.compose.ui.test.manifest)
 }

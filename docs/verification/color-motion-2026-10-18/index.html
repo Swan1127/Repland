@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repland 淡色界面与动效实测</title>
+<style>
+  :root{font-family:system-ui,"Microsoft YaHei",sans-serif;color:#242831;background:#f7f8fc}
+  body{max-width:1200px;margin:auto;padding:32px 24px 64px}h1{font-size:28px}p{line-height:1.7;color:#606572}
+  a{color:#3f6094}section{margin:32px 0}.screens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  figure{margin:0;padding:16px;background:white;border:1px solid #e3e6ef;border-radius:20px}
+  figcaption{font-weight:600;margin-bottom:12px}img{display:block;width:100%;height:auto;border-radius:12px}
+  video{display:block;width:min(100%,420px);border-radius:20px;background:#fff}
+  @media(max-width:700px){.screens{grid-template-columns:1fr}body{padding:24px 16px}figure{max-width:420px}}
+</style>
+<h1>Repland · 淡色界面与动效实测</h1>
+<p>白色卡片为主，颜色集中在图标、选中状态和关键操作。以下图片与录屏均来自实际运行的独立新版。</p>
+<p><a href="README.md">验证说明</a> · <a href="build-manifest.json">构建校验</a> · <a href="device-tests.json">设备回归</a></p>
+<section class="screens">
+  <figure><figcaption>任务 · 淡薄荷点缀</figcaption><a href="after-tasks.png"><img src="after-tasks.png" alt="实际任务列表，统一淡薄荷选中项和图标"></a></figure>
+  <figure><figcaption>详情 · 主次操作</figcaption><a href="after-detail-actions.png"><img src="after-detail-actions.png" alt="实际任务详情，淡薄荷主要操作和中性次要按钮"></a></figure>
+  <figure><figcaption>我的 · 单一淡紫主调</figcaption><a href="after-profile.png"><img src="after-profile.png" alt="实际我的页面，白色资料与总结卡片配少量淡紫图标"></a></figure>
+</section>
+<section><h2>实际页面切换与操作录屏</h2><video controls preload="metadata" src="color-motion.mp4"></video></section>
+<section><h2>补充页面</h2><p><a href="after-schedule.png">日程</a> · <a href="after-detail-top.png">任务详情顶部</a> · <a href="after-summary-basis.png">真实总结依据</a> · <a href="after-settings.png">设置</a> · <a href="large-dark-profile.png">200% 深色资料页</a></p></section>
+</html>

@@ -1,0 +1,75 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=<workspace>/outputs/Environment/java-home
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build
+
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+WARNING: BuildType(designPreview): resValue 'string/app_name' value is being replaced.
+WARNING: BuildType(frontendPreview): resValue 'string/app_name' value is being replaced.
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preFrontendPreviewBuild UP-TO-DATE
+> Task :app:mergeFrontendPreviewNativeDebugMetadata NO-SOURCE
+> Task :app:generateFrontendPreviewBuildConfig UP-TO-DATE
+> Task :app:generateFrontendPreviewResValues UP-TO-DATE
+> Task :app:generateFrontendPreviewResources UP-TO-DATE
+> Task :app:packageFrontendPreviewResources UP-TO-DATE
+> Task :app:processFrontendPreviewNavigationResources UP-TO-DATE
+> Task :app:parseFrontendPreviewLocalResources UP-TO-DATE
+> Task :app:generateFrontendPreviewRFile UP-TO-DATE
+> Task :app:kspFrontendPreviewKotlin UP-TO-DATE
+> Task :app:compileFrontendPreviewKotlin UP-TO-DATE
+> Task :app:javaPreCompileFrontendPreview UP-TO-DATE
+> Task :app:compileFrontendPreviewJavaWithJavac UP-TO-DATE
+> Task :app:generateFrontendPreviewAssets UP-TO-DATE
+> Task :app:mergeFrontendPreviewAssets UP-TO-DATE
+> Task :app:compressFrontendPreviewAssets UP-TO-DATE
+> Task :app:l8DexDesugarLibFrontendPreview UP-TO-DATE
+> Task :app:checkFrontendPreviewDuplicateClasses UP-TO-DATE
+> Task :app:desugarFrontendPreviewFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexFrontendPreview UP-TO-DATE
+> Task :app:processFrontendPreviewJavaRes UP-TO-DATE
+> Task :app:mergeFrontendPreviewJavaResource UP-TO-DATE
+> Task :app:mergeLibDexFrontendPreview UP-TO-DATE
+> Task :app:checkFrontendPreviewAarMetadata UP-TO-DATE
+> Task :app:compileFrontendPreviewNavigationResources UP-TO-DATE
+> Task :app:mapFrontendPreviewSourceSetPaths UP-TO-DATE
+> Task :app:mergeFrontendPreviewResources UP-TO-DATE
+> Task :app:createFrontendPreviewCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksFrontendPreview UP-TO-DATE
+> Task :app:processFrontendPreviewMainManifest UP-TO-DATE
+> Task :app:processFrontendPreviewManifest UP-TO-DATE
+> Task :app:processFrontendPreviewManifestForPackage UP-TO-DATE
+> Task :app:processFrontendPreviewResources UP-TO-DATE
+> Task :app:dexBuilderFrontendPreview UP-TO-DATE
+> Task :app:mergeProjectDexFrontendPreview UP-TO-DATE
+> Task :app:mergeFrontendPreviewJniLibFolders UP-TO-DATE
+> Task :app:mergeFrontendPreviewNativeLibs UP-TO-DATE
+> Task :app:stripFrontendPreviewDebugSymbols UP-TO-DATE
+> Task :app:validateSigningFrontendPreview UP-TO-DATE
+> Task :app:writeFrontendPreviewAppMetadata UP-TO-DATE
+> Task :app:writeFrontendPreviewSigningConfigVersions UP-TO-DATE
+> Task :app:packageFrontendPreview UP-TO-DATE
+> Task :app:createFrontendPreviewApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleFrontendPreview UP-TO-DATE
+> Task :app:verifyOfflineMvpBoundary
+> Task :app:bundleFrontendPreviewClassesToRuntimeJar
+> Task :app:bundleFrontendPreviewClassesToCompileJar
+> Task :app:preFrontendPreviewUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileFrontendPreviewUnitTest UP-TO-DATE
+> Task :app:packageFrontendPreviewUnitTestForUnitTest
+> Task :app:processFrontendPreviewUnitTestManifest UP-TO-DATE
+> Task :app:generateFrontendPreviewUnitTestConfig
+> Task :app:kspFrontendPreviewUnitTestKotlin
+> Task :app:compileFrontendPreviewUnitTestKotlin
+> Task :app:compileFrontendPreviewUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processFrontendPreviewUnitTestJavaRes UP-TO-DATE
+
+> Task :app:testFrontendPreviewUnitTest
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=<workspace>/outputs/Environment/java-home
+
+BUILD SUCCESSFUL in 32s
+51 actionable tasks: 8 executed, 43 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html

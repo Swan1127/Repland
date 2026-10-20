@@ -1,0 +1,365 @@
+{
+  "created_at": "2026-10-18T09:17:40.625707+00:00",
+  "verification_type": "source_anchor_check",
+  "method": {
+    "standard": "WCAG 2.2 relative luminance and contrast ratio for opaque sRGB source colors",
+    "normal_text_minimum_ratio": 4.5,
+    "channel_linearization": "c = sRGB_byte / 255; c_linear = c / 12.92 when c <= 0.04045, otherwise ((c + 0.055) / 1.055)^2.4",
+    "relative_luminance": "L = 0.2126 R_linear + 0.7152 G_linear + 0.0722 B_linear",
+    "contrast_ratio": "(max(L_foreground, L_background) + 0.05) / (min(L_foreground, L_background) + 0.05)",
+    "rounding": "Pass/fail uses full precision; saved ratios are rounded to six decimal places.",
+    "scope": "24 source-anchor checks: static primary ink, onSurface and onSurfaceVariant on primaryContainer, blue accent surface, mint accent surface, and neutral surfaceContainerLow in both themes.",
+    "interpolation_scope": "Source anchors only. replandSettingsAccent uses Compose Color.lerp, which performs color-space conversion/interpolation rather than a naive sRGB channel blend. This calculation does not reproduce Compose Oklab interpolation, half-float packing or final derived endpoints, and does not claim source-anchor minima are a mathematical bound for every interpolated color.",
+    "rendered_gradient_scope": "The settings header uses accent.surface to surfaceContainerLow. Its source color families are covered, but final gradient endpoints and rendered interior pixels are not calculated here.",
+    "not_covered": [
+      "Derived replandSettingsAccent surface and highlight colors from Compose Color.lerp.",
+      "Rendered gradient interiors, compositing, text antialiasing, and screenshots.",
+      "Hover, pressed, focus, and disabled state treatments or platform overlays.",
+      "Dynamic color schemes; dynamicColor defaults to false in Theme.kt.",
+      "Non-text boundary/icon contrast requirements and switch track/background differentiation."
+    ]
+  },
+  "settings_palette_source": {
+    "ink": "MaterialTheme.colorScheme.primary",
+    "tone_0_base": "primaryContainer",
+    "tone_1_base": "lerp(primaryContainer, blue.surface, 0.6)",
+    "tone_2_base": "mint.surface",
+    "surface": "lerp(base, surfaceContainerLow, 0.45)",
+    "highlight": "lerp(base, surfaceContainerLow, 0.05)",
+    "header_gradient": "accent.surface to surfaceContainerLow"
+  },
+  "sources": [
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/VisualTokens.kt",
+      "sha256": "36360fd3a984beca4b117b187fd5bd6a9bf737c3cec2ad7efd02217dcec76b3c"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/Theme.kt",
+      "sha256": "434902121e09c2eda273544fd3037bedb12b709d2c45d12abe584fc346f5ba11"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/theme/Color.kt",
+      "sha256": "be8371453e2ec5065ed9e8fa8c72ed6b007078cbcb5b5953b4d16086152cf001"
+    },
+    {
+      "path": "android/app/src/main/java/com/swan1127/repland/ui/components/SettingsComponents.kt",
+      "sha256": "8799d3b6379c019b06bba34b927ce15fd2994f8b3e23c38fe45eeab193764c05"
+    }
+  ],
+  "summary": {
+    "scope": "source_anchor_check",
+    "checks": 24,
+    "pass_count": 24,
+    "failure_count": 0,
+    "source_anchor_checks_pass": true,
+    "minimum_ratio": 5.155713,
+    "minimum_case": "LightColorScheme.onSurfaceVariant_on_LightColorScheme.primaryContainer",
+    "modes": {
+      "light": {
+        "checks": 12,
+        "pass_count": 12,
+        "failure_count": 0,
+        "minimum_ratio": 5.155713,
+        "minimum_case": "LightColorScheme.onSurfaceVariant_on_LightColorScheme.primaryContainer"
+      },
+      "dark": {
+        "checks": 12,
+        "pass_count": 12,
+        "failure_count": 0,
+        "minimum_ratio": 5.981492,
+        "minimum_case": "DarkColorScheme.onSurfaceVariant_on_DarkColorScheme.primaryContainer"
+      }
+    }
+  },
+  "failures": [],
+  "checks": [
+    {
+      "id": "LightColorScheme.primary_on_LightColorScheme.primaryContainer",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.primary",
+      "foreground": "#326B75",
+      "background_token": "LightColorScheme.primaryContainer",
+      "background": "#E8F3F5",
+      "contrast_ratio": 5.312412,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.primary_on_LightAccents[0].surface",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.primary",
+      "foreground": "#326B75",
+      "background_token": "LightAccents[0].surface",
+      "background": "#EAF2FF",
+      "contrast_ratio": 5.333417,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.primary_on_LightAccents[1].surface",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.primary",
+      "foreground": "#326B75",
+      "background_token": "LightAccents[1].surface",
+      "background": "#EAF7EF",
+      "contrast_ratio": 5.449522,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.primary_on_LightColorScheme.surfaceContainerLow",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.primary",
+      "foreground": "#326B75",
+      "background_token": "LightColorScheme.surfaceContainerLow",
+      "background": "#FFFFFF",
+      "contrast_ratio": 6.007602,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurface_on_LightColorScheme.primaryContainer",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurface",
+      "foreground": "#242831",
+      "background_token": "LightColorScheme.primaryContainer",
+      "background": "#E8F3F5",
+      "contrast_ratio": 13.050929,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurface_on_LightAccents[0].surface",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurface",
+      "foreground": "#242831",
+      "background_token": "LightAccents[0].surface",
+      "background": "#EAF2FF",
+      "contrast_ratio": 13.102532,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurface_on_LightAccents[1].surface",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurface",
+      "foreground": "#242831",
+      "background_token": "LightAccents[1].surface",
+      "background": "#EAF7EF",
+      "contrast_ratio": 13.387765,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurface_on_LightColorScheme.surfaceContainerLow",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurface",
+      "foreground": "#242831",
+      "background_token": "LightColorScheme.surfaceContainerLow",
+      "background": "#FFFFFF",
+      "contrast_ratio": 14.758794,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurfaceVariant_on_LightColorScheme.primaryContainer",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "foreground": "#606572",
+      "background_token": "LightColorScheme.primaryContainer",
+      "background": "#E8F3F5",
+      "contrast_ratio": 5.155713,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurfaceVariant_on_LightAccents[0].surface",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "foreground": "#606572",
+      "background_token": "LightAccents[0].surface",
+      "background": "#EAF2FF",
+      "contrast_ratio": 5.176099,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurfaceVariant_on_LightAccents[1].surface",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "foreground": "#606572",
+      "background_token": "LightAccents[1].surface",
+      "background": "#EAF7EF",
+      "contrast_ratio": 5.288779,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "LightColorScheme.onSurfaceVariant_on_LightColorScheme.surfaceContainerLow",
+      "mode": "light",
+      "scope": "source_anchor_pair",
+      "foreground_token": "LightColorScheme.onSurfaceVariant",
+      "foreground": "#606572",
+      "background_token": "LightColorScheme.surfaceContainerLow",
+      "background": "#FFFFFF",
+      "contrast_ratio": 5.830398,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.primary_on_DarkColorScheme.primaryContainer",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.primary",
+      "foreground": "#A8D9DE",
+      "background_token": "DarkColorScheme.primaryContainer",
+      "background": "#263F46",
+      "contrast_ratio": 7.250764,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.primary_on_DarkAccents[0].surface",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.primary",
+      "foreground": "#A8D9DE",
+      "background_token": "DarkAccents[0].surface",
+      "background": "#29374B",
+      "contrast_ratio": 7.831277,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.primary_on_DarkAccents[1].surface",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.primary",
+      "foreground": "#A8D9DE",
+      "background_token": "DarkAccents[1].surface",
+      "background": "#293E35",
+      "contrast_ratio": 7.436957,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.primary_on_DarkColorScheme.surfaceContainerLow",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.primary",
+      "foreground": "#A8D9DE",
+      "background_token": "DarkColorScheme.surfaceContainerLow",
+      "background": "#232730",
+      "contrast_ratio": 9.716145,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurface_on_DarkColorScheme.primaryContainer",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "foreground": "#E9EBF1",
+      "background_token": "DarkColorScheme.primaryContainer",
+      "background": "#263F46",
+      "contrast_ratio": 9.36216,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurface_on_DarkAccents[0].surface",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "foreground": "#E9EBF1",
+      "background_token": "DarkAccents[0].surface",
+      "background": "#29374B",
+      "contrast_ratio": 10.111715,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurface_on_DarkAccents[1].surface",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "foreground": "#E9EBF1",
+      "background_token": "DarkAccents[1].surface",
+      "background": "#293E35",
+      "contrast_ratio": 9.602571,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurface_on_DarkColorScheme.surfaceContainerLow",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurface",
+      "foreground": "#E9EBF1",
+      "background_token": "DarkColorScheme.surfaceContainerLow",
+      "background": "#232730",
+      "contrast_ratio": 12.545449,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurfaceVariant_on_DarkColorScheme.primaryContainer",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "foreground": "#B8BECA",
+      "background_token": "DarkColorScheme.primaryContainer",
+      "background": "#263F46",
+      "contrast_ratio": 5.981492,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurfaceVariant_on_DarkAccents[0].surface",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "foreground": "#B8BECA",
+      "background_token": "DarkAccents[0].surface",
+      "background": "#29374B",
+      "contrast_ratio": 6.460384,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurfaceVariant_on_DarkAccents[1].surface",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "foreground": "#B8BECA",
+      "background_token": "DarkAccents[1].surface",
+      "background": "#293E35",
+      "contrast_ratio": 6.135091,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    },
+    {
+      "id": "DarkColorScheme.onSurfaceVariant_on_DarkColorScheme.surfaceContainerLow",
+      "mode": "dark",
+      "scope": "source_anchor_pair",
+      "foreground_token": "DarkColorScheme.onSurfaceVariant",
+      "foreground": "#B8BECA",
+      "background_token": "DarkColorScheme.surfaceContainerLow",
+      "background": "#232730",
+      "contrast_ratio": 8.015298,
+      "minimum_required_ratio": 4.5,
+      "pass": true
+    }
+  ]
+}

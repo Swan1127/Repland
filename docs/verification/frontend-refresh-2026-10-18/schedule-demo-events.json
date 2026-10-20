@@ -1,0 +1,50 @@
+[
+  {
+    "seconds": 0.0,
+    "action": "明确标注的只读日程演示"
+  },
+  {
+    "seconds": 2.0,
+    "action": "查看总计的部分重叠区间"
+  },
+  {
+    "seconds": 3.57,
+    "action": "总计画面"
+  },
+  {
+    "seconds": 7.05,
+    "action": "按真实优先级切换详细"
+  },
+  {
+    "seconds": 10.12,
+    "action": "详细画面"
+  },
+  {
+    "seconds": 13.6,
+    "action": "打开原始事项与完整时间"
+  },
+  {
+    "seconds": 17.02,
+    "action": "关闭事项详情"
+  },
+  {
+    "seconds": 17.98,
+    "action": "返回总计"
+  },
+  {
+    "seconds": 21.57,
+    "action": "同一时段横向查看后续事项"
+  },
+  {
+    "seconds": 25.88,
+    "action": "查看已完成分组"
+  },
+  {
+    "seconds": 27.82,
+    "action": "折叠已完成"
+  },
+  {
+    "seconds": 31.09,
+    "action": "重新展开"
+  }
+]

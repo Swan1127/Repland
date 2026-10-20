@@ -1,0 +1,6 @@
+{
+  "title": "UI color review",
+  "method": "assistant whole-operation undo through actual UI",
+  "active_task_absent": true,
+  "direct_database_writes": false
+}

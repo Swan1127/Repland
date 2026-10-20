@@ -25,6 +25,10 @@ local.properties
 
 # OS files
 .DS_Store
+.frontend-preview/
+# Local photo-picker evidence can include unrelated gallery thumbnails.
+/docs/verification/frontend-refresh-2026-10-18/actual-photo-picker-cancel.png
+/docs/verification/frontend-refresh-2026-10-18/actual-photo-picker-cancel.xml
 Thumbs.db
 .design-preview/
 
