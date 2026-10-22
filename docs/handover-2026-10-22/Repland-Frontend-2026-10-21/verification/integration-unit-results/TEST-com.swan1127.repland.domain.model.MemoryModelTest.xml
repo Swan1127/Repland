@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.MemoryModelTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.238Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="anAdvisorsHardnessEstimateSeedsButNeverDictates" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="contactAloneNeverStrengthensAMemory" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.001"/>
+  <testcase name="anotherRecallOnTheSameDayDoesNotInventMoreElapsedForgetting" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="gapsWidenInsteadOfRepeating" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="theThreeBarsEachMeanSomethingDifferent" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="theDefaultPathWalksTheShippedLadder" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="aBiggerGainMakesTheTailLonger" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.001"/>
+  <testcase name="stabilityAndDifficultyStayInsideTheirBands" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.001"/>
+  <testcase name="personalisationStaysABoundedNudge" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="stabilityIsExactlyTheNinetyPercentDay" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="aLapseSoftensInsteadOfErasing" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="migratingALadderPointKeepsTheDayItWasAlreadyShown" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="difficultyRevertsToItsSeedInsteadOfRunningAway" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.001"/>
+  <testcase name="mediumPriorityStartsAtNeutralImportance" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="theCurveOnlyFallsAndNeverOverflows" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <testcase name="pressureRisesAsAMemoryFades" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.001"/>
+  <testcase name="fuzzierAnswersBuyLessStrength" classname="com.swan1127.repland.domain.model.MemoryModelTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

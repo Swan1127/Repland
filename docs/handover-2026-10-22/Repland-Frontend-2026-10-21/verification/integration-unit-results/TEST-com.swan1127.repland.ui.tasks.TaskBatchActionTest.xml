@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tasks.TaskBatchActionTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.600Z" hostname="LAPTOP-H29HUS9K" time="0.028">
+  <properties/>
+  <testcase name="a row the rule forbids is never written" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.006"/>
+  <testcase name="a batch that writes nothing leaves no error" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.002"/>
+  <testcase name="every selected row that can take the action is written once" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.003"/>
+  <testcase name="a restore batch writes NOT_STARTED, not the completion status" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.002"/>
+  <testcase name="nothing outside the selection is written" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.001"/>
+  <testcase name="a ghost id beside a real one is dropped rather than invented" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.002"/>
+  <testcase name="the eligibility is decided against the list as it is at the write" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.002"/>
+  <testcase name="a successful batch clears a previous error" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.001"/>
+  <testcase name="the writes follow the order of the list" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.002"/>
+  <testcase name="an id that is not in the list writes nothing" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.001"/>
+  <testcase name="a failed batch reports INVALID_LIFECYCLE_INPUT" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.001"/>
+  <testcase name="the batch writes the action's status and an empty feedback" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.003"/>
+  <testcase name="an empty selection writes nothing" classname="com.swan1127.repland.ui.tasks.TaskBatchActionTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

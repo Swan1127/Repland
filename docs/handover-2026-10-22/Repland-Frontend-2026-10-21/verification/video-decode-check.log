@@ -1,0 +1,41 @@
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0000023535864700] All samples in data stream index:id [1:2] have zero duration, stream set to be discarded by default. Override using AVStream->discard or -discard for ffmpeg command.
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0000023535864700] All samples in data stream index:id [2:3] have zero duration, stream set to be discarded by default. Override using AVStream->discard or -discard for ffmpeg command.
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'verification/release-walkthrough.mp4':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    creation_time   : 2026-10-22T01:59:18.000000Z
+    com.android.version: 16
+  Duration: 00:01:14.28, start: 0.000000, bitrate: 725 kb/s
+  Stream #0:0[0x1](eng): Video: h264 (Constrained Baseline) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1080x2400, 723 kb/s, 5.06 fps, 90k tbr, 90k tbn (default)
+      Metadata:
+        creation_time   : 2026-10-22T01:59:18.000000Z
+        handler_name    : VideoHandle
+        vendor_id       : [0][0][0][0]
+  Stream #0:1[0x2](eng): Data: none (mett / 0x7474656D) (default)
+      Metadata:
+        creation_time   : 2026-10-22T01:59:18.000000Z
+        handler_name    : MetadHandle
+  Stream #0:2[0x3](eng): Data: none (mett / 0x7474656D) (default)
+      Metadata:
+        creation_time   : 2026-10-22T01:59:18.000000Z
+        handler_name    : MetadHandle
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'pipe:':
+  Metadata:
+    major_brand     : mp42
+    minor_version   : 0
+    compatible_brands: isommp42
+    com.android.version: 16
+    encoder         : Lavf61.7.100
+  Stream #0:0(eng): Video: wrapped_avframe, yuv420p(tv, bt709, progressive), 1080x2400, q=2-31, 200 kb/s, 5.06 fps, 90k tbn (default)
+      Metadata:
+        creation_time   : 2026-10-22T01:59:18.000000Z
+        handler_name    : VideoHandle
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 wrapped_avframe
+[out#0/null @ 0000023536030bc0] video:162KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame=  376 fps=0.0 q=-0.0 Lsize=N/A time=00:01:14.28 bitrate=N/A speed= 549x    

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.schedule.FocalCardResourceTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.451Z" hostname="LAPTOP-H29HUS9K" time="0.083">
+  <properties/>
+  <testcase name="the call site passes the whole day, unfiltered" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.017"/>
+  <testcase name="a numeric placeholder rejects text" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.007"/>
+  <testcase name="every argument-carrying key formats with nothing left over" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.007"/>
+  <testcase name="the two states with no block both have their own words" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.011"/>
+  <testcase name="every label the card can print is reachable through the rule" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.017"/>
+  <testcase name="the composable source is actually being parsed" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.005"/>
+  <testcase name="the card reuses the phase words instead of declaring its own" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.005"/>
+  <testcase name="the id lookup resolves the whole string table" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.005"/>
+  <testcase name="every key the card can render is declared in both resource files" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.004"/>
+  <testcase name="the two argument-carrying keys declare exactly one count each" classname="com.swan1127.repland.ui.schedule.FocalCardResourceTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.PlanGeneratorTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.266Z" hostname="LAPTOP-H29HUS9K" time="0.004">
+  <properties/>
+  <testcase name="a task without a duration stays pending and is never placed" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="the advisor validator accepts a midnight slot that the local generator refuses" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.001"/>
+  <testcase name="confirmed progress reduces the scheduled amount" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="a locked segment is preserved and its minutes count against the task" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="the generator never places work before 08_00 even when availability starts at midnight" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.001"/>
+  <testcase name="availability past 22_00 is truncated at 22_00" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="a completed task is never scheduled" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.001"/>
+  <testcase name="no declared availability leaves every active task pending" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="a raw 100 percent feedback value is not treated as completion" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="a 60-minute task is placed inside the declared Monday window" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.001"/>
+  <testcase name="the scheduler stops at the due date horizon" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <testcase name="a course block inside the window pushes work out of the overlapping slot" classname="com.swan1127.repland.domain.model.PlanGeneratorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

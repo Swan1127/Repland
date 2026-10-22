@@ -1,0 +1,50 @@
+﻿**********************
+Windows PowerShell 脚本开始
+开始时间: 20261022175419
+用户名: LAPTOP-H29HUS9K\x16
+RunAs 用户: LAPTOP-H29HUS9K\x16
+配置名称: 
+计算机: LAPTOP-H29HUS9K (Microsoft Windows NT 10.0.26300.0)
+主机应用程序: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File C:\Users\x16\Documents\Codex\2026-10-07\swan1127-github-repland-https-github-com\outputs\Repland-Frontend-2026-10-21\repland-upstream-design\Start-Redesign.ps1
+进程 ID: 2788
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Performing Streamed Install
+Success
+Starting: Intent { cmp=com.swan1127.repland.redesign/com.swan1127.repland.MainActivity }
+**********************
+Windows PowerShell 脚本结束
+结束时间: 20261022175448
+**********************
+**********************
+Windows PowerShell 脚本开始
+开始时间: 20261022192742
+用户名: LAPTOP-H29HUS9K\x16
+RunAs 用户: LAPTOP-H29HUS9K\x16
+配置名称: 
+计算机: LAPTOP-H29HUS9K (Microsoft Windows NT 10.0.26300.0)
+主机应用程序: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File C:\Users\x16\Documents\Codex\2026-10-07\swan1127-github-repland-https-github-com\outputs\Repland-Frontend-2026-10-21\repland-upstream-design\Start-Redesign.ps1
+进程 ID: 33452
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Performing Streamed Install
+Success
+Starting: Intent { cmp=com.swan1127.repland.redesign/com.swan1127.repland.MainActivity }
+**********************
+Windows PowerShell 脚本结束
+结束时间: 20261022192743
+**********************

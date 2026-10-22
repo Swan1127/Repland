@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.export.IcsExporterTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.959Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="times are written as floating local time with no trailing Z" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.002"/>
+  <testcase name="the file name reflects the export scope" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="the uid is stable across exports so a re-import updates instead of duplicating" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="a locked segment is tagged and an unlocked one is not" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="a segment whose task is unknown is labelled rather than dropped" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="a plan-less export is still a well-formed empty calendar" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="a date filter exports only that day" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="a segment without an id still gets a deterministic uid" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.001"/>
+  <testcase name="the task name becomes the summary and the span becomes the description" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="a backslash is escaped before the other escapes so it is not doubled" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="segments are exported in chronological order regardless of input order" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <testcase name="semicolons, commas and newlines are escaped per RFC 5545" classname="com.swan1127.repland.data.export.IcsExporterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

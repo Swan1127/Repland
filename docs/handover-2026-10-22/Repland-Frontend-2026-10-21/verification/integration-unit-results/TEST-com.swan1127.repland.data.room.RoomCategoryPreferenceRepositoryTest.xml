@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.281Z" hostname="LAPTOP-H29HUS9K" time="0.012">
+  <properties/>
+  <testcase name="observe completes a partial table with the defaults" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.003"/>
+  <testcase name="save fills a category the caller left out with its default" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.001"/>
+  <testcase name="the observed map is in enum order, so the DAO's ORDER BY is inert on this path" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.0"/>
+  <testcase name="save of an empty map stores the defaults" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.001"/>
+  <testcase name="save refuses an out-of-range weight" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.002"/>
+  <testcase name="save writes one row per category, keyed by the enum name" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.001"/>
+  <testcase name="save accepts the range boundaries" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.001"/>
+  <testcase name="observe falls back to the defaults for an empty table" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.001"/>
+  <testcase name="save refuses a set that sums to zero" classname="com.swan1127.repland.data.room.RoomCategoryPreferenceRepositoryTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

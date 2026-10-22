@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.670Z" hostname="LAPTOP-H29HUS9K" time="0.011">
+  <properties/>
+  <testcase name="categories are inferred from the wording" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.007"/>
+  <testcase name="an utterance with neither time nor duration asks for both" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.001"/>
+  <testcase name="durations in minutes and in hours are both read" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="at most eight candidates are returned" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.001"/>
+  <testcase name="a conjunction splits only when both sides carry their own action" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.001"/>
+  <testcase name="the sample utterance kept in the project notes parses into four items" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="clauses separated by punctuation become separate candidates" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="a decimal hour duration is read as written, not as the digits after the point" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="review, replan and arrange intents are recognised" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="a chinese-numeral time stays a window instead of being fabricated" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="an empty utterance yields no candidates" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.0"/>
+  <testcase name="an explicit clock time becomes a user-explicit placement" classname="com.swan1127.repland.domain.model.ArrangementAssistantInterpreterTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

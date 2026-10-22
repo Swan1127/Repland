@@ -3,6 +3,9 @@ package com.swan1127.repland.data.export
 import com.swan1127.repland.domain.model.ConfirmedPlan
 import com.swan1127.repland.domain.model.DateOverride
 import com.swan1127.repland.domain.model.LocalDataSnapshot
+import com.swan1127.repland.domain.model.LearningMemoryPointSnapshot
+import com.swan1127.repland.domain.model.LearningMemorySnapshot
+import com.swan1127.repland.domain.model.MemoryState
 import com.swan1127.repland.domain.model.PlannedSegment
 import com.swan1127.repland.domain.model.ProfileEvidence
 import com.swan1127.repland.domain.model.ProfileEvidenceSource
@@ -71,7 +74,42 @@ object LocalDataJsonExporter {
                 "subjectId" to jsonString(event.subjectId),
             )
         }),
+        *snapshot.learningMemory?.let { arrayOf("learningMemory" to learningMemoryJson(it)) }.orEmpty(),
     )
+
+    private fun learningMemoryJson(snapshot: LearningMemorySnapshot): String = jsonObject(
+        "version" to snapshot.version.toString(),
+        "referenceEnabled" to snapshot.referenceEnabled.toString(),
+        "gain" to finiteNumber(snapshot.gain),
+        "points" to jsonArray(snapshot.points.map(::learningMemoryPointJson)),
+    )
+
+    private fun learningMemoryPointJson(point: LearningMemoryPointSnapshot): String = jsonObject(
+        "id" to jsonString(point.id),
+        "taskId" to jsonString(point.taskId),
+        "taskTitle" to jsonString(point.taskTitle),
+        "content" to jsonString(point.content),
+        "createdOn" to jsonString(point.createdOn.toString()),
+        "stage" to point.stage.toString(),
+        "memory" to (point.memory?.let(::memoryStateJson) ?: "null"),
+    )
+
+    private fun memoryStateJson(state: MemoryState): String = jsonObject(
+        "capturedOn" to jsonString(state.capturedOn.toString()),
+        "lastEventOn" to jsonString(state.lastEventOn?.toString()),
+        "stabilityDays" to finiteNumber(state.stabilityDays),
+        "difficulty" to finiteNumber(state.difficulty),
+        "difficultySeed" to finiteNumber(state.difficultySeed),
+        "importance" to state.importance.toString(),
+        "reviews" to state.reviews.toString(),
+        "lapses" to state.lapses.toString(),
+        "exposures" to state.exposures.toString(),
+    )
+
+    private fun finiteNumber(value: Double): String {
+        require(value.isFinite()) { "Learning memory contains a non-finite number." }
+        return value.toString()
+    }
 
     private fun taskJson(task: Task): String = jsonObject(
         "id" to jsonString(task.id),

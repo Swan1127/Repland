@@ -1,0 +1,33 @@
+
+>   protected final void performClear(boolean, java.lang.String...);
+      Code:
+         0: aload_2
+         1: ldc_w         #578                // String tableNames
+         4: invokestatic  #133                // Method kotlin/jvm/internal/Intrinsics.checkNotNullParameter:(Ljava/lang/Object;Ljava/lang/String;)V
+         7: aload_0
+         8: invokevirtual #581                // Method assertNotMainThread:()V
+        11: aload_0
+        12: invokevirtual #584                // Method assertNotSuspendingTransaction:()V
+        15: new           #586                // class androidx/room/RoomDatabase$performClear$1
+>   public void assertNotMainThread();
+      Code:
+         0: aload_0
+         1: getfield      #283                // Field allowMainThreadQueries:Z
+         4: ifeq          8
+         7: return
+         8: aload_0
+         9: invokevirtual #639                // Method isMainThread$room_runtime_release:()Z
+        12: ifne          19
+        15: iconst_1
+>       25: ldc_w         #641                // String Cannot access database on the main thread since it may potentially lock the UI for a long period of time.
+        28: nop
+        29: astore_1
+        30: new           #88                 // class java/lang/IllegalStateException
+        33: dup
+        34: aload_1
+        35: invokevirtual #94                 // Method java/lang/Object.toString:()Ljava/lang/String;
+        38: invokespecial #96                 // Method java/lang/IllegalStateException."<init>":(Ljava/lang/String;)V
+        41: athrow
+        42: return
+
+

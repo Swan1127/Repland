@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.AiAdviceValidatorTest" tests="37" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.632Z" hostname="LAPTOP-H29HUS9K" time="0.013">
+  <properties/>
+  <testcase name="accepts a segment that merely touches a hard constraint boundary" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.004"/>
+  <testcase name="accepts a difficulty advice that suggests no duration" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.002"/>
+  <testcase name="rejects an understanding advice whose optional note is present but blank" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a breakdown that contains one blank step" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="accepts an understanding advice with a summary and no note" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.002"/>
+  <testcase name="rejects a proposal that rewrites a protected manual order" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.001"/>
+  <testcase name="rejects a proposal that puts another task on top of a locked segment" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.001"/>
+  <testcase name="rejects a segment that does not end after it starts" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a segment that reaches the exclusive end of the day" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects more than one hundred twenty proposed segments" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.001"/>
+  <testcase name="rejects an order that repeats the same task twice" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a response type that the request never asked for" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects any placement for a required task that has no confirmed segment" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects an understanding advice whose summary is blank" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a breakdown with no steps" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a segment that overlaps a hard constraint" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.001"/>
+  <testcase name="accepts an empty order even when a manual order is protected" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a response that belongs to a different request" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects advice text longer than two thousand characters" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="accepts difficulty and duration at the exact boundaries" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects an order that lists a task the request never included" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a difficulty outside one to five" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects two proposed segments that overlap each other" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="allows a disjoint proposal for a locked task because preservation happens locally" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="accepts a proposal that repeats the confirmed placement of a required task" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a daily summary whose optional next step is present but blank" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="accepts a proposal that repeats a locked segment unchanged" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a proposal that changes the placement of a required task" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="accepts a daily summary with no next step" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="accepts a proposal that leaves a protected manual order untouched" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.001"/>
+  <testcase name="accepts a plan proposal that stays inside the affected tasks" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a proposal that would overwrite a locked segment" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a response that carries an unsupported contract version" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a plan proposal that references a task the request never included" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects plan advice whose explanation is blank" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a suggested duration outside one to fourteen hundred forty minutes" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <testcase name="rejects a segment that is not aligned to the thirty minute quantum" classname="com.swan1127.repland.domain.model.AiAdviceValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

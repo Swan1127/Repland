@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.952Z" hostname="LAPTOP-H29HUS9K" time="0.04">
+  <properties/>
+  <testcase name="the three labels are three different strings" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.005"/>
+  <testcase name="every argument-carrying string formats with nothing left over" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="the header reuses the app's own word for today" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="the provider source is actually being parsed" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.002"/>
+  <testcase name="every emphasis can actually appear, and each one has a label" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="every emphasis has its own label declared in both files" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="only the two argument-carrying strings declare arguments" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="the argument-carrying strings agree between the two files" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="the widget layout hard-codes no text" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="the id lookup resolves the whole string table" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.004"/>
+  <testcase name="every string the widget renders is declared in both resource files" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.003"/>
+  <testcase name="a numeric placeholder rejects text while a string placeholder accepts a number" classname="com.swan1127.repland.ui.widget.WidgetScheduleResourceTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

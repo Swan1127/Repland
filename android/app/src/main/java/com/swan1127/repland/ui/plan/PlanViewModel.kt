@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.swan1127.repland.domain.model.*
+import com.swan1127.repland.domain.planteam.PlanTeamResult
+import com.swan1127.repland.domain.planteam.runtime.TeamEvent
 import com.swan1127.repland.domain.ports.PlanRepository
 import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -27,6 +30,9 @@ data class PlanUiState(
     val draftEditError: String? = null,
     val draftEditReceipt: String? = null,
     val pendingManualChange: PendingManualPlanChange? = null,
+    val teamEvents: List<TeamEvent> = emptyList(),
+    val teamResult: PlanTeamResult? = null,
+    val isGenerating: Boolean = false,
 ) {
     val isTrusted get() = hasLoaded && !isLoading && readError == null
 }
@@ -57,6 +63,8 @@ class PlanViewModel(
     private val draftEditSaving = MutableStateFlow(false)
     private val pendingManualChange = MutableStateFlow<PendingManualPlanChange?>(null)
     private var manualChangeSaved: (() -> Unit)? = null
+    private var generationJob: Job? = null
+    private val teamPreview = operations?.teamPreview ?: MutableStateFlow(PlanningTeamPreview())
     fun clearDraftEditFeedback() { if (!operation.value.second && !draftEditSaving.value) draftEditFeedback.value = null to null }
     fun dismissAssistantReceipt() { assistantReceipt.value = null }
     suspend fun queryTasks(scope: TaskQueryScope, date: LocalDate): List<Task> = requireNotNull(operations).query(scope, date)
@@ -90,6 +98,14 @@ class PlanViewModel(
         .combine(draftEditFeedback) { state, feedback -> state.copy(draftEditError = feedback.first, draftEditReceipt = feedback.second) }
         .combine(draftEditSaving) { state, saving -> state.copy(isWorking = state.isWorking || saving) }
         .combine(pendingManualChange) { state, pending -> state.copy(pendingManualChange = pending) }
+        .combine(teamPreview) { state, team ->
+            val matches = team.draft == state.draft
+            state.copy(
+                teamEvents = if (team.isRunning || matches) team.events else emptyList(),
+                teamResult = team.result.takeIf { matches },
+                isGenerating = team.isRunning,
+            )
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PlanUiState())
 
     fun retryRead() {
@@ -112,7 +128,7 @@ class PlanViewModel(
         val input = PlanGenerationInput(tasks, weeklyBlocks, dateOverrides, semesterFirstWeekMonday,
             lockedSegments, categoryPreferences, manualTaskOrder)
         val revision = PlanningRevision.of(input, uiState.value.currentPlan, uiState.value.taskOrder)
-        mutate {
+        mutate(trackGeneration = true) {
             if (operations != null) {
                 require(todayOnly == null || todayOnly == LocalDate.now()) { "安排今天只操作今天，请切换到今天后重试。" }
                 operations.preview(when {
@@ -135,7 +151,20 @@ class PlanViewModel(
         }
     }
 
-    fun discardDraft() = mutate { planRepository.saveDraft(null) }
+    fun cancelGeneration() {
+        generationJob?.cancel()
+        generationJob = null
+    }
+
+    fun clearTeamMemory() {
+        cancelGeneration()
+        operations?.clearTeamMemory()
+    }
+
+    fun discardDraft() {
+        cancelGeneration()
+        mutate { planRepository.saveDraft(null) }
+    }
 
     fun saveAvailabilityAndGenerate(value: QuickAvailability, categoryPreferences: Map<TaskCategory, Int>, onSaved: () -> Unit) {
         if (operation.value.second) return
@@ -273,12 +302,13 @@ class PlanViewModel(
             (workspaceUiState.value.hasLoaded && workspaceUiState.value.isLoading) ||
             uiState.value.readAttempt != readRetries.value || workspaceUiState.value.readAttempt != readRetries.value
 
-    private fun mutate(action: suspend () -> Unit) {
+    private fun mutate(trackGeneration: Boolean = false, action: suspend () -> Unit) {
+        if (trackGeneration && generationJob?.isActive == true) return
         if (readUnavailable()) {
             operation.value = "请先重新读取计划与助手草稿；本次未保存，已有内容仍保留。" to false
             return
         }
-        viewModelScope.launch {
+        val job = viewModelScope.launch {
             mutex.withLock {
                 if (readUnavailable()) {
                     operation.value = "请先重新读取计划与助手草稿；本次未保存，已有内容仍保留。" to false
@@ -298,6 +328,7 @@ class PlanViewModel(
                 }
             }
         }
+        if (trackGeneration) generationJob = job
     }
 
     class Factory(private val repository: PlanRepository, private val generator: PlanDraftGenerator,

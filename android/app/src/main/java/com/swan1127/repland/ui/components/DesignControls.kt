@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.swan1127.repland.ui.theme.pressMotion
 import com.swan1127.repland.ui.theme.replandAccent
+import com.swan1127.repland.ui.theme.LocalReplandVisuals
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -24,7 +25,10 @@ fun DesignButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = RoundedCornerShape(12.dp),
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = LocalReplandVisuals.current.mainAction,
+        contentColor = LocalReplandVisuals.current.onMainAction,
+    ),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
@@ -90,7 +94,7 @@ fun DesignClickableSurface(
     shape: Shape = RoundedCornerShape(14.dp),
     color: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     shadowElevation: Dp = 0.dp,
-    pressedScale: Float = .975f,
+    pressedScale: Float = .98f,
     enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {

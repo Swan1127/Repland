@@ -1,0 +1,96 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Environment/java-home
+
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:parseDebugLocalResources
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:generateDebugRFile
+> Task :app:mergeDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:checkDebugAarMetadata
+> Task :app:compileDebugNavigationResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:compressDebugAssets
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
+> Task :app:mergeDebugNativeLibs
+> Task :app:mergeLibDexDebug
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
+
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:mergeDebugResources
+> Task :app:extractProguardFiles
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+> Task :app:mergeExtDexDebug
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:dexBuilderDebug
+> Task :app:processDebugJavaRes
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:generateDebugLintReportModel
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:mergeProjectDexDebug
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:mergeDebugJavaResource
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebug
+> Task :app:compileDebugUnitTestKotlin
+w: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/data/ProfileStoreTest.kt:34:23 Unchecked cast of 'Any?' to 'MutableSet<String>'.
+w: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/data/ProfileStoreTest.kt:68:19 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+w: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/domain/model/ProfileIdentityTest.kt:161:19 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+w: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/domain/model/ProfileIdentityTest.kt:171:19 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+w: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/domain/model/ProfileIdentityTest.kt:178:19 'fun createTempDir(prefix: String = ..., suffix: String? = ..., directory: File? = ...): File' is deprecated. Avoid creating temporary directories in the default temp location with this function due to too wide permissions on the newly created directory. Use kotlin.io.path.createTempDirectory instead.
+
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+
+> Task :app:testDebugUnitTest
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Environment/java-home
+
+PlanViewModelTeamTest > editing a draft cannot remove a current locked placement FAILED
+    java.lang.AssertionError at PlanViewModelTeamTest.kt:267
+
+1654 tests completed, 1 failed
+
+> Task :app:testDebugUnitTest FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/build/reports/tests/testDebugUnitTest/index.html
+
+51 actionable tasks: 51 executed
+* Try:
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+
+BUILD FAILED in 2m 9s

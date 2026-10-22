@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.TaskDraftTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.364Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="one character past the limit is truncated and marked with an ellipsis" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.001"/>
+  <testcase name="only the first line becomes the name" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="the limit counts characters not bytes" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="the description is not validated, only the display name" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="surrounding whitespace is trimmed away" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a blank display name is rejected" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a description of exactly the limit is kept whole" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a short single line is returned unchanged" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a leading blank line does not become the name" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a minimal draft with no duration is valid" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a carriage return also ends the line" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a due date and a planned day are both optional" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="the estimated day count must be between one and thirty" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="the duration must be between one and fourteen hundred forty minutes" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <testcase name="a blank description yields an empty name" classname="com.swan1127.repland.domain.model.TaskDraftTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

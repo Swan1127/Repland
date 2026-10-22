@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Metadata for the home-screen widget.
+
+  Sizing follows the platform's own cell formula (`70 * cells - 30`), so the default is three cells
+  wide by two tall — wide enough for a block title on one line, tall enough for the header, two
+  rows and the footer. `resizeMode` is horizontal|vertical because the layout is a stack of
+  wrap-content rows: it degrades sensibly at any size the user drags it to, so there is no reason
+  to lock an axis.
+
+  `updatePeriodMillis` is the platform's floor of 30 minutes. It is a *backstop*, not the refresh
+  strategy: WidgetSchedule.nextRefreshAt computes the exact minute at which the answer changes and
+  the provider arms a one-shot alarm for it, because a "what am I doing now" widget that is up to
+  half an hour stale is worse than no widget. The periodic update is what keeps it honest if the
+  alarm is deferred — by Doze, by a force-stop, or by a device that was off across the boundary.
+
+  Deliberately absent: `android:description`, `android:targetCellWidth`/`targetCellHeight` and
+  `android:previewLayout` are all API 31+, and using them here would mean shipping a second
+  `xml-v31/` copy of this file that has to be kept in step with this one by hand. The cost of that
+  duplication — two files that can disagree about the initial layout — is higher than the benefit
+  of a nicer entry in the widget picker.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/widget_home"
+    android:minHeight="110dp"
+    android:minWidth="180dp"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000"
+    android:widgetCategory="home_screen" />

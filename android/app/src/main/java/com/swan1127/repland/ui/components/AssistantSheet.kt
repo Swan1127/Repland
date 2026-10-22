@@ -8,16 +8,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material3.Button
+import com.swan1127.repland.ui.components.DesignButton as Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import com.swan1127.repland.ui.components.DesignFilterChip as FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -29,10 +29,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -43,7 +44,7 @@ fun AssistantSheet(
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit,
 ) {
-    var prompt by remember(taskTitle) { mutableStateOf("") }
+    var prompt by rememberSaveable(taskTitle) { mutableStateOf("") }
     val suggestions = listOf("帮我理解这项任务", "估算合适的时间", "拆成下一步", "帮我调整今天")
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -51,7 +52,9 @@ fun AssistantSheet(
         containerColor = MaterialTheme.colorScheme.background,
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().imePadding()
+                .heightIn(max = (LocalConfiguration.current.screenHeightDp * .86f).dp)
+                .verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -77,9 +80,9 @@ fun AssistantSheet(
                 value = prompt,
                 onValueChange = { prompt = it },
                 modifier = Modifier.fillMaxWidth().testTag("assistant-prompt"),
+                label = { Text("你的问题") },
                 placeholder = { Text("例如：我只完成了一半，接下来怎么安排？") },
                 minLines = 3,
-                trailingIcon = { Icon(Icons.Outlined.Add, contentDescription = "语音输入", modifier = Modifier.size(20.dp)) },
             )
             Button(
                 onClick = { onSubmit(prompt.trim()) },

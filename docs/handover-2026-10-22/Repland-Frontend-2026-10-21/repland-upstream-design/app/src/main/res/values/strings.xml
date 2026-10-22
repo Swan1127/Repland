@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Repland</string>
+
+    <!-- ============ 主导航 ============ -->
+    <string name="tab_today">今天</string>
+    <string name="tab_tasks">任务</string>
+    <string name="tab_time">时间</string>
+    <string name="tab_agent">助手</string>
+    <string name="tab_mine">我的</string>
+
+    <string name="today_title">今天</string>
+    <string name="tasks_title">任务</string>
+    <string name="time_title">时间</string>
+    <string name="agent_title">智能助手</string>
+    <string name="mine_title">我的</string>
+
+    <!-- ============ 通用动作 ============ -->
+    <string name="add">添加</string>
+    <string name="back">返回</string>
+    <string name="cancel">取消</string>
+    <string name="close">关闭</string>
+    <string name="confirm">确认</string>
+    <string name="confirm_anyway">仍然确认</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="complete">完成</string>
+    <string name="move_up">上移</string>
+    <string name="move_down">下移</string>
+
+    <!-- ============ 任务 ============ -->
+    <string name="add_task">新建任务</string>
+    <string name="edit_task">编辑任务</string>
+    <string name="task_information">任务信息</string>
+    <string name="task_name">任务名称</string>
+    <string name="task_name_hint">例如：复习线性代数第三章</string>
+    <string name="task_description">任务说明</string>
+    <string name="unknown_task">未知任务</string>
+    <string name="save_task_error">任务保存失败</string>
+    <string name="complete_task">标记完成</string>
+    <string name="task_cancel">取消任务</string>
+    <string name="cancel_task_message">取消后该任务不再参与计划编排，确定吗？</string>
+    <string name="restore_task">恢复任务</string>
+    <string name="replace_task">替换任务</string>
+    <string name="replacement_task_format">替换为 %1$s</string>
+
+    <!-- 字段 -->
+    <string name="category">分类</string>
+    <string name="priority">优先级</string>
+    <string name="current_status">当前状态</string>
+    <string name="due_date_optional">截止日期（可选）</string>
+    <string name="duration_minutes_optional">预计用时（分钟，可选）</string>
+    <string name="estimated_days">预计天数</string>
+    <string name="estimated_days_format">预计 %1$d 天</string>
+    <!--
+      The repeat vocabulary. "不重复" is a chip rather than an absent control, because clearing a
+      rule is a choice the user makes and the editor has to be able to express it — see the comment
+      on `save()` in RoomTaskRepository for why that matters.
+    -->
+    <string name="repeat_rule">重复</string>
+    <string name="repeat_none">不重复</string>
+    <string name="repeat_daily">每天</string>
+    <string name="repeat_weekly">每周</string>
+    <string name="repeat_monthly">每月</string>
+    <string name="repeat_hint">完成一次后自动顺延到下一次；没有日期时会顺延出一个安排日期。</string>
+    <string name="duration_format">%1$d 分钟</string>
+    <string name="actual_duration_optional">实际用时</string>
+    <string name="progress_optional">进度</string>
+    <string name="progress_format">进度 %1$d%%</string>
+    <string name="percent_suffix" formatted="false">%</string>
+    <string name="completed_content">完成内容</string>
+    <string name="completed_content_optional">完成内容（可选）</string>
+    <string name="completed_content_required">请填写完成内容</string>
+    <string name="completion_result">完成结果</string>
+    <string name="completion_result_optional">完成结果（可选）</string>
+    <string name="partial_completion">部分完成</string>
+    <string name="partial_progress_required">请填写已完成进度</string>
+    <string name="unscheduled_duration">未排期时长</string>
+
+    <!-- 分类取值 -->
+    <string name="category_course">课程</string>
+    <string name="category_extracurricular">课外</string>
+    <string name="category_office">事务</string>
+    <string name="category_leisure">休闲</string>
+
+    <!-- 优先级取值 -->
+    <string name="priority_required">请选择优先级</string>
+    <string name="priority_high">高</string>
+    <string name="priority_medium">中</string>
+    <string name="priority_low">低</string>
+
+    <!-- 状态取值 -->
+    <string name="status_not_started">未开始</string>
+    <string name="status_in_progress">进行中</string>
+    <string name="status_completed">已完成</string>
+    <string name="status_postponed">已推迟</string>
+    <string name="status_cancelled">已取消</string>
+    <string name="status_replaced">已替换</string>
+    <string name="confirmed_status_format">已确认为「%1$s」</string>
+
+    <!-- ============ 动态优先级 ============ -->
+    <string name="dynamic_priority_score">动态优先级 %1$s</string>
+    <string name="initial_priority_fixed">初始优先级固定为「%1$s」</string>
+    <string name="priority_reason_initial">初始优先级 %1$d</string>
+    <string name="priority_reason_category">分类权重 %1$d</string>
+    <string name="priority_reason_due_today">今天截止</string>
+    <string name="priority_reason_due_in_days">%1$d 天后截止</string>
+    <string name="priority_reason_overdue">已逾期 %1$d 天</string>
+    <string name="priority_reason_postponed">已推迟 %1$d 次</string>
+    <string name="priority_reason_ai_neutral">AI 建议保持中性</string>
+
+    <!-- ============ 推迟 ============ -->
+    <string name="postpone">推迟</string>
+    <string name="postpone_reason">推迟原因</string>
+    <string name="postpone_reason_optional">推迟原因（可选）</string>
+    <string name="postpone_notice">推迟会记录原因，用于调整后续计划</string>
+    <string name="postponement_guidance_title">推迟提示</string>
+    <string name="postponement_guidance_message">这个任务已推迟 %1$d 次，建议调整任务范围或截止日期</string>
+    <string name="adjust_task_scope_or_date">调整任务范围或日期</string>
+
+    <!-- ============ 时间与课表 ============ -->
+    <string name="day_of_week">星期</string>
+    <string name="monday">周一</string>
+    <string name="tuesday">周二</string>
+    <string name="wednesday">周三</string>
+    <string name="thursday">周四</string>
+    <string name="friday">周五</string>
+    <string name="saturday">周六</string>
+    <string name="sunday">周日</string>
+
+    <string name="start_time">开始时间</string>
+    <string name="end_time">结束时间</string>
+    <string name="start_period">开始节次</string>
+    <string name="end_period">结束节次</string>
+    <string name="course_period_format">第 %1$s 节</string>
+    <string name="time_hint">时间提示</string>
+
+    <string name="block_kind">时段类型</string>
+    <string name="block_kind_course">课程</string>
+    <string name="block_kind_available">可用</string>
+    <string name="block_kind_rest">休息</string>
+    <string name="block_kind_other">其他</string>
+
+    <string name="time_block_name">时段名称</string>
+    <string name="time_block_name_hint">例如：高等数学</string>
+    <string name="time_block_error">时段信息有误</string>
+    <string name="add_weekly_block">添加固定时段</string>
+    <string name="edit_weekly_block">编辑固定时段</string>
+
+    <string name="override_date">调整日期</string>
+    <string name="override_type">调整类型</string>
+    <string name="override_available">可排期</string>
+    <string name="override_blocked">不可排期</string>
+    <string name="add_date_override">添加日期调整</string>
+    <string name="edit_date_override">编辑日期调整</string>
+
+    <string name="delete_time_entry">删除时间记录</string>
+    <string name="delete_time_entry_message">确定要删除「%1$s」这条时间记录吗？</string>
+
+    <!-- 学期周 -->
+    <string name="semester_week_title">学期周</string>
+    <string name="semester_week_date">学期周与日期</string>
+    <string name="set_semester_week">设置学期周</string>
+    <string name="edit_semester_week">编辑学期周</string>
+    <string name="semester_week_set">已设为 %1$s</string>
+    <string name="semester_week_unset">未设置</string>
+    <string name="semester_week_editor_title">设置当前学期周</string>
+    <string name="semester_week_editor_hint">选择本周对应的教学周</string>
+    <string name="semester_week_error">学期周设置失败</string>
+
+    <!-- 课表导入 -->
+    <string name="import_timetable_pdf">导入课表 PDF</string>
+    <string name="import_timetable_hint">从课程表 PDF 中识别课程，全程在本机完成</string>
+    <string name="import_default_period_note">未识别到节次时按默认节次处理</string>
+    <string name="import_selected_format">已选择 %1$d 门课程</string>
+    <string name="timetable_import_review">核对导入结果</string>
+    <string name="edit_imported_course">编辑导入课程</string>
+    <string name="imported_course_error">课程信息有误</string>
+    <string name="week_pattern_optional">周次（可选，如 1-8,10周）</string>
+
+    <!-- ============ 计划 ============ -->
+    <string name="plan_overview_title">计划总览</string>
+    <string name="current_plan_label">当前计划</string>
+    <string name="plan_pending_tasks">待排任务</string>
+    <string name="plan_unassigned_task">%1$s · 还有 %2$d 分钟未排入</string>
+    <string name="plan_segment_count">共 %1$d 段</string>
+    <string name="plan_feasibility_warning">当前任务总量已超出可用时间</string>
+    <string name="capacity_total_window_reason">计划窗口总容量不足</string>
+    <string name="capacity_before_due_reason">截止日期前可用时间不足</string>
+    <string name="capacity_rolling_window_reason">滚动窗口内可用时间不足</string>
+
+    <string name="plan_segment_edit_note">手动调整只影响当前计划</string>
+    <string name="plan_segment_edit_error">计划段落修改失败</string>
+    <string name="plan_segment_overlap_warning">该时段与已有安排重叠</string>
+    <string name="edit_plan_segment">编辑计划段落</string>
+    <string name="segment_locked">已锁定</string>
+    <string name="lock_segment">锁定</string>
+    <string name="unlock_segment">解锁</string>
+
+    <string name="clear_current_plan">清空当前计划</string>
+    <string name="clear_current_plan_title">清空当前计划</string>
+    <string name="clear_current_plan_message">清空后当前计划无法恢复，确定继续吗？</string>
+    <string name="restore_plan">恢复计划</string>
+    <string name="no_plan_history">暂无历史计划</string>
+    <string name="plan_history_version">历史版本</string>
+
+    <!-- ============ 计划草稿 / 助手建议 ============ -->
+    <string name="plan_draft_title">计划草稿</string>
+    <string name="plan_draft_notice">草稿需要你确认后才会生效</string>
+    <string name="accept_plan_draft">采纳草稿</string>
+    <string name="discard_plan_draft">丢弃草稿</string>
+    <string name="review_agent_draft">查看助手草稿</string>
+    <string name="review_adjustment_draft">查看调整草稿</string>
+    <string name="agent_draft_accepted">已采纳草稿</string>
+    <string name="agent_draft_dismissed">已丢弃草稿</string>
+    <string name="agent_draft_review_notice">助手只提供建议，是否采纳由你决定</string>
+    <string name="editable_agent_advice">可编辑的助手建议</string>
+    <string name="request_agent_daily_summary">生成今日总结</string>
+
+    <!-- ============ AI 顾问 ============ -->
+    <string name="ai_advisor_title">AI 顾问</string>
+    <string name="ai_advisor_description">仅生成建议，不会修改任何数据</string>
+    <string name="ai_advice_result_title">建议结果</string>
+    <string name="ai_advice_needs_review">建议需你确认后才会生效</string>
+    <string name="ai_advisor_consent_needed">需要你的授权</string>
+    <string name="ai_advisor_consent_recorded">已记录授权</string>
+    <string name="ai_consent_title">授权说明</string>
+    <string name="ai_consent_message">启用后，应用会把下方预览中的计划与反馈内容发送给你配置的 AI 服务，用于生成建议。建议不会自动执行，也不会写入本机数据。你可以随时关闭。</string>
+    <string name="ai_consent_confirm">我已知晓</string>
+    <string name="ai_requesting">正在请求…</string>
+    <string name="ai_request_confirm">确认发送</string>
+    <string name="ai_request_preview_title">将发送的内容</string>
+    <string name="ai_request_preview_notice">以下内容仅用于生成建议，不会自动执行</string>
+    <string name="ai_request_preview_segments_title">计划段落</string>
+    <string name="ai_request_preview_no_segments">暂无计划段落</string>
+    <string name="ai_request_preview_task_count">%1$d 个待排任务</string>
+    <string name="ai_request_preview_feedback_title">近期反馈</string>
+    <string name="ai_request_preview_no_feedback">暂无反馈</string>
+    <string name="ai_request_preview_daily_feedback">%1$d 条日反思反馈</string>
+    <string name="ai_request_preview_feedback_format">第 %1$d 次反馈：用时 %2$s，进度 %3$s</string>
+    <string name="ai_request_preview_excluded_data">不会发送：任务备注、画像原文、密钥</string>
+
+    <!-- AI 失败原因 -->
+    <string name="ai_failure_disabled">AI 顾问已关闭</string>
+    <string name="ai_failure_not_configured">尚未配置 AI 服务</string>
+    <string name="ai_failure_transport">网络连接失败</string>
+    <string name="ai_failure_timeout">请求超时</string>
+    <string name="ai_failure_authentication">鉴权失败，请检查密钥</string>
+    <string name="ai_failure_rate_limited">请求过于频繁，请稍后再试</string>
+    <string name="ai_failure_remote">服务端返回错误</string>
+    <string name="ai_failure_invalid_response">返回内容无法解析</string>
+
+    <!-- ============ 日反思与执行记录 ============ -->
+    <string name="open_daily_review">打开日反思</string>
+    <string name="daily_review_title">%1$s 日反思</string>
+    <string name="daily_review_notice">记录实际执行情况，用于调整后续计划</string>
+    <string name="daily_review_planned_segments">计划段落</string>
+    <string name="daily_review_pending_segments">待处理段落</string>
+    <string name="daily_review_recorded_feedback">已记录反馈</string>
+    <string name="daily_review_feedback_count">%1$d 条反馈</string>
+    <string name="daily_review_no_feedback">今天还没有记录反馈</string>
+    <string name="daily_review_next_suggestion">下一步建议：%1$s</string>
+    <string name="skip_daily_review">跳过今天</string>
+    <string name="record_feedback">记录反馈</string>
+    <string name="latest_feedback">最近反馈</string>
+    <string name="feedback_does_not_change_status">记录反馈不会改变任务状态</string>
+    <string name="feedback_validation_error">反馈内容不完整</string>
+
+    <string name="execution_logs">执行记录</string>
+    <string name="no_execution_logs">暂无执行记录</string>
+    <string name="log_event_status_change">状态变更</string>
+    <string name="log_event_feedback">反馈</string>
+    <string name="log_event_partial_completion">部分完成</string>
+    <string name="log_event_correction">修正</string>
+    <string name="log_event_replacement">替换</string>
+    <string name="correct_log">修正记录</string>
+    <string name="corrects_log_format">修正 %1$s</string>
+    <string name="correction_notice">修正会保留原始记录</string>
+
+    <!-- ============ 画像证据 ============ -->
+    <string name="profile_evidence_title">画像证据</string>
+    <string name="profile_evidence_intro">仅根据本机数据生成，不会上传</string>
+    <string name="generate_profile_evidence">生成画像证据</string>
+    <string name="no_profile_evidence">暂无画像证据</string>
+    <string name="profile_evidence_conclusion">结论</string>
+    <string name="profile_evidence_sources_title">依据来源</string>
+    <string name="profile_evidence_source_format">来源 %1$s</string>
+    <string name="profile_evidence_source_unavailable">来源已不可用</string>
+    <string name="profile_evidence_tool_outputs_title">相关工具产出（未计入上面的结论）</string>
+    <string name="profile_evidence_tool_output_format">%1$s · %2$s：%3$s</string>
+    <string name="profile_evidence_tool_output_more">还有 %1$d 条</string>
+    <string name="profile_evidence_tool_kind_kwl">KWL 学到了</string>
+    <string name="profile_evidence_tool_kind_review_point">复习点</string>
+    <string name="profile_evidence_tool_kind_self_explanation">自我解释</string>
+    <string name="profile_evidence_scope_general">通用</string>
+    <string name="profile_evidence_scope_learning">学习</string>
+    <string name="profile_evidence_generated">已生成</string>
+    <string name="profile_evidence_user_edited">已手动修改</string>
+    <string name="profile_evidence_validation_error">内容不符合要求</string>
+    <string name="profile_evidence_action_error">操作失败</string>
+    <string name="edit_profile_evidence">编辑画像证据</string>
+    <string name="edit_profile_evidence_notice">手动修改后会标记为「已手动修改」</string>
+    <string name="delete_profile_evidence_title">删除画像证据</string>
+    <string name="delete_profile_evidence_message">删除后无法恢复，确定吗？</string>
+
+    <!-- ============ 头像与昵称（批次 3 第 11 项） ============ -->
+    <string name="profile_default_name">学习者</string>
+    <string name="profile_identity_hint">点击头像或昵称设置</string>
+    <string name="profile_name_title">设置昵称</string>
+    <string name="profile_name_hint">昵称</string>
+    <string name="profile_name_save">保存</string>
+    <string name="profile_avatar_change">更换头像</string>
+    <string name="profile_avatar_clear">移除头像</string>
+    <string name="profile_avatar_not_image">这不是图片文件</string>
+    <string name="profile_avatar_too_large">图片太大（上限 %1$d MB）</string>
+    <string name="no_introduction">暂无简介</string>
+
+    <!-- ============ 分类偏好 ============ -->
+    <string name="category_preferences_title">分类偏好</string>
+    <string name="category_preferences_intro">调整各分类在动态优先级中的权重</string>
+    <string name="category_preferences_error">偏好保存失败</string>
+    <string name="save_category_preferences">保存偏好</string>
+
+    <!-- ============ 提醒 ============ -->
+    <string name="local_reminders_title">本地提醒</string>
+    <string name="local_reminders_description">使用系统本地闹钟，不依赖网络</string>
+    <string name="reminder_channel_name">计划提醒</string>
+    <string name="reminder_channel_description">计划开始、截止与日反思提醒</string>
+    <string name="reminder_start_title">即将开始：%1$s</string>
+    <string name="reminder_start_content">计划段落即将开始</string>
+    <string name="reminder_deadline_title">截止提醒：%1$s</string>
+    <string name="reminder_deadline_content">今天是 %1$s 的截止日期</string>
+    <string name="reminder_review_title">日反思</string>
+    <string name="reminder_review_content">花一分钟记录今天的执行情况</string>
+    <string name="notification_permission_needed">需要通知权限才能收到提醒</string>
+    <string name="pending_confirmation_open_task">有待确认的任务</string>
+
+    <!-- ============ 本地数据 ============ -->
+    <string name="local_data_title">本地数据</string>
+    <string name="local_data_intro">所有数据只保存在这台设备上，不会上传</string>
+    <string name="export_local_json">导出为 JSON</string>
+    <string name="export_local_xlsx">导出为表格（.xlsx）</string>
+    <string name="export_local_xlsx_hint">课表、时间块、任务、投入趋势，可用 Excel 打开</string>
+    <string name="export_local_data_success">已导出</string>
+    <string name="export_local_data_failed">导出失败</string>
+    <string name="clear_local_data">清空本地数据</string>
+    <string name="clear_local_data_title">清空本地数据</string>
+    <string name="clear_local_data_message">本机保存的全部数据将被删除且无法恢复。确定继续吗？</string>
+    <string name="clear_local_data_confirm">确认清空</string>
+    <string name="clear_local_data_success">已清空本地数据</string>
+    <string name="clear_local_data_failed">清空失败</string>
+
+    <!-- ============ 三 tab 主导航 + 命令面板 ============ -->
+    <string name="tab_plan">计划</string>
+    <string name="plan_tab_title">计划</string>
+    <string name="command_open_palette">命令面板</string>
+    <string name="command_search_hint">搜索功能、页面或动作</string>
+    <string name="command_no_match">没有匹配的条目</string>
+    <string name="command_result_count">%1$d 个结果</string>
+    <string name="command_group_navigate">前往</string>
+    <string name="command_group_task">任务</string>
+    <string name="command_group_plan">计划</string>
+    <string name="command_group_time">时间与课表</string>
+    <string name="command_group_review">复盘与反思</string>
+    <string name="command_group_method">学习方法</string>
+    <string name="command_group_data">数据与导出</string>
+    <string name="command_group_appearance">外观</string>
+    <string name="back_to_primary">返回</string>
+
+    <!-- ============ D6 外观 / 深色模式 ============ -->
+    <string name="appearance_title">外观</string>
+    <string name="appearance_mode">主题模式</string>
+    <string name="appearance_mode_system">跟随系统</string>
+    <string name="appearance_mode_light">浅色</string>
+    <string name="appearance_mode_dark">深色</string>
+    <string name="appearance_mode_body">深色不是把白底换成黑底：层级改用明度区分，强调色降饱和，底色避开纯黑。</string>
+    <string name="appearance_accent">配色主题</string>
+    <string name="appearance_accent_body">配色主题只改品牌色与第二强调色。暖中性阶、页面与卡片的深浅关系、明暗模式都不随之改变。</string>
+    <string name="theme_accent_bamboo">竹青</string>
+    <string name="theme_accent_indigo">靛蓝</string>
+    <string name="theme_accent_plum">绛棠</string>
+
+    <!-- ============ D5 撤销 / 重做 ============ -->
+    <string name="undo">撤销</string>
+    <string name="redo">重做</string>
+    <string name="undo_done">已撤销：%1$s</string>
+    <string name="redo_done">已重做：%1$s</string>
+    <string name="undo_nothing">没有可撤销的操作</string>
+
+    <!-- ============ D3 日历导出 / D4 图片导出 ============ -->
+    <string name="export_ics">导出日历（.ics）</string>
+    <string name="export_ics_today">导出今天的安排</string>
+    <string name="export_ics_all">导出全部计划</string>
+    <string name="export_ics_success">已导出日历文件</string>
+    <string name="export_ics_failed">日历导出失败</string>
+    <string name="export_image">导出图片</string>
+    <string name="export_image_timetable">导出课表图</string>
+    <string name="export_image_plan">导出计划图</string>
+    <string name="export_image_success">图片已保存到相册</string>
+    <string name="export_image_failed">图片导出失败</string>
+
+    <!-- ============ D1 Excel 课表导入 ============ -->
+    <string name="import_excel">导入 Excel 课表</string>
+    <string name="import_excel_hint">直接读取 .xlsx，零依赖、不联网</string>
+    <string name="import_paste">从剪贴板粘贴课表</string>
+    <string name="import_paste_hint">在 Excel 里复制单元格，然后一键粘贴</string>
+    <string name="import_paste_empty">剪贴板里没有可用的表格内容</string>
+    <string name="import_excel_success">已识别 %1$d 门课程</string>
+    <string name="import_excel_failed">这个文件没能解析出课程</string>
+    <string name="import_timetable_done_skip">另有 %1$d 门已存在，未重复添加</string>
+    <string name="import_timetable_done_none">这 %1$d 门课程都已导入过，没有重复添加</string>
+    <string name="import_timetable_done_empty">识别到了课程，但没有能落到时段上的条目</string>
+
+    <!-- ============ D2 课表集 ============ -->
+    <string name="timetable_sets">课表集</string>
+    <string name="timetable_set_new">新建课表集</string>
+    <string name="timetable_set_name">课表集名称</string>
+    <string name="timetable_set_activate">启用这一套</string>
+    <string name="timetable_set_active">当前启用</string>
+    <string name="timetable_set_switch_hint">同一时刻只有一套课表生效，硬约束不会打架</string>
+    <string name="timetable_set_saved">已保存课表集</string>
+    <string name="timetable_set_deleted">已删除课表集「%1$s」</string>
+    <string name="timetable_set_delete_title">删除课表集</string>
+    <string name="timetable_set_delete_message">确定要删除「%1$s」这一套课表吗？删除后无法找回。</string>
+
+    <!-- ============ D8 复习点 ============ -->
+    <string name="review_points">复习点</string>
+    <string name="insights_title">学习洞察</string>
+    <string name="review_point_new">新的复习点</string>
+    <string name="review_point_prompt">还想得起来吗？</string>
+    <string name="review_point_remembered">想起来了</string>
+    <string name="review_point_forgotten">忘了</string>
+    <string name="review_point_due">今天有 %1$d 个复习点</string>
+    <string name="review_point_created_from">来自「%1$s」</string>
+    <string name="review_point_none">暂无复习点</string>
+    <string name="review_card_title">复习卡</string>
+    <string name="review_point_scheduled">已排入 %1$d 天后的复习</string>
+
+    <!-- ============ E4 反思日志 ============ -->
+    <string name="reflection_title">今日反思</string>
+    <string name="reflection_keep">就这样</string>
+    <string name="reflection_edit">改一改</string>
+    <string name="reflection_skip">今天不写</string>
+    <string name="reflection_saved">已保存今日反思</string>
+    <string name="reflection_empty">今天还没有执行记录，无法生成草稿</string>
+    <string name="reflection_draft_label">草稿（可直接编辑）</string>
+
+    <!-- ============ E3 自我解释 ============ -->
+    <string name="self_explanation_title">一句话讲清楚</string>
+    <string name="self_explanation_prompt">如果要给同学讲这道题，你会先讲哪一句？</string>
+    <string name="self_explanation_hint">讲不清的地方，就是没真懂的地方</string>
+    <string name="self_explanation_saved">已记录你的解释</string>
+    <string name="self_explanation_optional">讲给同学听（可选，一句话）</string>
+
+    <!-- ============ E1 KWL 表 ============ -->
+    <string name="kwl_title">KWL 表</string>
+    <string name="kwl_known">我已经知道</string>
+    <string name="kwl_want">我想知道</string>
+    <string name="kwl_learned">我学到了</string>
+    <string name="kwl_generate">生成 KWL 草稿</string>
+    <string name="kwl_generated">已生成草稿，划掉不对的、补一条就行</string>
+    <string name="kwl_saved">已保存 KWL</string>
+
+    <!-- ============ E2 SQ3R 脚手架 ============ -->
+    <string name="sq3r_title">阅读脚手架</string>
+    <string name="sq3r_hint">需要时展开，不必按顺序走完</string>
+    <string name="sq3r_survey">概览</string>
+    <string name="sq3r_survey_hint">先看目录、标题、图表，5 分钟</string>
+    <string name="sq3r_question">提问</string>
+    <string name="sq3r_question_hint">把每个标题改写成问句</string>
+    <string name="sq3r_read">阅读</string>
+    <string name="sq3r_read_hint">带着问题读，读到答案就停</string>
+    <string name="sq3r_recite">复述</string>
+    <string name="sq3r_recite_hint">合上书，用自己的话答一遍</string>
+    <string name="sq3r_review">复习</string>
+    <string name="sq3r_review_hint">明天先复述，再往下读</string>
+
+    <!-- ============ D7 学期周重算 ============ -->
+    <string name="semester_week_recompute">已按新的学期起始重算周次</string>
+
+    <!-- ============ 工具页补充文案 ============ -->
+    <string name="self_explanation_empty">还没有完成的任务可以补一句解释。完成一件事之后回来写，最有价值。</string>
+    <string name="self_explanation_save">存下这句</string>
+    <string name="self_explanation_clue">当时的记录</string>
+    <string name="self_explanation_seeded">已加入复习队列，后续日期会随回忆反馈调整</string>
+    <string name="memory_review_short_description">自适应间隔复习，支持忘记 / 模糊 / 记得</string>
+    <string name="timetable_set_delete">删除</string>
+    <string name="timetable_set_none">还没有保存过课表集。把当前课表存成一套，之后可以整体切换。</string>
+    <string name="timetable_set_from_current">把当前课表存为一套</string>
+    <string name="timetable_set_saved_count">已保存 %1$d 段课表</string>
+    <string name="timetable_set_switched">已切换到「%1$s」</string>
+    <string name="timetable_set_drifted">当前课表和任何一套都不完全一样（改动过或导入过新课程）。存成新的一套，或点「启用这一套」回到某一套。</string>
+    <string name="export_image_hint">图片直接写进相册，不经过任何网络。</string>
+    <string name="export_image_empty">当前没有可导出的内容。</string>
+    <string name="import_excel_pick">选择 .xlsx 文件</string>
+
+    <!-- D5 撤销 / 重做（面板入口与步骤名）。提示语见上面的 D5 块。 -->
+    <string name="undo_palette_undo">撤销上一步</string>
+    <string name="undo_palette_redo">重做</string>
+    <string name="undo_palette_will_undo">将退回：%1$s</string>
+    <string name="undo_palette_will_redo">将恢复：%1$s</string>
+    <string name="undo_palette_empty_undo">暂时没有可撤销的操作（历史只在本次打开期间保留）</string>
+    <string name="undo_palette_empty_redo">暂时没有可重做的操作（历史只在本次打开期间保留）</string>
+    <string name="undo_step_delete_block">删除课表块「%1$s」</string>
+    <string name="undo_step_delete_override">删除例外日「%1$s」</string>
+    <string name="undo_step_switch_set">切换到课表集「%1$s」</string>
+
+    <!-- ============ 日期显示格式 ============
+         这些是 DateTimeFormatter 的 pattern，不是给人读的文案，所以里面会看到 M / d / E / y 这些
+         格式字母 —— 它们必须保持原样，CJK 字符（年月日、·）会被当成字面量原样输出。
+         放在资源里的理由：pattern 决定日期的**语言**，和文案一样必须随系统语言切换。
+         以前这些 pattern 是写死在代码里的，于是"英文界面 + 中文日期"必然发生。 -->
+    <string name="date_pattern_month_day">M月d日</string>
+    <string name="date_pattern_month_day_weekday">M月d日 EEEE</string>
+    <string name="date_pattern_month_day_short_weekday">M月d日 E</string>
+    <string name="date_pattern_month_day_dot_weekday">M月d日 · EEEE</string>
+    <string name="date_pattern_numeric_month_day_weekday">M/d E</string>
+    <string name="date_pattern_numeric_month_day">M/d</string>
+    <string name="date_pattern_weekday_short">EEE</string>
+    <string name="date_pattern_year_month_day">yyyy年M月d日</string>
+
+    <!-- ============ 任务日期标签 ============
+         taskDateLabel 用这两条把"今天/明天"说成人话；其余日期走上面的 pattern。 -->
+    <string name="task_date_today">今天</string>
+    <string name="task_date_tomorrow">明天</string>
+    <string name="date_picker_confirm">确定</string>
+
+    <!-- ============ 任务卡片摘要 ============
+         全是格式串：%1$s / %2$s 是已经本地化好的日期，%3$d 是分钟数。
+         它们和 pattern 一样属于"日期出现在句子的哪个位置"，必须随语言切换，
+         否则英文界面上会出现"截止 Mar 4"这种半截翻译。 -->
+    <string name="task_summary_in_progress">正在进行</string>
+    <string name="task_summary_completed">已完成</string>
+    <string name="task_summary_postponed">已延期</string>
+    <string name="task_summary_overdue">已逾期 · %1$s</string>
+    <string name="task_summary_needs_rescheduling">待重新安排 · %1$s</string>
+    <string name="task_summary_planned_due_minutes">计划 %1$s · 截止 %2$s · %3$d 分钟</string>
+    <string name="task_summary_planned_due">计划 %1$s · 截止 %2$s</string>
+    <string name="task_summary_planned_minutes">计划 %1$s · %2$d 分钟</string>
+    <string name="task_summary_planned">计划 %1$s</string>
+    <string name="task_summary_due_minutes">截止 %1$s · %2$d 分钟</string>
+    <string name="task_summary_due">截止 %1$s</string>
+    <string name="task_summary_unscheduled_minutes">待安排 · %1$d 分钟</string>
+    <string name="task_summary_unscheduled">待安排</string>
+
+    <!-- ============ 计划导出图片 ============
+         导出图是 Canvas 画的，没有 Context，文案由调用方从资源里取好再传进去。 -->
+    <string name="plan_image_title_week">每周课表</string>
+    <string name="plan_image_empty_plan">今天没有具体安排</string>
+    <string name="plan_image_empty_timetable">还没有固定时段</string>
+    <string name="plan_image_segment_count">共 %1$d 段安排</string>
+    <string name="plan_image_block_count">共 %1$d 段固定时段</string>
+    <string name="plan_image_missing_task">已删除的任务</string>
+
+    <!-- ============ 截止日期选择步骤 ============
+         这一步整屏都在说日期，所以连同标题一起走资源；"今天/明天"复用上面的 task_date_*。 -->
+    <string name="task_capture_deadline_title">什么时候之前完成？</string>
+    <string name="task_capture_deadline_hint">快捷日期只是选项；也可以自由翻日历或切换为手动输入。</string>
+    <string name="task_capture_deadline_week">一周后</string>
+    <string name="task_capture_deadline_week_hint">%1$s 日前</string>
+    <string name="task_capture_deadline_custom">选择其他日期</string>
+    <string name="task_capture_deadline_custom_hint">可选择任意日期，也可手动输入</string>
+
+    <!-- ============ M7 工具情境推荐 ============
+         规则在 ToolRecommendation.kt 里，是纯函数；这里的每条理由都带一个参数，由
+         ToolRecommendationResourceTest 逐条核对占位符类型与参数类型是否一致。 -->
+    <string name="tool_suggest_title">现在适合</string>
+    <string name="tool_suggest_open">打开</string>
+    <string name="tool_suggest_review_points">今天有 %1$d 个复习点到期</string>
+    <string name="tool_suggest_sq3r">「%1$s」的阅读时段刚结束，用阅读脚手架过一遍</string>
+    <string name="tool_suggest_kwl">「%1$s」已完成，用 KWL 收一下学到了什么</string>
+    <string name="tool_suggest_reflection">今天已完成 %1$d 项，写一句反思</string>
+    <string name="tool_suggest_self_explanation">「%1$s」已完成，用自己的话讲一遍</string>
+
+    <!-- ============ 时间块冲突 ============
+         规则在 WeeklyBlockConflicts.kt 里，是纯函数；这里只有它要用到的措辞。 -->
+    <string name="conflict_banner_title">时间块有 %1$d 处重叠</string>
+    <string name="conflict_banner_body">同一时段被两个块占用。若这是有意并行的安排，把它们放到不同轨道就不再提示。</string>
+    <string name="conflict_row_pair">%1$s 与 %2$s</string>
+
+    <!-- ============ 批量操作 ============
+         选择模型与「哪些行会被动到」在 TaskSelection.kt 里，是纯函数；这里只有措辞。
+         三个 batch_action_* 各自成键、不与已有的 cancel 复用：它们由 BatchTaskAction.entries 驱动，
+         TaskBatchResourceTest 按「一个枚举项一个键」核对，复用会让这条守卫失去意义。 -->
+    <string name="batch_select_mode">多选</string>
+    <string name="batch_exit">退出</string>
+    <string name="batch_selected_count">已选 %1$d 项</string>
+    <string name="batch_select_all">全选</string>
+    <string name="batch_action_complete">完成</string>
+    <string name="batch_action_cancel">取消</string>
+    <string name="batch_action_restore">恢复</string>
+    <string name="batch_confirm_title">批量操作</string>
+    <string name="batch_confirm_body">将对 %1$d 项任务执行「%2$s」。</string>
+    <string name="batch_confirm_skipped">另有 %1$d 项无法执行（已替换，或当前状态不允许），会被跳过。</string>
+
+    <!-- ============ 桌面小组件 ============
+         规则在 WidgetSchedule.kt 里，是纯函数；这里的每个 key 都由 WidgetScheduleResourceTest
+         从 HomeWidgetProvider.kt 的源码里解析出来逐条核对，所以少一个翻译不会静默通过。
+         标题复用 today_title：同一个「今天」不该有两个 key，否则翻译迟早会互相打架。 -->
+    <string name="widget_label_now">当前安排</string>
+    <string name="widget_label_late">时段已过</string>
+    <string name="widget_label_next">下一项</string>
+    <string name="widget_time_range">%1$s–%2$s</string>
+    <string name="widget_empty_title">今天还没有具体安排</string>
+    <string name="widget_empty_hint">从任务库选一件事，再放进日轨道。</string>
+    <string name="widget_done_title">今天的安排已结束</string>
+    <string name="widget_remaining">今天还有 %1$d 项</string>
+
+    <!-- ============ 今日焦点卡 ============
+         规则在 ui/schedule/TimelineFocus.kt，是纯函数。它复用了上面小组件的三个相位词
+         （正在进行 / 已超时 / 下一项）和两个空态文案：同一个词不该有两个 key，否则两处
+         措辞迟早分叉。下面两条是焦点卡独有的——它多一行「同一时段还有 N 件并行事项」，
+         并且把「待安排」写成一个带数字的按钮。 -->
+    <string name="today_parallel_count">同一时段还有 %1$d 件并行事项</string>
+    <string name="today_unplaced_count">待安排 %1$d</string>
+
+    <!-- ============ 日历导入 ============
+         读取器在 IcsImporter.kt、映射规则在 CalendarImport.kt，两者都是纯函数。
+         下面这些是「结果怎么说」：added / duplicates / ignored 分成三句，因为它们意思相反——
+         「已经有了」是重复导入的正常结果，「忽略了」是文件里有本应用不做的请求。 -->
+    <string name="import_calendar_title">日历文件</string>
+    <string name="import_calendar_hint">手机日历导出的 .ics 文件。里面的安排会作为「已占用时间」加入时间表，自动排程不会排在它们上面；每周重复的安排会变成固定时间块。</string>
+    <string name="import_reading">正在读取文件…</string>
+    <string name="import_calendar_pick">选择 .ics 文件</string>
+    <string name="calendar_import_untitled">（无标题安排）</string>
+    <string name="calendar_import_success">已导入 %1$d 项安排</string>
+    <string name="calendar_import_none_new">%1$d 项安排已经在时间表里了</string>
+    <string name="calendar_import_none">日历里没有可导入的安排</string>
+    <string name="calendar_import_breakdown">固定时间块 %1$d · 单日占用 %2$d</string>
+    <string name="calendar_import_duplicate">另有 %1$d 项已在时间表里，未重复添加</string>
+    <string name="calendar_import_ignored">%1$d 项已忽略（已取消、标记为空闲、或由本应用自己导出）</string>
+    <string name="calendar_import_approximated">%1$d 个重复安排按「一直有效」导入——文件说它们会结束，设置学期开始日期后可以算准</string>
+    <string name="subtask_progress_chip">✓ %1$d/%2$d</string>
+    <string name="subtasks_title">子任务</string>
+    <string name="subtasks_eyebrow">拆分步骤</string>
+    <string name="subtasks_empty">还没有子任务，先拆成几步。</string>
+    <string name="subtask_add_hint">添加一步…</string>
+    <string name="subtask_add">添加</string>
+    <string name="subtask_remove">删除 %1$s</string>
+    <string name="subtask_progress_label">已完成 %1$d / %2$d</string>
+    <string name="planning_team_title">本地规划团队</string>
+    <string name="planning_team_description">需求、可用时间、习惯、执行反馈、冲突与方案六个角色协作。可离线运行；确认草稿前不写入当前计划。</string>
+    <string name="planning_team_generating">正在根据真实事项与时间约束生成草稿…</string>
+    <string name="planning_team_retry">重新生成</string>
+    <string name="planning_team_log">规划团队工作记录</string>
+    <string name="planning_team_counts">%1$d 个角色 · %2$d 次实际工具调用</string>
+    <string name="planning_team_checked">验收通过，仍需你确认应用</string>
+    <string name="planning_team_check_failed">存在未通过的验收，请查看记录</string>
+    <string name="planning_team_log_expand">展开工作记录</string>
+    <string name="planning_team_log_collapse">收起工作记录</string>
+    <string name="planning_team_saving">正在保存计划…</string>
+    <string name="memory_review_intro">根据你主动给出的回忆反馈调整下次复习日期。记忆曲线只提供模型估计，不是测得的记忆能力或考试成绩。</string>
+    <string name="memory_review_due_heading">到期复习 · %1$d</string>
+    <string name="memory_review_upcoming_heading">后续复习 · %1$d</string>
+    <string name="memory_review_early_hint">尚未到期，也可以主动回忆后反馈。</string>
+    <string name="memory_review_due_date">下次复习：%1$s</string>
+    <string name="memory_review_importance">重要程度：%1$d / 5</string>
+    <string name="memory_review_estimate">模型估计可提取率 %1$d%% · 稳定度 %2$.1f 天</string>
+    <string name="memory_review_fuzzy">有点模糊</string>
+    <string name="memory_review_recorded">已记录本次回忆反馈</string>
+    <string name="memory_review_grade_again">再次练习</string>
+    <string name="memory_review_legacy">保留旧版复习日期；首次反馈后使用自适应模型。</string>
+    <string name="memory_settings_title">记忆参考</string>
+    <string name="memory_settings_description">允许本地规划团队参考复习估计，调整事项的时段偏好。不上传复习内容，不改变你的时长、优先级或任务状态。</string>
+    <string name="memory_settings_count">本地复习点：%1$d 条</string>
+    <string name="memory_settings_method">采用附件的 FSRS-inspired 自适应记忆模型，并非官方完整 FSRS；没有拟合个人参数。关闭参考不会删除复习记录。</string>
+</resources>

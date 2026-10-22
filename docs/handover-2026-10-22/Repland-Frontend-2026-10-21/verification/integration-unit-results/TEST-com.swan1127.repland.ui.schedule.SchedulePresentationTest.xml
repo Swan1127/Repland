@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.schedule.SchedulePresentationTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.536Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="a cross midnight arrangement already split at day boundaries retains both slices" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.002"/>
+  <testcase name="full day coverage includes midnight boundaries without exceeding one day" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <testcase name="overlapping parallel and nested entries cover their union once" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <testcase name="an empty schedule has no covered clock time" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <testcase name="adjacent ranges include both ranges but separated gaps remain uncovered" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <testcase name="a bridge between unordered ranges does not count overlap or an artificial gap" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <testcase name="summarizing does not change the entries or their display order" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <testcase name="matching clock ranges on distinct dates each contribute time" classname="com.swan1127.repland.ui.schedule.SchedulePresentationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

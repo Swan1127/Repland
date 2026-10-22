@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.267Z" hostname="LAPTOP-H29HUS9K" time="0.013">
+  <properties/>
+  <testcase name="setEnabled off works even when nothing was ever stored" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.002"/>
+  <testcase name="setEnabled can always switch off and keeps consent on record" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.0"/>
+  <testcase name="observe falls back to the disabled default when no row exists" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.002"/>
+  <testcase name="setEnabled refuses to enable without any stored row" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <testcase name="grantConsentAndEnable enables the advisor and records consent" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.002"/>
+  <testcase name="setEnabled enables once consent is on record" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <testcase name="observe reports no consent for a row that was never consented" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <testcase name="grantConsentAndEnable keeps the original consent timestamp" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <testcase name="setEnabled refuses to enable when the row exists but never consented" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <testcase name="every write lands on the single settings row" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <testcase name="observe maps a stored row" classname="com.swan1127.repland.data.room.RoomAiSettingsRepositoryTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

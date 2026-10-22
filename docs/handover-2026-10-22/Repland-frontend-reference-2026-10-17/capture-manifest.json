@@ -1,0 +1,135 @@
+{
+  "capture_date": "2026-10-17",
+  "timezone": "Asia/Shanghai",
+  "version_name": "0.1.35-design",
+  "package": "com.swan1127.repland.design",
+  "apk_sha256": "e4ee1fe8e2c025811401575fe77d6d4d6d7fff69faec550d72778763af917947",
+  "installed_apk_matches_local": true,
+  "screenshots": 9,
+  "screenshot_size": [
+    1080,
+    2400
+  ],
+  "videos": [
+    {
+      "filename": "01-main-app.mp4",
+      "label": "主应用实际操作",
+      "duration_seconds": 40.854011,
+      "width": 540,
+      "height": 1200,
+      "codec": "h264",
+      "bytes": 3613729,
+      "full_decode_passed": true,
+      "review_frames": 7
+    },
+    {
+      "filename": "02-schedule-demo.mp4",
+      "label": "日程视图只读演示",
+      "duration_seconds": 29.790222,
+      "width": 540,
+      "height": 1200,
+      "codec": "h264",
+      "bytes": 2435376,
+      "full_decode_passed": true,
+      "review_frames": 5
+    }
+  ],
+  "settings": {
+    "font_scale": 1.0,
+    "animator_duration_scale": 1.0,
+    "transition_animation_scale": 1.0,
+    "window_animation_scale": 1.0,
+    "theme": "light"
+  },
+  "demo_data": {
+    "read_only": true,
+    "fixed_date": "2026-10-15"
+  },
+  "files": [
+    {
+      "filename": "01-home.png",
+      "bytes": 303251,
+      "sha256": "316e6c9469afc6ffaae1619f9d38232574efdf5bc468a5b2dd96b0deb66ce4cf"
+    },
+    {
+      "filename": "01-main-app-events.json",
+      "bytes": 999,
+      "sha256": "ad6d37cce3ff32fca2e90f0d2415f56c22159ff833af2c5328462f5a28512d8b"
+    },
+    {
+      "filename": "01-main-app.mp4",
+      "bytes": 3613729,
+      "sha256": "d729bf685e5fecaabf89efb8db823c2e687010adf724b5bd5792952a28f2e321"
+    },
+    {
+      "filename": "02-schedule-demo-events.json",
+      "bytes": 810,
+      "sha256": "42b368223bf62dd2750a31b9bb7cb26f561b1e63ccb815d81c2748d7baafbfd3"
+    },
+    {
+      "filename": "02-schedule-demo.mp4",
+      "bytes": 2435376,
+      "sha256": "e2e84cef374251b73b7fc182c4c8b9f868a30a332492a5276fbff6103c22482a"
+    },
+    {
+      "filename": "02-tasks.png",
+      "bytes": 99013,
+      "sha256": "1c26c589c8799d7e80d399563b3954e8ff9ee4cc3ec1c0859614d480786b34dd"
+    },
+    {
+      "filename": "03-assistant.png",
+      "bytes": 193810,
+      "sha256": "2f7a94fc42ae57311f74a18af3c87be2941854d1d5753867ea62ff04d4476432"
+    },
+    {
+      "filename": "04-profile.png",
+      "bytes": 302133,
+      "sha256": "f1b2b1387c22a09f867358f965e1271145fd15a20f138d93534d66f72f8c4591"
+    },
+    {
+      "filename": "05-edit-username.png",
+      "bytes": 250084,
+      "sha256": "bb4722a4454b2219cad7d0a013b593ffb1c1286fe5898504f053f4f5d45fea3d"
+    },
+    {
+      "filename": "06-task-detail.png",
+      "bytes": 145504,
+      "sha256": "c0fa140d5d719e004a61072ca1200a4981145c33e2f4177bad14bb186f011f3b"
+    },
+    {
+      "filename": "07-task-capture.png",
+      "bytes": 152934,
+      "sha256": "beec15dfb4eec857877254f58a81ae3d806cc8257c21b1eadf4ee491f6c8d466"
+    },
+    {
+      "filename": "08-summary-demo.png",
+      "bytes": 153135,
+      "sha256": "854483b0dc195c2cf614f228ef176c1e324c8b2e5ac48395cb451e2ef9cec6c3"
+    },
+    {
+      "filename": "09-details-demo.png",
+      "bytes": 177496,
+      "sha256": "32923173a992c8a726315ac23dfc7567a8b7ae0e88a56aa3a8d920def1e55e85"
+    },
+    {
+      "filename": "frontend-prompt.md",
+      "bytes": 14042,
+      "sha256": "f7f1b020d873d8055035daeb7ad3e9a6d01b7a7519d3507568d2d465110bed73"
+    },
+    {
+      "filename": "index.html",
+      "bytes": 3762,
+      "sha256": "d5f75458de611427a3c7c5f12a1b52a8a1b88254e797bf042a78154a7d9fc804"
+    },
+    {
+      "filename": "overview.jpg",
+      "bytes": 191967,
+      "sha256": "ddd99e7114c78d46625b96ec9a3339ce127fd5c7c3fb76c65995be71b92c141f"
+    },
+    {
+      "filename": "README.md",
+      "bytes": 2838,
+      "sha256": "853d05edb69a7bdee68d728f619358c5104007151b1ece281d56b71a42482352"
+    }
+  ]
+}

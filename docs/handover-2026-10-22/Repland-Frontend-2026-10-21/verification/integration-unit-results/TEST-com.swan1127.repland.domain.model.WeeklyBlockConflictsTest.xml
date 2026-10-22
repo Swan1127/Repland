@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" tests="22" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.457Z" hostname="LAPTOP-H29HUS9K" time="0.006">
+  <properties/>
+  <testcase name="an odd-week class and an even-week class at the same hour do not conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.004"/>
+  <testcase name="a rest row is drawn in the rest lane whatever track it stores" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="three rows in one lane report every overlapping pair" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="a lone block never conflicts with itself" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="a tie on the contested start is broken by the contested end" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="two rows on different lanes are parallel, not in conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="rows that merely touch do not conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="two rows overlapping in one lane on one day conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="no blocks means no conflicts" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="the rule's lane is the lane the timeline actually draws" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.001"/>
+  <testcase name="a course row keeps its own track as its lane" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="rows on different days never conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="the reported range is the overlap, not either row's own span" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="a rest row and a course row are not in conflict even when the stored lane matches" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="every other kind shares the fixed lane" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="an available template still counts as a claim on the week" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="classes in disjoint week ranges do not conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.001"/>
+  <testcase name="the result is ordered by day, then by the contested start" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="the pair order does not depend on the input order" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="an unrecognised week pattern stays active and still conflicts" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="two rest rows at the same hour do conflict" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <testcase name="a row inside another reports the inner span" classname="com.swan1127.repland.domain.model.WeeklyBlockConflictsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

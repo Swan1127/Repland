@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.importer.IcsImporterTest" tests="54" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.174Z" hostname="LAPTOP-H29HUS9K" time="0.024">
+  <properties/>
+  <testcase name="duration parses days hours minutes and weeks" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.002"/>
+  <testcase name="a summary is trimmed" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.007"/>
+  <testcase name="an unknown tzid falls back to the device zone instead of dropping the event" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a property outside any event is ignored" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a missing end falls back to duration" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="a colon inside a value does not truncate it" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an escaped backslash followed by n is not a newline" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a daily rule is unsupported" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="two events in one file are both read" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="a weekly rule with byday yields those weekdays" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an event written by this app's exporter is recognised" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an unknown escape keeps the character and drops the backslash" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="a repeated property keeps the first value" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="empty text yields nothing" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a count limited series is unsupported" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an unparseable start is unreadable and keeps the raw value" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="escaped comma semicolon and backslash are decoded" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a foreign uid that merely starts with the prefix is not recognised" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a lowercase status is still read" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a date valued until is read as that date" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="an event with no uid is still read" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a colon inside a quoted parameter does not end the name" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a utc time is converted to the given zone" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a floating time is read as wall time, unchanged" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="unfolding removes exactly one space, not all leading whitespace" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="a continuation line with nothing to continue is dropped rather than merged" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a timed event with no end at all is unreadable rather than zero length" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an alarm's summary does not overwrite the event's own" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an eight digit start is an all day event even without the value parameter" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="an escaped n is a newline" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an all day event with no end covers exactly one day" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a two week interval is unsupported rather than guessed at" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="an ordinary event is busy and confirmed" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a negative or malformed duration is rejected" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a calendar with no events yields nothing" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="parsing is deterministic across two runs" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="an unparseable until is unsupported rather than treated as endless" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="lf only line endings are accepted" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a weekly rule with no byday uses the start date's weekday" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a positional byday such as 2MO is read as monday" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a missing start is unreadable" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="an event with no rule has no recurrence" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a nested component's summary is ignored even when the event has none" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a cancelled event is reported as cancelled" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a tzid with a leading slash is resolved" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a folded summary is joined back into one line" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a tzid time is converted from that zone" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.002"/>
+  <testcase name="a document that is not a calendar is rejected by the header check" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a utc instant late in the day lands on the next local date" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="an all day end equal to the start still covers one day" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="until becomes the series end date in the given zone" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="a transparent event is not busy" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <testcase name="parameters are read case insensitively and without their quotes" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.001"/>
+  <testcase name="an all day end is exclusive so a one day event covers one day" classname="com.swan1127.repland.data.importer.IcsImporterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

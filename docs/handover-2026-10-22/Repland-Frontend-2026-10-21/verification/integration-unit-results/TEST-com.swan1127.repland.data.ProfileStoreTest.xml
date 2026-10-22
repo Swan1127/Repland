@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.ProfileStoreTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.899Z" hostname="LAPTOP-H29HUS9K" time="0.027">
+  <properties/>
+  <testcase name="saving a new avatar replaces the old extension file" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.013"/>
+  <testcase name="avatarPath is null when nothing stored" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.001"/>
+  <testcase name="identity combines nickname and avatar path" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.005"/>
+  <testcase name="avatarPath self-heals a stale pointer" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.002"/>
+  <testcase name="nickname round-trips and is sanitised on read" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.001"/>
+  <testcase name="saveAvatar writes the file and records the path" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.001"/>
+  <testcase name="identity is empty avatar when none set" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.001"/>
+  <testcase name="clearAvatar removes the file and the recorded path" classname="com.swan1127.repland.data.ProfileStoreTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repland · 新版界面与实际操作</title>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, "Microsoft YaHei", sans-serif; color: #263d43; background: #f8f6f1; }
+    * { box-sizing: border-box; }
+    body { max-width: 1280px; margin: auto; padding: 36px 24px 64px; }
+    h1 { font-size: clamp(28px, 4vw, 44px); margin: 8px 0 16px; letter-spacing: -.04em; }
+    h2 { margin: 36px 0 12px; font-size: 24px; }
+    p { line-height: 1.8; max-width: 880px; }
+    a { color: #326b75; text-underline-offset: 4px; }
+    a:focus-visible { outline: 3px solid #326b75; outline-offset: 4px; }
+    .eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; }
+    .links { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 24px 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 20px; align-items: start; }
+    figure { margin: 0; padding: 12px; background: #fffcf6; border: 1px solid #e3e6ef; border-radius: 24px; }
+    figure img { width: 100%; height: auto; display: block; border-radius: 16px; }
+    figcaption { padding: 12px 4px 4px; font-size: 14px; line-height: 1.65; }
+    .muted { color: #606572; font-size: 14px; }
+    .note { border-left: 4px solid #7e9891; padding: 4px 20px; background: #e8f3f5; border-radius: 0 16px 16px 0; }
+    video { width: 100%; max-height: 760px; display: block; background: #263d43; border-radius: 24px; }
+    details { margin-top: 28px; }
+    summary { cursor: pointer; padding: 12px 0; font-weight: 600; }
+    footer { margin-top: 40px; border-top: 1px solid #e3e6ef; padding-top: 16px; }
+    @media (max-width: 600px) { body { padding: 24px 16px 40px; } .grid { max-width: 390px; margin: auto; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Repland · Android / Compose · 2026-10-22</div>
+    <h1>更安静的界面，更清楚的下一步。</h1>
+    <p>在附件快照 <strong>5a15288</strong> 的新版前端上，继续选择性融合 0.1.35 的本地六角色规划团队与自适应记忆模型；保留暖纸、薄荷、淡青排版和原有业务。下方分别标明本次融合与前端阶段证据，不把旧录屏冒充新功能演示。</p>
+    <nav class="links" aria-label="交付文件">
+      <a href="../Repland-新版-2026-10-22.apk" download>Android 安装包</a>
+      <a href="../Repland-前端改造源码-2026-10-22.zip" download>修改后源码 ZIP</a>
+      <a href="INTEGRATION_QA_2026-10-22.md">本次融合验证</a>
+      <a href="INTEGRATION_DEVICE_QA_2026-10-22.md">本次设备操作记录</a>
+      <a href="RELEASE_QA_2026-10-22.md">前端阶段基线验证</a>
+    </nav>
+  </header>
+  <section aria-labelledby="integration-title">
+    <h2 id="integration-title">本次融合 · 规划团队与记忆复习</h2>
+    <p>无需云端密钥的真实六角色协作，生成与丢弃草稿不改写当前计划。记忆模型为附件自定义的 FSRS-inspired 算法，不是官方完整 FSRS；是否供本地规划参考由默认关闭的开关控制。</p>
+    <div class="grid">
+      <figure><a href="integration-final-team-draft.png"><img src="integration-final-team-draft.png" alt="最终融合版真实草稿：六个本地角色、17次工具调用及实际安排预览"></a><figcaption>本地团队 · 无云端密钥运行，确认前只保留草稿。</figcaption></figure>
+      <figure><a href="integration-final-memory-settings.png"><img src="integration-final-memory-settings.png" alt="最终融合版我的设置：独立记忆参考开关，关闭后复习点仍保留" loading="lazy"></a><figcaption>记忆参考 · 默认关闭，只提供本地时段软偏好。</figcaption></figure>
+      <figure><a href="integration-review-three-grades.png"><img src="integration-review-three-grades.png" alt="最终融合版复习点：实际日期、模型估计和三档主动回忆反馈" loading="lazy"></a><figcaption>主动回忆 · 三档真实评分，未到期也能练习。</figcaption></figure>
+      <figure><a href="integration-review-dark.png"><img src="integration-review-dark.png" alt="最终融合版深色复习界面" loading="lazy"></a><figcaption>深色复习 · 同一模型与状态，不换成装饰图表。</figcaption></figure>
+    </div>
+  </section>
+  <section aria-labelledby="pages-title">
+    <h2 id="pages-title">前端阶段 · 页面基线</h2>
+    <p class="muted">今日、计划、详情及录屏来自 437F 导航修复构建；最终 F631 只追加清库 IO 线程修复，视觉不变。我的来自同视觉的 3DBB 复测构建。图中 QA 事项是隔离演示数据，不是用户正式记录；清理通过后不留在应用中。点击图片查看原尺寸。</p>
+    <div class="grid">
+      <figure><a href="final-today.png"><img src="final-today.png" alt="新版今日：下一安排焦点、局部山形插画和紧凑日程列表"></a><figcaption>今日 · 一个行动焦点，真实时段直达安排。</figcaption></figure>
+      <figure><a href="final-plan.png"><img src="final-plan.png" alt="新版计划：任务库总览、分类筛选和紧凑任务行" loading="lazy"></a><figcaption>计划 · 区分事项收集、待安排和当前任务。</figcaption></figure>
+      <figure><a href="final-task-detail.png"><img src="final-task-detail.png" alt="新版任务详情：单一标题、主要操作和按需展开的信息记录" loading="lazy"></a><figcaption>详情 · 单一主标题，信息与操作按需展开。</figcaption></figure>
+      <figure><a href="release-final-01-mine.png"><img src="release-final-01-mine.png" alt="新版我的：淡青身份头部、独立风景插画和中性设置内容面" loading="lazy"></a><figcaption>我的 · 淡青资料头部，设置正文保持中性。</figcaption></figure>
+    </div>
+  </section>
+  <section aria-labelledby="video-title">
+    <h2 id="video-title">前端阶段 · 74.28 秒实际操作</h2>
+    <p>真实安排推后 15 分钟 → 回看新时间 → 计划与任务详情 → 我的 → 助手未配置失败 → 最近变更空态。原始录屏未剪辑；没有伪造云端成功。</p>
+    <video controls preload="metadata" poster="final-today.png" aria-label="Repland 新版实际操作录屏">
+      <source src="release-walkthrough.mp4" type="video/mp4">
+      当前预览器不支持视频，请<a href="release-walkthrough.mp4">打开录屏文件</a>。
+    </video>
+    <p class="muted"><a href="release-walkthrough-actions.json">操作时间记录</a> · <a href="release-walkthrough.mp4" download>下载原始 MP4</a>。录屏是交互证据，不是帧率基准。</p>
+  </section>
+  <details>
+    <summary>查看原始附件的三页对照</summary>
+    <p class="muted">原版使用独立空数据包，仅改调试隔离包名，原源码与资源字节未改。与上方 QA 内容不同，不将数据差异冒充视觉改进。<a href="BASELINE-PROVENANCE.md">查看溯源</a>。</p>
+    <div class="grid">
+      <figure><img src="baseline-pristine-today.png" alt="原始附件今日空数据界面" loading="lazy"><figcaption>原始今日</figcaption></figure>
+      <figure><img src="baseline-pristine-plan.png" alt="原始附件计划空数据界面" loading="lazy"><figcaption>原始计划</figcaption></figure>
+      <figure><img src="baseline-pristine-mine.png" alt="原始附件我的与设置界面" loading="lazy"><figcaption>原始我的</figcaption></figure>
+    </div>
+  </details>
+  <footer class="note">
+    <p><strong>本次融合验证：</strong>最终构建通过，99 个套件 / 1654 项 JVM 测试全过；设备执行范围见本次记录。静态检查保留 1 个原有通知权限 Error 和 106 个 Warning。前端阶段的 1511 项、适配截图和录屏仅作历史基线。没有配置云端密钥，不声明真实云端多模型联调成功。</p>
+  </footer>
+</body>
+</html>

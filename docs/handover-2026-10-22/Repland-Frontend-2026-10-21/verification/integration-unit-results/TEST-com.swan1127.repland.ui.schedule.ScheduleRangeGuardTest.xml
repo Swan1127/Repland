@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.542Z" hostname="LAPTOP-H29HUS9K" time="0.02">
+  <properties/>
+  <testcase name="the three sets are actually being parsed out of the source" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.007"/>
+  <testcase name="the branch table has no else to fall through to" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.002"/>
+  <testcase name="the always-true range guard is gone" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.002"/>
+  <testcase name="the daily review is offered under every range" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.003"/>
+  <testcase name="every range a chip can set has a branch" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.002"/>
+  <testcase name="the superseded Today screen is gone" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.0"/>
+  <testcase name="the range list has not grown without a decision here" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.002"/>
+  <testcase name="every range the enum declares can be reached by a chip" classname="com.swan1127.repland.ui.schedule.ScheduleRangeGuardTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

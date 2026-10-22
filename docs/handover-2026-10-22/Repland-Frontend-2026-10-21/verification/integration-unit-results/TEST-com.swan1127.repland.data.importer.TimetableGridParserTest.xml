@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.importer.TimetableGridParserTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.199Z" hostname="LAPTOP-H29HUS9K" time="0.006">
+  <properties/>
+  <testcase name="an inverted span falls back to the first number instead of the range" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="an english weekday header is recognised" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.001"/>
+  <testcase name="an english grid is still rejected when it names fewer than three weekdays" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a single period becomes a one-period span" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a header naming only two weekdays is rejected" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="the header is found even when it is not the first row" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a weekday header plus a period column produces courses" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a stray row naming only two weekdays does not hijack the header" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a grid without a weekday header is rejected rather than guessed" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="sunday is recognised from its several common spellings" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.001"/>
+  <testcase name="an english week notation stays attached to the title, and the block stays active" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a course name containing a weekday substring is not mistaken for a header" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.001"/>
+  <testcase name="a period outside 1 to 12 is rejected" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="english weekday abbreviations are recognised" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="a mixed chinese and english header is recognised" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <testcase name="tab separated text becomes trimmed rows and blank lines are dropped" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.002"/>
+  <testcase name="a course name without a week pattern keeps the raw name" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.001"/>
+  <testcase name="a row without a readable period is skipped" classname="com.swan1127.repland.data.importer.TimetableGridParserTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

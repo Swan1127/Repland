@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.components.TaskDateLabelTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.260Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="a different-year date includes the year" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.001"/>
+  <testcase name="the same day number in another month is not labelled today" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the label is driven by the passed today not the wall clock" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="tomorrow across a month boundary is still tomorrow" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the same day and month in another year is not labelled today" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.001"/>
+  <testcase name="a past year includes the year too" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the relative words come from the injected labels" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="tomorrow across a year boundary is still tomorrow" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the day after tomorrow falls back to the explicit date" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="yesterday falls back to the explicit date because there is no yesterday label" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="an empty label set yields empty strings rather than falling back to Chinese" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="a leap day is tomorrow when the day before is February twenty-eighth" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="today is labelled today" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="a date in another year uses the year pattern of the language" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="tomorrow is labelled tomorrow" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the day and month are not zero padded" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="a same-year date omits the year" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the year is included exactly when it differs from today's year" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <testcase name="the same day reads differently in each language" classname="com.swan1127.repland.ui.components.TaskDateLabelTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

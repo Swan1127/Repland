@@ -23,12 +23,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -44,7 +44,10 @@ import com.swan1127.repland.ui.components.DesignButton
 import com.swan1127.repland.ui.components.DesignClickableSurface
 import com.swan1127.repland.ui.components.DesignIcons
 import com.swan1127.repland.ui.theme.LocalReducedMotion
-import com.swan1127.repland.ui.theme.replandAccent
+import com.swan1127.repland.ui.theme.LocalReplandVisuals
+import com.swan1127.repland.ui.theme.ReplandAccent
+import com.swan1127.repland.ui.components.LandscapeArtwork
+import com.swan1127.repland.ui.components.LandscapeStyle
 
 @Composable
 fun PersonalProfileSection(viewModel: PersonalProfileViewModel) {
@@ -75,17 +78,18 @@ fun PersonalProfileHeader(
     var editing by rememberSaveable { mutableStateOf(false) }
     var draft by rememberSaveable { mutableStateOf("") }
     var validation by rememberSaveable { mutableStateOf<String?>(null) }
-    val accent = replandAccent(4)
-    val lavender = replandAccent(2)
+    val visuals = LocalReplandVisuals.current
+    val accent = ReplandAccent(visuals.profileSurface, visuals.profileText)
     val enabled = profile != null && !operation.loading && !operation.working
     val reduced = LocalReducedMotion.current
-    Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainerLow,
+    Surface(shape = RoundedCornerShape(24.dp), color = visuals.profileSurface,
         modifier = Modifier.fillMaxWidth().testTag("personal-profile-card")) {
-        Column(Modifier.background(Brush.linearGradient(listOf(accent.surface, MaterialTheme.colorScheme.surfaceContainerLow, lavender.surface)))
-            .padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val showArtwork = maxWidth >= 340.dp && LocalDensity.current.fontScale < 1.3f
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 DesignClickableSurface(onClick = onPickAvatar, enabled = enabled, shape = RectangleShape, color = Color.Transparent,
-                    modifier = Modifier.size(80.dp).testTag("personal-profile-avatar").semantics { contentDescription = "更换头像" }, pressedScale = .94f) {
+                    modifier = Modifier.size(80.dp).testTag("personal-profile-avatar").semantics { contentDescription = "更换头像" }, pressedScale = .98f) {
                     Box(Modifier.background(accent.surface, CircleShape), contentAlignment = Alignment.Center) {
                         AnimatedContent(targetState = profile?.avatar, label = "avatar replacement",
                             transitionSpec = { fadeIn(tween(if (reduced) 0 else 160)) togetherWith fadeOut(tween(if (reduced) 0 else 100)) }) { avatar ->
@@ -102,7 +106,8 @@ fun PersonalProfileHeader(
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(profile?.username ?: if (operation.loading) "正在读取资料…" else PersonalProfileName.Default,
                         style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold,
-                        maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.testTag("personal-profile-name"))
+                        maxLines = 2, overflow = TextOverflow.Ellipsis, color = visuals.profileText,
+                        modifier = Modifier.testTag("personal-profile-name"))
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         TextButton(onClick = onPickAvatar, enabled = enabled, contentPadding = PaddingValues(horizontal = 8.dp),
                             modifier = Modifier.heightIn(min = 48.dp).testTag("personal-profile-change-avatar")) { Text("更换头像") }
@@ -114,6 +119,10 @@ fun PersonalProfileHeader(
                         }
                     }
                 }
+                if (showArtwork) LandscapeArtwork(
+                    Modifier.size(width = 72.dp, height = 88.dp).clip(RoundedCornerShape(16.dp)),
+                    style = LandscapeStyle.Sage,
+                )
             }
             if (operation.working) LinearProgressIndicator(Modifier.fillMaxWidth().testTag("personal-profile-saving"))
             if (profile?.avatar != null) TextButton(onClick = onResetAvatar, enabled = enabled,
@@ -123,6 +132,7 @@ fun PersonalProfileHeader(
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                 if (profile == null) TextButton(onClick = onRetryLoad) { Text("重新读取") }
             }
+        }
         }
     }
     if (editing) {

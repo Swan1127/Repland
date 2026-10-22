@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.630Z" hostname="LAPTOP-H29HUS9K" time="0.033">
+  <properties/>
+  <testcase name="every batch string formats with the arguments the screen passes" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.003"/>
+  <testcase name="no batch key is left behind by removed UI" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="the two key lists are disjoint and cover every declared batch key" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="every batch key is declared in both resource files" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="the action labels are three different keys" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.003"/>
+  <testcase name="the enum-driven keys are exactly the batch_action keys declared" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="the placeholders are the kinds the screen passes" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="every action resolves to a key named after it" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="the screen source is the one being scanned" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.003"/>
+  <testcase name="the enum does not borrow the generic cancel key" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.003"/>
+  <testcase name="the id lookup resolves the whole string table" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.002"/>
+  <testcase name="a numeric placeholder rejects text while a string placeholder accepts a number" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.003"/>
+  <testcase name="the screen references every batch key it is expected to render" classname="com.swan1127.repland.ui.tasks.TaskBatchResourceTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

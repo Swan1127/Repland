@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.CategoryPreferencesTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.708Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="a single zero weight is still valid as long as the total is positive" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="validity is judged on the normalized map, so a missing category cannot make it invalid" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="a negative weight is invalid" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="normalized is idempotent" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="normalized always returns exactly one entry per category" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="an invalid weight survives normalization and is still rejected" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="the boundaries zero and one hundred are both valid" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="the defaults are valid" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="a weight above one hundred is invalid" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="normalized turns an empty map into the defaults" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="defaults carry every category's own default weight" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="an empty map is valid because it normalizes to the defaults" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="defaults cover every category so no lookup can miss" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.001"/>
+  <testcase name="normalized keeps every provided weight untouched" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="a map that zeroes every category is invalid" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <testcase name="normalized fills a missing category with its default" classname="com.swan1127.repland.domain.model.CategoryPreferencesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+# Keep the line endings the working tree already uses (LF). Without this, Git's
+# global core.autocrlf=true would rewrite every Kotlin/Gradle file to CRLF on the
+# next checkout and produce a spurious whole-repo diff.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jar binary
+*.apk binary
+*.zip binary

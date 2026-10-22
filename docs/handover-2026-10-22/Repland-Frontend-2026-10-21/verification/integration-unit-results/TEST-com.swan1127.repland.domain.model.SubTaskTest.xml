@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.SubTaskTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.360Z" hostname="LAPTOP-H29HUS9K" time="0.003">
+  <properties/>
+  <testcase name="cleanTitle returns empty when only whitespace remains" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.001"/>
+  <testcase name="progress counts done and derives percent" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.001"/>
+  <testcase name="isValidTitle is false for blank and true for real text" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="cleanTitle collapses internal whitespace and trims" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="progress of an empty list has no subtasks and zero percent" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="add is rejected for a blank title" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="add cleans a too-long title down to the cap" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="cleanTitle caps at the maximum length" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="progress reports allDone only when every subtask is done" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="remove drops only the matching subtask" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="toggle leaves other fields of the subtask untouched" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="cleanTitle joins physical lines with a single space" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="remove is a no-op for an unknown id" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="add appends a cleaned, not-done subtask" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.001"/>
+  <testcase name="toggle flips only the matching subtask" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="progress overload matches the task overload" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <testcase name="add preserves existing subtasks" classname="com.swan1127.repland.domain.model.SubTaskTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

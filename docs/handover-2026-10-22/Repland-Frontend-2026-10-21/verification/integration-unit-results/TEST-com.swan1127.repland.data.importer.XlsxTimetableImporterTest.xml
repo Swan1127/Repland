@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.206Z" hostname="LAPTOP-H29HUS9K" time="0.034">
+  <properties/>
+  <testcase name="a shared string cell is resolved through the string table" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.003"/>
+  <testcase name="a source that cannot be opened is reported rather than crashing" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.002"/>
+  <testcase name="a worksheet with no cells at all yields an empty grid" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.003"/>
+  <testcase name="a rich text cell has its runs joined back together" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.004"/>
+  <testcase name="rows are returned in order even when one of them is empty" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.003"/>
+  <testcase name="an archive with no readable part at all is rejected" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.002"/>
+  <testcase name="an inline string cell is read from its t element" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.003"/>
+  <testcase name="only the first worksheet is read" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.003"/>
+  <testcase name="an archive with no worksheet is rejected" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.002"/>
+  <testcase name="a literal value cell is read without the string table" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.002"/>
+  <testcase name="a cell whose string index is out of range is dropped rather than crashing" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.003"/>
+  <testcase name="an empty cell is skipped and does not widen the grid" classname="com.swan1127.repland.data.importer.XlsxTimetableImporterTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

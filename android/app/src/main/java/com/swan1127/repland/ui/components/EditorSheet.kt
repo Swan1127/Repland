@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 
@@ -47,6 +48,7 @@ fun EditorSheet(
         }
         Column(
             modifier = Modifier.fillMaxWidth()
+                .imePadding()
                 .heightIn(max = (LocalConfiguration.current.screenHeightDp * 0.86f).dp)
                 .padding(horizontal = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -54,12 +56,12 @@ fun EditorSheet(
             ProvideTextStyle(MaterialTheme.typography.headlineSmall) { title() }
             Box(Modifier.fillMaxWidth().weight(1f, fill = false)) { text() }
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Row(
+            FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 dismissButton()
-                Spacer(Modifier.width(8.dp))
                 confirmButton()
             }
         }

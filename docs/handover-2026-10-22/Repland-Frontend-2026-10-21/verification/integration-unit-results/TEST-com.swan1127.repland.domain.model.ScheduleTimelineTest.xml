@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ScheduleTimelineTest" tests="32" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.347Z" hostname="LAPTOP-H29HUS9K" time="0.009">
+  <properties/>
+  <testcase name="an available block is not drawn on the timeline" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.001"/>
+  <testcase name="an entry before its start is upcoming and counts down to the start" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.001"/>
+  <testcase name="a week pattern that excludes the date hides the block" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.001"/>
+  <testcase name="a blocked override is drawn as a commitment" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an entry exactly at its end is overrun with zero overtime" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="two sequential blocks on one track share a lane" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an overrun block is full and never exceeds full" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.001"/>
+  <testcase name="halfway through a two hour block is half filled" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.003"/>
+  <testcase name="a rest block is drawn on the rest track" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an available override is not drawn" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="two overlapping blocks on one track get different lanes" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an entry past its end reports overtime" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an entry in the middle is active with elapsed and remaining" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a user-finished entry is ended regardless of the wall clock" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a task description equal to its name produces no note" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.001"/>
+  <testcase name="a block the user finished is full even before its scheduled end" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a task description that differs from its name becomes the entry note" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a segment whose task no longer exists is dropped" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a block for another weekday is not drawn" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an entry exactly at its start is active with nothing elapsed" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an override for another date is not drawn" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a segment for another date is not drawn" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a segment for a closed task is marked closed" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="one minute before the end is nearly full but not full" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a block exactly at its start has no elapsed fill" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="entries are ordered by start time" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="an other block is drawn as a commitment on the fixed track" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a one minute block is a usable denominator" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a course block keeps its own lane track" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="a segment becomes a task entry carrying its task title and open state" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.001"/>
+  <testcase name="a block that has not started has no elapsed fill" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <testcase name="blocks on different tracks get different lanes even when they do not overlap" classname="com.swan1127.repland.domain.model.ScheduleTimelineTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

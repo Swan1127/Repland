@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tasks.TaskViewModelTest" tests="31" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.666Z" hostname="LAPTOP-H29HUS9K" time="0.04">
+  <properties/>
+  <testcase name="estimated days over the cap is refused" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="cancelTask confirms CANCELLED" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="observeExecutionLogsForDate delegates the date to the repository" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="observeExecutionLogs delegates the task id to the repository" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.0"/>
+  <testcase name="awaited save returns only after the repository finishes" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="a throwing observation stream reports SAVE_FAILED and stops loading" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="a successful lifecycle change clears a previous error" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="recordFeedback forwards the task and feedback" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="replaceTask forwards the replacement draft" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="a blank name is refused and never reaches the repository" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="collecting reports the stored tasks and stops loading" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="correctExecutionLog forwards the task, the corrected log and the feedback" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="awaited save reports a failure and a successful retry clears it" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="awaited save propagates cancellation without reporting a save failure" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="postponeTask carries the reason into the feedback" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="a valid draft is forwarded unchanged and leaves no error" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.003"/>
+  <testcase name="a successful save clears a previous failure" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="awaited save rejects an invalid draft without writing" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="completeTask with no arguments sends COMPLETED and an empty feedback" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="zero estimated days is refused" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="before collection the state is empty, loading and error free" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="startTask confirms IN_PROGRESS with empty feedback" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="completeTask carries every supplied feedback field" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="postponeTask accepts a null reason" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.0"/>
+  <testcase name="a lifecycle failure reports INVALID_LIFECYCLE_INPUT rather than SAVE_FAILED" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="a null duration is accepted, because duration is optional" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.001"/>
+  <testcase name="a duration over one day is refused" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.0"/>
+  <testcase name="recordPartialCompletion forwards the task and feedback" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <testcase name="restoreTask confirms NOT_STARTED" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.0"/>
+  <testcase name="a save failure reports SAVE_FAILED" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.003"/>
+  <testcase name="a failed pass-through action reports INVALID_LIFECYCLE_INPUT" classname="com.swan1127.repland.ui.tasks.TaskViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

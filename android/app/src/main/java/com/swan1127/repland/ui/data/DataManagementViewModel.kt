@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.swan1127.repland.data.export.LocalDataJsonExporter
+import com.swan1127.repland.domain.model.LearningMemorySnapshot
 import com.swan1127.repland.domain.ports.DataManagementRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,11 +31,17 @@ class DataManagementViewModel(
     private val mutableUiState = MutableStateFlow(DataManagementUiState())
     val uiState: StateFlow<DataManagementUiState> = mutableUiState.asStateFlow()
 
-    fun exportTo(contentResolver: ContentResolver, destination: Uri) {
+    fun exportTo(
+        contentResolver: ContentResolver,
+        destination: Uri,
+        memorySnapshot: LearningMemorySnapshot? = null,
+    ) {
         viewModelScope.launch {
             mutableUiState.value = DataManagementUiState(isWorking = true)
             val result = runCatching {
-                val json = LocalDataJsonExporter.export(repository.snapshot())
+                val original = repository.snapshot()
+                val snapshot = memorySnapshot?.let { original.copy(learningMemory = it) } ?: original
+                val json = LocalDataJsonExporter.export(snapshot)
                 requireNotNull(contentResolver.openOutputStream(destination)) {
                     "The selected export destination cannot be opened."
                 }.bufferedWriter().use { writer -> writer.write(json) }

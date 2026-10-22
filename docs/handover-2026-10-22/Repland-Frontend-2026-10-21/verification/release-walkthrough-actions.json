@@ -1,0 +1,66 @@
+[
+  {
+    "elapsed_seconds": 3.0,
+    "action": "Open the real scheduled arrangement"
+  },
+  {
+    "elapsed_seconds": 8.87,
+    "action": "Expand manual time adjustment"
+  },
+  {
+    "elapsed_seconds": 14.73,
+    "action": "Move the real arrangement 15 minutes later"
+  },
+  {
+    "elapsed_seconds": 20.35,
+    "action": "Reopen the changed arrangement"
+  },
+  {
+    "elapsed_seconds": 26.16,
+    "action": "Return from arrangement details"
+  },
+  {
+    "elapsed_seconds": 28.07,
+    "action": "Navigate to Plan"
+  },
+  {
+    "elapsed_seconds": 29.98,
+    "action": "Open the real QA release task"
+  },
+  {
+    "elapsed_seconds": 35.72,
+    "action": "Return from task details"
+  },
+  {
+    "elapsed_seconds": 37.61,
+    "action": "Navigate to Mine"
+  },
+  {
+    "elapsed_seconds": 39.51,
+    "action": "Scroll through personal preferences"
+  },
+  {
+    "elapsed_seconds": 41.93,
+    "action": "Return to Today"
+  },
+  {
+    "elapsed_seconds": 43.83,
+    "action": "Open arrangement assistant"
+  },
+  {
+    "elapsed_seconds": 49.59,
+    "action": "Send the preserved QA draft with cloud disabled"
+  },
+  {
+    "elapsed_seconds": 55.37,
+    "action": "Open persistent change history"
+  },
+  {
+    "elapsed_seconds": 61.09,
+    "action": "Close history"
+  },
+  {
+    "elapsed_seconds": 66.7,
+    "action": "Close assistant"
+  }
+]

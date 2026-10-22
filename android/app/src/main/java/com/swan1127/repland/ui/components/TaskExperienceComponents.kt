@@ -77,9 +77,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.semantics.Role
@@ -99,11 +99,15 @@ import com.swan1127.repland.domain.model.TaskPriority
 import com.swan1127.repland.domain.model.TaskStatus
 import java.time.LocalDate
 import kotlinx.coroutines.launch
+import com.swan1127.repland.ui.theme.LocalReplandVisuals
+import com.swan1127.repland.ui.theme.replandAccent
+import com.swan1127.repland.ui.theme.taskAccentIndex
 
 /**
  * The default list representation is intentionally compact. Full task information belongs
  * in the detail screen, not in every row users scan throughout the day.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TaskRow(
     task: Task,
@@ -122,11 +126,13 @@ fun TaskRow(
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     val summary = planningSummary ?: task.summaryLabel()
+    val categoryAccent = replandAccent(taskAccentIndex(task.category))
     Row(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 68.dp)
             .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickable(role = Role.Button, onClick = onOpen)
             .testTag("task-card-${task.displayName}")
             .padding(horizontal = 8.dp, vertical = 8.dp),
@@ -137,7 +143,7 @@ fun TaskRow(
             onClick = if (task.status == TaskStatus.NOT_STARTED || task.status == TaskStatus.POSTPONED) onStart else onOpen,
             modifier = Modifier
                 .size(48.dp)
-                .background(statusColor.copy(alpha = 0.08f), RoundedCornerShape(12.dp))
+                .background(categoryAccent.surface, RoundedCornerShape(12.dp))
                 .testTag("task-start-${task.id}")
                 .semantics { contentDescription = if (task.status == TaskStatus.NOT_STARTED || task.status == TaskStatus.POSTPONED) "开始 ${task.displayName}" else "查看 ${task.displayName}" },
         ) {
@@ -171,15 +177,15 @@ fun TaskRow(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (task.category != TaskCategory.UNSPECIFIED) TaskMetaLabel(task.category.captureLabel())
                 if (task.userPriority != TaskPriority.UNSPECIFIED) TaskMetaLabel(task.userPriority.captureLabel())
             }
             val progress = when (task.status) {
                 TaskStatus.COMPLETED -> 1f
-                else -> (task.progressPercent ?: 0).coerceIn(0, 100) / 100f
+                else -> task.progressPercent?.takeIf { it in 0..100 }?.div(100f)
             }
-            if (progress > 0f || task.status == TaskStatus.IN_PROGRESS) LinearProgressIndicator(
+            if (progress != null) LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                 color = statusColor,
@@ -218,6 +224,7 @@ fun NowCard(
     onAction: () -> Unit,
     onOpen: () -> Unit,
 ) {
+    val visuals = LocalReplandVisuals.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -225,13 +232,14 @@ fun NowCard(
             .clickable(onClick = onOpen)
             .testTag("now-task-${task.id}"),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        colors = CardDefaults.cardColors(containerColor = visuals.focusSurface, contentColor = visuals.focusText),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val showArtwork = maxWidth >= 320.dp && LocalDensity.current.fontScale < 1.5f
         Column(
             modifier = Modifier
-                .background(Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.surfaceContainerLow)))
-                .padding(22.dp),
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -245,14 +253,24 @@ fun NowCard(
                     Icon(Icons.Outlined.MoreVert, contentDescription = "查看任务详情")
                 }
             }
-            Text(task.displayName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
-            Text(timeLabel, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(task.displayName, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold,
+                        color = visuals.focusText)
+                    Text(timeLabel, style = MaterialTheme.typography.bodyMedium, color = visuals.focusMuted)
+                }
+                if (showArtwork) LandscapeArtwork(
+                    Modifier.size(width = 88.dp, height = 76.dp).clip(RoundedCornerShape(14.dp)),
+                    style = LandscapeStyle.Dawn,
+                )
+            }
             Spacer(Modifier.height(4.dp))
             Button(onClick = onAction, contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp)) {
                 Icon(Icons.Outlined.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(6.dp))
                 Text(actionLabel)
             }
+        }
         }
     }
 }

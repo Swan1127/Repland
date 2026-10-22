@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.components.TaskSummaryTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.264Z" hostname="LAPTOP-H29HUS9K" time="0.006">
+  <properties/>
+  <testcase name="a deadline of today is not overdue" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.004"/>
+  <testcase name="a missed deadline outranks a plan that slipped" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="an in-progress task is described by its status" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a deadline with a duration reports both" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a missed deadline reads as overdue" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a completed task is described by its status" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a plan alone is reported alone" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="the same task reads as Chinese when given Chinese words and a Chinese locale" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a plan that slipped reads as needing rescheduling" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a plan and a deadline without a duration omit the minutes" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.001"/>
+  <testcase name="every date in the line follows the language, not just the first" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a plan and a deadline with a duration are all reported" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="no branch ever emits a format placeholder" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a completed task with a missed deadline is not called overdue" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a deadline alone is reported alone" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a plan with a duration reports both" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.001"/>
+  <testcase name="a duration with no dates is reported as unscheduled" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a task with nothing set says so" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a cancelled task is not treated as active so it is not overdue" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a planned day of today is not flagged as slipped" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <testcase name="a postponed task is described by its status" classname="com.swan1127.repland.ui.components.TaskSummaryTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.327Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="writing about a task the row cites is shown under that task's name" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.003"/>
+  <testcase name="entries are ordered by kind, then task, then excerpt" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="attach decorates only the derived field" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="attach on no evidence is no evidence" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="the same sentence from two different tools is two entries" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="the same sentence saved twice with different spacing is listed once" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.001"/>
+  <testcase name="a blank excerpt is not writing" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="the hidden count never goes negative" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="a limit below one is refused rather than silently showing nothing" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="the list is capped while the total still counts everything" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="evidence that has never been attached carries an empty set, not null" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="an explicit limit is honoured and the total ignores it" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="writing about a task the row does not cite is left out" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="every tool kind can be attached" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="attach gives each row only its own tasks' writing" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="a row with no sources has no related writing even when writing exists" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.0"/>
+  <testcase name="the order does not depend on the order the records arrive in" classname="com.swan1127.repland.domain.model.ProfileEvidenceOutputsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

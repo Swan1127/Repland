@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.MemoryStateCodecTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.252Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="aNonFiniteAiEstimateFallsBackToANeutralPrior" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="invalidDatesDoNotBecomeValidMemories" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="missingNumbersDoNotResetAnExistingReviewHistory" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="unknownVersionsDoNotPretendToBeCurrentStates" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="finiteOutliersAreBoundedWithoutDiscardingTheirCaptureDay" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="freshStateRoundTripsEveryField" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="reviewedStateRoundTripsEveryField" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="nonFiniteNumbersAreRejectedInsteadOfEnteringTheCurve" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.001"/>
+  <testcase name="aCorruptPersonalisationGainCannotPoisonFutureReviews" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <testcase name="countersSaturateInsteadOfWrappingNegative" classname="com.swan1127.repland.domain.model.MemoryStateCodecTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

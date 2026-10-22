@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.322Z" hostname="LAPTOP-H29HUS9K" time="0.004">
+  <properties/>
+  <testcase name="a non-course task never produces learning evidence" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.002"/>
+  <testcase name="learning evidence is produced for a course task with confirmed content" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.001"/>
+  <testcase name="a corrected log is not counted and its correction is" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="a blank feedback string is not treated as confirmed feedback" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="learning evidence is produced from a completion result too" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="the progress fact counts distinct tasks not logs" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="the length limit measures the trimmed text" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.001"/>
+  <testcase name="general evidence omits the duration fact when no duration was recorded" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="a course log whose task was deleted produces no learning evidence" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="every source log id in the general conclusion is an effective log" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="a course log with no content produces no learning evidence" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="a conclusion must be non-blank and within the length limit" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="general evidence reports the confirmed count and the summed duration" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="a log with no confirmed feedback produces no evidence" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <testcase name="a replacement event is never counted" classname="com.swan1127.repland.domain.model.ProfileEvidenceGeneratorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.theme.AccentPaletteTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.708Z" hostname="LAPTOP-H29HUS9K" time="0.004">
+  <properties/>
+  <testcase name="every token is fully opaque" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.002"/>
+  <testcase name="black is zero luminance and white is the top of the scale" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="the invariants below have something to run over" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="alpha does not affect luminance" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="text on a fill clears AA" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.001"/>
+  <testcase name="brand text on the page clears AA in every theme" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="contrast spans the full scale between black and white" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="in dark mode the brand is luminous and the container is the darker member" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="contrast of a colour with itself is the minimum" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="luminance linearises sRGB rather than averaging the encoded channels" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="contrast is symmetric" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="the second emphasis colour clears AA-large" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.001"/>
+  <testcase name="adding themes did not restyle the default" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="in light mode the container is the pale member and the brand is the dark one" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <testcase name="the accents are actually distinct" classname="com.swan1127.repland.ui.theme.AccentPaletteTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

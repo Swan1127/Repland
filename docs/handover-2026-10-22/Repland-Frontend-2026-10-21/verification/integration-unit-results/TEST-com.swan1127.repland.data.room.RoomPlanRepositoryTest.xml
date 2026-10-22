@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.RoomPlanRepositoryTest" tests="43" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.305Z" hostname="LAPTOP-H29HUS9K" time="0.051">
+  <properties/>
+  <testcase name="movePlacement is a silent no-op for an unknown segment id" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.002"/>
+  <testcase name="movePlacement leaves the task order and the other segments alone" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.004"/>
+  <testcase name="placeTask appends the new task to the order and marks the whole order manual" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="removePlacement is a silent no-op for an unknown segment id" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="removePlacement is a silent no-op when there is no current plan" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.0"/>
+  <testcase name="observePlanHistory keeps the DAO's newest-first order" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.003"/>
+  <testcase name="removePlacement leaves the task order still naming the removed task" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="movePlacement is a silent no-op when there is no current plan" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="restore creates a new current version instead of reusing the source identity" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="restore preserves a stored order including its manual flags and positions" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept writes one order row per task, in the draft's order" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="the upper half of the start-minute bound is implied by the other two clauses" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.003"/>
+  <testcase name="restore can re-issue the version that is already current" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.002"/>
+  <testcase name="placeTask rejects a start minute outside the day" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="a new version is always newer than the newest stored one" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="placeTask carries the existing segments forward under fresh identities" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="restore refuses an unknown version and writes nothing" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept stores the draft as the new current version and archives the previous one" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept records a derived order as non-manual" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept does not carry the previous version's segments into the new one" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.0"/>
+  <testcase name="clearCurrentPlan archives the version but keeps it in history" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="observeCurrentPlan reports no plan when nothing is current" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.002"/>
+  <testcase name="observeCurrentPlan maps the stored rows into the domain model" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept collapses a repeated task id to its first position" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.0"/>
+  <testcase name="removePlacement drops the segment and keeps the rest" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept mints fresh segment identities rather than reusing the draft's" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="restore's derived order is not marked manual" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="setSegmentLocked passes the call straight through to the DAO" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="restore derives a deterministic order when the source has none" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.0"/>
+  <testcase name="placeTask rejects an end minute outside the day" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.002"/>
+  <testcase name="accept keeps every scheduling field the draft carried" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="movePlacement moves the segment, re-issues every identity and archives the old version" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="placeTask does not duplicate or move a task already in the order" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="movePlacement keeps a locked segment locked" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="restore copies the source segments under fresh identities" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="movePlacement rejects an invalid range without writing" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept stamps the draft's manual flag onto every order row" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="the version clock counts archived versions, not only the current one" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="placeTask rejects a placement that ends where it starts" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.0"/>
+  <testcase name="restore's derived order deduplicates a task that spans several segments" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="accept still creates a version when the draft is empty" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.0"/>
+  <testcase name="placeTask creates a version when there is no current plan" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <testcase name="placeTask appends the new segment unlocked even when the plan holds locked ones" classname="com.swan1127.repland.data.room.RoomPlanRepositoryTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.AiProviderPresetTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.649Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="matching falls back to custom for an unrecognised address" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.001"/>
+  <testcase name="custom is the only preset without an address" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="matching falls back to custom for the empty string" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="matching is exact, so a near miss stays custom" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="matching resolves each configured preset back to itself" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="no two presets share an address" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="every display name is non-blank and unique" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="matching tolerates the trailing slash the repository strips" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="no configured address ends with a slash" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="every configured preset carries a well-formed https address" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.001"/>
+  <testcase name="matching trims surrounding whitespace" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <testcase name="the built-in default config resolves to a real preset, not custom" classname="com.swan1127.repland.domain.model.AiProviderPresetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

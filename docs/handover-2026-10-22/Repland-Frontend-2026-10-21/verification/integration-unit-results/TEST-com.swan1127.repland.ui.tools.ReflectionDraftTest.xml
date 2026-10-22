@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tools.ReflectionDraftTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.875Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="a completed piece is described as progress into it" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.004"/>
+  <testcase name="under an hour prints zero hours rather than dropping the hour field" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a bare percentage is described as an approximate completion" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a task postponed once does not earn a nudge" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="the date parameter does not change the draft" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a stuck point is described as being stuck on it" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="there is no nudge when nothing reaches the threshold" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="only the first four logs are described" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="an hour and a half is written as one hour thirty minutes" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="logs without a recorded duration fall back to a count header" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="the first four logs are kept in their original order" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a whole number of hours still prints zero minutes" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a bare percentage outranks the generic line" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="no execution logs produce no draft at all" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a task postponed twice earns a nudge" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a log with nothing recorded still gets a line" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.001"/>
+  <testcase name="blank recorded text is treated as absent" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="being stuck outranks having completed something" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="when two tasks tie the first in the list is named" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a log whose task is missing uses a placeholder name" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="the nudge comes after the per-log lines" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="durations summing to zero fall back to the count header" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="the most postponed task is the one named" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="durations from several logs are summed" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="a postponed task that has no log today is still named" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="having completed something outranks a bare percentage" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <testcase name="the count header still counts every log not just the four shown" classname="com.swan1127.repland.ui.tools.ReflectionDraftTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

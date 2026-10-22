@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.370Z" hostname="LAPTOP-H29HUS9K" time="0.026">
+  <properties/>
+  <testcase name="a stored update is reflected while the state is being collected" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.007"/>
+  <testcase name="collecting replaces the defaults with the stored weights and clears loading" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.002"/>
+  <testcase name="a throwing observation stream falls back to defaults without hanging on loading" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.004"/>
+  <testcase name="saving an all-zero weighting never reaches the repository" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.003"/>
+  <testcase name="saving an out-of-range weighting never reaches the repository" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.002"/>
+  <testcase name="a refused save is silent, it does not surface as an error state" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.002"/>
+  <testcase name="a failed save escapes the coroutine scope instead of being reported" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.003"/>
+  <testcase name="before collection the state is loading with the built-in defaults" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.001"/>
+  <testcase name="a valid save is forwarded unchanged" classname="com.swan1127.repland.ui.preferences.CategoryPreferenceViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

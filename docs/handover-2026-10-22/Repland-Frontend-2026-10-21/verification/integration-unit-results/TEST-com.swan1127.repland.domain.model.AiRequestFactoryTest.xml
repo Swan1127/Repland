@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.AiRequestFactoryTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.653Z" hostname="LAPTOP-H29HUS9K" time="0.011">
+  <properties/>
+  <testcase name="hard constraints are de-duplicated and capped at two hundred forty" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.007"/>
+  <testcase name="feedback rows for other tasks are not sent" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.001"/>
+  <testcase name="only the selected task's confirmed segments are sent" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="sorting reasons drop blanks and are capped at twelve" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="a corrected feedback row is not sent, only its correction" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="a duplicated task id is only sent once" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="only the five most recent feedback rows are sent" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="a row with no confirmed feedback is not sent" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.001"/>
+  <testcase name="each single-task factory produces its own request type with the local reference" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="a daily summary sends at most five confirmed feedback rows" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="a protected manual order is mapped to the aliases that were actually sent" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="affected tasks are aliased in the order they were given" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="feedback is sent newest first" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="the request id is unique per request" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="the task context mirrors the task without inventing fields" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="at most fifty affected tasks are sent" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.001"/>
+  <testcase name="a request without a confirmed plan carries no segments" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <testcase name="constraint summaries drop blanks and are capped at twenty" classname="com.swan1127.repland.domain.model.AiRequestFactoryTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

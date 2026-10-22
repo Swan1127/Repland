@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.PlanningAgentTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.288Z" hostname="LAPTOP-H29HUS9K" time="0.031">
+  <properties/>
+  <testcase name="a rejected response is audited with its local validation reason" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.008"/>
+  <testcase name="a disabled agent falls back without sending a request" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.001"/>
+  <testcase name="a confirmed manual order survives a proposal that reorders the draft" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.003"/>
+  <testcase name="accepting is an acknowledgement that performs no write" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.002"/>
+  <testcase name="a provider that throws becomes a transport failure, not a crash" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.001"/>
+  <testcase name="disabling mid-preview ends in a local fallback" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.0"/>
+  <testcase name="dismissing never calls the provider" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.002"/>
+  <testcase name="resuming after consent moves on to the request preview" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.0"/>
+  <testcase name="an advice for a different request is rejected as invalid" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.001"/>
+  <testcase name="a proposal that would change the task's total minutes is rejected" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.0"/>
+  <testcase name="without explicit consent no request is ever sent" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.001"/>
+  <testcase name="an unavailable provider falls back to the local explanation" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.004"/>
+  <testcase name="the audit trail records the outcome of a request" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.002"/>
+  <testcase name="a proposal outside the stated availability never becomes a draft" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.0"/>
+  <testcase name="a proposal that collides with a preserved locked segment is rejected" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.0"/>
+  <testcase name="a consented request is sent exactly once" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.004"/>
+  <testcase name="a proposal that keeps the local minutes becomes a draft" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.001"/>
+  <testcase name="no proposal for a required task ever becomes a draft" classname="com.swan1127.repland.domain.model.PlanningAgentTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

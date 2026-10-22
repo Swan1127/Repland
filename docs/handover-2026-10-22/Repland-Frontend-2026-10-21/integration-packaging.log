@@ -1,0 +1,20 @@
+{
+  "Date": "2026-10-22",
+  "SourceSnapshot": "5a15288",
+  "IntegrationDonor": "repland-0.1.35.zip",
+  "DonorSHA256": "A87CB968C082ABD3155DCCD6F3BF96EABBC168F87FAE5B5B357AFA21D254A2B8",
+  "FrontendBaselineApkSHA256": "F631BC96887542DBB8620E5D36B77565C6745E3BAE0273E6BE7C4F152D7E9EB5",
+  "Package": "com.swan1127.repland.redesign",
+  "TestSuites": 99,
+  "Tests": 1654,
+  "Failures": 0,
+  "Errors": 0,
+  "Skipped": 0,
+  "LintErrors": 1,
+  "LintWarnings": 106,
+  "ModifiedFiles": 39,
+  "AddedFiles": 51,
+  "RemovedFiles": 0,
+  "SourceArchiveSHA256": "DF0D62274A4DE2F307DFF612B0C522837F786E804A9E5190B8DBAC6A8D9988F4",
+  "ApkSHA256": "7262AACC0E03ED74C10FC8334074CAED0FC4BCC1F26C0E96BD83450D0CE17639"
+}

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" tests="40" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.933Z" hostname="LAPTOP-H29HUS9K" time="0.023">
+  <properties/>
+  <testcase name="a json fence is unwrapped" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.005"/>
+  <testcase name="a missing required field is an invalid response" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.002"/>
+  <testcase name="a value the validator rejects is an invalid response, not advice" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.002"/>
+  <testcase name="the user message carries the task's own fields" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="quote turns a raw control character into an escape and leaves Chinese alone" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="model listing tolerates a missing or odd payload" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="an answer to a different question is rejected" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="the chat body is a valid document that names the model" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="model ids keep the provider's order" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="the system prompt asks for one JSON object and forbids decoration" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a bare object is returned as-is" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="an unterminated object yields null rather than a partial string" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a fence with no language tag is unwrapped too" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="http status maps to the reason the user needs to hear" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="braces inside a string value do not end the object early" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="the assistant content is read out of a chat response" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="an empty content is treated as absent" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="a non-json body yields null instead of throwing" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="difficulty advice is parsed" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="daily summary advice keeps its optional next step" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="text with no object at all yields null" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="prose with no object is an invalid response" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="an unbalanced brace inside a string does not end the object early" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a daily summary with no confirmed work says so instead of sending an empty list" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="an escaped quote inside a string does not end the string early" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="understanding advice is parsed and stamped with the request identity" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a fence still wins when the commentary before it contains a brace" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="quoted output is readable by a strict parser" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="sorting advice is parsed" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="a well-formed replan is accepted" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.002"/>
+  <testcase name="a malformed segment is an invalid response" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="quote escapes the characters that would break the document" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="nested objects are kept whole" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a response with no choices yields null" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="commentary around the object is discarded" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="an answer with commentary around it is accepted" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a replan request tells the model which slots it may not take" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.001"/>
+  <testcase name="a blank required field counts as missing" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="breakdown advice is parsed" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <testcase name="a fenced answer is accepted" classname="com.swan1127.repland.data.ai.OpenAiCompatibleCodecTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.259Z" hostname="LAPTOP-H29HUS9K" time="0.003">
+  <properties/>
+  <testcase name="an empty task order falls back to the tasks named by the segments" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.002"/>
+  <testcase name="the manual order flag is true when any stored row is manual" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="a segment carries every field and reads its date from the epoch day" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the fallback order deduplicates a task that appears in several segments" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the fallback task order follows the raw row order while the segments themselves are sorted" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the task order follows the stored position" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="segments come back ordered by date and then by start minute" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the plan header carries into the domain model" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="two segments that start at the same minute keep their stored order" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.001"/>
+  <testcase name="the manual order flag is false when the stored rows are all derived" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the manual order flag is false for the segment-derived fallback" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="a stored task order is used even when it does not name every segmented task" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the segment order does not depend on the end minute" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="the manual order flag is independent of the order being complete" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <testcase name="a plan with no segments and no order maps to empty lists" classname="com.swan1127.repland.data.room.PlanWithSegmentsMappingTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

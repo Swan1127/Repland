@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" tests="29" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.195Z" hostname="LAPTOP-H29HUS9K" time="0.064">
+  <properties/>
+  <testcase name="switching off ends a prepared request even when recording the change fails" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.006"/>
+  <testcase name="beginTaskBreakdown prepares a breakdown request" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="begin refuses before the preferences were ever collected" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.001"/>
+  <testcase name="switching off records the change and ends a prepared request locally" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="begin falls back locally when consent exists but the switch is off" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="a provider failure falls back locally with its reason" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="begin previews a request once consent and the switch are both on" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.003"/>
+  <testcase name="a failed grantConsentAndEnable changes nothing and does not crash" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="before collection the agent is idle and loading" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.001"/>
+  <testcase name="beginSortingExplanation carries the local ranking reasons into the request" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="a transport exception from the provider becomes a local fallback, not a crash" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.003"/>
+  <testcase name="dismiss moves a prepared request to the dismissed state" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="grantConsentAndEnable records consent and moves a prepared request to preview" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="markAccepted only acknowledges, it is not a write" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="a provider that is not configured falls back locally with its reason" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="confirmPreview shows RequestingAdvice while the provider is in flight" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="beginDailySummary carries the day into the request" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="switching on with consent already given returns a prepared request to preview" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="switching on without consent leaves the request waiting for consent" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.001"/>
+  <testcase name="begin waits for consent when the stored preference has none" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.003"/>
+  <testcase name="dismiss with nothing prepared leaves the agent idle" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.001"/>
+  <testcase name="beginDifficultyAndDuration prepares a difficulty request" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="the fallback state never claims the provider answered" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.004"/>
+  <testcase name="markAccepted with nothing prepared leaves the agent idle" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.001"/>
+  <testcase name="beginReplan prepares a replan request" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.003"/>
+  <testcase name="switching off with nothing prepared still records the change" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.001"/>
+  <testcase name="confirmPreview with nothing prepared never contacts the provider" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="collecting reports the stored preferences and stops loading" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.002"/>
+  <testcase name="confirmPreview refuses when consent has been withdrawn since the preview" classname="com.swan1127.repland.ui.ai.PlanningAgentViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

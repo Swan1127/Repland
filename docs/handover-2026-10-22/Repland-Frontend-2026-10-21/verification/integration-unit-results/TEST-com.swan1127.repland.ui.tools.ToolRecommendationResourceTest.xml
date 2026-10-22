@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.882Z" hostname="LAPTOP-H29HUS9K" time="0.032">
+  <properties/>
+  <testcase name="every recommendation rule can fire" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.008"/>
+  <testcase name="every tool the strip can render has a declared title" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.003"/>
+  <testcase name="the placeholder kind matches the argument kind in the default file" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.003"/>
+  <testcase name="every reason actually formats with the argument the rule passes" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.002"/>
+  <testcase name="the placeholder kind matches the argument kind in the english file" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.003"/>
+  <testcase name="a name reason uses a string placeholder and a count reason uses a numeric one" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.002"/>
+  <testcase name="each reason is declared in both resource files" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.003"/>
+  <testcase name="the id lookup resolves the whole string table" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.003"/>
+  <testcase name="each reason takes exactly one argument" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.003"/>
+  <testcase name="a numeric placeholder rejects text while a string placeholder accepts a number" classname="com.swan1127.repland.ui.tools.ToolRecommendationResourceTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

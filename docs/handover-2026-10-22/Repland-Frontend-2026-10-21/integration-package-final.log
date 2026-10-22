@@ -1,0 +1,25 @@
+{
+  "Date": "2026-10-22",
+  "SourceSnapshot": "5a15288",
+  "IntegrationDonor": "repland-0.1.35.zip",
+  "DonorSHA256": "A87CB968C082ABD3155DCCD6F3BF96EABBC168F87FAE5B5B357AFA21D254A2B8",
+  "FrontendBaselineApkSHA256": "F631BC96887542DBB8620E5D36B77565C6745E3BAE0273E6BE7C4F152D7E9EB5",
+  "Package": "com.swan1127.repland.redesign",
+  "TestSuites": 99,
+  "Tests": 1654,
+  "Failures": 0,
+  "Errors": 0,
+  "Skipped": 0,
+  "LintErrors": 1,
+  "LintWarnings": 106,
+  "ModifiedFiles": 39,
+  "AddedFiles": 51,
+  "RemovedFiles": 0,
+  "SourceArchiveSHA256": "CB8F76E4A11D458CCF8DE4D08C60E889C4139602BCD5B2ED4DE33B4E021AFA08",
+  "ApkSHA256": "E118D22F99A6968625B97DBADE8675E53F557C8513392FBFEBF1A2DA8886EC24"
+}
+
+Algorithm : SHA256
+Hash      : 0BD99FE3944545573A53270914A911FFB8B353816A274418A73DB0C07C56D587
+Path      : C:\Users\x16\Documents\Codex\2026-10-07\swan1127-github-repland-https-github-com\outputs\Repland-Frontend-2026-10-21\Repland-多Agent与记忆模型融合交付-2026-10-22.zip
+

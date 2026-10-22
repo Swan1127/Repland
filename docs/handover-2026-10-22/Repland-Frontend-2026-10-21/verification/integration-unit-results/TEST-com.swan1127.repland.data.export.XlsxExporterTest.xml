@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.export.XlsxExporterTest" tests="28" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.004Z" hostname="LAPTOP-H29HUS9K" time="0.166">
+  <properties/>
+  <testcase name="the archive carries every part a spreadsheet reader needs" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.01"/>
+  <testcase name="markup in a title is escaped and reads back as the original text" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.025"/>
+  <testcase name="a block with hand set times is kept out of the grid but kept in the detail sheet" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.016"/>
+  <testcase name="the workbook declares five sheets and 周课表 is the first" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.006"/>
+  <testcase name="the same snapshot always produces the same bytes" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.004"/>
+  <testcase name="a task with no recorded estimate writes an empty cell rather than a zero" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="an empty snapshot still produces a readable archive" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.008"/>
+  <testcase name="the week pattern survives the round trip" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.014"/>
+  <testcase name="a week pattern the notation cannot express is kept out of the grid" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.004"/>
+  <testcase name="tasks are grouped by category so the sheet reads in a stable order" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="a grid course comes back through the real importer at the same minutes" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.006"/>
+  <testcase name="the task sheet carries a repeat column in the user's own words" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="a padded title is kept out of the grid because the reader trims every cell" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.005"/>
+  <testcase name="minutes are written as numbers so a spreadsheet can sum the column" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.001"/>
+  <testcase name="the task sheet puts the estimate next to the actual" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="a category with nothing invested is left out of the category sheet" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="the repeat labels in the sheet are the ones the editor shows" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.007"/>
+  <testcase name="the weekday column follows the day of the block" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="the daily sheet covers the same thirty days as the insight page" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="a week pattern the reader would normalise is kept out of the grid" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.004"/>
+  <testcase name="a title that merely contains a week pattern is kept out of the grid" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.006"/>
+  <testcase name="a different snapshot produces different bytes" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.002"/>
+  <testcase name="two blocks sharing a span and a day share one cell joined by a newline" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.005"/>
+  <testcase name="rows are ordered by period so the sheet reads like a day" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="a block the grid refused does not appear in a re-import" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.005"/>
+  <testcase name="a single period block is written as one number rather than a range" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <testcase name="a title containing a week pattern is kept out of the grid even when the block has one" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.007"/>
+  <testcase name="a block on the period clock is written as its period span" classname="com.swan1127.repland.data.export.XlsxExporterTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

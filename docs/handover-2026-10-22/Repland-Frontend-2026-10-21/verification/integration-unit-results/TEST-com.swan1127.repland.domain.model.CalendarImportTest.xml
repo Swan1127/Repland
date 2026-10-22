@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.CalendarImportTest" tests="37" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.685Z" hostname="LAPTOP-H29HUS9K" time="0.022">
+  <properties/>
+  <testcase name="an all day event longer than the cap is skipped as out of range" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.004"/>
+  <testcase name="an event from this app's own export is skipped" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.001"/>
+  <testcase name="an unreadable time is skipped" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an available override at the same minutes is not the same row as a blocked one" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.005"/>
+  <testcase name="an event that ends before it starts produces nothing and is skipped" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a weekly event keeps its clock time and takes its day from the rule" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.005"/>
+  <testcase name="a cancelled event is skipped" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a cancelled event is not reported as an own export even when both apply" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="weekly identity separates rows that differ in any one field" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a real calendar file parsed and mapped produces the rows the timetable expects" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.003"/>
+  <testcase name="two different events with the same title at different times are both added" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a weekly all day event becomes a whole day block per weekday" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="every produced row passes the app's own validator" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.001"/>
+  <testcase name="an all day event becomes a whole day override" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an open ended series is not counted as approximated" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a one off timed event becomes a blocked one day override" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an imported weekly block is kind other rather than course" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a file whose every event is skipped still reports the reasons" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="override identity keeps the two types apart" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a skip with no summary carries the fallback title" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an until limited series with no semester start is imported always on and counted" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a series ending before the semester start is counted as approximated" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a skip carries the title so the user can be told which entry" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a multi day all day event becomes one override per day" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a transparent event is skipped" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="weekly identity trims the title and folds a blank pattern to null" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an event with no summary gets the fallback title" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an existing weekly block with a padded title still counts as the same row" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.001"/>
+  <testcase name="an until limited series becomes a week pattern from the semester start" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="the same event twice in one file is added once and reported once" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an event that crosses midnight becomes two overrides" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an event already in the timetable is a duplicate not a new row" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="an unsupported recurrence is skipped rather than imported as a one off" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a weekly event on several weekdays becomes one block per day" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="no events at all yields NoEvents" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.001"/>
+  <testcase name="the counters add up to the number of events" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <testcase name="a weekly event becomes a weekly block on its weekday" classname="com.swan1127.repland.domain.model.CalendarImportTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

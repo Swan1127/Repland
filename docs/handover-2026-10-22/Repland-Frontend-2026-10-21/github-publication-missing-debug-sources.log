@@ -1,0 +1,113 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Environment/java-home
+
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugAssets
+> Task :app:desugarDebugFileDependencies
+> Task :app:generateDebugRFile
+> Task :app:checkDebugAarMetadata
+> Task :app:compressDebugAssets
+> Task :app:compileDebugNavigationResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:mergeDebugResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeDebugNativeLibs
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+> Task :app:mergeExtDexDebug
+> Task :app:mergeLibDexDebug
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so. Run with --info option to learn more.
+
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:extractProguardFiles
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:dexBuilderDebug
+> Task :app:processDebugJavaRes
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:mergeProjectDexDebug
+> Task :app:generateDebugLintReportModel
+> Task :app:mergeDebugJavaResource
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebug
+> Task :app:compileDebugUnitTestKotlin
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:122:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:133:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:149:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:158:9 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:170:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:190:27 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:202:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:213:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:223:23 Unresolved reference 'DebugOpenAiCompatibleAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:251:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:264:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:277:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:290:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:305:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:322:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:335:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:346:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:354:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:364:23 Unresolved reference 'DebugOpenAiCompatibleArrangementAdvisor'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:399:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:411:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:425:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+
+> Task :app:compileDebugUnitTestKotlin FAILED
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:438:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:457:27 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:469:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:476:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:488:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-GitHub-2026-10-22/previews/frontend-redesign/app/src/test/java/com/swan1127/repland/debug/DebugOpenAiCompatibleAdvisorTest.kt:498:23 Unresolved reference 'DebugOpenAiCompatibleModelCatalog'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugUnitTestKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 54s
+49 actionable tasks: 49 executed

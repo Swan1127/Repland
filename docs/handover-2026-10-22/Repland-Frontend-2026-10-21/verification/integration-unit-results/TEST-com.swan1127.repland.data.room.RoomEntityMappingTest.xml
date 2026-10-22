@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.RoomEntityMappingTest" tests="43" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.296Z" hostname="LAPTOP-H29HUS9K" time="0.006">
+  <properties/>
+  <testcase name="default ai settings carry no consent" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown date override type throws" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown time block kind throws" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.001"/>
+  <testcase name="profile evidence carries the conclusion, scope and edit flag" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a task entity carries every field into the domain model" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown category preference name throws" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown task enum name throws instead of falling back to a default" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.001"/>
+  <testcase name="a task entity reads its enums by name" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="every usage event type and mode name round-trips" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="every profile evidence scope name round-trips" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown profile evidence scope throws" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a stored day number outside one to seven throws rather than wrapping" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.001"/>
+  <testcase name="a task entity with no dates maps them to null rather than epoch day zero" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a roll-forward of a deadline-only task clears the planned day rather than keeping the old one" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a usage event carries every field" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a usage event with no subject keeps it null" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="every date override type name round-trips" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown execution log event type throws" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an execution log entity always produces a feedback object even when every column is null" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a weekly block maps the stored day number onto the right weekday" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="the ai settings row id is not part of the domain model" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a task entity carries its repeat rule into the domain model" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a date override entity carries every field into the domain model" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a roll-forward of an undated task leaves the deadline absent" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="profile evidence takes its sources from the caller not from the stored id list" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a roll-forward moves both dates and reopens the task" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="every repeat rule name round-trips" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an empty stored source id list yields no ids" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a roll-forward clears the outcome of the occurrence that just ended" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an execution log entity flattens its feedback columns into the feedback object" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a roll-forward keeps the task's identity and its rule" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a task entity with no repeat rule reads as a one-off" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a category preference maps to its category and weight" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a date override reads its date back from the epoch day" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="blank entries in the stored source id list are dropped" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="every time block kind name round-trips" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an unknown repeat rule name throws instead of reading as a one-off" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="every execution log event type name round-trips" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="the stored source id list splits on the pipe" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="an execution log entity carries every field into the domain model" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="ai settings carry the switch and the consent timestamp" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="a weekly block entity carries every field into the domain model" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.0"/>
+  <testcase name="reminder settings carry the switch" classname="com.swan1127.repland.data.room.RoomEntityMappingTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

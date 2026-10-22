@@ -1,0 +1,12 @@
+{
+  "package": "com.swan1127.repland.redesign",
+  "room_and_learning_memory_cleared_by_app": true,
+  "qa_only_auxiliary_keys": [
+    "kwl"
+  ],
+  "qa_only_kwl_count": 1,
+  "qa_auxiliary_removed_after_force_stop": true,
+  "only_own_oct22_export_removed": true,
+  "oct11_backup_not_modified": true,
+  "stylus_handwriting_restored_to_original_null": true
+}

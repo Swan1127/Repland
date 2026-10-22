@@ -1,0 +1,24 @@
+{
+  "package": "com.swan1127.repland.redesign",
+  "tasks": [],
+  "all_tasks_are_qa": true,
+  "table_counts": {
+    "android_metadata": 1,
+    "tasks": 0,
+    "weekly_time_blocks": 0,
+    "date_overrides": 0,
+    "semester_settings": 0,
+    "plans": 0,
+    "plan_segments": 0,
+    "plan_task_order": 0,
+    "category_preferences": 0,
+    "execution_logs": 0,
+    "reminder_settings": 0,
+    "profile_evidence": 0,
+    "ai_settings": 0,
+    "engagement_settings": 0,
+    "usage_events": 0,
+    "room_master_table": 1
+  },
+  "ai_enabled": false
+}

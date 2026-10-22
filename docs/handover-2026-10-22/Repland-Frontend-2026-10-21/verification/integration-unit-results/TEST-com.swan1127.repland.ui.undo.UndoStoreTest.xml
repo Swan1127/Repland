@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.undo.UndoStoreTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.919Z" hostname="LAPTOP-H29HUS9K" time="0.031">
+  <properties/>
+  <testcase name="a fresh store can neither undo nor redo" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.012"/>
+  <testcase name="undoing the only step clears the undo label and publishes the redo label" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.002"/>
+  <testcase name="a failed destructive clear preserves reversible history" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.002"/>
+  <testcase name="the stack drops the oldest step when it overflows" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="undo on an empty stack returns null and does nothing" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.0"/>
+  <testcase name="a depth of zero keeps nothing" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="transaction records nothing extra when the operation changes nothing" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.002"/>
+  <testcase name="redo applies the after state and returns the label" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="redo on an empty stack returns null and does nothing" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.0"/>
+  <testcase name="transaction captures the state before and after the operation" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="clearing history prevents undo and redo from restoring erased data" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="undo applies the before state and returns the label" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="recording a step publishes its label as the next undo" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.0"/>
+  <testcase name="recording a new step clears the redo branch" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="undo and redo walk the stack in order" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.001"/>
+  <testcase name="destructive clear waits for an active restore before deleting data" classname="com.swan1127.repland.ui.undo.UndoStoreTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

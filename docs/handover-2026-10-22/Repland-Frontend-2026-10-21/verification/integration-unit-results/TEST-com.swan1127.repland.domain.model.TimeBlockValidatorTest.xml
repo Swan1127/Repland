@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.TimeBlockValidatorTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.443Z" hostname="LAPTOP-H29HUS9K" time="0.011">
+  <properties/>
+  <testcase name="parseTime refuses 24_00 because the model has no such instant" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="a weekly block needs a non-blank title" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="a weekly block needs its start before its end" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="a weekly block cannot start at or past the end of the day" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="a weekly block cannot end past the end of the day" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime refuses a single-digit hour" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime trims surrounding whitespace" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="a date override follows the same title and range rule" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime reads a two-digit clock time" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="formatTime pads both fields" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime refuses a minute of sixty" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime refuses text that is not a clock time" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime refuses a blank string" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime reads the last minute of the day" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="every minute of the day round-trips through format and parse" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.011"/>
+  <testcase name="a weekly block may span the whole day" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime reads midnight as zero" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="parseTime refuses a trailing seconds part" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="a weekly block cannot end at zero" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="formatTime renders the last minute of the day" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <testcase name="formatTime renders the exclusive end of the day as 24_00, which parseTime then refuses" classname="com.swan1127.repland.domain.model.TimeBlockValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.FocusSettingsTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.728Z" hostname="LAPTOP-H29HUS9K" time="0.003">
+  <properties/>
+  <testcase name="a value above the maximum is clamped rather than rejected" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.001"/>
+  <testcase name="a missing stored value is the default" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="the offered presets include the default" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="the constructor itself refuses an out-of-range value" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.001"/>
+  <testcase name="every offered preset is inside the accepted range" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="a corrupt stored value is clamped on the way in" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="a slot exactly the setting length is not reported as shortened" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.001"/>
+  <testcase name="a value below the minimum is clamped rather than rejected" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="the default round is twenty-five minutes" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="a long slot runs the user's full setting" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="a short slot shortens the round" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="a one minute slot still produces a positive round" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="one minute short is already reported as shortened" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <testcase name="a stored value is honoured" classname="com.swan1127.repland.domain.model.FocusSettingsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

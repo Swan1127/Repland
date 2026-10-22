@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.547Z" hostname="LAPTOP-H29HUS9K" time="0.027">
+  <properties/>
+  <testcase name="composer_acceptance_rejects_unknown_task_ids" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.002"/>
+  <testcase name="every_tool_call_is_declared_by_its_own_agent" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.005"/>
+  <testcase name="memory_carries_across_runs_within_the_same_runtime" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.005"/>
+  <testcase name="full_replan_runs_declared_tool_sets_per_agent" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <testcase name="composer_acceptance_detects_overlapping_segments" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <testcase name="workspace_rejects_writes_from_a_non_owner" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <testcase name="composer_acceptance_passes_on_disjoint_segments" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.0"/>
+  <testcase name="draft_ready_carries_the_same_draft_as_the_coordinator" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.005"/>
+  <testcase name="event_stream_is_ordered_and_every_step_has_real_tool_calls" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <testcase name="calibrator_delivers_a_report_from_real_execution_state" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.003"/>
+  <testcase name="a_fresh_runtime_starts_without_memory" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <testcase name="every_agent_declares_at_least_one_blocker_criterion" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <testcase name="reading_an_absent_slot_names_the_missing_producer" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.0"/>
+  <testcase name="memory_is_private_per_agent" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.0"/>
+  <testcase name="missing_prerequisite_is_backfilled_and_logged" classname="com.swan1127.repland.domain.planteam.runtime.PlanningTeamRuntimeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

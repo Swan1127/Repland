@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.587Z" hostname="LAPTOP-H29HUS9K" time="0.029">
+  <properties/>
+  <testcase name="a successful answer becomes advice" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.005"/>
+  <testcase name="an ok status with unusable content is an invalid response" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="http statuses become the reasons the user needs" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.002"/>
+  <testcase name="a connection failure is a transport failure" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="a block that would run past midnight keeps the item but not the start" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.004"/>
+  <testcase name="an item with no stated time is left unscheduled rather than given a slot" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.002"/>
+  <testcase name="a trailing slash on the base url does not double up" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="a title-less candidate is dropped" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.0"/>
+  <testcase name="the arrangement advisor reports unconfigured the same way" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="the call goes to chat completions under the configured base url" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.0"/>
+  <testcase name="a blank key is treated as unconfigured" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.002"/>
+  <testcase name="a timeout is reported as a timeout, not as unreachable" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="no candidates at all is an invalid response" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="an unknown category falls back to the app's most common one" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="an out-of-range start minute is dropped instead of trusted" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="no stored secret is unavailable rather than a failure" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="a stated time is marked as the user's own, not the advisor's" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="a duration outside the accepted range becomes unknown instead of losing the item" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="arrangement candidates are parsed" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <testcase name="the one-argument constructor the application reflects on exists" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleAdvisorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

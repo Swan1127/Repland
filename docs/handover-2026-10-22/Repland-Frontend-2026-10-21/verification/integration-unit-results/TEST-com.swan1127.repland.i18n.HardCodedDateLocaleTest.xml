@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.i18n.HardCodedDateLocaleTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.577Z" hostname="LAPTOP-H29HUS9K" time="0.321">
+  <properties/>
+  <testcase name="the rules stay quiet on the shapes that are allowed" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.001"/>
+  <testcase name="the rules match the shapes they exist to catch" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.001"/>
+  <testcase name="the scan is looking at code that really formats dates" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.094"/>
+  <testcase name="stripping comments preserves line numbers" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.026"/>
+  <testcase name="the scan reaches the whole main source tree" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.025"/>
+  <testcase name="no main source hard-codes a date pattern containing Chinese" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.076"/>
+  <testcase name="no main source pins a Chinese locale" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.076"/>
+  <testcase name="stripping comments removes prose but keeps code" classname="com.swan1127.repland.i18n.HardCodedDateLocaleTest" time="0.022"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

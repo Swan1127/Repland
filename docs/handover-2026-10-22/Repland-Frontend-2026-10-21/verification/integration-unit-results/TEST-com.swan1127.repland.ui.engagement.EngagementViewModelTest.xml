@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.engagement.EngagementViewModelTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.301Z" hostname="LAPTOP-H29HUS9K" time="0.008">
+  <properties/>
+  <testcase name="a stored mode change reaches the view model" classname="com.swan1127.repland.ui.engagement.EngagementViewModelTest" time="0.002"/>
+  <testcase name="two mode changes are forwarded in call order" classname="com.swan1127.repland.ui.engagement.EngagementViewModelTest" time="0.001"/>
+  <testcase name="collecting the mode picks up the stored value" classname="com.swan1127.repland.ui.engagement.EngagementViewModelTest" time="0.001"/>
+  <testcase name="the exposed mode is the declared initial value, not the stored one, until it is collected" classname="com.swan1127.repland.ui.engagement.EngagementViewModelTest" time="0.001"/>
+  <testcase name="setMode is fire and forget, so the write has not happened until the scope runs" classname="com.swan1127.repland.ui.engagement.EngagementViewModelTest" time="0.001"/>
+  <testcase name="recordTimelineOpened forwards the entry id verbatim" classname="com.swan1127.repland.ui.engagement.EngagementViewModelTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

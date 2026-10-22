@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.569Z" hostname="LAPTOP-H29HUS9K" time="0.029">
+  <properties/>
+  <testcase name="every conflict formats with the arguments the banner passes" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.004"/>
+  <testcase name="every conflict key is declared in both resource files" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.003"/>
+  <testcase name="the title takes a count and the row takes two names, in both files" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.005"/>
+  <testcase name="the banner references every declared conflict key" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.003"/>
+  <testcase name="the id lookup resolves the whole string table" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.004"/>
+  <testcase name="the rule can produce a conflict for the banner to render" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.003"/>
+  <testcase name="a numeric placeholder rejects text while a string placeholder accepts a number" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.004"/>
+  <testcase name="no conflict key is left behind by a removed banner" classname="com.swan1127.repland.ui.schedule.WeeklyConflictResourceTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

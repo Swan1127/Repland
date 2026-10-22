@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.397Z" hostname="LAPTOP-H29HUS9K" time="0.033">
+  <properties/>
+  <testcase name="a conclusion exactly at the length cap is accepted" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.005"/>
+  <testcase name="a later successful action clears the error flag" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.004"/>
+  <testcase name="a throwing observation stream reports the action error and stops loading" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.003"/>
+  <testcase name="a whitespace-only conclusion is refused" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.001"/>
+  <testcase name="a blank conclusion is refused and never reaches the repository" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.003"/>
+  <testcase name="a failed action raises the error flag" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.003"/>
+  <testcase name="the refusal is reported through the state, not thrown" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.004"/>
+  <testcase name="a conclusion over the length cap is refused" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.002"/>
+  <testcase name="delete forwards the id" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.001"/>
+  <testcase name="generate is forwarded once" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.001"/>
+  <testcase name="before collection the state is empty, loading and error free" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.003"/>
+  <testcase name="collecting reports the stored evidence and stops loading" classname="com.swan1127.repland.ui.profile.ProfileEvidenceViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

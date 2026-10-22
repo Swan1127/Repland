@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.GroupChatEngineTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.734Z" hostname="LAPTOP-H29HUS9K" time="4.493">
+  <properties/>
+  <testcase name="disabled cloud fails before any provider call" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="0.007"/>
+  <testcase name="a stalled provider produces a timeout notice rather than an endless typing bubble" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="0.515"/>
+  <testcase name="typing precedes every agent message" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="1.165"/>
+  <testcase name="at mention limits the speakers" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="0.467"/>
+  <testcase name="every role is spoken by the provider then a plan is produced" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="1.17"/>
+  <testcase name="a failing provider ends the turn instead of inventing text" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="0.002"/>
+  <testcase name="every agent message carries the speaker catchphrase" classname="com.swan1127.repland.domain.model.GroupChatEngineTest" time="1.167"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

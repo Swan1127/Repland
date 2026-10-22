@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.666Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="a negative explicit start is dropped" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a start plus duration that ends exactly at midnight is kept" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a blank title drops the candidate" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="the confidence label is passed through unchecked" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="only the first eight valid candidates survive" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.001"/>
+  <testcase name="a candidate with neither a duration nor a time is kept" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a duration of five minutes is kept" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="an explicit start at the exclusive end of the day is dropped" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="all-invalid candidates yield no advice" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="invalid candidates do not consume the eight slots" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="clarification flags and placement source survive untouched" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a duration below five minutes is dropped" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a start plus duration that would run past midnight is dropped" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="the first and last minutes of the day are kept as explicit starts" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="an empty candidate list yields no advice" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a negative duration is dropped" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.001"/>
+  <testcase name="the surviving candidates keep their original order" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a duration above seven hundred twenty minutes is dropped" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <testcase name="a duration of seven hundred twenty minutes is kept" classname="com.swan1127.repland.domain.model.ArrangementAssistantAdviceValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

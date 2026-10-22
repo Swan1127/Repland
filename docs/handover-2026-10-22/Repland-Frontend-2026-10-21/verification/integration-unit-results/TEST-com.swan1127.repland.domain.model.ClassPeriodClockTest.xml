@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ClassPeriodClockTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.717Z" hostname="LAPTOP-H29HUS9K" time="0.0">
+  <properties/>
+  <testcase name="an inverted period span is rejected" classname="com.swan1127.repland.domain.model.ClassPeriodClockTest" time="0.0"/>
+  <testcase name="the imported course keeps its title, day and week pattern" classname="com.swan1127.repland.domain.model.ClassPeriodClockTest" time="0.0"/>
+  <testcase name="a multi-period course spans from the first start to the last end" classname="com.swan1127.repland.domain.model.ClassPeriodClockTest" time="0.0"/>
+  <testcase name="period 1 runs 08_00 to 08_45" classname="com.swan1127.repland.domain.model.ClassPeriodClockTest" time="0.0"/>
+  <testcase name="period 12 is the last supported period" classname="com.swan1127.repland.domain.model.ClassPeriodClockTest" time="0.0"/>
+  <testcase name="an unknown period is rejected instead of guessed" classname="com.swan1127.repland.domain.model.ClassPeriodClockTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

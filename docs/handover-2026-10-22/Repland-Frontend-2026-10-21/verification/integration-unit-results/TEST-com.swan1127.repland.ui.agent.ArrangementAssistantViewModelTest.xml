@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.066Z" hostname="LAPTOP-H29HUS9K" time="0.045">
+  <properties/>
+  <testcase name="courses rest and commitments are marked hard busy while a task is not" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.01"/>
+  <testcase name="a failure result is returned verbatim" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.003"/>
+  <testcase name="an advice result is returned verbatim" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.004"/>
+  <testcase name="the advisor is consulted exactly once per refine" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.004"/>
+  <testcase name="refine forwards the utterance and the date" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.003"/>
+  <testcase name="refine refuses when consent exists but the feature is switched off" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.004"/>
+  <testcase name="each occupied interval keeps its title, minutes and track" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.004"/>
+  <testcase name="collecting reports the stored access" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.004"/>
+  <testcase name="refine refuses when consent is missing even though it is enabled" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.003"/>
+  <testcase name="refine refuses when the access state was never collected" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.002"/>
+  <testcase name="access starts disabled and without consent before collection" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.002"/>
+  <testcase name="an empty entry list produces no occupied intervals" classname="com.swan1127.repland.ui.agent.ArrangementAssistantViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

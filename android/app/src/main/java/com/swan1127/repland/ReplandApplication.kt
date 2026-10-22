@@ -33,6 +33,7 @@ import com.swan1127.repland.domain.model.NoOpArrangementAssistantAdvisor
 import com.swan1127.repland.domain.model.PlanningAgent
 import com.swan1127.repland.domain.model.PlanningAgentWorkflow
 import com.swan1127.repland.reminders.LocalReminderScheduler
+import kotlinx.coroutines.flow.first
 
 class ReplandApplication : Application() {
     val appContainer: AppContainer by lazy { AppContainer(applicationContext) }
@@ -86,7 +87,12 @@ class AppContainer(context: Context) {
     val aiProviderConfigRepository: AiProviderConfigRepository = SecureAiProviderConfigRepository(context)
     val numericProfileRepository = com.swan1127.repland.data.room.RoomNumericProfileRepository(database, aiProviderConfigRepository)
     val personalProfileStore = com.swan1127.repland.data.profile.LocalPersonalProfileStore(context)
-    val dataManagementRepository: DataManagementRepository = RoomDataManagementRepository(database, personalProfileStore::clear)
+    val auxiliaryStore = com.swan1127.repland.data.AuxiliaryStore(context)
+    val dataManagementRepository: DataManagementRepository = RoomDataManagementRepository(database) {
+        personalProfileStore.clear()
+        auxiliaryStore.clearLearningMemory()
+        planningOperationService.clearTeamMemory()
+    }
     val aiSettingsRepository: AiSettingsRepository = RoomAiSettingsRepository(database.aiSettingsDao())
     val usageSummaryRepository = com.swan1127.repland.data.room.RoomUsageSummaryRepository(database, aiProviderConfigRepository)
     val engagementRepository = RoomEngagementRepository(database)
@@ -112,7 +118,11 @@ class AppContainer(context: Context) {
             .newInstance(aiProviderConfigRepository, aiSettingsRepository) as com.swan1127.repland.domain.model.UsageSummaryAdvisor
     }.getOrDefault(com.swan1127.repland.domain.model.NoOpUsageSummaryAdvisor)
     val planningReadService = com.swan1127.repland.domain.model.PlanningReadService(taskRepository, timeRepository, planRepository, categoryPreferenceRepository)
-    val planningOperationService = com.swan1127.repland.domain.model.PlanningOperationService(planningReadService, planRepository, planDraftGenerator, executionSessionRepository, numericProfileRepository)
+    val planningOperationService = com.swan1127.repland.domain.model.PlanningOperationService(
+        planningReadService, planRepository, planDraftGenerator, executionSessionRepository, numericProfileRepository,
+        memoryReference = auxiliaryStore::memoryReference,
+        executionLogs = { date -> taskRepository.observeExecutionLogsForDate(date).first() },
+    )
     /** Local bounded workflow; it has no repository write capability. */
     val planningAgentWorkflow = PlanningAgentWorkflow(
         planningAgent = PlanningAgent(aiAdvisor, planDraftGenerator),

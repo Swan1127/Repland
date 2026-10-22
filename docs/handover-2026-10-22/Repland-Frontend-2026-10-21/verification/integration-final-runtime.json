@@ -1,0 +1,21 @@
+{
+  "package": "com.swan1127.repland.redesign",
+  "installedApkSHA256": "E118D22F99A6968625B97DBADE8675E53F557C8513392FBFEBF1A2DA8886EC24",
+  "desktopShortcutLaunch": "success",
+  "display": {
+    "system:font_scale": "1.0",
+    "system:accelerometer_rotation": "1",
+    "system:user_rotation": "0",
+    "global:animator_duration_scale": "1.0",
+    "global:transition_animation_scale": "1.0",
+    "global:window_animation_scale": "1.0",
+    "night": "Night mode: no",
+    "size": "Physical size: 1080x2400",
+    "density": "Physical density: 420"
+  },
+  "displayMatchesOriginal": true,
+  "stylus_handwriting_enabled": "null",
+  "deviceClock": "2026-10-22T11:28:19+00:00",
+  "memoryPreferences": "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n<map />",
+  "sharedPreferencesFiles": "agent_ui_state.xml  replanandroid-profile.xml  repland-memory-v1.xml"
+}

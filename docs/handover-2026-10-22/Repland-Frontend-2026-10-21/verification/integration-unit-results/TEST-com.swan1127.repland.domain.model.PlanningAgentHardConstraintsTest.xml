@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.273Z" hostname="LAPTOP-H29HUS9K" time="0.01">
+  <properties/>
+  <testcase name="a rest or other block is a hard constraint" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.005"/>
+  <testcase name="a required task's segment is preserved even when its task is affected" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.001"/>
+  <testcase name="an override before today or beyond the window is not a hard constraint" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="no hard constraint falls outside the thirty day window" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="a locked segment is preserved even when its task is affected" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="the window is anchored to the wall clock day, not to the plan input" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="a course block becomes a hard constraint on each matching weekday in the window" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="a required task missing from the plan input does not protect its segment" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.001"/>
+  <testcase name="a blocked override is a hard constraint and an available one is not" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="a segment for an affected task is not preserved" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="a week pattern outside the semester is not expanded" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="a segment for a task outside the replan scope is preserved" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.001"/>
+  <testcase name="an available block is not a hard constraint" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="an identical block and override collapse into one constraint" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.0"/>
+  <testcase name="the constraint list is capped at two hundred forty" classname="com.swan1127.repland.domain.model.PlanningAgentHardConstraintsTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

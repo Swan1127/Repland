@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.PlanDraftEditorTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.260Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="moveTask marks the draft as manually ordered" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.001"/>
+  <testcase name="moveSegment rejects a segment that is not part of the draft" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="splitSegment refuses a segment shorter than one hour" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.001"/>
+  <testcase name="moveSegment rejects an unaligned range" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="mergeWithAdjacentSegment joins two touching segments of the same task" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.001"/>
+  <testcase name="mergeWithAdjacentSegment refuses to join across rhythm lanes" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="overlapsAnotherSegment only compares within the same day and lane" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="moveTask clamps at the edges instead of wrapping" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.001"/>
+  <testcase name="isValidSegment enforces 30-minute alignment" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="setSegmentLocked only touches the requested segment" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="moveTask ignores an id that is not in the order" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="mergeWithAdjacentSegment leaves a gap alone" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.0"/>
+  <testcase name="splitSegment cuts at the midpoint and keeps the total span" classname="com.swan1127.repland.domain.model.PlanDraftEditorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

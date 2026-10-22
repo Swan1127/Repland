@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ChatDayPlannerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.711Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="a day without room says so instead of overlapping work" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.004"/>
+  <testcase name="a higher priority claims the earlier slot" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.001"/>
+  <testcase name="two items pinned to the same time land on different lanes" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.0"/>
+  <testcase name="an item with no duration is reported instead of guessed" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.0"/>
+  <testcase name="items without a stated time are packed back to back" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.0"/>
+  <testcase name="a class blocks its window" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.0"/>
+  <testcase name="an existing task only blocks its own lane" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.0"/>
+  <testcase name="a time the user stated survives a class rather than being moved or dropped" classname="com.swan1127.repland.domain.model.ChatDayPlannerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

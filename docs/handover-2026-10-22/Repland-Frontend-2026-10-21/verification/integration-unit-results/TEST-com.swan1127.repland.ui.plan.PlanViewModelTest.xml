@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.plan.PlanViewModelTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.310Z" hostname="LAPTOP-H29HUS9K" time="0.057">
+  <properties/>
+  <testcase name="setSegmentLocked forwards both arguments" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.003"/>
+  <testcase name="collecting reports the current plan and the history" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.002"/>
+  <testcase name="placeTask forwards all five arguments" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.003"/>
+  <testcase name="before collection nothing is loaded and there is no draft" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.001"/>
+  <testcase name="acceptDraft forwards the draft, clears it and invokes the callback" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.003"/>
+  <testcase name="removePlacement forwards the segment id" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.002"/>
+  <testcase name="a failed accept leaves the draft in place and never invokes the callback" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.005"/>
+  <testcase name="a throwing observation stream escapes the scope" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.004"/>
+  <testcase name="discardDraft clears the draft" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.004"/>
+  <testcase name="restore forwards the plan id" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.004"/>
+  <testcase name="movePlacement forwards all four arguments" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.004"/>
+  <testcase name="an agent draft fills an empty draft slot" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.002"/>
+  <testcase name="acceptDraft with no draft never calls the repository" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.001"/>
+  <testcase name="generateDraft hands every argument to the generator unchanged" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.002"/>
+  <testcase name="updateDraft replaces an existing draft" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.003"/>
+  <testcase name="clearCurrentPlan is forwarded once" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.001"/>
+  <testcase name="generateDraft stores whatever the generator returned" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.005"/>
+  <testcase name="an agent draft never overwrites a draft the user is already editing" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.004"/>
+  <testcase name="updateDraft cannot create a draft from nothing" classname="com.swan1127.repland.ui.plan.PlanViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

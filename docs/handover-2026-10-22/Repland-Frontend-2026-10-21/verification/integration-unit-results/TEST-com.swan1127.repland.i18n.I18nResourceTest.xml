@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.i18n.I18nResourceTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.900Z" hostname="LAPTOP-H29HUS9K" time="0.042">
+  <properties/>
+  <testcase name="both resource files parse to a non-empty key set" classname="com.swan1127.repland.i18n.I18nResourceTest" time="0.011"/>
+  <testcase name="no english translation is blank" classname="com.swan1127.repland.i18n.I18nResourceTest" time="0.008"/>
+  <testcase name="every translation carries the same format arguments as the default" classname="com.swan1127.repland.i18n.I18nResourceTest" time="0.009"/>
+  <testcase name="the english file contains no CJK anywhere" classname="com.swan1127.repland.i18n.I18nResourceTest" time="0.006"/>
+  <testcase name="the english file declares exactly the keys of the default file" classname="com.swan1127.repland.i18n.I18nResourceTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+{
+  "Suites": 99,
+  "Tests": 1654,
+  "Failures": 0,
+  "Errors": 0,
+  "Skipped": 0,
+  "LintErrors": 1,
+  "LintWarnings": 106,
+  "ApkSHA256": "E118D22F99A6968625B97DBADE8675E53F557C8513392FBFEBF1A2DA8886EC24"
+}

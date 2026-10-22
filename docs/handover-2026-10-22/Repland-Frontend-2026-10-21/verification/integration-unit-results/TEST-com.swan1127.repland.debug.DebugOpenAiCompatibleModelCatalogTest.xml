@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.617Z" hostname="LAPTOP-H29HUS9K" time="0.014">
+  <properties/>
+  <testcase name="http statuses become the reasons the user needs" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.003"/>
+  <testcase name="a non-json body is an invalid response rather than a crash" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.001"/>
+  <testcase name="a connection failure is a transport failure" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.001"/>
+  <testcase name="the list is read from models under the configured base url" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.003"/>
+  <testcase name="a trailing slash on the base url does not double up" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.001"/>
+  <testcase name="an empty list is a failure, not a provider with no models" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.0"/>
+  <testcase name="a blank key is treated as unconfigured" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.001"/>
+  <testcase name="a timeout is reported as a timeout, not as unreachable" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.001"/>
+  <testcase name="no stored secret is unconfigured and no request is made" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.001"/>
+  <testcase name="the one-argument constructor the application reflects on exists" classname="com.swan1127.repland.debug.DebugOpenAiCompatibleModelCatalogTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

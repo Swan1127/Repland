@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.320Z" hostname="LAPTOP-H29HUS9K" time="0.0">
+  <properties/>
+  <testcase name="the validator accepts a midnight slot when availability covers it" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="a weekly block is ignored when its week pattern excludes the date" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="no proposal is supported without declared availability" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="a slot outside the declared weekday is rejected" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="an AVAILABLE override on one day does not leak into the next day" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="a BLOCKED date override beats weekly availability" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="a proposal overlapping a course block is rejected" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="an AVAILABLE date override makes a slot usable without a weekly window" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <testcase name="a non-quantum-aligned range is rejected" classname="com.swan1127.repland.domain.model.PlanningConstraintValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

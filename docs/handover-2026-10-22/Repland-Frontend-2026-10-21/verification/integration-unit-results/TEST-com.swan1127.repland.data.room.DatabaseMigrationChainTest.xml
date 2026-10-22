@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.DatabaseMigrationChainTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.242Z" hostname="LAPTOP-H29HUS9K" time="0.014">
+  <properties/>
+  <testcase name="the registration list is in ascending order" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.003"/>
+  <testcase name="the declared migrations form one contiguous chain from one" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.002"/>
+  <testcase name="each migration name agrees with its own version pair" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.001"/>
+  <testcase name="no migration is registered twice" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.001"/>
+  <testcase name="every declared migration is registered in the application" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.0"/>
+  <testcase name="the source files this test reads are where it expects them" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.001"/>
+  <testcase name="the database is not built with a destructive migration fallback" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.002"/>
+  <testcase name="no start version is declared twice" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.0"/>
+  <testcase name="nothing is registered that is not declared" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.001"/>
+  <testcase name="there is one migration per version step" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.001"/>
+  <testcase name="every migration advances by exactly one version" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.001"/>
+  <testcase name="the declared database version is the end of the chain" classname="com.swan1127.repland.data.room.DatabaseMigrationChainTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

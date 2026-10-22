@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.946Z" hostname="LAPTOP-H29HUS9K" time="0.116">
+  <properties/>
+  <testcase name="retry cannot silently move a placement the user has locked" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.058"/>
+  <testcase name="partial save followed by retry creates no duplicate tasks" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.004"/>
+  <testcase name="blank display name is rejected before persistence verification" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.003"/>
+  <testcase name="a repository returning without a task is never success" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.004"/>
+  <testcase name="invalid or unowned placements are rejected before writing" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.002"/>
+  <testcase name="an arrangement ending at midnight retains 24 hour end notation" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.005"/>
+  <testcase name="a repository returning without a placement is never success" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.004"/>
+  <testcase name="repeated concurrent confirmation does not append duplicate placements" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.006"/>
+  <testcase name="cancellation is propagated rather than recorded as a failed save" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.003"/>
+  <testcase name="ambiguous existing placement failure retains every actual instance without unrelated tasks" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.004"/>
+  <testcase name="success reports persisted tasks and confirmed placements" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.003"/>
+  <testcase name="collecting an unscheduled task never fabricates an arrangement snapshot" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.003"/>
+  <testcase name="placement failure reports actual pending tasks and can retry safely" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.004"/>
+  <testcase name="historical receipt retains the confirmed times and task title after later edits" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.003"/>
+  <testcase name="save failure preserves evidence without claiming success" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.002"/>
+  <testcase name="final result rechecks earlier placements rather than trusting earlier calls" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.004"/>
+  <testcase name="editing a partially placed proposal moves its existing segment on retry" classname="com.swan1127.repland.ui.agent.AgentSubmissionCoordinatorTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

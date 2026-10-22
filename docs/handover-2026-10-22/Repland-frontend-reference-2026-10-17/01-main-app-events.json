@@ -1,0 +1,54 @@
+[
+  {
+    "seconds": 1.37,
+    "action": "主应用首页与新增入口"
+  },
+  {
+    "seconds": 2.77,
+    "action": "切换任务页"
+  },
+  {
+    "seconds": 6.38,
+    "action": "打开现有任务详情"
+  },
+  {
+    "seconds": 9.94,
+    "action": "返回任务列表"
+  },
+  {
+    "seconds": 11.03,
+    "action": "打开原生任务录入抽屉"
+  },
+  {
+    "seconds": 14.64,
+    "action": "关闭抽屉并保留原草稿"
+  },
+  {
+    "seconds": 18.31,
+    "action": "切换我的页面"
+  },
+  {
+    "seconds": 21.91,
+    "action": "打开用户名编辑弹窗"
+  },
+  {
+    "seconds": 25.47,
+    "action": "取消编辑，保持原用户名"
+  },
+  {
+    "seconds": 29.14,
+    "action": "打开系统头像照片选择器"
+  },
+  {
+    "seconds": 32.63,
+    "action": "取消选择，保持原头像"
+  },
+  {
+    "seconds": 33.67,
+    "action": "切换助手页面"
+  },
+  {
+    "seconds": 37.24,
+    "action": "返回日程首页"
+  }
+]

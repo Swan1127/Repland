@@ -9,7 +9,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,9 +30,13 @@ import androidx.compose.ui.unit.dp
 object ReplandMotion {
     const val Press = 90
     const val Release = 140
-    const val Page = 240
+    const val Page = 280
+    const val Detail = 340
+    const val Panel = 280
+    const val PanelClose = 200
     const val Expand = 260
     const val Collapse = 180
+    const val Feedback = 200
 }
 
 val LocalReducedMotion = staticCompositionLocalOf { false }
@@ -62,6 +65,7 @@ fun MotionPage(
     modifier: Modifier = Modifier,
     lateral: Boolean = false,
     order: Int = 0,
+    durationMillis: Int = ReplandMotion.Page,
     content: @Composable () -> Unit,
 ) {
     val reduce = LocalReducedMotion.current
@@ -73,13 +77,13 @@ fun MotionPage(
         direction = if (order < previousOrder) -1f else 1f
         previousOrder = order
         if (reduce) progress.snapTo(1f) else {
-            progress.snapTo(0f)
-            progress.animateTo(1f, tween(ReplandMotion.Page, easing = FastOutSlowInEasing))
+            if (progress.value >= 1f) progress.snapTo(0f)
+            progress.animateTo(1f, tween(durationMillis, easing = FastOutSlowInEasing))
         }
     }
     Box(modifier.graphicsLayer {
         val fraction = if (reduce) 1f else progress.value
-        alpha = 0.72f + fraction * 0.28f
+        alpha = 0.94f + fraction * 0.06f
         translationX = if (lateral) distance * direction * (1f - fraction) else 0f
         translationY = if (lateral) 0f else distance * (1f - fraction)
     }) { content() }
@@ -101,13 +105,15 @@ fun MotionDisclosure(visible: Boolean, content: @Composable ColumnScope.() -> Un
 
 /** Visual compression does not change the 48dp layout or the native ripple/semantics. */
 @Composable
-fun pressMotion(source: MutableInteractionSource, enabled: Boolean, pressedScale: Float = .965f): Modifier {
+fun pressMotion(source: MutableInteractionSource, enabled: Boolean, pressedScale: Float = .98f): Modifier {
     val reduce = LocalReducedMotion.current
     val pressed by source.collectIsPressedAsState()
     val scale = animateFloatAsState(
         targetValue = if (pressed && enabled && !reduce) pressedScale else 1f,
-        animationSpec = if (reduce || pressed) tween(if (reduce) 0 else ReplandMotion.Press, easing = FastOutSlowInEasing)
-            else spring(dampingRatio = .78f, stiffness = 550f),
+        animationSpec = tween(
+            if (reduce) 0 else if (pressed) ReplandMotion.Press else ReplandMotion.Release,
+            easing = FastOutSlowInEasing,
+        ),
         label = "press feedback",
     )
     return Modifier.graphicsLayer {

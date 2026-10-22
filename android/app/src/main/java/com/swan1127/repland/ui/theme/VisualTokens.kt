@@ -1,13 +1,14 @@
 package com.swan1127.repland.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Shapes
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.runtime.Composable
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
+import com.swan1127.repland.domain.model.TaskCategory
 
 data class ReplandVisuals(
     val focusSurface: Color,
@@ -15,30 +16,61 @@ data class ReplandVisuals(
     val focusMuted: Color,
     val focusAction: Color,
     val onFocusAction: Color,
+    val mainAction: Color,
+    val onMainAction: Color,
+    val profileSurface: Color,
+    val profileText: Color,
 )
 
-val LightVisuals = ReplandVisuals(Color(0xFFEAF2FF), Color(0xFF293C58), Color(0xFF526279), Color(0xFF326B75), Color.White)
-val DarkVisuals = ReplandVisuals(Color(0xFF283446), Color(0xFFE7EDFA), Color(0xFFBDC9DD), Color(0xFFA8D9DE), Color(0xFF173B44))
+val LightVisuals = ReplandVisuals(
+    focusSurface = Color(0xFFEAF2FF),
+    focusText = Color(0xFF263D43),
+    focusMuted = Color(0xFF526279),
+    focusAction = Color(0xFF326B75),
+    onFocusAction = Color.White,
+    mainAction = Color(0xFFDAF2E4),
+    onMainAction = Color(0xFF39634D),
+    profileSurface = Color(0xFFE8F3F5),
+    profileText = Color(0xFF326B75),
+)
+val DarkVisuals = ReplandVisuals(
+    focusSurface = Color(0xFF263C46),
+    focusText = Color(0xFFE7EFEB),
+    focusMuted = Color(0xFFBDC9DD),
+    focusAction = Color(0xFFA8D9DE),
+    onFocusAction = Color(0xFF173B44),
+    mainAction = Color(0xFF304E40),
+    onMainAction = Color(0xFFCEEDDA),
+    profileSurface = Color(0xFF263F43),
+    profileText = Color(0xFFA8D9DE),
+)
 val LocalReplandVisuals = staticCompositionLocalOf { LightVisuals }
 
 data class ReplandAccent(val surface: Color, val ink: Color)
 
+fun taskAccentIndex(category: TaskCategory): Int = when (category) {
+    TaskCategory.UNSPECIFIED -> 4
+    TaskCategory.COURSE -> 0
+    TaskCategory.EXTRACURRICULAR -> 1
+    TaskCategory.OFFICE -> 2
+    TaskCategory.LEISURE -> 3
+}
+
 private val LightAccents = listOf(
     ReplandAccent(Color(0xFFEAF2FF), Color(0xFF3F6094)),
     ReplandAccent(Color(0xFFEAF7EF), Color(0xFF39634D)),
-    ReplandAccent(Color(0xFFF2EDFF), Color(0xFF68558F)),
+    ReplandAccent(Color(0xFFE8F3F5), Color(0xFF326B75)),
     ReplandAccent(Color(0xFFFFF5DC), Color(0xFF786020)),
-    ReplandAccent(Color(0xFFFFEFF3), Color(0xFF92465F)),
+    ReplandAccent(Color(0xFFEDF0EA), Color(0xFF4B645E)),
 )
 private val DarkAccents = listOf(
     ReplandAccent(Color(0xFF29374B), Color(0xFFBBD2F5)),
     ReplandAccent(Color(0xFF293E35), Color(0xFFB5DCC5)),
-    ReplandAccent(Color(0xFF383149), Color(0xFFD4C4F0)),
+    ReplandAccent(Color(0xFF263F43), Color(0xFFA8D9DE)),
     ReplandAccent(Color(0xFF413B2C), Color(0xFFE8D59E)),
-    ReplandAccent(Color(0xFF45313B), Color(0xFFF0BDD0)),
+    ReplandAccent(Color(0xFF2C3F3B), Color(0xFFC4D9CF)),
 )
 
-/** The same task keeps its colour across screens; colour never encodes priority by itself. */
 @Composable
 fun replandAccent(index: Int): ReplandAccent {
     val accents = if (MaterialTheme.colorScheme.background.luminance() < .2f) DarkAccents else LightAccents
@@ -47,8 +79,8 @@ fun replandAccent(index: Int): ReplandAccent {
 
 val ReplandShapes = Shapes(
     extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(10.dp),
-    medium = RoundedCornerShape(14.dp),
-    large = RoundedCornerShape(20.dp),
-    extraLarge = RoundedCornerShape(24.dp),
+    small = RoundedCornerShape(12.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(22.dp),
+    extraLarge = RoundedCornerShape(28.dp),
 )

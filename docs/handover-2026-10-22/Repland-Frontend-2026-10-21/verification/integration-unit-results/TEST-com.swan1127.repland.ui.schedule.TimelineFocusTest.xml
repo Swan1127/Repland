@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.schedule.TimelineFocusTest" tests="22" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.564Z" hostname="LAPTOP-H29HUS9K" time="0.003">
+  <properties/>
+  <testcase name="a block still ahead is named as next" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="the named block does not count itself as parallel" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a block starting exactly now is running" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="an empty day shows the empty card" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.001"/>
+  <testcase name="a finished task is not named even while its window is open" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a day of finished lectures is over, not missed" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="two blocks in progress pick the one the timeline would sort first" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a late block never carries a parallel count" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a block in progress is named as now" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a missed block is not named while another block is running" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="an unfinished work block left behind is named as late" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="the card does not depend on the order the entries arrive in" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a block ending exactly now is no longer the one named" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a full day that is over reads as done rather than as an empty day" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.001"/>
+  <testcase name="the longest-missed work block is the one named" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a block in the same slot that has already ended is not counted" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a block sharing the slot is counted" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a block in a different slot is not counted" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a missed block is not named while another block is still ahead" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a day whose only task is finished is over, not an empty day" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="the card names the widget's first row, not its second" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.0"/>
+  <testcase name="a named card refuses a negative parallel count" classname="com.swan1127.repland.ui.schedule.TimelineFocusTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -125,6 +125,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.swan1127.repland.R
+import com.swan1127.repland.data.AuxiliaryStore
+import com.swan1127.repland.ui.components.LandscapeArtwork
+import com.swan1127.repland.ui.components.LandscapeStyle
+import com.swan1127.repland.ui.components.LearningMemorySettings
+import com.swan1127.repland.ui.plan.PlanningTeamLogPanel
+import com.swan1127.repland.ui.plan.PlanningTeamStatusDialog
+import com.swan1127.repland.ui.tools.ReviewPointsTool
 import com.swan1127.repland.domain.model.ClassPeriodClock
 import com.swan1127.repland.domain.model.AiAdvisorFailureReason
 import com.swan1127.repland.domain.model.AiProviderConfig
@@ -369,6 +376,12 @@ fun ReplandApp(
         }
     }
     val context = LocalContext.current
+    val auxiliaryStore = remember(context) { AuxiliaryStore(context.applicationContext) }
+    var memoryRevision by remember { mutableStateOf(0) }
+    var showLearningReview by rememberSaveable { mutableStateOf(false) }
+    val learningMemory = remember(auxiliaryStore, memoryRevision, activeDate) {
+        auxiliaryStore.learningMemorySnapshot()
+    }
     val notificationPermissionGranted = context.canPostLocalNotifications()
     val reminderScheduler = remember(context) { LocalReminderScheduler(context.applicationContext) }
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -379,7 +392,13 @@ fun ReplandApp(
     val localDataExportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json"),
     ) { destination ->
-        destination?.let { uri -> dataManagementViewModel.exportTo(context.contentResolver, uri) }
+        destination?.let { uri ->
+            dataManagementViewModel.exportTo(
+                context.contentResolver,
+                uri,
+                memorySnapshot = auxiliaryStore.learningMemorySnapshot(),
+            )
+        }
     }
     var showVoiceComposer by rememberSaveable { mutableStateOf(false) }
     var voiceTranscript by rememberSaveable { mutableStateOf("") }
@@ -996,6 +1015,13 @@ fun ReplandApp(
                     AppTab.MINE -> MineScreen(
                         showSettings = showMineSettings,
                         onOpenSettings = { showMineSettings = true },
+                        memoryReferenceEnabled = learningMemory.referenceEnabled,
+                        memoryPointCount = learningMemory.points.size,
+                        onMemoryReferenceChange = {
+                            auxiliaryStore.memoryReferenceEnabled = it
+                            memoryRevision += 1
+                        },
+                        onOpenLearningReview = { showLearningReview = true },
                         personalProfileContent = { personalProfileViewModel?.let { com.swan1127.repland.ui.profile.PersonalProfileSection(it) } },
                         onOpenTimeSettings = { timeReturnTab = AppTab.MINE; selectedTab = AppTab.TIME },
                         onOpenPlanHistory = { showPlanOverview = true },
@@ -1037,6 +1063,40 @@ fun ReplandApp(
                 }
                 }
                 }
+            }
+        }
+    }
+
+    if (showLearningReview) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showLearningReview = false },
+            properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                val reviewPoints = remember(auxiliaryStore, memoryRevision, activeDate) {
+                    auxiliaryStore.reviewPoints().filterNot { it.isGraduated }
+                }
+                val due = reviewPoints.filter { it.isDueOn(activeDate) }
+                val upcoming = reviewPoints.filterNot { it.isDueOn(activeDate) }.sortedBy { it.dueOn }
+                ReviewPointsTool(
+                    due = due,
+                    upcomingCount = upcoming.size,
+                    upcomingReviewPoints = upcoming,
+                    today = activeDate,
+                    tasks = if (uiState.isTrusted) uiState.tasks else emptyList(),
+                    onClose = { showLearningReview = false },
+                    onGrade = { pointId, grade ->
+                        auxiliaryStore.gradeReviewPoint(pointId, grade, activeDate)
+                        memoryRevision += 1
+                    },
+                    onAddPoint = { selected, content ->
+                        val task = uiState.tasks.firstOrNull { it.id == selected.id }
+                        if (task == null || !uiState.isTrusted || dataManagementUiState.isWorking) false
+                        else auxiliaryStore.addReviewPointFromText(
+                            task.id, task.displayName, content, activeDate, task.userPriority,
+                        ).also { saved -> if (saved) memoryRevision += 1 }
+                    },
+                )
             }
         }
     }
@@ -1474,7 +1534,16 @@ fun ReplandApp(
             onSave = { value -> planViewModel.saveAvailabilityAndGenerate(value, categoryPreferenceUiState.weights) { showQuickAvailability = false } },
         )
     }
-    planUiState.draft?.takeIf { it.generatedAt.toString() != pausedPlanDraftIdentity && !showQuickAvailability && !(showExecutionSession && executionSession != null) }?.let { draft ->
+    if (planUiState.isGenerating) {
+        PlanningTeamStatusDialog(
+            isGenerating = true,
+            events = planUiState.teamEvents,
+            error = null,
+            onCancel = planViewModel::cancelGeneration,
+            onRetry = { generatePlanDraft() },
+        )
+    }
+    planUiState.draft?.takeIf { !planUiState.isGenerating && it.generatedAt.toString() != pausedPlanDraftIdentity && !showQuickAvailability && !(showExecutionSession && executionSession != null) }?.let { draft ->
         PlanDraftDialog(
             draft = draft,
             currentPlan = planUiState.currentPlan,
@@ -1484,6 +1553,7 @@ fun ReplandApp(
             canEdit = planningReadsReady,
             retainOnDismiss = !planUiState.isTrusted || !workspaceUiState.isTrusted,
             readNotice = { readMessage?.let { DataReadNotice(it, retryReads, canRetryReads) } },
+            planningTeamContent = { PlanningTeamLogPanel(planUiState.teamEvents, planUiState.teamResult) },
             tracks = workspaceUiState.tracks,
             onCompleteTaskDetails = { task -> planViewModel.discardDraft(); taskViewModel.resetEditorResult(); taskEditorTargetId = task.id; showTaskEditor = true },
             onConfigureAvailability = { planViewModel.dismissError(); showQuickAvailability = true },
@@ -1598,7 +1668,13 @@ fun ReplandApp(
                         )
                         dataManagementViewModel.clearAllLocalData(
                             beforeClear = taskCaptureViewModel::prepareForDataClear,
-                            afterClear = taskCaptureViewModel::finishDataClear,
+                            afterClear = { succeeded ->
+                                taskCaptureViewModel.finishDataClear(succeeded)
+                                if (succeeded) {
+                                    memoryRevision += 1
+                                    showLearningReview = false
+                                }
+                            },
                         )
                         showClearLocalDataConfirmation = false
                     },
@@ -1786,6 +1862,31 @@ private fun TodayScreen(
             }
         }
         if (scheduleRange == ScheduleRange.DAY || scheduleRange == ScheduleRange.OVERVIEW) {
+            item(key = "today-landscape") {
+                val visuals = LocalReplandVisuals.current
+                val showArtwork = LocalDensity.current.fontScale < 1.5f
+                Surface(
+                    color = visuals.mainAction,
+                    contentColor = visuals.onMainAction,
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Row(
+                        Modifier.padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(R.string.today_hero_title), style = MaterialTheme.typography.titleLarge)
+                            Text(stringResource(R.string.today_hero_description), style = MaterialTheme.typography.bodyMedium)
+                        }
+                        if (showArtwork) LandscapeArtwork(
+                            style = LandscapeStyle.Dawn,
+                            modifier = Modifier.size(width = 88.dp, height = 76.dp),
+                        )
+                    }
+                }
+            }
             TodayFocus.next(timelineEntries, focusNow)?.let { entry ->
                 item(key = "today-focus-shortcut") {
                     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -3649,6 +3750,7 @@ internal fun PlanDraftDialog(
     segmentSaveReceipt: String? = null,
     segmentSaveError: String? = null,
     onClearSegmentSaveFeedback: () -> Unit = {},
+    planningTeamContent: @Composable () -> Unit = {},
 ) {
     val tasksById = tasks.associateBy(Task::id)
     val unknownTaskLabel = stringResource(R.string.unknown_task)
@@ -3685,6 +3787,7 @@ internal fun PlanDraftDialog(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 readNotice?.invoke()
+                planningTeamContent()
                 Text(
                     if (draft.orderOnly) "只调整任务列表顺序，不改变日程时段。" else stringResource(R.string.plan_draft_notice),
                     style = MaterialTheme.typography.bodyMedium,
@@ -4469,6 +4572,10 @@ private fun MineScreen(
     onAutomaticPlanningChange: (Boolean) -> Unit = {},
     showSettings: Boolean = false,
     onOpenSettings: () -> Unit = {},
+    memoryReferenceEnabled: Boolean = false,
+    memoryPointCount: Int = 0,
+    onMemoryReferenceChange: (Boolean) -> Unit = {},
+    onOpenLearningReview: () -> Unit = {},
 ) {
     if (isLoading && showSettings) return
     val profileScroll = rememberScrollState()
@@ -4505,6 +4612,10 @@ private fun MineScreen(
             personalProfileContent()
             Text("用户画像", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
             summaryContent()
+            OutlinedButton(
+                onClick = onOpenLearningReview,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("profile-learning-review"),
+            ) { Text(stringResource(R.string.learning_review_open)) }
             OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("mine-settings")) {
                 Icon(Icons.Outlined.Settings, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
@@ -4574,6 +4685,15 @@ private fun MineScreen(
                 }
             }
             Text("智能与个性化", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            LearningMemorySettings(
+                enabled = memoryReferenceEnabled,
+                onEnabledChange = onMemoryReferenceChange,
+                pointCount = memoryPointCount,
+            )
+            OutlinedButton(
+                onClick = onOpenLearningReview,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("open-learning-review"),
+            ) { Text(stringResource(R.string.learning_review_open)) }
             AiSettingsSection(
                 aiEnabled = aiEnabled,
                 aiConsented = aiConsented,

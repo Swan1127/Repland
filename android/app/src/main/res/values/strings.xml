@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="ai_failure_source_changed">任务、时间或偏好已变化，请重新生成。</string>
     <string name="ai_failure_context_unavailable">暂时无法读取规划数据，请重试。</string>
     <string name="app_name">Repland</string>
@@ -321,4 +321,46 @@
     <string name="category_extracurricular">课外学习</string>
     <string name="category_office">事务</string>
     <string name="category_leisure">休闲</string>
+    <string name="review_points">复习点</string>
+    <string name="review_point_prompt">还想得起来吗？</string>
+    <string name="review_point_remembered">想起来了</string>
+    <string name="review_point_forgotten">忘了</string>
+    <string name="review_point_none">暂无复习点</string>
+    <string name="memory_review_short_description">自适应间隔复习，支持忘记 / 模糊 / 记得</string>
+    <string name="planning_team_title">本地规划团队</string>
+    <string name="planning_team_description">六个本地角色处理需求、可用时间、习惯、执行反馈、冲突与方案。本次草稿确认前不替换当前计划。</string>
+    <string name="planning_team_generating">正在根据真实事项与时间约束生成草稿…</string>
+    <string name="planning_team_retry">重新生成</string>
+    <string name="planning_team_log">规划团队工作记录</string>
+    <string name="planning_team_counts">%1$d 个角色 · %2$d 条工具记录</string>
+    <string name="planning_team_checked">验收通过，仍需你确认应用</string>
+    <string name="planning_team_check_failed">存在未通过的验收，请查看记录</string>
+    <string name="planning_team_log_expand">展开工作记录</string>
+    <string name="planning_team_log_collapse">收起工作记录</string>
+    <string name="planning_team_saving">正在保存计划…</string>
+    <string name="memory_review_intro">根据你主动给出的回忆反馈调整下次复习日期。记忆曲线只提供模型估计，不是测得的记忆能力或考试成绩。</string>
+    <string name="memory_review_due_heading">到期复习 · %1$d</string>
+    <string name="memory_review_upcoming_heading">后续复习 · %1$d</string>
+    <string name="memory_review_early_hint">尚未到期，也可以主动回忆后反馈。</string>
+    <string name="memory_review_due_date">下次复习：%1$s</string>
+    <string name="memory_review_importance">重要程度：%1$d / 5</string>
+    <string name="memory_review_estimate">模型估计可提取率 %1$d%% · 稳定度 %2$.1f 天</string>
+    <string name="memory_review_fuzzy">有点模糊</string>
+    <string name="memory_review_recorded">已记录本次回忆反馈</string>
+    <string name="memory_review_grade_again">再次练习</string>
+    <string name="memory_review_legacy">保留旧版复习日期；首次反馈后使用自适应模型。</string>
+    <string name="memory_settings_title">记忆参考</string>
+    <string name="memory_settings_description">允许本地规划团队参考复习估计，调整事项的时段偏好。不上传复习内容，不改变你的时长、优先级或任务状态。</string>
+    <string name="memory_settings_count">本地复习点：%1$d 条</string>
+    <string name="memory_settings_method">采用 FSRS-inspired 自定义复习模型，并非官方完整 FSRS；未拟合个人记忆参数。关闭参考不会删除复习记录。</string>
+    <string name="memory_capture_title">记录复习点</string>
+    <string name="memory_capture_content">想要记住的内容</string>
+    <string name="memory_capture_choose_task">关联事项</string>
+    <string name="memory_capture_save">保存复习点</string>
+    <string name="memory_capture_saved">已保存复习点</string>
+    <string name="memory_capture_duplicate_or_failed">该内容已经存在，或暂时无法保存。输入仍保留，请检查后重试。</string>
+    <string name="memory_capture_no_tasks">先添加一个事项，再关联并记录复习点。</string>
+    <string name="learning_review_open">学习与复习</string>
+    <string name="today_hero_title">把今天，留给重要的事</string>
+    <string name="today_hero_description">先确认安排，再按自己的节奏开始。</string>
 </resources>

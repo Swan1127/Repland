@@ -1,0 +1,135 @@
+Picked up JAVA_TOOL_OPTIONS: -Duser.home=C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Environment/java-home
+
+> Configure project :app
+WARNING: The option setting 'android.disallowKotlinSourceSets=false' is experimental.
+The current default is 'true'.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:parseDebugLocalResources
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:generateDebugRFile UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+> Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:extractProguardFiles
+> Task :app:mergeDebugResources
+> Task :app:generateDebugLintReportModel
+> Task :app:processDebugResources
+> Task :app:dexBuilderDebug UP-TO-DATE
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergeProjectDexDebug UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:kspDebugUnitTestKotlin
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebug
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:compileDebugUnitTestKotlin
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:33:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:35:87 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:37:30 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:38:34 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:38:65 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:49:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:51:66 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:53:30 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:54:31 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:54:62 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:62:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:65:49 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:65:65 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:66:46 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:67:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:67:43 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:67:52 Unresolved reference 'isComplete'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:69:50 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:69:66 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:72:33 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:73:33 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:80:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:82:64 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:82:94 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:83:32 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:84:32 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:86:65 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:86:95 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:89:33 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:90:33 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:96:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:98:64 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:100:30 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:101:36 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:101:67 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:102:32 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:108:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:110:64 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:112:30 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:113:31 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:113:62 Unresolved reference 'receipt'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:120:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:121:21 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:121:71 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:122:22 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:122:72 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:124:37 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:125:38 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:133:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:137:55 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:148:27 Unresolved reference 'AgentSubmissionCoordinator'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:150:64 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:152:30 Unresolved reference 'AgentSubmissionResult'.
+e: file:///C:/Users/x16/Documents/Codex/2026-10-07/swan1127-github-repland-https-github-com/outputs/Repland-Frontend-2026-10-21/repland-upstream-design/app/src/test/java/com/swan1127/repland/ui/agent/AgentSubmissionCoordinatorTest.kt:167:45 Unresolved reference 'AgentTaskPlacement'.
+
+> Task :app:compileDebugUnitTestKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugUnitTestKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 32s
+49 actionable tasks: 17 executed, 32 up-to-date

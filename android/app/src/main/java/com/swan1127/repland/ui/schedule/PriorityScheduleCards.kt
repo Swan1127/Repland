@@ -17,7 +17,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
@@ -37,37 +36,36 @@ import com.swan1127.repland.ui.theme.LocalReducedMotion
 import com.swan1127.repland.ui.theme.MotionDisclosure
 import com.swan1127.repland.ui.theme.ReplandMotion
 import com.swan1127.repland.ui.theme.replandAccent
+import com.swan1127.repland.ui.theme.LocalReplandVisuals
 import java.time.LocalDateTime
 import java.util.Locale
 
-private fun paletteIndex(entry: TimelineEntry) = (entry.taskId ?: entry.id).hashCode()
+private fun paletteIndex(entry: TimelineEntry): Int = when (entry.kind) {
+    TimelineKind.COURSE -> 0
+    TimelineKind.TASK -> 1
+    TimelineKind.COMMITMENT -> 2
+    TimelineKind.REST -> 3
+}
 fun scheduleMinuteLabel(minute: Int): String = String.format(Locale.ROOT, "%02d:%02d", minute / 60, minute % 60)
 
 @Composable
 fun ScheduleCreateCard(onAdd: () -> Unit, modifier: Modifier = Modifier) {
-    val surface = MaterialTheme.colorScheme.surfaceContainerLow
-    val dark = MaterialTheme.colorScheme.background.red < .2f
-    val wash = if (dark) listOf(surface, MaterialTheme.colorScheme.secondaryContainer, surface)
-        else listOf(Color(0xFFF0EDFF), Color(0xFFEFF8F5), Color(0xFFFFFAEF), Color.White)
-    Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(24.dp), color = surface) {
-        Column(Modifier.background(Brush.linearGradient(wash)).padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
-            Box(Modifier.fillMaxWidth().height(124.dp), contentAlignment = Alignment.Center) {
-                Box(Modifier.size(124.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = .025f), CircleShape))
-                Box(Modifier.size(102.dp).background(MaterialTheme.colorScheme.primary.copy(alpha = .04f), CircleShape))
-                DesignClickableSurface(onClick = onAdd, modifier = Modifier.size(76.dp).testTag("schedule-create-plus"),
-                    shape = CircleShape, color = surface, shadowElevation = 2.dp, pressedScale = .93f) {
+    val visuals = LocalReplandVisuals.current
+    Surface(modifier.fillMaxWidth(), shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surfaceContainerLow) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                DesignClickableSurface(onClick = onAdd, modifier = Modifier.size(56.dp).testTag("schedule-create-plus"),
+                    shape = CircleShape, color = visuals.mainAction, pressedScale = .98f) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(DesignIcons.Plus, "新增日程", Modifier.size(36.dp), tint = MaterialTheme.colorScheme.primary)
+                        Icon(DesignIcons.Plus, "新增日程", Modifier.size(26.dp), tint = visuals.onMainAction)
                     }
                 }
-            }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text("新增「日程」", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                     Text("先记下事项，再安排时间", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                DesignButton(onClick = onAdd, modifier = Modifier.testTag("schedule-create-task")) { Text("新增") }
             }
+            DesignButton(onClick = onAdd, modifier = Modifier.align(Alignment.End).testTag("schedule-create-task")) { Text("新增") }
         }
     }
 }
@@ -90,7 +88,7 @@ fun PriorityScheduleCards(
     val active = entries.filterNot { it.id in archivedIds }
     val reduced = LocalReducedMotion.current
     Column(Modifier.fillMaxWidth().animateContentSize(tween(if (reduced) 0 else ReplandMotion.Expand)),
-        verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (active.isNotEmpty()) {
             if (detailed) {
                 val groups = PriorityScheduleProjection.ordered(active, priorities).groupBy { PriorityScheduleProjection.rank(it, priorities) }
@@ -157,11 +155,13 @@ private fun ScheduleGroup(title: String, count: Int, collapsible: Boolean, conte
 
 @Composable
 private fun ScheduleTimeRail(start: Int, end: Int, color: Color) {
-    val width = if (LocalDensity.current.fontScale > 1.4f) 86.dp else 60.dp
+    val width = (54f * LocalDensity.current.fontScale).coerceIn(54f, 110f).dp
     Row(Modifier.width(width), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(scheduleMinuteLabel(start), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(scheduleMinuteLabel(end), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(scheduleMinuteLabel(start), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
+            Text(scheduleMinuteLabel(end), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, softWrap = false)
         }
         Box(Modifier.width(3.dp).height(56.dp).background(color, RoundedCornerShape(3.dp)))
     }
@@ -177,7 +177,8 @@ private fun SummaryScheduleChip(entry: TimelineEntry, priorities: Map<String, Ta
     val background = lerp(accent.surface, card, fading)
     val railAlpha = when { rank >= 80 -> 1f; rank >= 50 -> .65f; else -> .35f }
     DesignClickableSurface(onClick = { onClick(entry) }, color = background, shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.width(136.dp).heightIn(min = 72.dp).testTag("summary-$start-${entry.id}")
+        modifier = Modifier.width((136f * LocalDensity.current.fontScale.coerceIn(1f, 1.5f)).dp)
+            .heightIn(min = 72.dp).testTag("summary-$start-${entry.id}")
             .semantics { contentDescription = "${entry.title}，${PriorityScheduleProjection.label(entry, priorities)}，${scheduleMinuteLabel(entry.startMinute)}至${scheduleMinuteLabel(entry.endMinute)}" }) {
         Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(Modifier.width(3.dp).height(40.dp).background(accent.ink.copy(alpha = railAlpha), RoundedCornerShape(3.dp)))
@@ -197,20 +198,44 @@ private fun DetailedScheduleRow(entry: TimelineEntry, priorities: Map<String, Ta
     val rank = PriorityScheduleProjection.rank(entry, priorities)
     val accent = palette.ink
     val rail = if (muted) MaterialTheme.colorScheme.outlineVariant else accent.copy(alpha = if (rank >= 80) .95f else if (rank >= 50) .65f else .4f)
-    val background = if (muted) Color.Transparent else lerp(palette.surface, MaterialTheme.colorScheme.surfaceContainerLow, .55f)
+    val background = if (muted) Color.Transparent else MaterialTheme.colorScheme.surfaceContainerLow
     DesignClickableSurface(onClick = { onClick(entry) }, color = background, shape = RoundedCornerShape(14.dp),
         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp).heightIn(min = 80.dp).testTag("timeline-${entry.id}")) {
-        Row(Modifier.padding(horizontal = 18.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            ScheduleTimeRail(entry.startMinute, entry.endMinute, rail)
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(entry.title, style = MaterialTheme.typography.titleMedium, fontWeight = if (muted) FontWeight.Medium else FontWeight.SemiBold,
-                    color = if (muted) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface)
-                entry.note?.takeIf(String::isNotBlank)?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis) }
-                Surface(color = palette.surface, shape = RoundedCornerShape(6.dp)) {
-                    Text(PriorityScheduleProjection.label(entry, priorities), Modifier.padding(horizontal = 8.dp, vertical = 3.dp), style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+        BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+            val stacked = maxWidth < 280.dp || LocalDensity.current.fontScale >= 1.5f
+            if (stacked) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("${scheduleMinuteLabel(entry.startMinute)}–${scheduleMinuteLabel(entry.endMinute)}",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1, softWrap = false)
+                    ScheduleEntryContent(entry, priorities, index, muted)
+                }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    ScheduleTimeRail(entry.startMinute, entry.endMinute, rail)
+                    Column(Modifier.weight(1f)) {
+                        ScheduleEntryContent(entry, priorities, index, muted)
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ScheduleEntryContent(entry: TimelineEntry, priorities: Map<String, TaskPriority>, paletteIndex: Int, muted: Boolean) {
+    val palette = replandAccent(paletteIndex)
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(entry.title, style = MaterialTheme.typography.titleMedium,
+            fontWeight = if (muted) FontWeight.Medium else FontWeight.SemiBold,
+            color = if (muted) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface)
+        entry.note?.takeIf(String::isNotBlank)?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+        Surface(color = palette.surface, shape = RoundedCornerShape(6.dp)) {
+            Text(PriorityScheduleProjection.label(entry, priorities), Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                style = MaterialTheme.typography.labelMedium, color = palette.ink)
         }
     }
 }

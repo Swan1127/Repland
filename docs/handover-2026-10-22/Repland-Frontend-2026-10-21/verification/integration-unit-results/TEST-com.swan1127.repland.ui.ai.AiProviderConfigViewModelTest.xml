@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.114Z" hostname="LAPTOP-H29HUS9K" time="0.079">
+  <properties/>
+  <testcase name="save forwards all three arguments" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.009"/>
+  <testcase name="testConnection refuses with no api key and never consults the advisor" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.005"/>
+  <testcase name="refreshModels refuses with no api key and never asks the provider" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.005"/>
+  <testcase name="a loaded model list is reported in the provider's order" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.005"/>
+  <testcase name="before collection the config is the built-in default and the screen is loading" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="a failed save with no message falls back to its own wording" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="testConnection refuses before the config has been collected even if a key is stored" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.001"/>
+  <testcase name="a throwing observation stream escapes the scope" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.006"/>
+  <testcase name="a failed model list carries the reason rather than an empty list" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="a failed save surfaces the exception message" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="clearing the key drops the model list too" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="a failed result is reported with its reason" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.004"/>
+  <testcase name="the connection test sends a fixed non-personal request" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="a successful clearApiKey clears a previous error message" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="an empty api key is forwarded as-is, which is how a stored key stays masked" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="the model list shows Loading while the request is in flight" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="a failed clearApiKey reports its own wording" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="saving a configuration drops a list that belonged to the previous provider" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="clearApiKey is forwarded" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.001"/>
+  <testcase name="a successful save clears a previous error message" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="an unavailable result is reported with its reason" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <testcase name="testConnection shows Testing while the advisor is in flight" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="collecting reports the stored config and stops loading" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.002"/>
+  <testcase name="only save surfaces the exception message, clearApiKey always uses its own wording" classname="com.swan1127.repland.ui.ai.AiProviderConfigViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

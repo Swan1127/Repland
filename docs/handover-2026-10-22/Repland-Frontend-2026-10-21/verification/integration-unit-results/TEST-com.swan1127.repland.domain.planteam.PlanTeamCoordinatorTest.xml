@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.465Z" hostname="LAPTOP-H29HUS9K" time="0.047">
+  <properties/>
+  <testcase name="repair_selects_the_same_six_as_a_full_replan" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.004"/>
+  <testcase name="preview_habit_runs_habit_availablity_composer" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="verifier_blocks_new_clashes_but_only_warns_on_retained_ones" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="valid_ai_enriches_brief_and_hints_without_rescheduling" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.01"/>
+  <testcase name="recover_limits_new_work_to_today_and_keeps_future_untouched" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="repair_keeps_stable_placements_instead_of_rebuilding" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.001"/>
+  <testcase name="mismatched_request_id_is_rejected_gracefully" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.004"/>
+  <testcase name="tasks_without_an_estimate_stay_pending_in_a_repair" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="adjust_selects_calibrator_conflict_composer" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="recover_selects_calibrator_availability_conflict_composer" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.001"/>
+  <testcase name="elapsed_segments_are_history_not_new_conflicts" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.0"/>
+  <testcase name="unwired_profile_defaults_are_not_reported_as_user_habits" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="add_keeps_existing_placement_and_finds_room_for_the_new_task" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="full_replan_selects_all_six_and_reports_unschedulable" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="calibrator_reports_todays_execution_without_scoring_it" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="remove_selects_calibrator_availability_conflict_composer" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.003"/>
+  <testcase name="add_selects_requirements_calibrator_availability_conflict_composer" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.002"/>
+  <testcase name="noop_advisor_is_identical_to_phase_a" classname="com.swan1127.repland.domain.planteam.PlanTeamCoordinatorTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

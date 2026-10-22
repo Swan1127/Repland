@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.AuxiliaryModelsTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.892Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="a point graduates once the stage reaches the length of the ladder" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.001"/>
+  <testcase name="a blank sentence never becomes a review point" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="each execution log's completion result becomes a candidate too" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="the task's own completion result becomes a candidate" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="the same sentence for a different task is queued" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="the stored appearance is matched case-sensitively" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.001"/>
+  <testcase name="nothing to review yields no candidates" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a graduated point is never due however overdue it looks" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a sentence becomes a review point when nothing like it is queued" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="an absent stored appearance falls back to following the system" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="every appearance name round-trips through storage" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="blank and missing completion results are skipped and the rest trimmed" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a stage past the ladder is clamped to the last rung rather than throwing" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a stage below the ladder is clamped to the first rung rather than throwing" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="each stage is due the advertised number of days after capture" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.001"/>
+  <testcase name="a negative stage is not graduated" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="surrounding whitespace does not make a second copy" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="an unrecognised stored appearance falls back to the system rather than throwing" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="the ladder is one two four seven and fifteen days" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.001"/>
+  <testcase name="dueWithin agrees with isDueOn at a zero-day window" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a different sentence for the same task is queued" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a zero-day window means due today or already overdue" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="dueWithin counts the boundary day as inside the window" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="a point is due on its due date and on every later day" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="repeated wording is kept rather than deduplicated" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="the task's result comes before the log results" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <testcase name="the same sentence for the same task is not queued twice" classname="com.swan1127.repland.data.AuxiliaryModelsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

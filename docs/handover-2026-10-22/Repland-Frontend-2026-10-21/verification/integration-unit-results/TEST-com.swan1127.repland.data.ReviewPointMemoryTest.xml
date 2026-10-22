@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.ReviewPointMemoryTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.927Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="threeRecallGradesProduceDistinctFutureIntervals" classname="com.swan1127.repland.data.ReviewPointMemoryTest" time="0.002"/>
+  <testcase name="readingADifferentDayNeverPushesTheStoredDueDateAway" classname="com.swan1127.repland.data.ReviewPointMemoryTest" time="0.0"/>
+  <testcase name="legacyMigrationPreservesEveryPreviouslyAdvertisedDueDay" classname="com.swan1127.repland.data.ReviewPointMemoryTest" time="0.0"/>
+  <testcase name="graduatedLegacyPointsAreNotResurrectedByTheNewModel" classname="com.swan1127.repland.data.ReviewPointMemoryTest" time="0.0"/>
+  <testcase name="theFirstGradeTransitionsAnActiveLegacyPointWithoutLosingItsText" classname="com.swan1127.repland.data.ReviewPointMemoryTest" time="0.0"/>
+  <testcase name="modelBasedPointsKeepReviewingRatherThanGraduatingAtFiveAnswers" classname="com.swan1127.repland.data.ReviewPointMemoryTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

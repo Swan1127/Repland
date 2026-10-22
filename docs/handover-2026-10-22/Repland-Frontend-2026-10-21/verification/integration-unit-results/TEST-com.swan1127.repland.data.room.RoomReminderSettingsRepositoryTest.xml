@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.RoomReminderSettingsRepositoryTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.357Z" hostname="LAPTOP-H29HUS9K" time="0.004">
+  <properties/>
+  <testcase name="observe falls back to disabled when no row exists" classname="com.swan1127.repland.data.room.RoomReminderSettingsRepositoryTest" time="0.002"/>
+  <testcase name="every read and write uses the single settings row" classname="com.swan1127.repland.data.room.RoomReminderSettingsRepositoryTest" time="0.001"/>
+  <testcase name="observe maps a stored row" classname="com.swan1127.repland.data.room.RoomReminderSettingsRepositoryTest" time="0.0"/>
+  <testcase name="setEnabled writes the flag in both directions" classname="com.swan1127.repland.data.room.RoomReminderSettingsRepositoryTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

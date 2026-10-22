@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.export.PlanImageExporterTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.986Z" hostname="LAPTOP-H29HUS9K" time="0.015">
+  <properties/>
+  <testcase name="weekday headings are printed in the image's language" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.011"/>
+  <testcase name="the two languages do not produce the same header" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.002"/>
+  <testcase name="an empty plan says so instead of counting zero" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.0"/>
+  <testcase name="neither subtitle leaves a format placeholder behind" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.001"/>
+  <testcase name="a plan with segments carries the count" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.0"/>
+  <testcase name="every weekday has a heading in both languages" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.001"/>
+  <testcase name="a timetable with blocks carries the count" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.0"/>
+  <testcase name="the header date is printed in the image's language" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.0"/>
+  <testcase name="an empty timetable says so instead of counting zero" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.0"/>
+  <testcase name="the header date ignores the machine's default locale" classname="com.swan1127.repland.data.export.PlanImageExporterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

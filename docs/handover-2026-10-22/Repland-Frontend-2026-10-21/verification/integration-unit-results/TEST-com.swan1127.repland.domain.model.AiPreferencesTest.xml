@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.AiPreferencesTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.647Z" hostname="LAPTOP-H29HUS9K" time="0.0">
+  <properties/>
+  <testcase name="enabling the switch without a timestamp is not consent" classname="com.swan1127.repland.domain.model.AiPreferencesTest" time="0.0"/>
+  <testcase name="a timestamp with the switch off is still consent" classname="com.swan1127.repland.domain.model.AiPreferencesTest" time="0.0"/>
+  <testcase name="a consent timestamp means consent" classname="com.swan1127.repland.domain.model.AiPreferencesTest" time="0.0"/>
+  <testcase name="the consent flag tracks the timestamp on a copy" classname="com.swan1127.repland.domain.model.AiPreferencesTest" time="0.0"/>
+  <testcase name="the defaults carry no consent and the switch is off" classname="com.swan1127.repland.domain.model.AiPreferencesTest" time="0.0"/>
+  <testcase name="a zero timestamp still counts, because the rule is presence not magnitude" classname="com.swan1127.repland.domain.model.AiPreferencesTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

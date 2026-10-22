@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.367Z" hostname="LAPTOP-H29HUS9K" time="0.5">
+  <properties/>
+  <testcase name="team only receives execution feedback from the injected business day" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.346"/>
+  <testcase name="cancelled generation cannot overwrite an external draft" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.013"/>
+  <testcase name="editing a draft cannot remove a current locked placement" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.017"/>
+  <testcase name="production team produces real events and an unconfirmed draft without legacy generator writes" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.011"/>
+  <testcase name="changed memory consent rejects a draft generated with that reference" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.011"/>
+  <testcase name="changed repository plan rejects confirmation even before UI catches up" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.011"/>
+  <testcase name="changed task facts reject confirmation while preserving the draft" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.007"/>
+  <testcase name="failed confirmation preserves input and draft with a visible error" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.007"/>
+  <testcase name="clearing local team memory removes run history and all unconfirmed UI state" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.008"/>
+  <testcase name="edited overlapping new segments are rejected before any write" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.007"/>
+  <testcase name="memory influences hints but does not alter committed duration or priority" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.011"/>
+  <testcase name="discard cancels generation and does not resurrect its draft" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.004"/>
+  <testcase name="editing an existing draft invalidates an in flight replacement" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.005"/>
+  <testcase name="missing execution connection is not reported as a quiet day" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.006"/>
+  <testcase name="successful confirmation is single flight and invokes its callback once" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.011"/>
+  <testcase name="orphan execution feedback is excluded even when it occurred today" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.009"/>
+  <testcase name="a newly locked flag cannot bypass availability validation" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.007"/>
+  <testcase name="cancelled confirmation is not converted into a write failure" classname="com.swan1127.repland.ui.plan.PlanViewModelTeamTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

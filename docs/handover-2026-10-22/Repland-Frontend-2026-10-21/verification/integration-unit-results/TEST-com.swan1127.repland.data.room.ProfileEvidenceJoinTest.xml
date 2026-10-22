@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.264Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="two evidence rows citing the same log each resolve it independently" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.001"/>
+  <testcase name="an empty evidence list maps to an empty list" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="the sources follow the stored id order not the log order" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="each cited log becomes a resolved source" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="a source resolves the task named by its own log not by another log" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="the source display name comes from the task" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="a source whose log is gone is dropped" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="a dangling log is dropped while its siblings still resolve" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="each evidence row keeps its own scope conclusion and edit flag" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="a source whose task is gone keeps a placeholder name instead of dropping the source" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <testcase name="evidence with no cited logs maps to no sources" classname="com.swan1127.repland.data.room.ProfileEvidenceJoinTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

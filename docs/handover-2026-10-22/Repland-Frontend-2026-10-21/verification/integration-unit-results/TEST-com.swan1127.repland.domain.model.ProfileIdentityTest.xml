@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ProfileIdentityTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.333Z" hostname="LAPTOP-H29HUS9K" time="0.013">
+  <properties/>
+  <testcase name="does not reject unknown mime or unstated size" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="rejects a stream larger than the cap" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.008"/>
+  <testcase name="displayName is empty only when both blank" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="rejects non-image mime" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.001"/>
+  <testcase name="rejects too short input" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="drops newlines and control characters" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="initials of an empty name is empty" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="rejects over the size cap" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="caps at the maximum character count" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="sniffs gif" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="sniffs png" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="initials of a single cjk token takes two characters" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="sniffs jpeg" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="sniffs webp" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="saves a valid image and reports its path with the right extension" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.002"/>
+  <testcase name="initials of a single cjk character keeps the one character" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="initials of a single ascii word takes one letter" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="rejects non-image bytes when saving" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.002"/>
+  <testcase name="displayName prefers the chosen nickname" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="rejects non-image bytes" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="returns empty when only whitespace or control remains" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="initials of two latin words takes first letter of each" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="collapses internal whitespace and trims" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <testcase name="displayName falls back when nickname blank" classname="com.swan1127.repland.domain.model.ProfileIdentityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

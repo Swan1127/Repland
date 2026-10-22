@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.LocalReminderPlannerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.234Z" hostname="LAPTOP-H29HUS9K" time="0.003">
+  <properties/>
+  <testcase name="no confirmed plan yields no reminders" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.001"/>
+  <testcase name="reminders are returned in trigger order" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.002"/>
+  <testcase name="a task without a due date produces no deadline reminder" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="once the review time has passed the daily reminder rolls to tomorrow" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="a deadline warning fires at 20_00 on the day before the due date" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="a segment that already started produces no start reminder" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="a segment whose task is no longer active produces no start reminder" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="a segment starting later today produces one start reminder at its exact start" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="a deadline whose warning moment has already passed produces no reminder" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="the daily review reminder always exists and lands at 20_30" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <testcase name="a segment whose task is unknown produces no start reminder" classname="com.swan1127.repland.domain.model.LocalReminderPlannerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

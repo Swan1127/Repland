@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tools.ToolRecommendationTest" tests="28" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.916Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="a finished task that already has an explanation is left alone" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="the scaffold names the reading block that ended last" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.001"/>
+  <testcase name="the review reason carries the number of due points" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a finished task with no explanation recommends the self-explanation" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a reflection is offered in the evening once something finished" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a task that is still open is not asked for an explanation" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a finished course block whose task is closed does not recommend the scaffold" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a segment whose task is gone is ignored" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="no due review point means no review suggestion" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="the KWL chart outranks the self-explanation for the same task" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a completed course task whose KWL column is filled does not recommend the KWL chart" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a course block that is still running does not recommend anything yet" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a non-course block does not recommend the reading scaffold" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a completed course task with an empty KWL column recommends the KWL chart" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a completed task outside today is not asked for a KWL chart" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a saved reflection is not offered again" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a reflection is not offered before the evening" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="an empty situation recommends nothing" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="the scaffold and the KWL chart never fire for the same task" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="the strip never exceeds its cap" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a course block that has already ended recommends the reading scaffold" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="the pick does not depend on the order the segments arrive in" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="two blocks for one task count as one finished task" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a block ending exactly now counts as ended" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="an evening with nothing finished offers no reflection" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="the reflection reason counts the tasks finished today" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a due review point outranks a finished chapter" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <testcase name="a due review point is offered on its own" classname="com.swan1127.repland.ui.tools.ToolRecommendationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

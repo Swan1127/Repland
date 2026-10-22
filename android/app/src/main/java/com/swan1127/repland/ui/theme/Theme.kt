@@ -3,6 +3,7 @@ package com.swan1127.repland.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -14,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
     primary = CalmAccentDark,
-    onPrimary = NightPaper,
+    onPrimary = Color(0xFF173B44),
     primaryContainer = Color(0xFF263F46),
     onPrimaryContainer = Color(0xFFCBE7ED),
     secondary = Color(0xFFD4C4F0),
@@ -23,17 +24,22 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Color(0xFFDCC0A0),
     tertiaryContainer = Color(0xFF483929),
     onTertiaryContainer = Color(0xFFF3E8D8),
-    background = NightPaper,
-    onBackground = Color(0xFFE9EBF1),
-    surface = NightPaper,
-    surfaceContainerLow = Color(0xFF232730),
-    surfaceContainer = Color(0xFF292E38),
-    surfaceContainerHigh = Color(0xFF303642),
-    surfaceContainerHighest = Color(0xFF39404D),
-    outline = Color(0xFF9097A7),
-    outlineVariant = Color(0xFF404653),
-    onSurface = Color(0xFFE9EBF1),
-    onSurfaceVariant = Color(0xFFB8BECA),
+    background = Palette.NightPage,
+    onBackground = Palette.NightInk,
+    surface = Palette.NightPage,
+    surfaceContainerLowest = Palette.NightPage,
+    surfaceContainerLow = Palette.NightPaper,
+    surfaceContainer = Palette.NightRaised,
+    surfaceContainerHigh = Palette.NightHigh,
+    surfaceContainerHighest = Palette.NightHighest,
+    outline = Palette.NightInkFaint,
+    outlineVariant = Palette.NightHairline,
+    onSurface = Palette.NightInk,
+    onSurfaceVariant = Palette.NightInkSoft,
+    error = Palette.NightError,
+    onError = Color(0xFF601410),
+    errorContainer = Palette.NightErrorContainer,
+    onErrorContainer = Color(0xFFF9DEDC),
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -47,18 +53,25 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Color(0xFF80613E),
     tertiaryContainer = Color(0xFFFFF5DC),
     onTertiaryContainer = Color(0xFF574225),
-    background = WarmPaper,
-    onBackground = Color(0xFF242831),
-    surface = WarmPaper,
-    surfaceContainerLow = Color(0xFFFFFFFF),
-    surfaceContainer = Color(0xFFF1F2F7),
-    surfaceContainerHigh = Color(0xFFEBEDF4),
-    surfaceContainerHighest = Color(0xFFE3E6F0),
-    outline = Color(0xFF818695),
-    outlineVariant = Color(0xFFE3E6EF),
-    onSurface = Color(0xFF242831),
-    onSurfaceVariant = Color(0xFF606572),
+    background = Palette.Page,
+    onBackground = Palette.Ink,
+    surface = Palette.Page,
+    surfaceContainerLowest = Palette.Paper,
+    surfaceContainerLow = Palette.Paper,
+    surfaceContainer = Palette.PageDeep,
+    surfaceContainerHigh = Palette.PageDeepest,
+    surfaceContainerHighest = Palette.PageHighest,
+    outline = Palette.InkFaint,
+    outlineVariant = Palette.Hairline,
+    onSurface = Palette.Ink,
+    onSurfaceVariant = Palette.InkSoft,
+    error = Palette.Error,
+    onError = Color.White,
+    errorContainer = Palette.ErrorLight,
+    onErrorContainer = Color(0xFF5C1610),
 )
+
+fun replandColorScheme(darkTheme: Boolean): ColorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
 @Composable
 fun ReplandTheme(
@@ -73,8 +86,7 @@ fun ReplandTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else -> replandColorScheme(darkTheme)
     }
 
     ReplandMotionProvider {

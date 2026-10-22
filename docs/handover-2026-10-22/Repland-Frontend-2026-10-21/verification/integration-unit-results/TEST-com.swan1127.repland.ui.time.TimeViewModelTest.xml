@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.time.TimeViewModelTest" tests="46" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.743Z" hostname="LAPTOP-H29HUS9K" time="0.131">
+  <properties/>
+  <testcase name="a weekly event goes in as one batch and its overrides one at a time" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.006"/>
+  <testcase name="a repository that throws leaves the screen usable rather than crashing" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.004"/>
+  <testcase name="an invalid weekly block never reaches the repository" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.001"/>
+  <testcase name="replacing with nothing still clears what was there" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="clipboard text is recognized through the same grid rules as a file" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a course on a different day is not a duplicate" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="reading is reported before the work, not after" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="a file that repeats a row within itself stores it once" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a course that ends before it starts is dropped" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="replacing deletes every existing block before inserting the new set" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="a genuinely different week pattern is a different row" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a parser failure is reported with its own message" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="an event already in the timetable is a duplicate and nothing is written" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.004"/>
+  <testcase name="deleting hands back the job so a caller can wait for the write" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a blank week pattern in the file matches a stored row with none" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="a spreadsheet with no weekday header says what is wrong" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="the source the caller passed is the one the importer was given" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a calendar import reads the repository rather than the observed screen state" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a file that is not a calendar fails with a format message" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.004"/>
+  <testcase name="an unreadable stream fails instead of reporting a successful import" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="an empty clipboard flows through the same failure state as a bad file" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="added and skipped always account for every recognized row" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a parser failure with no message still gets wording the user can act on" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="a row already there is still recognized when the parser pads the title" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="an invalid date override never reaches the repository" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="clearing the import returns to idle" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.004"/>
+  <testcase name="an empty calendar fails rather than reporting a successful import" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="the fallback title is used for an event with no summary" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="the clipboard path never touches either file importer" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="clipboard text with no recognizable grid is reported as failed" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a spreadsheet grid goes through the same recognition as the clipboard" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="the current arrangement is read from the repository, not from the observed state" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a recognized course becomes a block on the period clock" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a calendar import turns events into occupied time" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="collecting reports the stored blocks and stops loading" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a row already in the timetable is skipped and reported" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="an event from this app's own export is ignored rather than blocking time" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="clearing the semester first week is passed through as null" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="the semester first week and its timestamp come from the constraint settings" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="reading is held until the write has landed, not dropped to idle in between" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="an unrecognized file says so instead of reporting success" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="a valid weekly block is saved" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.004"/>
+  <testcase name="a block ending before it starts never reaches the repository" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.002"/>
+  <testcase name="before collection the screen is loading with nothing in it" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.001"/>
+  <testcase name="restoring puts a snapshot back through the repository" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <testcase name="a course the clock cannot place is dropped and nothing is invented" classname="com.swan1127.repland.ui.time.TimeViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

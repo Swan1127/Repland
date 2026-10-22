@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.LocalPriorityRankerTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.232Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="an overdue task outranks a task due far in the future" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.001"/>
+  <testcase name="every score stays inside the 0 to 100 range" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="a manual order overrides the computed score" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="repeated postponement raises the context score" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="all-zero category preferences are rejected" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="an overdue reason carries the number of days past the deadline" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="identical tasks fall back to a stable id order" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="ranking never rewrites the user-owned priority" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="the neutral AI-fit marker is always attached" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <testcase name="ranking is reproducible for the same input" classname="com.swan1127.repland.domain.model.LocalPriorityRankerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

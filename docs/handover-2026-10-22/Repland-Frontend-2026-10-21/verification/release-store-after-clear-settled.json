@@ -1,0 +1,40 @@
+{
+  "package": "com.swan1127.repland.redesign",
+  "tasks": [
+    {
+      "display_name": "QA Review Chapter",
+      "description": "QA Review Chapter",
+      "status": "COMPLETED"
+    },
+    {
+      "display_name": "QA Planning和",
+      "description": "QA Planning和",
+      "status": "IN_PROGRESS"
+    },
+    {
+      "display_name": "QA Release06022",
+      "description": "QA Release06022",
+      "status": "NOT_STARTED"
+    }
+  ],
+  "all_tasks_are_qa": true,
+  "table_counts": {
+    "android_metadata": 1,
+    "tasks": 3,
+    "weekly_time_blocks": 0,
+    "date_overrides": 0,
+    "semester_settings": 0,
+    "plans": 4,
+    "plan_segments": 6,
+    "plan_task_order": 6,
+    "category_preferences": 0,
+    "execution_logs": 3,
+    "reminder_settings": 0,
+    "profile_evidence": 0,
+    "ai_settings": 0,
+    "engagement_settings": 0,
+    "usage_events": 5,
+    "room_master_table": 1
+  },
+  "ai_enabled": false
+}

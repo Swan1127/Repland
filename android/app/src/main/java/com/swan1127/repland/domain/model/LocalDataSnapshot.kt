@@ -20,4 +20,5 @@ data class LocalDataSnapshot(
     val numericProfileRecords: Map<String, String> = emptyMap(),
     val autonomyRecords: Map<String, String> = emptyMap(),
     val usageSummaryRecords: Map<String, String> = emptyMap(),
+    val learningMemory: LearningMemorySnapshot? = null,
 )

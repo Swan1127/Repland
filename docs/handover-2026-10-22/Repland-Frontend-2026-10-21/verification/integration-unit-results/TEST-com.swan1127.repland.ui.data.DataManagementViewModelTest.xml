@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.data.DataManagementViewModelTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.272Z" hostname="LAPTOP-H29HUS9K" time="0.027">
+  <properties/>
+  <testcase name="the working flag is raised while the clear is still in flight" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.003"/>
+  <testcase name="a destination that cannot be written is reported as a failed export" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.003"/>
+  <testcase name="an export hands the chosen format's own bytes to the sink" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="starting a new clear drops the previous result instead of showing it as fresh" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="UI history failure cannot be reported as a complete clear" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="a successful clear reports success and stops working" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.002"/>
+  <testcase name="spreadsheet remains a plan export and does not leak learning notes" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.002"/>
+  <testcase name="UI history clears only after the database reports success" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.003"/>
+  <testcase name="a failed clear reports failure and stops working" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.0"/>
+  <testcase name="the spreadsheet export writes a zip archive rather than the JSON text" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.002"/>
+  <testcase name="starting a new export drops the previous result instead of showing it as fresh" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="before any work the state is idle" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.0"/>
+  <testcase name="two clears both reach the repository" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="the working flag is raised while the export is still in flight" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.002"/>
+  <testcase name="invalid memory export does not write a partial file or claim success" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="JSON export receives the actual auxiliary learning snapshot" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="a snapshot that cannot be read is reported as a failed export" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.001"/>
+  <testcase name="failed database clear preserves UI drafts and history" classname="com.swan1127.repland.ui.data.DataManagementViewModelTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

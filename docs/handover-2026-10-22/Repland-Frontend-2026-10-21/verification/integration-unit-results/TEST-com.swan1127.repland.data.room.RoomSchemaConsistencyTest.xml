@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.363Z" hostname="LAPTOP-H29HUS9K" time="0.222">
+  <properties/>
+  <testcase name="every index the chain creates names a table the chain has created" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.02"/>
+  <testcase name="every created table's primary key matches the entity's" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="no created table lists a column twice" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.014"/>
+  <testcase name="every entity's table is accounted for by the migration chain" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="every table the chain touches is a declared entity" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.026"/>
+  <testcase name="every primary key the entities declare is parsed" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="a column the chain adds to a pre-existing table exists on that entity" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="every created table declares a primary key" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="every created table's columns match its entity exactly" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="the source files this test reads are where it expects them" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.011"/>
+  <testcase name="every entity and every migration is picked up" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="every entity index is created under the exact name and table Room expects" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.038"/>
+  <testcase name="every NOT NULL column added to an existing table carries a default" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.012"/>
+  <testcase name="no column is added to the same table twice" classname="com.swan1127.repland.data.room.RoomSchemaConsistencyTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

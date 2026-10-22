@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.ThemeAccentTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.439Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="matching is exact, not case-insensitive and not trimmed" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="accent names are unique and non-blank" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="an absent setting resolves to the default accent" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="there is more than one accent to choose from" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="a blank setting resolves to the default accent" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="an unknown name resolves to the default accent rather than failing" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="every accent round-trips through storage" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <testcase name="the default is one of the entries" classname="com.swan1127.repland.domain.model.ThemeAccentTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

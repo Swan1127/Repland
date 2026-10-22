@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.TaskRecurrenceTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.370Z" hostname="LAPTOP-H29HUS9K" time="0.068">
+  <properties/>
+  <testcase name="an undated task gains its first planned day rather than being quietly ignored" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.004"/>
+  <testcase name="an absurd span is refused rather than silently overflowing" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.001"/>
+  <testcase name="a weekly task keeps its weekday even when it is caught up from weeks behind" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="an undated task anchors on today" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="every advance reports at least one period" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.001"/>
+  <testcase name="the deadline anchors a task with no planned day" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.001"/>
+  <testcase name="a recurrence advance cannot describe fewer than one period" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a month end anchor finished on the last day of a short month is not left on today" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.003"/>
+  <testcase name="a task that does not repeat has nothing to advance" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a multi period advance applies one addition rather than repeating a single one" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a daily task moves to the next day" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a late completion counts the whole periods it is behind" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="every returned date is strictly in the future" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.038"/>
+  <testcase name="the planned day anchors a task that has both dates" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a day step is exact even across a month boundary" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="each rule moves by its own period" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a monthly task finished on the last day of a short month lands in the following month" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="the computed step always lands strictly after the clock" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.018"/>
+  <testcase name="a later clock never produces a smaller step count" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="completing on the anchor day still moves a whole period" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a single month from a month end clamps to the end of the shorter month" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a monthly task keeps its day of month" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="both dates move by the same number of periods so their offset survives" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="completing early still moves exactly one period" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="a task with only a deadline moves the deadline and leaves the planned day empty" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.0"/>
+  <testcase name="advancing by zero or a negative number of periods is refused" classname="com.swan1127.repland.domain.model.TaskRecurrenceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

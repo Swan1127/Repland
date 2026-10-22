@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.433Z" hostname="LAPTOP-H29HUS9K" time="0.015">
+  <properties/>
+  <testcase name="a stored change is reflected while collecting" classname="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" time="0.004"/>
+  <testcase name="collecting reports the stored preference and stops loading" classname="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" time="0.003"/>
+  <testcase name="a throwing observation stream escapes the scope instead of clearing loading" classname="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" time="0.004"/>
+  <testcase name="before collection the state is loading with reminders off" classname="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" time="0.002"/>
+  <testcase name="setEnabled forwards both true and false in order" classname="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" time="0.001"/>
+  <testcase name="setEnabled is not applied until the scope runs" classname="com.swan1127.repland.ui.reminders.ReminderSettingsViewModelTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

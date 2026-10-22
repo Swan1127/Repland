@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.367Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="partial completion needs both a 1-99 progress and recorded content" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <testcase name="a not-started task may move to in-progress, completed, postponed or cancelled" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.001"/>
+  <testcase name="completion accepts a blank progress or exactly 100" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <testcase name="a finished task can only be restored, never advanced" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <testcase name="an empty feedback carries nothing" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <testcase name="a replaced task is terminal" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.001"/>
+  <testcase name="an in-progress task may not return to not-started" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <testcase name="feedback bounds are enforced" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <testcase name="postponing again is a new event even though the visible state is unchanged" classname="com.swan1127.repland.domain.model.TaskLifecycleValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

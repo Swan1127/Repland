@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors Palette.Page / Palette.Ink / CalmAccent in ui/theme/Color.kt so the pre-Compose
+         window frame never flashes a colour the app does not use. Keep these in sync by hand: the
+         XML theme runs before Compose exists, so it cannot read the Kotlin tokens. -->
+    <color name="repland_window_background">#F8F6F1</color>
+    <color name="repland_primary">#326B75</color>
+    <color name="repland_launcher_background">#1E5143</color>
+
+    <!-- The home-screen widget is inflated by the launcher, so it cannot read Compose tokens at
+         all; it is themed by the system's night qualifier instead of by the in-app appearance
+         setting. Mirrors Palette.Ink / Palette.InkSoft so it still sits in the same family as the
+         app. Keep in sync by hand. -->
+    <color name="repland_widget_text">#263D43</color>
+    <color name="repland_widget_muted">#606572</color>
+</resources>

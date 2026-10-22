@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.LearningInsightsTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.228Z" hostname="LAPTOP-H29HUS9K" time="0.003">
+  <properties/>
+  <testcase name="the band is inclusive at its edge" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.001"/>
+  <testcase name="a day with no review points is present with a zero" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.001"/>
+  <testcase name="capture dates outside the window are ignored" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="the zone decides which day a late log belongs to" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="a zero planned length is dropped rather than dividing by zero" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="a task with no planned length is not evidence of anything" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="two samples are not enough to call a bias" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="a non-positive window is rejected rather than returning nothing" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.001"/>
+  <testcase name="a task with no recorded actual contributes no minutes" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="logs outside the window are ignored" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="the order follows the category declaration, not the totals" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="an even number of points averages the two middle ratios" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="minutes are summed per category" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="minutes land on the day the log was written" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="an empty task list has no averages and no direction" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="three accurate tasks read as calibrated" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="review points are counted on the day they were captured" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="a category with nothing invested is omitted" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="the ratio is actual over predicted" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="three tasks that run long read as underestimated" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="three tasks that finish early read as overestimated" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="one wild outlier does not move the direction" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="days with no work are present with a zero rather than missing" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="a task with no recorded actual is not evidence of anything" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <testcase name="a log with no recorded duration contributes nothing" classname="com.swan1127.repland.domain.model.LearningInsightsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

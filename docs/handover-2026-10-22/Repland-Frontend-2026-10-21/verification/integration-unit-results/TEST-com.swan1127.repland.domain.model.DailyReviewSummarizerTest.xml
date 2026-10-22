@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.725Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="feedback for an unknown task is counted but never turned into progress" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.002"/>
+  <testcase name="only segments on the requested date are counted" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="pending segments count only tasks that are still active" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="the suggested next task prefers an active task that is not scheduled today" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="a completed task is never suggested" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="a null plan reports zero planned work but still reports the day's feedback" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="progress entries carry the recorded feedback verbatim" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="when everything today is scheduled it falls back to the first active task" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <testcase name="recorded durations are summed across the day's logs" classname="com.swan1127.repland.domain.model.DailyReviewSummarizerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive-icon foreground. The 108x108 viewport keeps the artwork inside the
+  central 66dp safe zone (roughly 21..87) so no launcher mask clips the mark.
+  A plan card outline with a check inside: "the plan you actually finished".
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- card outline: 52x52 rounded square centred on (54, 54) -->
+    <path
+        android:pathData="M40,28 L68,28 A12,12 0 0 1 80,40 L80,68 A12,12 0 0 1 68,80 L40,80 A12,12 0 0 1 28,68 L28,40 A12,12 0 0 1 40,28 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#F7F7F2"
+        android:strokeWidth="5"
+        android:strokeLineJoin="round" />
+
+    <!-- check mark -->
+    <path
+        android:pathData="M41,54 L50,63 L68,44"
+        android:fillColor="#00000000"
+        android:strokeColor="#F7F7F2"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.SubTaskJsonTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.357Z" hostname="LAPTOP-H29HUS9K" time="0.002">
+  <properties/>
+  <testcase name="a corrupt string decodes to an empty list rather than throwing" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.0"/>
+  <testcase name="encode escapes control characters so decode survives" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.001"/>
+  <testcase name="a large createdAt survives the double-to-long decode exactly" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.0"/>
+  <testcase name="empty list encodes to the empty array and decodes back" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.0"/>
+  <testcase name="a list of several subtasks keeps order and done flags" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.0"/>
+  <testcase name="titles with quotes, backslashes and non-ascii round-trip" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.0"/>
+  <testcase name="a plain subtask round-trips with its fields intact" classname="com.swan1127.repland.domain.model.SubTaskJsonTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

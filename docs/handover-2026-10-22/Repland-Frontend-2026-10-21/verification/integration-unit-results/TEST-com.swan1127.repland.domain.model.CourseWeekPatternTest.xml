@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.CourseWeekPatternTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:01.718Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="two odd-week classes meet when their ranges share an odd week" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.002"/>
+  <testcase name="an odd-week class and an even-week class over the same range never meet" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="an unparseable notation overlaps everything" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.001"/>
+  <testcase name="two odd-week classes do not meet when only an even week is shared" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="a two-week window still cannot make an odd and an even class meet" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="comma-separated ranges are compared as a set" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="an even-week marker skips the odd weeks" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.001"/>
+  <testcase name="a week range limits the block to those weeks" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="without a semester start every pattern applies" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="the combined odd-and-even form keeps both parities" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="a blank notation overlaps everything" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="two identical ranges overlap" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="a full-width parenthesis and an en dash are understood" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="an unparseable pattern stays active so a class never silently disappears" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="a single week cannot be both odd and even" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.001"/>
+  <testcase name="an odd-week class meets a class that runs every week" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="an odd-week marker skips the even weeks" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="ranges sharing a single week overlap" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="comma-separated ranges are both honoured" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="two disjoint ranges do not overlap" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="a blank pattern always applies" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="adjacent single weeks of opposite parity never meet" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <testcase name="a date before the first week never applies" classname="com.swan1127.repland.domain.model.CourseWeekPatternTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

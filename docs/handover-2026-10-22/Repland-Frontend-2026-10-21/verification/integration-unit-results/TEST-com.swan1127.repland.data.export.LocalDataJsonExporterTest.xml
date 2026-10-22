@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.data.export.LocalDataJsonExporterTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.967Z" hostname="LAPTOP-H29HUS9K" time="0.015">
+  <properties/>
+  <testcase name="a plan history entry exports its segments and their locked flag" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.004"/>
+  <testcase name="legacy callers omit the learning extension rather than inventing an empty backup" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="category preferences cover every category in a deterministic order" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="learning export whitelists committed fields rather than provider or team state" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.003"/>
+  <testcase name="quotes, backslashes, newlines, tabs and control characters survive a round trip" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="tool writing is exported as its own array, keyed by task" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.001"/>
+  <testcase name="non finite learning values fail rather than produce an invalid backup" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="the ai preferences record consent as null when it was never given" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="a repeat rule is exported by name and a one-off as null" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="an export with no tool writing still declares the array" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="tool writing is not attached to the evidence rows it relates to" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.002"/>
+  <testcase name="a wired empty learning store is explicit and versioned" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="a null semester start is emitted as JSON null rather than the text null" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.001"/>
+  <testcase name="a minimal snapshot still emits every top-level section" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="disabled reference still backs up saved learning feedback" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="an empty collection is emitted as an empty array" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.001"/>
+  <testcase name="numbers are written unquoted so a reader gets numbers" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="a newline is written as an escape rather than a raw control character" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="time constraint settings keep the semester start as a date string" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="a repeat rule and the occurrence it produced are both exported" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="usage events keep their identifiers" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.002"/>
+  <testcase name="learning state and user text survive a typed JSON round trip" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="absent optional values are emitted as unquoted null" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <testcase name="the export is valid JSON and declares its format version" classname="com.swan1127.repland.data.export.LocalDataJsonExporterTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

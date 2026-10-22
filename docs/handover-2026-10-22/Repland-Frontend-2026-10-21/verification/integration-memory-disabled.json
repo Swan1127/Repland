@@ -1,0 +1,27 @@
+{
+  "package": "com.swan1127.repland.redesign",
+  "referenceEnabled": false,
+  "gain": "0.85",
+  "points": [
+    {
+      "id": "6c59cf09-3062-49b4-a191-353fd5102183-1571712874",
+      "taskId": "6c59cf09-3062-49b4-a191-353fd5102183",
+      "taskTitle": "QA Integration Memory",
+      "content": "＋22＝4，3＋3＝6",
+      "createdOn": "2026-10-22",
+      "stage": 0,
+      "memory": {
+        "version": "1",
+        "capturedOn": "2026-10-22",
+        "lastEventOn": "2026-10-22",
+        "stabilityDays": "1.0",
+        "difficulty": "6.4046875",
+        "difficultySeed": "5.5",
+        "importance": "4",
+        "reviews": "3",
+        "lapses": "1",
+        "exposures": "0"
+      }
+    }
+  ]
+}

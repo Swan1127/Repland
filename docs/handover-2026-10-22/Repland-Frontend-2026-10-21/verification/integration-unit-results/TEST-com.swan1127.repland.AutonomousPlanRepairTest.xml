@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.AutonomousPlanRepairTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:00.870Z" hostname="LAPTOP-H29HUS9K" time="0.019">
+  <properties/>
+  <testcase name="the_rolling_horizon_never_invents_capacity_on_day_31_or_before_now" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.011"/>
+  <testcase name="an_ongoing_slot_is_preserved_but_elapsed_capacity_is_not_remaining_work" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="unchanged_future_keeps_ids_times_lanes_and_does_not_become_locked" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="locked_and_required_collisions_remain_visible_and_pending_instead_of_silently_moving" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="a_requested_evening_window_cannot_leak_into_free_morning_or_another_day" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="partial_progress_trims_surplus_future_tail_without_moving_the_remaining_work" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="arranging_tomorrow_leaves_other_days_intact_and_adds_only_tomorrow_work" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="only_the_soft_course_collision_moves_when_a_new_course_is_added" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="paused_autonomy_updates_existing_work_without_allocating_other_pending_tasks" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="a_new_task_uses_free_time_without_shuffling_the_existing_plan" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="history_does_not_count_as_completed_work_and_closed_future_is_removed" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="unknown_duration_gets_a_planning_reservation_without_mutating_task_evidence" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="adjacent_explicit_availability_blocks_form_a_continuous_valid_window" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="a_missed_exact_start_is_not_assumed_to_have_happened" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="arranging_tonight_keeps_the_morning_plan_and_only_fills_evening_capacity" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="excluded_tasks_keep_valid_existing_work_without_refilling_while_other_tasks_can_be_scheduled" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="missing_availability_preserves_manual_placements_and_reports_only_real_unallocated_work" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.001"/>
+  <testcase name="intended_day_and_true_deadline_bound_both_retained_and_new_soft_work" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="explicit_minute_start_is_exact_and_the_planning_quantum_is_a_duration" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <testcase name="an_unavailable_exact_start_stays_pending_instead_of_becoming_a_later_guess" classname="com.swan1127.repland.AutonomousPlanRepairTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

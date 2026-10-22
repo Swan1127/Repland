@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.514Z" hostname="LAPTOP-H29HUS9K" time="0.031">
+  <properties/>
+  <testcase name="missingAvailabilityDoesNotTurnAnExistingManualPlacementIntoAFatalNewDecision" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="preexistingLockedOverlapIsReportedWithoutBlockingTheDraft" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.002"/>
+  <testcase name="teamCanUseExplicitLateNightAvailabilityWithoutChangingLegacyDefaults" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="remainingGenerationHonorsTheTaskIntendedDay" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.002"/>
+  <testcase name="unavailableMemoryWindowFallsBackWithoutLosingWork" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="calendarCommitmentsReachCompositionAndPreview" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.005"/>
+  <testcase name="aPartialQuantumLockBlocksEveryOverlappingCandidateSlot" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="newlyGeneratedOverlapWithALockRemainsFatal" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.0"/>
+  <testcase name="unknownDurationDoesNotStealCapacityFromKnownWorkDuringRepair" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.002"/>
+  <testcase name="overlappingProtectedPlacementsCountFutureCapacityOnlyOncePerTask" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="elapsedPartOfAnInProgressPlacementDoesNotReduceUnconfirmedRemainingWork" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.002"/>
+  <testcase name="unwiredHabitsCannotBeReintroducedByAiDifficulty" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="everyInProgressTaskKeepsItsOwnExistingPlacement" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="unknownDurationKeepsTheUsersExistingPlacementWithoutTrimmingIt" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.001"/>
+  <testcase name="memoryReferenceChangesRealPlacementButNotDurationOrPriority" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.003"/>
+  <testcase name="advisoryEnrichmentPropagatesCancellation" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.003"/>
+  <testcase name="historicalOverlapDoesNotBlockAUsableFutureDraft" classname="com.swan1127.repland.domain.planteam.PlanningTeamIntegrationTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.widget.WidgetScheduleTest" tests="31" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.994Z" hostname="LAPTOP-H29HUS9K" time="0.005">
+  <properties/>
+  <testcase name="a schedule state refuses to exist with no rows" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the next refresh falls back to midnight on an empty day" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.001"/>
+  <testcase name="the block after the current one is the second row" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the earliest of several blocks ahead leads, and the footer counts the rest" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="two blocks in progress pick the one the timeline would sort first" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a day whose only block is still ahead shows it as next" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a boundary that has already passed is skipped" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the footer counts only the blocks that are not already on screen" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a passed work block is not shown as late while a block is still ahead" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a day whose blocks have all passed reads as done" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a passed work block is not shown as late while a block is still running" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the next refresh falls back to midnight when the day is over" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="an empty day has nothing to show" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.001"/>
+  <testcase name="midnight wins over a boundary on a later day" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a running block's next boundary is its own end" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="an open work block whose window has passed is shown as late" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the refresh lands exactly on the boundary" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the longest-missed work block is the one named" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a day whose tasks are all closed reads as done" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a block in progress is the first row and reads as now" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the next refresh is the next block boundary" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="two identical slots break the tie on the id" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a block starting exactly now is the current row" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a passed course block is never shown as late" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a closed task does not count towards the footer" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a block ending exactly now is no longer the current row" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.001"/>
+  <testcase name="a refresh is never armed in the past" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="a closed task is not named even while its window is open" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the second row is never the same block as the first" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.0"/>
+  <testcase name="the rows do not depend on the order the entries arrive in" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.001"/>
+  <testcase name="a schedule state refuses more rows than the widget draws" classname="com.swan1127.repland.ui.widget.WidgetScheduleTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

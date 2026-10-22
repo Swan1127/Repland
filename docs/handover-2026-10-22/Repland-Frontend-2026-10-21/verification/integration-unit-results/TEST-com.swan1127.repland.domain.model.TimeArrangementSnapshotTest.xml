@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:06.441Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="a restored block keeps its identity so a redo can still address the same row" classname="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" time="0.0"/>
+  <testcase name="an empty snapshot reports itself empty" classname="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" time="0.001"/>
+  <testcase name="the draft shape carries every stored field a restore must replay" classname="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" time="0.0"/>
+  <testcase name="a stored block round-trips into a draft without losing a single field" classname="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" time="0.0"/>
+  <testcase name="the draft invents no field the stored row does not have" classname="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" time="0.0"/>
+  <testcase name="a stored override round-trips into a draft without losing a single field" classname="com.swan1127.repland.domain.model.TimeArrangementSnapshotTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.tasks.TaskSelectionTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.664Z" hostname="LAPTOP-H29HUS9K" time="0.001">
+  <properties/>
+  <testcase name="targets keeps the order the list is in" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="a mixed selection offers an action when even one row can take it" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="targets keeps the selected rows that can take the action" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="targets never reaches a row that is not selected" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="toggle adds a row that was not there" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="retained against an empty view empties the selection" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="contains is false for a row that was never added" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="EMPTY holds nothing" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="an active selection offers complete and cancel, not restore" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.001"/>
+  <testcase name="a finished row can only be restored" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="actions keep the declaration order" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="a replaced-only selection offers nothing at all" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="each action carries the status it writes" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="toggling the same row twice leaves nothing" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="allOf over an empty view is empty" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="every action is reachable from some selection" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="a finished selection offers restore alone" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="an active row can be completed or cancelled but not restored" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="a replaced row is not a target of any action" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="toggling one row does not disturb another" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="retained keeps the rows still on screen" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="an empty selection has no targets for any action" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="contains is true for a row that was added" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="allOf takes every row on screen" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="an empty selection offers no actions" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="allOf ignores what was selected before, because it is a select-all" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <testcase name="retained drops a row that left the view" classname="com.swan1127.repland.ui.tasks.TaskSelectionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

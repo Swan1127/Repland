@@ -43,7 +43,10 @@ data class PlanGenerationInput(
     val lockedSegments: List<PlannedSegment> = emptyList(),
     val categoryPreferences: Map<TaskCategory, Int> = CategoryPreferences.defaults,
     val manualTaskOrder: List<String> = emptyList(),
+    val placementWindows: Map<String, PlacementWindow> = emptyMap(),
 )
+
+data class PlacementWindow(val startMinute: Int, val endMinute: Int)
 
 interface PlanDraftGenerator {
     fun generate(input: PlanGenerationInput): PlanDraft
@@ -286,7 +289,7 @@ object PlanGenerator : PlanDraftGenerator {
             .distinctBy { listOf(it.taskId, it.date, it.startMinute, it.endMinute, it.trackId) }
         val generated = generate(input.tasks, input.weeklyBlocks, input.dateOverrides, input.semesterFirstWeekMonday,
             effectiveLocks.map { it.copy(isLocked = true) }, input.categoryPreferences, input.manualTaskOrder,
-            clock, horizonDays = if (todayOnly) 1 else HORIZON_DAYS)
+            clock, horizonDays = if (todayOnly) 1 else HORIZON_DAYS, placementWindows = input.placementWindows)
         val restored = generated.segments.map { s -> effectiveLocks.firstOrNull {
             it.taskId == s.taskId && it.date == s.date && it.startMinute == s.startMinute && it.endMinute == s.endMinute && it.trackId == s.trackId
         } ?: s }
@@ -301,6 +304,7 @@ object PlanGenerator : PlanDraftGenerator {
         lockedSegments = input.lockedSegments,
         categoryPreferences = input.categoryPreferences,
         manualTaskOrder = input.manualTaskOrder,
+        placementWindows = input.placementWindows,
     )
 
     fun generate(
@@ -313,6 +317,7 @@ object PlanGenerator : PlanDraftGenerator {
         manualTaskOrder: List<String> = emptyList(),
         clock: Clock = Clock.systemDefaultZone(),
         horizonDays: Int = HORIZON_DAYS,
+        placementWindows: Map<String, PlacementWindow> = emptyMap(),
     ): PlanDraft {
         require(horizonDays in 1..HORIZON_DAYS)
         val now = LocalDateTime.now(clock)
@@ -375,10 +380,17 @@ object PlanGenerator : PlanDraftGenerator {
                 .coerceAtLeast(0)
             val requiredSlots = ceil(remainingMinutes / QUANTUM_MINUTES.toDouble()).toInt()
             val cutoff = task.dueDate ?: now.toLocalDate().plusDays(horizonDays - 1L)
-            val selected = allSlots.asSequence()
-                .filter { slot -> slot !in assignedSlots && !slot.date.isAfter(cutoff) }
+            val pool = allSlots.filter { slot -> slot !in assignedSlots && !slot.date.isAfter(cutoff) }
+            val preference = placementWindows[task.id]
+            val selected = (if (preference == null) pool else pool.groupBy(Slot::date).toSortedMap().values
+                .flatMap { daySlots ->
+                    val (inside, outside) = daySlots.partition { slot ->
+                        slot.startMinute >= preference.startMinute && slot.endMinute <= preference.endMinute
+                    }
+                    inside + outside
+                })
                 .take(requiredSlots)
-                .toList()
+                .sortedWith(compareBy(Slot::date, Slot::startMinute))
             assignedSlots += selected
             segments += mergeSegments(task.id, selected)
             if (selected.size < requiredSlots) {

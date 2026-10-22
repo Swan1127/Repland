@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.swan1127.repland.ui.theme.ThemeSchemeTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-10-22T11:16:07.720Z" hostname="LAPTOP-H29HUS9K" time="0.018">
+  <properties/>
+  <testcase name="the scheme takes its brand from the accent and its neutrals from the shared palette" classname="com.swan1127.repland.ui.theme.ThemeSchemeTest" time="0.017"/>
+  <testcase name="the two modes of one accent do not share a page colour" classname="com.swan1127.repland.ui.theme.ThemeSchemeTest" time="0.001"/>
+  <testcase name="every accent paints a different brand" classname="com.swan1127.repland.ui.theme.ThemeSchemeTest" time="0.0"/>
+  <testcase name="the page is identical across accents" classname="com.swan1127.repland.ui.theme.ThemeSchemeTest" time="0.0"/>
+  <testcase name="dark mode flips the neutrals and uses the dark member of the ramp" classname="com.swan1127.repland.ui.theme.ThemeSchemeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
