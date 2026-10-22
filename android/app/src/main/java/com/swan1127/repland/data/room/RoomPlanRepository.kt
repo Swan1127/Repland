@@ -41,8 +41,22 @@ class RoomPlanRepository(
         if (draft == null) workspace.remove("draft")
         else workspace.put(PlanningWorkspaceEntity("draft", PlanDraftCodec.encode(draft)))
     }
+    override suspend fun saveGeneratedDraftIfCurrent(expected: PlanDraft?, updated: PlanDraft) = database.withTransaction {
+        require(updated.sourceRevision != null && updated.sourceRevision == revision()) {
+            "生成期间任务、时间或偏好已变化，请重新预览。"
+        }
+        val actual = workspace.get("draft")?.let { PlanDraftCodec.decode(it.payload) }
+        require(actual == expected) { "生成期间草案已被修改，请先查看当前预览；本次未覆盖。" }
+        workspace.put(PlanningWorkspaceEntity("draft", PlanDraftCodec.encode(updated)))
+    }
+    override suspend fun confirmDraftIfCurrent(draft: PlanDraft) = database.withTransaction {
+        val actual = workspace.get("draft")?.let { PlanDraftCodec.decode(it.payload) }
+        require(actual == draft) { "草案已经变化，请重新查看当前预览后确认。" }
+        acceptInTransaction(draft)
+    }
     override suspend fun replaceDraftIfCurrent(expected: PlanDraft, updated: PlanDraft) = database.withTransaction {
-        require(updated.generatedAt == expected.generatedAt && updated.sourceRevision == expected.sourceRevision) {
+        require(updated.generatedAt == expected.generatedAt && updated.sourceRevision == expected.sourceRevision &&
+            updated.memoryReferenceRevision == expected.memoryReferenceRevision) {
             "编辑不能替换另一份预览，请重新查看当前草案。"
         }
         val actual = workspace.get("draft")?.let { PlanDraftCodec.decode(it.payload) }

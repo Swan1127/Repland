@@ -328,6 +328,7 @@
     <string name="review_point_none">暂无复习点</string>
     <string name="memory_review_short_description">自适应间隔复习，支持忘记 / 模糊 / 记得</string>
     <string name="planning_team_title">本地规划团队</string>
+    <string name="preview_task_plan">预览任务安排</string>
     <string name="planning_team_description">六个本地角色处理需求、可用时间、习惯、执行反馈、冲突与方案。本次草稿确认前不替换当前计划。</string>
     <string name="planning_team_generating">正在根据真实事项与时间约束生成草稿…</string>
     <string name="planning_team_retry">重新生成</string>
@@ -347,6 +348,8 @@
     <string name="memory_review_estimate">模型估计可提取率 %1$d%% · 稳定度 %2$.1f 天</string>
     <string name="memory_review_fuzzy">有点模糊</string>
     <string name="memory_review_recorded">已记录本次回忆反馈</string>
+    <string name="memory_review_saving">正在记录回忆反馈…</string>
+    <string name="memory_review_save_failed">回忆反馈未保存。请重试；若记录已变化，请重新打开复习页。</string>
     <string name="memory_review_grade_again">再次练习</string>
     <string name="memory_review_legacy">保留旧版复习日期；首次反馈后使用自适应模型。</string>
     <string name="memory_settings_title">记忆参考</string>

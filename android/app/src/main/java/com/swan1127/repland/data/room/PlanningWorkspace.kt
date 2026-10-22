@@ -47,6 +47,7 @@ object PlanDraftCodec {
         put("numericProfileVersion", draft.numericProfileVersion)
         put("numericParameters", JSONArray(draft.numericParameters))
         put("numericAdvice", JSONArray(draft.numericAdvice))
+        put("memoryReferenceRevision", draft.memoryReferenceRevision)
         put("manual", draft.hasManualTaskOrder)
         put("order", JSONArray(draft.orderedTaskIds))
         put("pending", JSONArray(draft.pendingTaskIds))
@@ -88,6 +89,7 @@ object PlanDraftCodec {
             numericProfileVersion = if (j.isNull("numericProfileVersion")) null else j.getString("numericProfileVersion"),
             numericParameters = if (j.has("numericParameters")) strings("numericParameters") else emptyList(),
             numericAdvice = if (j.has("numericAdvice")) strings("numericAdvice") else emptyList(),
+            memoryReferenceRevision = if (j.isNull("memoryReferenceRevision")) null else j.getString("memoryReferenceRevision"),
         )
     }
 }

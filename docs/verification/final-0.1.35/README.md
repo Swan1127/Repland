@@ -1,6 +1,6 @@
 # 0.1.35 可携带验收证据
 
-记录日期：2026-10-11（Asia/Shanghai）。本目录只包含公共源码身份、去除系统输出的用例结果与已核对的非敏感页面截图，不包含应用数据备份、模型配置或密钥。完整入口与边界见[最终技术验收](../../FINAL_TECH_ACCEPTANCE_2026-10-10.md)。
+记录日期：2026-10-11（Asia/Shanghai）。本目录只包含公共源码身份、去除系统输出的用例结果与已核对的非敏感页面截图，不包含应用数据备份、模型配置或密钥。本目录是 2026-10-11 当时源码的历史验收证据，不表示当前同版本号下的源码已复验。当前边界见 [主思路](../../../REPLAND_IDEA.md)；旧最终技术验收正文的备份与恢复见 [文档维护](../../DOCUMENTATION.md)。
 
 | 证据 | 含义 |
 | --- | --- |
@@ -20,10 +20,10 @@ APK 内 BuildConfig 来源仍为 85c75f04117b 加当时工作区，不能称为�
 
 原始 XML、运行日志、失败截图与三份 APK 保留在本机 `android/app/build/reports/final-delivery-2026-10-10/`，最终 APK 独立保存在其 `retained-0.1.35-final/`；0.1.33 / 0.1.34 历史版本保留，不提交大体积二进制或私有运行配置。JSON 用例清单删除了 JUnit system-out / system-err / properties，不能用作完整原始日志。
 
-复验需自行安装 JDK 17、SDK 36 / Build Tools 36.0.0，并使用隔离 QA 设备。项目根目录的 Android 工程执行：
+复验需自行安装 JDK 17、SDK 36 / Build Tools 36.0.0，并使用隔离 QA 设备。在仓库根目录执行以下命令（需要已缓存依赖及专用测试设备）：
 
 ```text
-gradlew.bat --offline --max-workers=1 :app:testDebugUnitTest :app:connectedDebugAndroidTest :app:assembleInternal :app:compileReleaseKotlin :app:processReleaseMainManifest :app:verifyOfflineMvpBoundary :app:recordBuildArtifacts
+.\android\gradlew.bat -p android --offline --max-workers=1 :app:testDebugUnitTest :app:connectedDebugAndroidTest :app:assembleInternal :app:compileReleaseKotlin :app:processReleaseMainManifest :app:verifyOfflineMvpBoundary :app:recordBuildArtifacts
 ```
 
 上述命令不是已授权清空数据的指令；不卸载、不清数据，不在用户当前包运行仪器化测试。离线重建需要已缓存依赖；不同签名 / 工具链可能产生不同 APK 字节。原接手测试 UnavoidablePlanningTest.kt 字节哈希仍为 85611f9da5c034ad7dfc2cf0c85f5ec1471501609717cf7b8ba1c092068a6be5；原有文件末尾空行保留，检查只对此项原样空白作例外。

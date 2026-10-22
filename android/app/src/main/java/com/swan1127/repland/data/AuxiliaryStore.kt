@@ -65,19 +65,27 @@ class AuxiliaryStore(context: Context) {
     private val memoryPrefs = context.applicationContext.getSharedPreferences("repland-memory-v1", Context.MODE_PRIVATE)
 
     var memoryReferenceEnabled: Boolean
-        get() = runCatching { memoryPrefs.getBoolean(KEY_REFERENCE_ENABLED, false) }.getOrDefault(false)
-        set(value) = memoryPrefs.edit().putBoolean(KEY_REFERENCE_ENABLED, value).apply()
+        get() = synchronized(MEMORY_LOCK) {
+            runCatching { memoryPrefs.getBoolean(KEY_REFERENCE_ENABLED, false) }.getOrDefault(false)
+        }
+        set(value) = synchronized(MEMORY_LOCK) {
+            memoryPrefs.edit().putBoolean(KEY_REFERENCE_ENABLED, value).apply()
+        }
 
     val memoryGain: Double
-        get() = MemoryStateCodec.gain(
-            runCatching { memoryPrefs.getString(KEY_GAIN, null)?.toDoubleOrNull() }.getOrNull() ?: 1.0,
-        )
+        get() = synchronized(MEMORY_LOCK) {
+            MemoryStateCodec.gain(
+                runCatching {
+                    (prefs.getString(KEY_MEMORY_GAIN, null) ?: memoryPrefs.getString(KEY_GAIN, null))
+                        ?.toDoubleOrNull()
+                }.getOrNull() ?: 1.0,
+            )
+        }
 
-    @Synchronized
-    fun reviewPoints(): List<ReviewPoint> {
-        val raw = runCatching { prefs.getString(KEY_REVIEW_POINTS, null) }.getOrNull() ?: return emptyList()
-        val array = runCatching { JSONArray(raw) }.getOrNull() ?: return emptyList()
-        return (0 until array.length()).mapNotNull { index ->
+    fun reviewPoints(): List<ReviewPoint> = synchronized(MEMORY_LOCK) {
+        val raw = runCatching { prefs.getString(KEY_REVIEW_POINTS, null) }.getOrNull() ?: return@synchronized emptyList()
+        val array = runCatching { JSONArray(raw) }.getOrNull() ?: return@synchronized emptyList()
+        (0 until array.length()).mapNotNull { index ->
             val stored = array.optJSONObject(index) ?: return@mapNotNull null
             val createdOn = runCatching { LocalDate.parse(stored.optString("createdOn")) }.getOrNull()
                 ?: return@mapNotNull null
@@ -102,48 +110,65 @@ class AuxiliaryStore(context: Context) {
         }.distinctBy(ReviewPoint::id)
     }
 
-    @Synchronized
     fun addReviewPointsFor(
         task: Task,
         logs: List<TaskExecutionLog> = emptyList(),
         today: LocalDate = LocalDate.now(),
-    ): Int {
+    ): Int = synchronized(MEMORY_LOCK) {
         val existing = reviewPoints()
         val fresh = ReviewPoint.candidatesFrom(task, logs)
             .filter { ReviewPoint.shouldSeed(existing, task.id, it) }
             .map { content -> newPoint(task.id, task.displayName, content, today, task.userPriority) }
         if (fresh.isNotEmpty()) writeReviewPoints(existing + fresh)
-        return fresh.size
+        fresh.size
     }
 
-    @Synchronized
     fun addReviewPointFromText(
         taskId: String,
         taskTitle: String,
         content: String,
         today: LocalDate = LocalDate.now(),
         priority: TaskPriority = TaskPriority.UNSPECIFIED,
-    ): Boolean {
+    ): Boolean = synchronized(MEMORY_LOCK) {
         val existing = reviewPoints()
-        if (taskId.isBlank() || !ReviewPoint.shouldSeed(existing, taskId, content)) return false
+        if (taskId.isBlank() || !ReviewPoint.shouldSeed(existing, taskId, content)) return@synchronized false
         writeReviewPoints(existing + newPoint(taskId, taskTitle, content.trim(), today, priority))
-        return true
+        true
     }
 
-    fun gradeReviewPoint(id: String, remembered: Boolean, today: LocalDate = LocalDate.now()) {
+    fun gradeReviewPoint(id: String, remembered: Boolean, today: LocalDate = LocalDate.now()): Boolean =
         gradeReviewPoint(id, if (remembered) RecallGrade.RECALLED else RecallGrade.FORGOT, today)
-    }
 
-    @Synchronized
-    fun gradeReviewPoint(id: String, grade: RecallGrade, today: LocalDate = LocalDate.now()) {
+    /** Call on an IO dispatcher: an acknowledged answer has reached persistent storage. */
+    fun gradeReviewPoint(
+        id: String,
+        grade: RecallGrade,
+        today: LocalDate = LocalDate.now(),
+    ): Boolean = synchronized(MEMORY_LOCK) {
         val points = reviewPoints()
-        val point = points.firstOrNull { it.id == id && !it.isGraduated } ?: return
+        val point = points.firstOrNull { it.id == id && !it.isGraduated } ?: return@synchronized false
         val state = point.memoryState()
         val gain = memoryGain
         val updated = point.graded(grade, today, gain)
-        writeReviewPoints(points.map { if (it.id == id) updated else it })
         val nextGain = MemoryModel.observeGain(MemoryModel.retrievabilityAt(state, today), grade, gain)
-        memoryPrefs.edit().putString(KEY_GAIN, nextGain.toString()).apply()
+        val previousPoints = prefs.getString(KEY_REVIEW_POINTS, null)
+        val previousGain = prefs.getString(KEY_MEMORY_GAIN, null)
+        // Review state and its derived gain must never get separated by a process restart.
+        val saved = runCatching {
+            prefs.edit()
+                .putString(KEY_REVIEW_POINTS, reviewPointsJson(points.map { if (it.id == id) updated else it }))
+                .putString(KEY_MEMORY_GAIN, nextGain.toString())
+                .commit()
+        }.getOrDefault(false)
+        if (!saved) {
+            // SharedPreferences changes its in-memory map even when commit fails. Restore that map
+            // before allowing a retry so one answer cannot be applied twice after a disk failure.
+            prefs.edit()
+                .putString(KEY_REVIEW_POINTS, previousPoints)
+                .putString(KEY_MEMORY_GAIN, previousGain)
+                .apply()
+        }
+        saved
     }
 
     fun dueReviewPoints(today: LocalDate = LocalDate.now()): List<ReviewPoint> =
@@ -156,29 +181,33 @@ class AuxiliaryStore(context: Context) {
         return reviewed to all.count { it.dueWithin(7, today) }
     }
 
-    fun memoryReference(today: LocalDate = LocalDate.now()): MemoryReference? =
+    fun memoryReference(today: LocalDate = LocalDate.now()): MemoryReference? = synchronized(MEMORY_LOCK) {
         if (!memoryReferenceEnabled) null else MemoryReference.of(
             reviewPoints().filterNot(ReviewPoint::isGraduated).map { point ->
                 MemoryEntry(point.taskId, point.content, point.memoryState())
             },
             today,
         )
+    }
 
-    @Synchronized
-    fun learningMemorySnapshot(): LearningMemorySnapshot = LearningMemorySnapshot(
-        referenceEnabled = memoryReferenceEnabled,
-        gain = memoryGain,
-        points = reviewPoints().map { point ->
-            LearningMemoryPointSnapshot(
-                point.id, point.taskId, point.taskTitle, point.content, point.createdOn, point.stage, point.memory,
-            )
-        },
-    )
+    fun learningMemorySnapshot(): LearningMemorySnapshot = synchronized(MEMORY_LOCK) {
+        LearningMemorySnapshot(
+            referenceEnabled = memoryReferenceEnabled,
+            gain = memoryGain,
+            points = reviewPoints().map { point ->
+                LearningMemoryPointSnapshot(
+                    point.id, point.taskId, point.taskTitle, point.content, point.createdOn, point.stage, point.memory,
+                )
+            },
+        )
+    }
 
-    @Synchronized
-    fun clearLearningMemory() {
-        prefs.edit().remove(KEY_REVIEW_POINTS).apply()
-        memoryPrefs.edit().clear().apply()
+    /** Shares the grading lock across UI/container store instances. Call on an IO dispatcher. */
+    fun clearLearningMemory(): Unit = synchronized(MEMORY_LOCK) {
+        check(prefs.edit().remove(KEY_REVIEW_POINTS).remove(KEY_MEMORY_GAIN).commit()) {
+            "Learning memory could not be cleared."
+        }
+        check(memoryPrefs.edit().clear().commit()) { "Learning memory settings could not be cleared." }
     }
 
     private fun newPoint(
@@ -198,6 +227,10 @@ class AuxiliaryStore(context: Context) {
     )
 
     private fun writeReviewPoints(points: List<ReviewPoint>) {
+        prefs.edit().putString(KEY_REVIEW_POINTS, reviewPointsJson(points)).apply()
+    }
+
+    private fun reviewPointsJson(points: List<ReviewPoint>): String {
         val array = JSONArray()
         points.forEach { point ->
             val memory = point.memory?.let { state ->
@@ -216,12 +249,14 @@ class AuxiliaryStore(context: Context) {
                     .put("memory", memory),
             )
         }
-        prefs.edit().putString(KEY_REVIEW_POINTS, array.toString()).apply()
+        return array.toString()
     }
 
     private companion object {
         const val KEY_REVIEW_POINTS = "review-points"
         const val KEY_REFERENCE_ENABLED = "reference-enabled"
         const val KEY_GAIN = "gain"
+        const val KEY_MEMORY_GAIN = "memory-gain-v1"
+        val MEMORY_LOCK = Any()
     }
 }

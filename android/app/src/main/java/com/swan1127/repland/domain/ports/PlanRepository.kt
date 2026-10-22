@@ -4,6 +4,7 @@ import com.swan1127.repland.domain.model.ConfirmedPlan
 import com.swan1127.repland.domain.model.PlanDraft
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 interface PlanRepository {
     suspend fun applyManualChange(change: com.swan1127.repland.domain.model.ManualPlanChange, confirmedRevision: String? = null) {
@@ -22,6 +23,15 @@ interface PlanRepository {
     suspend fun saveAssistantWorkspace(value: com.swan1127.repland.domain.model.AssistantWorkspace?)
     fun observeDraft(): Flow<PlanDraft?>
     suspend fun saveDraft(draft: PlanDraft?)
+    /** Production repositories must check the previous draft and source in one transaction. */
+    suspend fun saveGeneratedDraftIfCurrent(expected: PlanDraft?, updated: PlanDraft) {
+        require(observeDraft().first() == expected) { "草案已经变化，请重新查看当前预览。" }
+        saveDraft(updated)
+    }
+    suspend fun confirmDraftIfCurrent(draft: PlanDraft) {
+        require(observeDraft().first() == draft) { "草案已经变化，请重新查看当前预览。" }
+        accept(draft)
+    }
     /** Atomically edit a still-current preview; never overwrite a replacement preview. */
     suspend fun replaceDraftIfCurrent(expected: PlanDraft, updated: PlanDraft)
     fun observeTaskOrder(): Flow<List<String>>

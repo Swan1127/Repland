@@ -55,7 +55,7 @@ class TimeSettingsWorkflowUiTest {
             rule.onNodeWithTag("weekly-block-save").performClick(); gone("weekly-block-title")
             val saved = runBlocking { repo.observeWeeklyBlocks().first().single { it.title == name } }; savedId = saved.id
             assertEquals(1440, saved.endMinute); assertEquals(original.size + 1, runBlocking { repo.observeWeeklyBlocks().first().size })
-            rule.onNodeWithText("每周时间已保存；现有任务计划未自动重新安排").assertIsDisplayed()
+            rule.onNodeWithText("每周时间已保存").assertIsDisplayed()
             rule.onNodeWithTag("weekly-edit-${saved.id}").performScrollTo()
             screenshot("qa-time20-before-weekly-edit.png")
             rule.onNodeWithTag("weekly-edit-${saved.id}").performClick(); waitTag("weekly-block-title")
@@ -130,7 +130,7 @@ class TimeSettingsWorkflowUiTest {
             rule.onNodeWithTag("weekly-block-title").assertTextContains(name); rule.onNodeWithTag("time-mutation-error").assertExists()
             sql.execSQL("DROP TRIGGER qa_ui_time_revision_failure")
             rule.onNodeWithTag("weekly-block-save").performClick(); gone("weekly-block-title")
-            rule.onNodeWithText("每周时间已保存；现有任务计划未自动重新安排").assertIsDisplayed()
+            rule.onNodeWithText("每周时间已保存").assertIsDisplayed()
             val saved = runBlocking { repo.observeWeeklyBlocks().first().single { it.title == name } }; savedId = saved.id
             assertEquals(1440, saved.endMinute); assertEquals(original.size + 1, runBlocking { repo.observeWeeklyBlocks().first().size })
         } finally {

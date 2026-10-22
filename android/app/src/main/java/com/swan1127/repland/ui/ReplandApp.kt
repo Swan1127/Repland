@@ -816,7 +816,10 @@ fun ReplandApp(
                         onReplanRemaining = { taskViewModel.dismissSessionResult(); generatePlanDraft() },
                         onDismissExecutionResult = taskViewModel::dismissSessionResult,
                         planNeedsUpdate = planNeedsUpdate && !(autonomyViewModel != null && autonomy.delegation.enabled),
-                        onReviewPlanChanges = { if (planUiState.draft == null) generatePlanDraft() },
+                        onReviewPlanChanges = {
+                            if (planUiState.draft == null) generatePlanDraft()
+                            else pausedPlanDraftIdentity = null
+                        },
                         date = LocalDate.ofEpochDay(scheduleEpochDay),
                         onDateSelected = { scheduleEpochDay = it.toEpochDay() },
                         tasks = uiState.tasks.filter(Task::isTodayRelevant),
@@ -1086,8 +1089,13 @@ fun ReplandApp(
                     tasks = if (uiState.isTrusted) uiState.tasks else emptyList(),
                     onClose = { showLearningReview = false },
                     onGrade = { pointId, grade ->
-                        auxiliaryStore.gradeReviewPoint(pointId, grade, activeDate)
-                        memoryRevision += 1
+                        if (dataManagementUiState.isWorking) false else {
+                            val saved = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                auxiliaryStore.gradeReviewPoint(pointId, grade, activeDate)
+                            }
+                            if (saved) memoryRevision += 1
+                            saved
+                        }
                     },
                     onAddPoint = { selected, content ->
                         val task = uiState.tasks.firstOrNull { it.id == selected.id }
@@ -1859,6 +1867,16 @@ private fun TodayScreen(
                         Text("预览更新后的安排")
                     }
                 }
+            }
+        }
+        if (!planNeedsUpdate && executionSession == null && !executionFinished &&
+            allTasks.any { it.status.isActive } && (!hasConfirmedPlan || !automaticPlanning)) {
+            item(key = "preview-task-plan") {
+                OutlinedButton(
+                    onClick = onReviewPlanChanges,
+                    enabled = executionReadsReady,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("preview-task-plan"),
+                ) { Text(stringResource(R.string.preview_task_plan)) }
             }
         }
         if (scheduleRange == ScheduleRange.DAY || scheduleRange == ScheduleRange.OVERVIEW) {
@@ -3265,7 +3283,7 @@ private fun TimeScreen(
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("已新增 ${timetableImport.addedCount} 门课程；跳过 ${timetableImport.skippedCount} 项重复课程。",
                             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                        Text("固定课程已同步到日与周视图，现有任务计划未自动重新安排。")
+                        Text("固定课程已保存，可在日与周视图查看。")
                         TextButton(onClick = onClearTimetableImport) { Text("知道了") }
                     }
                 }
@@ -3297,7 +3315,7 @@ private fun TimeScreen(
             }
         }
         Text("规划时间约束", style = MaterialTheme.typography.titleLarge)
-        Text("可用时间用于制定计划；课程、休息和固定事项会避让。修改后需要重新预览并确认，不自动覆盖现有安排。",
+        Text("可用时间用于制定计划；课程、休息和固定事项会避让。开启自动安排时，会根据时间变更调整后续安排；关闭时不会自动调整。",
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (!state.hasLoaded) {
             Text(if (state.readError != null) "时间设置暂不可用，请重试读取；未删除现有记录。" else "正在读取时间设置…")
@@ -4614,6 +4632,7 @@ private fun MineScreen(
             summaryContent()
             OutlinedButton(
                 onClick = onOpenLearningReview,
+                enabled = !isDataWorking,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("profile-learning-review"),
             ) { Text(stringResource(R.string.learning_review_open)) }
             OutlinedButton(onClick = onOpenSettings, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("mine-settings")) {
@@ -4689,9 +4708,11 @@ private fun MineScreen(
                 enabled = memoryReferenceEnabled,
                 onEnabledChange = onMemoryReferenceChange,
                 pointCount = memoryPointCount,
+                interactive = !isDataWorking,
             )
             OutlinedButton(
                 onClick = onOpenLearningReview,
+                enabled = !isDataWorking,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("open-learning-review"),
             ) { Text(stringResource(R.string.learning_review_open)) }
             AiSettingsSection(

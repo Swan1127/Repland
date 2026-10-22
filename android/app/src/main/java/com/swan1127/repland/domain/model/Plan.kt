@@ -32,6 +32,8 @@ data class PlanDraft(
     val numericProfileVersion: String? = null,
     val numericParameters: List<String> = emptyList(),
     val numericAdvice: List<String> = emptyList(),
+    /** Persist the optional reference used for this preview, including an explicit opt-out. */
+    val memoryReferenceRevision: String? = null,
 )
 
 /** The explicit request/response boundary for the local planner and a future AI suggestion adapter. */

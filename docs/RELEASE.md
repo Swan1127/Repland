@@ -1,42 +1,29 @@
-# Repland 内测构建与发布规则
+# Repland 构建与发布规则
 
-## 版本
+更新日期：2026-10-22（Asia/Shanghai）。当前版本配置为 `0.1.35 / 1035`，主分支 HEAD 为 `08a686b8c371a54b4eb2228fa9141217906ebe5c`（2026-10-20）。版本配置、源码快照、生成的 APK、设备安装与发布状态必须分别记录。本次只整理文档，没有构建、安装、发布 APK 或确认 CI 成功；原有 7 个未提交 Kotlin 文件变更仍属于工作区待验证状态。
 
-最新候选 `0.1.28 (1028)`：任务创建保留非法原时长、统一校验与事务保护；修正时保留日期，未知时长仍可明确选择。来源 `a781067d73572c816b3410dbd1c216c3d8c942f5`，259 设备/124 单元全套、20 专项及实际深色大字号横屏新专项 2 项通过；原生 QA 停止进程后草稿恢复。internal、release Kotlin/Manifest、离线边界通过，非正式 release APK。当前 27 原位升级 28，版本/原样例核对；源码/文档与 v0.1.28 上传保留，APK/清单本地保留。其余数字、事项放置一致性与剩余计划仍待，无用户试用；中间失败及显示边界见 CAPTURE_NUMERIC_INTEGRITY_2026-10-06.md。下方为历史版本。
+产品目标见[主思路](../REPLAND_IDEA.md)，构建入口见[README](../README.md)，工程约束见[工程边界](EXTENSION_READINESS.md)。历史逐版候选说明已由[文档索引与备份记录](DOCUMENTATION.md) 管理，不再作为“当前版本”重复堆叠。
 
-最新候选 `0.1.27 (1027)`：计划分段保存等待真实事务回执，失败原位保留输入、重试、防重复与旧预览保护。来源 `b90c8927d299658a82f56d2947d669fce3a519cd`，255 设备/123 单元全套、23 专项及深色大字号横屏 5 项通过；internal、release Kotlin/Manifest、离线边界成功，非正式 release APK。当前 26 原位升级 27，版本/原样例核对；APK/清单与 v0.1.27 独立保留。QA-055 在记录范围关闭，剩余计划仍待，无用户试用；详情见 DRAFT_SAVE_INTEGRITY_2026-10-06.md。下方为历史版本。
+## 四种构建身份
 
-最新候选 `0.1.26 (1026)`：专注窗口接受原生实际约束，大字号读取说明重排，原生 IME 两次返回与输入保留。来源 `cdae808fd082a4f6178a2d7460e7121726baf249`，249 同源设备/123 单元全套全部通过，12 专项及最终同 APK 实际深色大字号横屏 5 项通过；internal、release Kotlin/Manifest、离线边界通过，非正式 release APK。当前包由此次设备实际18原位升级26，版本来源及原3样例/45分钟核对，未读密钥/新增真实API。QA-056 按本机测量与工作流证据关闭，其他设备矩阵与 QA-055/剩余计划仍待。APK/清单与源码标签 v0.1.26 独立保留，旧标签不移动；没有用户试用。下方“最新候选”表述属于当时历史版本，不是现在安装版本。
+基础包名为 `com.swan1127.repland`；以下配置以 `android/app/build.gradle.kts` 为准。
 
-最新候选 `0.1.25 (1025)`：专注读取保留身份与输入、真实重试；任务编辑/专注进度保留非法原数字并拒绝写入。来源 `b7b6b9014c2e2af85e20b19f14979f1629356ed9`，123 单元、247 同源设备全套全部通过，6 专项、深色大字号横屏 3 项实际操作通过；internal、release Kotlin/Manifest、离线边界通过。当前包原位升级，版本和原样例核对；APK/清单与 v0.1.25 独立保留，旧标签不移动。QA-056 横屏专注裁切截图待复核，QA-055 和部分数字入口仍待，不称整个计划/视觉已完成。无密钥读取或新增真实 API，不包含用户试用。以下为历史版本证据。
+| 构建类型 | 包名 / 应用名 | 版本名 | 能力与用途 |
+| --- | --- | --- | --- |
+| `debug` | `.qa` / Repland 测试 | `0.1.35-qa` | 独立 QA 数据库；含可选 BYOK 远程适配器，默认仪器测试目标。 |
+| `designPreview` | `.design` / Repland 设计副本 | `0.1.35-design` | 独立设计副本与效果演示 Activity；含可选远程适配器，需显式选择测试构建。 |
+| `internal` | `.current` / Repland 当前版 | `0.1.35-internal` | 封闭内测，启用压缩与资源收缩，含可选远程适配器；保持同签名原位升级。 |
+| `release` | 基础包名 / Repland | `0.1.35` | 正式发布构建，启用压缩与资源收缩；不编入远程源码和联网 Manifest，使用本地能力。 |
 
-最新候选 `0.1.24 (1024)`：计划/轨道/助手/偏好失败读取保留真实快照和输入，实际重读代次保护；预览可保留关闭/恢复，偏好真实保存回执及防重复。来源 `d1d4b47f1aaa7c4f49388a761658716792f09473`，123 单元、241 同源设备全套全部通过，17 故障专项及深色 2 倍字号横屏 4 项通过；internal、release Kotlin/Manifest、离线边界通过。当前包原位升级并核对版本及原 3 样例/45 分钟；没有读取密钥/新增真实 API。APK/清单与 v0.1.24 独立保留，不移动旧标签。专注读取和任务/专注数字边界仍待续作；不包含用户试用。以下为历史版本证据。
+远程源码只加入 debug、designPreview、internal，Manifest 声明 Internet 权限并禁止明文流量。包含适配器不等于已经配置或获准发送数据；运行时仍需对应功能开启、用户同意与有效配置。release 没有该远程能力，保存配置不会使其联网。`verifyOfflineMvpBoundary` 检查 `src/main` 的禁止标记，不能据其通过断言 QA / design / internal 没有网络能力。
 
-最新候选 `0.1.23 (1023)`：任务/三种时间读取失败不转成空事实，保留最后完整值、表单输入和取消出口；实际重读后恢复，未可信时禁止规划与确认，确认服务再取完整快照。来源 `cc39e99aecff270fa20c053b69a0c8fe1cad081c`，123 单元、224 同源设备全套全部通过，internal、release Kotlin/Manifest、离线边界通过；15 故障专项和深色 2 倍字号横屏 4 项通过。当前包原位升级，版本来源与原 3 样例/45 分钟核对，未读取密钥/真实 API。v0.1.23 与本地 APK/清单独立保留；QA-052 在任务/时间读取范围关闭，QA-054 其他读取仍待处理。用户试用不在范围；以下为历史证据，不能跨版本沿用。
+包名隔离不能替代签名和数据保护。旧 `.internal` 与 `.current` 是不同身份，不得为了覆盖旧安装而卸载、清空数据或读取旧包密钥；也不得把历史设备记录写成当前安装状态。各包的个人数据与凭据不应相互复制来完成测试。
 
-最新候选 `0.1.22 (1022)`：原生页面返回恢复我的/助手/详情来源，保留抽屉键盘与保存保护。来源 `6d225db2932b91ac8856dc1791eb02a6ea1e7437`，117 单元、209 同源设备全套全部通过（失败/错误/跳过 0），internal、release Kotlin/Manifest、离线边界通过。同 APK 正常及深色 2 倍字号横屏各 3 项通过。当前实际 0.1.18 安装原位升级 1022，原 3 个样例/45 分钟保持，版本页来源核对；手查时间页系统返回正确。v0.1.22 独立保留；失败和环境恢复历史不删除。QA-052 可信读取仍待处理；招募、七天试用已移出范围。以下为历史版本证据。
+## 版本、签名与构建
 
-最新候选 `0.1.21 (1021)`：执行反馈/部分完成/纠正/延期/取消/替换稳定身份与重建保留；同步重复保护、失败保留、真实回执，非法数字不当未知；详情可见提示及视口避让，延期重排返回助手。来源 `e6ad930be12827d03475b8790c7ff06c795bd8d9`，117 单元、206 同源设备全套全部通过（失败/错误/跳过 0），internal、release Kotlin/Manifest、离线边界通过。同 APK 正常与深色 2 倍字号横屏各 6 项通过，当前包原位升级 1021，原 3 个 QA 标记/45 分钟仍在，未读取密钥或请求真实 API。v0.1.21 保留；前次目标刷新超时和横屏驱动失败不抹除。系统返回 QA-051、可信读取 QA-052、M5 外部验收仍待完成。以下为历史版本证据。
+版本默认值位于 `android/gradle.properties`，可用 `-PREPLAND_VERSION_CODE=…` 与 `-PREPLAND_VERSION_NAME=…` 覆盖。版本名采用语义化格式，版本码为正整数；同包后续更新须使用递增版本码并保持签名。推荐计算规则为 `MAJOR * 1_000_000 + MINOR * 1_000 + PATCH`，例如 `0.1.35 → 1035`。本轮没有调整版本号。
 
-最新候选 `0.1.20 (1020)`：时间设置入口、课程/例外/学期编辑接入；稳定身份与重建保留、保存失败恢复、数据及约束版本原子提交、结束 24:00 支持及 Snackbar 避让。来源 `8149a8ed66356c061094e144b801bb35dce7c5c5`，115 单元、196 同源设备全套全部通过（失败/错误/跳过 0），internal、release Kotlin/Manifest、离线边界通过。同 APK 正常及深色 2 倍字号横屏各 3 项补测通过，截图已查看；当前包原位升级 1020，未读取凭据或调用真实 API。v0.1.20 独立保留，旧标签不移动。首跑专项遮挡失败报告保留；系统返回导航 QA-051 与执行反馈 QA-044/045 后续处理，M5 外部验收仍待完成。以下为历史版本证据。
-
-最新候选 `0.1.19 (1019)`：课表只读识别、选择/编辑预览、默认钟点核对、明确确认后原子导入与去重、失败保留重试及实际数量回执。来源 `31c8e8b17c6688fa30755d7b07932d0c906ef496`，113 单元、188 同源设备全套全部通过（失败/跳过 0），internal、release Kotlin/Manifest、离线边界通过；同源真实 Activity 2 项补拍通过，已查看无遮挡预览/回执截图。当前包原位升级至 1019，原 3 个 QA 事项和 45 分钟仍在，未读取密钥、未调用真实 API。v0.1.19 独立保留，不移动旧标签。系统 watchdog 中断报告保留，同一 AVD 禁用快照/软件渲染冷启动后复测成功，不断言已定位具体显卡原因。真实用户 PDF、完整外部验收、时间设置编辑 QA-039 仍待完成。以下为历史版本证据，不跨版本沿用。
-
-最新候选为 `0.1.18 (1018)`：补齐已有任务稳定编辑身份、重建输入恢复、数值边界、保存失败保留/重试及真实回执。来源 `2247e8379e84fa97401413d9e0a6a4019ec56c9b`，113 单元、181 同源设备全套均通过（失败/跳过 0），internal、release Kotlin/Manifest、离线边界通过。当前版原位升级，自己的 QA-draft17-only 实际编辑为 45 分钟、返回任务页且总数未增加；未读取凭据。v0.1.18 独立保留，v0.1.16 / v0.1.17 不移动。时间约束编辑 QA-039、PDF 确认 QA-040 与完整真机验收仍未完成。最终通过不抹去之前全套 180/181 和两次专项失败记录。历史真实 API 证据不跨版本沿用。下段 0.1.10 为更早身份说明；各版证据见 DELIVERY_PROGRESS。
-
-当前候选为 `0.1.10 (1010)`。debug 使用 `.qa` application ID 隔离测试，图标名“Repland 测试”；internal 从 0.1.8 起使用 `.current`，图标名“Repland 当前版”。模拟器旧 `.internal` 签名与当前签名不同，不能保留数据覆盖；因此采用新身份，不卸载、不清空旧包，不提取旧包密钥。用户已在当前版重新配置，后续保持同一签名原位升级；0.1.10 安装后原测试事项和已确认时段仍在，未读取凭据，未重复调用模型。从仓库根目录运行 `./android/gradlew.bat -p android :app:recordBuildArtifacts` 可记录已生成 APK 的版本、来源和 SHA-256；应与打包任务一起运行。设置页显示版本、版本码及构建来源。
-
-版本名使用语义化格式 `MAJOR.MINOR.PATCH`，例如 `0.1.0`。版本号使用整数并必须递增；推荐计算方式为：
-
-```text
-MAJOR * 1_000_000 + MINOR * 1_000 + PATCH
-```
-
-例如 `0.1.0` 对应 `1000`。默认值在 `android/gradle.properties` 中定义，也可由 CI 或构建命令通过 `-PREPLAND_VERSION_CODE=…` 与 `-PREPLAND_VERSION_NAME=…` 覆盖。
-
-## 签名
-
-不得提交密钥、密码或 `android/keystore.properties`。正式 `release` 构建只接受以下四个完整的 Gradle 属性、环境变量或 `android/keystore.properties` 条目：
+不得提交密钥、密码或 `android/keystore.properties`。正式 release 需要以下四项完整配置，来源优先级为 Gradle 属性、环境变量、`android/keystore.properties`：
 
 ```properties
 REPLAND_RELEASE_STORE_FILE=C:/secure/repland-release.jks
@@ -45,26 +32,44 @@ REPLAND_RELEASE_KEY_ALIAS=repland
 REPLAND_RELEASE_KEY_PASSWORD=...
 ```
 
-缺少任一值时，`assembleRelease` / `bundleRelease` 会在打包前失败，避免意外生成未签名发布包。可使用：
+缺少任一值时，release 打包/签名任务会失败。internal 在完整配置存在时复用正式密钥，否则使用 Android debug key 作为本地/封闭测试回退；这种回退不能当成公开发布签名。更换 internal 的签名来源可能阻止原位升级，操作前必须核对已有安装身份。
+
+在仓库根目录使用 PowerShell：
 
 ```powershell
-cd android
-.\gradlew.bat :app:assembleRelease
-.\gradlew.bat :app:bundleRelease
+.\android\gradlew.bat -p android --no-daemon :app:assembleDebug
+.\android\gradlew.bat -p android --no-daemon :app:assembleDesignPreview
+.\android\gradlew.bat -p android --no-daemon :app:assembleInternal
+# 仅在完整发布签名配置就绪后执行：
+.\android\gradlew.bat -p android --no-daemon :app:assembleRelease
+.\android\gradlew.bat -p android --no-daemon :app:bundleRelease
 ```
 
-`internal` 是带 `.current` application ID 的封闭内测构建，启用压缩和资源收缩。配置正式签名后复用正式密钥；未配置时仅使用 Android debug key 便于本地和 CI 验证，不能用于公开发布：
+构建所需 JDK、SDK、隔离测试与 Windows 编译设置见[测试清单](TESTING.md)。命令示例是复验入口，不表示本轮已经执行。
+
+## 发布必要验收
+
+1. 固定交付源码身份：完整提交、工作区差异、版本属性和工具链；如交付包含未提交变更，必须有可恢复的对应快照及独立验证结果，不能只引用 HEAD。
+2. 对相同源码运行 debug / internal 构建、JVM 测试、debug / internal Lint、离线边界与隔离设备回归；按实际交付补测 designPreview 或 release。CI 的三个状态名称为 `Build and unit tests`、`Android Lint`、`Instrumented tests (API 26)`，应设为主分支必需检查；不能据文档推定分支保护已经配置。
+3. 按[测试清单](TESTING.md) 补齐最低支持版本 API 24/25、API 36 和真实设备的通知、后台、时区、PDF 文件访问、升级迁移及核心流程；明确未覆盖设备和失败/跳过项目。CI API 26 不等于最低版本验收。
+4. 对正式 release 核对正式签名、包名、版本、压缩后的运行和本地能力；对封闭远程构建补验授权、取消、超时与无效输出。同步核对[隐私说明](PRIVACY.md)，不得把真实凭据、数据库或个人模型正文放入公共证据。
+5. 记录交付 APK / AAB 的 SHA-256、签名身份、源码对应关系与实际验收范围；区分“已生成”“已安装验收”“已上传”“已公开发布”。未完成的阶段保持待验收，不提前宣称完成。
+
+当前未接入崩溃报告或分析 SDK；未来新增时须先更新隐私说明与授权机制。
+
+## 产物与证据身份
+
+将 `:app:recordBuildArtifacts` 与目标 APK 构建一起运行，可在 `android/app/build/outputs/build-manifest.txt` 记录当前版本、HEAD 和输出目录内 APK 的 SHA-256，例如：
 
 ```powershell
-.\gradlew.bat :app:assembleInternal
+.\android\gradlew.bat -p android --no-daemon :app:assembleInternal :app:recordBuildArtifacts
 ```
 
-## 自动化与真实设备回归
+该任务读取 APK 输出目录中的所有 APK，不证明每个文件都由本次命令生成；必须核对实际交付文件及其生成来源。`BUILD_SOURCE` 只记录 HEAD 的短提交，清单的 `source` 也只记录 HEAD，均不能表达未提交差异。AAB 的哈希需单独记录。安装验收还需核对设备上包名、版本、签名与实际 APK，不能以设置页或旧安装记录代替产物一致性检查。
 
-GitHub Actions 在每次推送和拉取请求执行 debug、internal 构建、单元测试、独立的 Android Lint 和 API 26 仪器测试。Lint 检查 debug 与 internal 两种构建，发现错误即失败，不通过新增 baseline 或忽略规则屏蔽问题。各项检查无论成功与否都会上传对应测试或 Lint 报告。
+保留的公共历史证据为：
 
-主分支保护应将 `Build and unit tests`、`Android Lint` 和 `Instrumented tests (API 26)` 设为必需状态检查。API 26 任务在启动模拟器前构建 APK，并明确验证 KVM 硬件加速；无加速时直接报错，避免软件模拟卡住安装而没有实际执行测试。
+- [2026-10-18 自动使用总结验证](verification/automatic-usage-summary-2026-10-18/README.md)：同版本 `0.1.35 / 1035`，当时 218 JVM、108 个不同设备用例；针对对应源码和专项范围。
+- [2026-10-11 验收记录](verification/final-0.1.35/README.md)：更早的同版本源码与 APK，150 JVM、310 QA 设备用例；包含当时设备与来源限制。
 
-发布候选还必须按 [TESTING.md](TESTING.md) 在真实设备完成通知、后台、时区、文件访问和升级迁移回归。
-
-当前不接入崩溃报告或分析 SDK。若未来新增，必须先满足 [PRIVACY.md](PRIVACY.md) 的数据说明和用户同意要求。
+两批证据不能累计、不能因版本号相同而互相替代，也不能证明 2026-10-20 HEAD 或当前未提交变更已通过。每次交付应在对应源码清单与新结果之间建立关系，并保留失败记录。文档清理的完整备份和恢复入口见[文档索引](DOCUMENTATION.md)。

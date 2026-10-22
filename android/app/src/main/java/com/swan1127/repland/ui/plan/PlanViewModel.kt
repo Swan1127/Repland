@@ -169,7 +169,7 @@ class PlanViewModel(
     fun saveAvailabilityAndGenerate(value: QuickAvailability, categoryPreferences: Map<TaskCategory, Int>, onSaved: () -> Unit) {
         if (operation.value.second) return
         operation.value = null to true
-        mutate {
+        mutate(trackGeneration = true) {
             require(value.isValid()) { "请填写今天或未来的日期及有效起止时间。" }
             val time = requireNotNull(timeRepository)
             if (value.repeatWeekly) {

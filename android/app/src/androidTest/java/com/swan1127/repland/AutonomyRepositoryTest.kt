@@ -124,6 +124,87 @@ class AutonomyRepositoryTest {
         } finally { db.close() }
     }
 
+    @Test fun undo_cannot_restore_a_placement_into_a_new_hard_time_block() = runBlocking {
+        val db = memory()
+        try {
+            availability(db)
+            val repo = RoomAutonomyRepository(db)
+            capture(repo, "复习物理60分钟")
+            val original = db.planDao().getCurrentPlanWithSegments()!!.segments.single()
+            RoomTimeRepository(db.timeDao()).saveDateOverride(DateOverrideDraft(
+                title = "临时会议", type = DateOverrideType.BLOCKED, date = day,
+                startMinute = original.startMinute, endMinute = original.endMinute,
+            ))
+            repo.reconcile()
+            val repaired = db.planDao().getCurrentPlanWithSegments()!!.segments.single()
+            assertTrue(repaired.endMinute <= original.startMinute || repaired.startMinute >= original.endMinute)
+            assertUndoBlockedWithoutWrites(db, repo, "冲突")
+        } finally { db.close() }
+    }
+
+    @Test fun undo_cannot_restore_a_placement_outside_updated_availability() = runBlocking {
+        val db = memory()
+        try {
+            availability(db)
+            val repo = RoomAutonomyRepository(db)
+            capture(repo, "复习物理60分钟")
+            val original = db.planDao().getCurrentPlanWithSegments()!!.segments.single()
+            val available = db.timeDao().getAllDateOverrides().single()
+            RoomTimeRepository(db.timeDao()).saveDateOverride(DateOverrideDraft(
+                id = available.id, title = "调整后的学习时间", type = DateOverrideType.AVAILABLE,
+                date = day, startMinute = original.endMinute, endMinute = 1440,
+            ))
+            repo.reconcile()
+            assertTrue(db.planDao().getCurrentPlanWithSegments()!!.segments.single().startMinute >= original.endMinute)
+            assertUndoBlockedWithoutWrites(db, repo, "可用时间")
+        } finally { db.close() }
+    }
+
+    @Test fun rejected_undo_rolls_back_task_restoration_and_appended_corrections_together() = runBlocking {
+        val db = memory()
+        try {
+            availability(db)
+            val repo = RoomAutonomyRepository(db)
+            capture(repo, "复习物理60分钟")
+            val task = db.taskDao().getAll().single()
+            val original = db.planDao().getCurrentPlanWithSegments()!!.segments.single()
+            RoomTimeRepository(db.timeDao()).saveDateOverride(DateOverrideDraft(
+                title = "临时会议", type = DateOverrideType.BLOCKED, date = day,
+                startMinute = original.startMinute, endMinute = original.endMinute,
+            ))
+            // A command can reach the repository before the debounced automatic repair.
+            repo.updateStatus(listOf(command(task.displayName, AutonomousTaskChange.Complete)), "done-before-repair")
+            assertEquals(TaskStatus.COMPLETED.name, db.taskDao().getById(task.id)!!.status)
+            assertTrue(db.planDao().getCurrentPlanWithSegments()!!.segments.isEmpty())
+            assertEquals(1, db.executionLogDao().getAll().size)
+            assertUndoBlockedWithoutWrites(db, repo, "冲突")
+            assertEquals(TaskStatus.COMPLETED.name, db.taskDao().getById(task.id)!!.status)
+            assertEquals(ExecutionLogEventType.STATUS_CHANGE.name, db.executionLogDao().getAll().single().eventType)
+        } finally { db.close() }
+    }
+
+    private suspend fun assertUndoBlockedWithoutWrites(db: ReplandDatabase, repo: RoomAutonomyRepository, reason: String) {
+        suspend fun persistedState(): List<Any?> = listOf(
+            db.taskDao().getAll(), db.planDao().getAllPlansWithSegments(), db.executionLogDao().getAll(),
+            db.timeDao().getAllWeeklyBlocks(), db.timeDao().getAllDateOverrides(), db.timeDao().getSemesterSettings(),
+            db.planningWorkspaceDao().getAutonomyExport(),
+            listOf("order", "order-undo", "draft").map { db.planningWorkspaceDao().get(it) },
+        )
+        val before = persistedState()
+        val delegation = repo.observe().first()
+        assertTrue(delegation.canUndo)
+        repeat(2) {
+            val failure = runCatching { repo.undo() }.exceptionOrNull()
+            assertNotNull("Unsafe undo must fail explicitly", failure)
+            assertTrue(failure!!.message.orEmpty().contains("本次未撤销"))
+            assertTrue(failure.message.orEmpty().contains(reason))
+            assertEquals("Rejected undo must leave all task, plan, time and journal data unchanged", before, persistedState())
+            assertEquals(delegation, repo.observe().first())
+        }
+        assertNull(repo.reconcile())
+        assertEquals(before, persistedState())
+    }
+
     @Test fun ambiguous_status_batch_rolls_back_all_tasks_and_logs() = runBlocking {
         val db = memory()
         try {

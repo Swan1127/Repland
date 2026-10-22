@@ -3,6 +3,7 @@ package com.swan1127.repland
 import com.swan1127.repland.domain.model.PlanDraft
 import com.swan1127.repland.domain.model.PlanGenerator
 import com.swan1127.repland.domain.model.PlanningOperationService
+import com.swan1127.repland.domain.model.QuickAvailability
 import com.swan1127.repland.domain.planteam.runtime.AcceptanceFinished
 import com.swan1127.repland.domain.planteam.runtime.DraftReady
 import com.swan1127.repland.testkit.PlanningOperationFixture
@@ -26,6 +27,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlanViewModelTeamIntegrationTest {
@@ -106,6 +108,35 @@ class PlanViewModelTeamIntegrationTest {
             assertNull(model.uiState.value.draft)
             assertFalse(model.uiState.value.isGenerating)
             assertFalse(model.uiState.value.isWorking)
+            assertEquals(0, fixture.plans.acceptCalls)
+        }
+    }
+
+    @Test fun quickAvailabilityGenerationCanBeCancelledWithoutClosingAsSaved() = runTest(dispatcher) {
+        val gate = CompletableDeferred<Unit>()
+        fixture.beforeLogs = { gate.await() }
+        val model = model()
+        var savedCallbacks = 0
+        val available = fixture.time.blocks.value.single()
+        val date = LocalDate.now().with(java.time.temporal.TemporalAdjusters.nextOrSame(available.dayOfWeek))
+        withModel(model) {
+            model.saveAvailabilityAndGenerate(
+                QuickAvailability(date, available.startMinute, available.endMinute, repeatWeekly = true),
+                fixture.preferences.weights.value,
+            ) { savedCallbacks++ }
+            advanceUntilIdle()
+            assertTrue(model.uiState.value.isGenerating)
+
+            model.cancelGeneration()
+            advanceUntilIdle()
+            gate.complete(Unit)
+            advanceUntilIdle()
+
+            assertNull(fixture.plans.draft.value)
+            assertFalse(model.uiState.value.isGenerating)
+            assertFalse(model.uiState.value.isWorking)
+            assertEquals(0, savedCallbacks)
+            assertEquals(listOf(available), fixture.time.blocks.value)
             assertEquals(0, fixture.plans.acceptCalls)
         }
     }

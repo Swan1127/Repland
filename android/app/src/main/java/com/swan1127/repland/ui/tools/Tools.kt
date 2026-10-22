@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -54,6 +55,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -177,7 +180,7 @@ private fun MemoryCapture(tasks: List<Task>, onAddPoint: (Task, String) -> Boole
 fun ReviewPointsTool(
     due: List<ReviewPoint>,
     upcomingCount: Int,
-    onGrade: (String, RecallGrade) -> Unit,
+    onGrade: suspend (String, RecallGrade) -> Boolean,
     onClose: () -> Unit,
     upcomingReviewPoints: List<ReviewPoint> = emptyList(),
     today: LocalDate = LocalDate.now(),
@@ -185,7 +188,27 @@ fun ReviewPointsTool(
     onAddPoint: ((Task, String) -> Boolean)? = null,
 ) {
     BackHandler(onBack = onClose)
-    var gradedPointIds by rememberSaveable { mutableStateOf(emptyList<String>()) }
+    var gradedPointIds by rememberSaveable(today) { mutableStateOf(emptyList<String>()) }
+    var pendingPointIds by remember { mutableStateOf(emptyList<String>()) }
+    var failedPointIds by rememberSaveable(today) { mutableStateOf(emptyList<String>()) }
+    val scope = rememberCoroutineScope()
+    fun recordGrade(id: String, grade: RecallGrade) {
+        // Guard synchronously: a second tap may arrive before a disabled button recomposes.
+        if (id in pendingPointIds || id in gradedPointIds) return
+        pendingPointIds = pendingPointIds + id
+        failedPointIds = failedPointIds - id
+        scope.launch {
+            try {
+                val saved = try { onGrade(id, grade) }
+                catch (cancelled: CancellationException) { throw cancelled }
+                catch (_: Exception) { false }
+                if (saved) gradedPointIds = gradedPointIds + id
+                else failedPointIds = failedPointIds + id
+            } finally {
+                pendingPointIds = pendingPointIds - id
+            }
+        }
+    }
     val duePoints = due.filter { !it.isGraduated && it.isDueOn(today) }.distinctBy(ReviewPoint::id)
     val upcoming = upcomingReviewPoints
         .filter { !it.isGraduated && !it.isDueOn(today) }
@@ -222,13 +245,10 @@ fun ReviewPointsTool(
                 today = today,
                 dateFormatter = dateFormatter,
                 graded = point.id in gradedPointIds,
+                busy = point.id in pendingPointIds,
+                failed = point.id in failedPointIds,
                 early = false,
-                onGrade = { grade ->
-                    if (point.id !in gradedPointIds) {
-                        gradedPointIds = gradedPointIds + point.id
-                        onGrade(point.id, grade)
-                    }
-                },
+                onGrade = { grade -> recordGrade(point.id, grade) },
                 onReviewAgain = { gradedPointIds = gradedPointIds - point.id },
             )
         }
@@ -244,13 +264,10 @@ fun ReviewPointsTool(
                     today = today,
                     dateFormatter = dateFormatter,
                     graded = point.id in gradedPointIds,
+                    busy = point.id in pendingPointIds,
+                    failed = point.id in failedPointIds,
                     early = true,
-                    onGrade = { grade ->
-                        if (point.id !in gradedPointIds) {
-                            gradedPointIds = gradedPointIds + point.id
-                            onGrade(point.id, grade)
-                        }
-                    },
+                    onGrade = { grade -> recordGrade(point.id, grade) },
                     onReviewAgain = { gradedPointIds = gradedPointIds - point.id },
                 )
             }
@@ -265,6 +282,8 @@ private fun MemoryReviewCard(
     today: LocalDate,
     dateFormatter: DateTimeFormatter,
     graded: Boolean,
+    busy: Boolean,
+    failed: Boolean,
     early: Boolean,
     onGrade: (RecallGrade) -> Unit,
     onReviewAgain: () -> Unit,
@@ -321,6 +340,23 @@ private fun MemoryReviewCard(
                 modifier = Modifier.testTag("review-grade-again"),
             ) { Text(stringResource(R.string.memory_review_grade_again)) }
         } else {
+            if (failed) {
+                Text(
+                    text = stringResource(R.string.memory_review_save_failed),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag("review-grade-error")
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
+            if (busy) {
+                Text(
+                    text = stringResource(R.string.memory_review_saving),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag("review-grade-saving")
+                        .semantics { liveRegion = LiveRegionMode.Polite },
+                )
+            }
             Text(
                 text = stringResource(R.string.review_point_prompt),
                 style = MaterialTheme.typography.titleSmall,
@@ -333,14 +369,17 @@ private fun MemoryReviewCard(
             ) {
                 DesignButton(
                     onClick = { onGrade(RecallGrade.RECALLED) },
+                    enabled = !busy,
                     modifier = Modifier.testTag("review-remembered"),
                 ) { Text(stringResource(R.string.review_point_remembered)) }
                 DesignOutlinedButton(
                     onClick = { onGrade(RecallGrade.FUZZY) },
+                    enabled = !busy,
                     modifier = Modifier.testTag("review-fuzzy"),
                 ) { Text(stringResource(R.string.memory_review_fuzzy)) }
                 DesignOutlinedButton(
                     onClick = { onGrade(RecallGrade.FORGOT) },
+                    enabled = !busy,
                     modifier = Modifier.testTag("review-forgotten"),
                 ) { Text(stringResource(R.string.review_point_forgotten)) }
             }

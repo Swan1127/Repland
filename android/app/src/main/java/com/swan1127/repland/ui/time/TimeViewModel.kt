@@ -140,7 +140,7 @@ class TimeViewModel(
             try {
                 action()
                 retryAction = null
-                mutation.value = TimeMutationState(kind, targetId, receipt = "$receipt；现有任务计划未自动重新安排")
+                mutation.value = TimeMutationState(kind, targetId, receipt = receipt)
                 onSaved()
             } catch (cancelled: CancellationException) {
                 retryAction = null

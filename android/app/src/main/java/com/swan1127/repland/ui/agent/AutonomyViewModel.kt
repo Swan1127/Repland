@@ -65,7 +65,10 @@ class AutonomyViewModel(
     private suspend fun reconcile() = work.withLock {
         try {
             val result = repository.reconcile()
-            if (result != null) mutable.update { it.copy(error = null) }
+            // Publish the receipt at the same serialized boundary as explicit commands.
+            // The repository observer may arrive later, so it only refreshes delegation;
+            // it must not overwrite a newer query or the capture's understanding prefix.
+            if (result != null) mutable.update { it.copy(response = result, queryResults = null, error = null) }
         } catch (c: CancellationException) { throw c }
         catch (e: Exception) { fail(e.message ?: "本次自动调整未完成，原数据保留。") }
     }

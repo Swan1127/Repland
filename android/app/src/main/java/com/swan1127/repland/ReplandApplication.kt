@@ -89,9 +89,12 @@ class AppContainer(context: Context) {
     val personalProfileStore = com.swan1127.repland.data.profile.LocalPersonalProfileStore(context)
     val auxiliaryStore = com.swan1127.repland.data.AuxiliaryStore(context)
     val dataManagementRepository: DataManagementRepository = RoomDataManagementRepository(database) {
-        personalProfileStore.clear()
-        auxiliaryStore.clearLearningMemory()
-        planningOperationService.clearTeamMemory()
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                personalProfileStore.clear()
+                auxiliaryStore.clearLearningMemory()
+            } finally { planningOperationService.clearTeamMemory() }
+        }
     }
     val aiSettingsRepository: AiSettingsRepository = RoomAiSettingsRepository(database.aiSettingsDao())
     val usageSummaryRepository = com.swan1127.repland.data.room.RoomUsageSummaryRepository(database, aiProviderConfigRepository)

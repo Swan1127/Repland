@@ -27,6 +27,7 @@ fun LearningMemorySettings(
     onEnabledChange: (Boolean) -> Unit,
     pointCount: Int,
     modifier: Modifier = Modifier,
+    interactive: Boolean = true,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -41,7 +42,7 @@ fun LearningMemorySettings(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 48.dp)
-                    .toggleable(value = enabled, role = Role.Switch, onValueChange = onEnabledChange)
+                    .toggleable(value = enabled, enabled = interactive, role = Role.Switch, onValueChange = onEnabledChange)
                     .testTag("learning-memory-reference-switch"),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -51,7 +52,7 @@ fun LearningMemorySettings(
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleSmall,
                 )
-                Switch(checked = enabled, onCheckedChange = null)
+                Switch(checked = enabled, onCheckedChange = null, enabled = interactive)
             }
             Text(
                 text = stringResource(R.string.memory_settings_description),

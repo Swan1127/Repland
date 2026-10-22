@@ -52,12 +52,12 @@ class PlanningOperationService(
     private val previewMutex = Mutex()
     private val mutableTeamPreview = MutableStateFlow(PlanningTeamPreview())
     val teamPreview: StateFlow<PlanningTeamPreview> = mutableTeamPreview.asStateFlow()
-    private var memoryGuard: Pair<PlanDraft, MemoryReference?>? = null
+    private val generationEpoch = java.util.concurrent.atomic.AtomicLong()
 
     fun clearTeamMemory() {
+        generationEpoch.incrementAndGet()
         planningTeam.memoryBank().clear()
         mutableTeamPreview.value = PlanningTeamPreview()
-        memoryGuard = null
     }
 
     suspend fun query(scope: TaskQueryScope, date: LocalDate = LocalDate.now()): List<Task> {
@@ -85,6 +85,7 @@ class PlanningOperationService(
     }
 
     suspend fun preview(kind: PlanningPreviewKind): PlanDraft = previewMutex.withLock {
+        val epoch = generationEpoch.get()
         mutableTeamPreview.value = PlanningTeamPreview(isRunning = kind != PlanningPreviewKind.SORT_ONLY)
         try {
         val source = reads.snapshot()
@@ -105,6 +106,7 @@ class PlanningOperationService(
                 val logs = executionLogs(now.toLocalDate())?.filter { log ->
                     log.taskId in taskIds && Instant.ofEpochMilli(log.createdAtEpochMillis).atZone(clock.zone).toLocalDate() == now.toLocalDate()
                 }
+                require(generationEpoch.get() == epoch) { "规划记录已清除，本次生成已取消。" }
                 planningTeam.run(
                     PlanTeamContext(
                         requestKind = PlanRequestKind.FULL_REPLAN,
@@ -119,10 +121,11 @@ class PlanningOperationService(
                         todayOnly = kind == PlanningPreviewKind.ARRANGE_TODAY,
                     ),
                     NoOpAiAdvisor,
-                ) { event -> mutableTeamPreview.update { it.copy(events = it.events + event) } }
+                ) { event -> if (generationEpoch.get() == epoch) mutableTeamPreview.update { it.copy(events = it.events + event) } }
                     .also { teamResult = it }.draft
             }
-        }.copy(sourceRevision = source.revision, orderOnly = kind == PlanningPreviewKind.SORT_ONLY)
+        }.copy(sourceRevision = source.revision, orderOnly = kind == PlanningPreviewKind.SORT_ONLY,
+            memoryReferenceRevision = if (kind == PlanningPreviewKind.SORT_ONLY) null else memoryRevision(memory))
         var draft = if (result.orderOnly) result.copy(segments = emptyList(), unscheduledTasks = emptyList()) else result
         // Optional read-only advice. A failed/disabled profile cannot prevent basic local planning.
         if (!draft.orderOnly && numericProfile != null) {
@@ -141,12 +144,15 @@ class PlanningOperationService(
         require(reads.snapshot().revision == source.revision) { "生成期间任务、时间或偏好已变化，请重新预览。" }
         require(kind == PlanningPreviewKind.SORT_ONLY || memoryReference(LocalDate.now(clock)) == memory) { "复习反馈或记忆参考设置已变化，请重新预览；原草案和计划保留。" }
         require(plans.observeDraft().first() == previousDraft) { "生成期间草案已被修改，请先查看当前预览；本次未覆盖。" }
-        plans.saveDraft(draft)
-        memoryGuard = if (kind == PlanningPreviewKind.SORT_ONLY) null else draft to memory
+        require(generationEpoch.get() == epoch) { "规划记录已清除，本次生成已取消。" }
+        plans.saveGeneratedDraftIfCurrent(previousDraft, draft)
         mutableTeamPreview.update { it.copy(result = teamResult?.copy(draft = draft), draft = draft, isRunning = false) }
         draft
         } finally {
-            mutableTeamPreview.update { it.copy(isRunning = false) }
+            if (generationEpoch.get() != epoch) {
+                planningTeam.memoryBank().clear()
+                mutableTeamPreview.value = PlanningTeamPreview()
+            } else mutableTeamPreview.update { it.copy(isRunning = false) }
         }
     }
 
@@ -155,14 +161,18 @@ class PlanningOperationService(
         // still revalidate revisions and hard constraints immediately before commit.
         reads.snapshot()
         require(draft.sourceRevision != null) { "这份旧草案缺少来源版本，请重新生成预览；原草案和计划仍保留。" }
-        memoryGuard?.takeIf { (original, _) -> original.generatedAt == draft.generatedAt && original.sourceRevision == draft.sourceRevision }?.let { (_, memory) ->
-            require(memoryReference(LocalDate.now(clock)) == memory) { "复习反馈或记忆参考设置已变化，请重新预览；当前计划保留。" }
+        draft.memoryReferenceRevision?.let { revision ->
+            require(memoryRevision(memoryReference(LocalDate.now(clock))) == revision) { "复习反馈或记忆参考设置已变化，请重新预览；当前计划保留。" }
         }
-        plans.accept(draft)
+        plans.confirmDraftIfCurrent(draft)
     }
     suspend fun confirmChanges(tasks: List<TaskDraft>, segments: List<PlannedSegment>, existingIds: Set<String>, date: LocalDate): AssistantSaveResult =
         run {
             reads.snapshot()
             plans.saveAssistantChanges(tasks, segments, existingIds, date)
         }
+
+    private fun memoryRevision(reference: MemoryReference?): String = java.security.MessageDigest
+        .getInstance("SHA-256").digest((reference?.toString() ?: "reference-disabled").toByteArray(Charsets.UTF_8))
+        .joinToString("") { "%02x".format(it) }
 }

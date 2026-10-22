@@ -31,6 +31,11 @@ data class MemoryBars(
     val retrievability: Float,
 )
 
+/**
+ * A local memory model using FSRS's stability/difficulty and forgetting-curve shape.
+ * The gains are bounded, hand-set priors calibrated against the old review ladder, not fitted
+ * FSRS weights: a successful due-day path starts at 1 / 2 / 4 / 7 / 13 days.
+ */
 object MemoryModel {
     const val Decay: Double = -0.5
     const val Factor: Double = 19.0 / 81.0

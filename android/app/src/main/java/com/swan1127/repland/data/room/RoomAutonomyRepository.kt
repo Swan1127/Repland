@@ -222,7 +222,8 @@ class RoomAutonomyRepository(private val database: ReplandDatabase) : AutonomyRe
         restoreWorkspace(WINDOWS, journal.nullableString("windows"))
         restoreWorkspace(HELD, journal.nullableString("held"))
         val beforePlanId = journal.nullableString("planId")
-        val actualPlanId = current()?.id
+        val actualPlan = current()
+        val actualPlanId = actualPlan?.id
         if (beforePlanId != actualPlanId) {
             if (beforePlanId == null) {
                 val now = LocalDateTime.now()
@@ -233,8 +234,17 @@ class RoomAutonomyRepository(private val database: ReplandDatabase) : AutonomyRe
                 database.planDao().archiveCurrentPlan()
             } else {
                 val previous = requireNotNull(database.planDao().getPlanWithSegments(beforePlanId)).toDomain()
-                persistPlan(PlanDraft(LocalDateTime.now(), previous.segments, emptyList(), emptyList(),
-                    previous.orderedTaskIds, hasManualTaskOrder = previous.hasManualTaskOrder), previous.segments)
+                try {
+                    // Only placements that are still current may bypass validation. A placement
+                    // reintroduced by undo must respect the latest time constraints, too.
+                    persistPlan(PlanDraft(LocalDateTime.now(), previous.segments, emptyList(), emptyList(),
+                        previous.orderedTaskIds, hasManualTaskOrder = previous.hasManualTaskOrder), actualPlan?.segments.orEmpty())
+                } catch (invalid: IllegalArgumentException) {
+                    throw IllegalArgumentException(
+                        "原安排无法恢复，本次未撤销；任务、当前安排和时间设置均已保留。${invalid.message.orEmpty()}可在日程或时间设置中处理冲突。",
+                        invalid,
+                    )
+                }
             }
         }
         restoreWorkspace("order", journal.nullableString("order"))
