@@ -34,6 +34,8 @@ bash gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease :app
 
 链接为 `app/src/main/java/com/swan1127/repland` → `<工程根>/repland`，链接自身不入库。AGP 9 使用其内置 Kotlin 支持，保留当前插件声明及 `android.disallowKotlinSourceSets=false`。
 
+Linux CI 在全新检出目录执行 `bash prepare-ci-sources.sh`，为 AGP/K2 Lint 提供常规源码目录。脚本先调用现有链接脚本，确认链接精确指向本工程的 `repland/`，只移除该链接，再复制源码并逐项比较内容；遇到已有普通目录会明确失败。这个构建副本由 Git 忽略，`repland/` 仍是唯一入库的生产源码。Windows 开发继续使用上述 junction 流程；不要在含真实源码或已有构建副本的目录重复运行 CI 准备脚本。
+
 Debug 产物位于 `app/build/outputs/apk/debug/app-debug.apk`。Release 为未签名构建，需要发布时另行配置签名。APK、缓存、个人配置及验证导出文件不随源码提交。
 
 ## 验证与私人 fixture

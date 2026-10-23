@@ -32,10 +32,9 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-      - name: Restore canonical source link and check private fixture exclusion
+      - name: Prepare verified CI source copy and check private fixture exclusion
         run: |
-          bash ./setup-junction.sh
-          test "$(readlink -f app/src/main/java/com/swan1127/repland)" = "$(pwd)/repland"
+          bash ./prepare-ci-sources.sh
           test ! -e app/src/androidTest/assets/user-timetable.pdf
           test ! -e app/src/androidTest/assets/user-timetable.expected.txt
       - name: Install compile SDK
@@ -67,10 +66,9 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-      - name: Restore canonical source link and check private fixture exclusion
+      - name: Prepare verified CI source copy and check private fixture exclusion
         run: |
-          bash ./setup-junction.sh
-          test "$(readlink -f app/src/main/java/com/swan1127/repland)" = "$(pwd)/repland"
+          bash ./prepare-ci-sources.sh
           test ! -e app/src/androidTest/assets/user-timetable.pdf
           test ! -e app/src/androidTest/assets/user-timetable.expected.txt
       - name: Install compile SDK
@@ -102,10 +100,9 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           packages: platform-tools emulator
-      - name: Restore canonical source link and check private fixture exclusion
+      - name: Prepare verified CI source copy and check private fixture exclusion
         run: |
-          bash ./setup-junction.sh
-          test "$(readlink -f app/src/main/java/com/swan1127/repland)" = "$(pwd)/repland"
+          bash ./prepare-ci-sources.sh
           test ! -e app/src/androidTest/assets/user-timetable.pdf
           test ! -e app/src/androidTest/assets/user-timetable.expected.txt
           echo "::notice::Private PDF fixture is absent; its tests must report assumption skips."
