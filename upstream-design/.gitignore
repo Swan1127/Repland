@@ -1,0 +1,61 @@
+# Build output
+build/
+.gradle/
+.kotlin/
+captures/
+.cxx/
+
+# Local machine configuration (contains absolute SDK paths)
+local.properties
+
+# Verification scratch space (generated fixtures, adb dumps, exported PNGs)
+_verify/
+
+# Packaged source snapshot
+repland.zip
+
+# IDE metadata
+*.iml
+.idea/
+.vscode/
+
+# Agent-local state and work logs
+.workbuddy-ai/
+
+# The build-time directory junction. app/src/main/java/com/swan1127/repland is a
+# junction pointing at <root>/repland, so Git would otherwise track all 157 sources
+# TWICE. The real sources live in repland/ and are tracked from there; a fresh
+# clone must recreate the junction (see the note in app/build.gradle.kts).
+app/src/main/java/com/swan1127/repland
+
+# OS noise
+Thumbs.db
+.DS_Store
+
+# Local verification scratch (screenshots, dumps, ANR traces)
+.tmp_*
+.anr.txt
+
+# User-supplied timetable used only for local instrumentation verification.
+app/src/androidTest/assets/user-timetable.pdf
+app/src/androidTest/assets/user-timetable.expected.txt
+
+# Local packages and private verification exports
+/apk/
+/verification/
+/_verify/
+*.apk
+*.aab
+*.apks
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# Provider credentials and signing material
+.env
+.env.*
+!.env.example
+keystore.properties
+*.jks
+*.keystore

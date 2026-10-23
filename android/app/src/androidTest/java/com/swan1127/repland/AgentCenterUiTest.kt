@@ -148,7 +148,7 @@ class AgentCenterUiTest {
             onSaveTasks = { error("must not create a copy") }, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
         rule.onNodeWithTag("agent-prompt").performTextInput("把原任务1改到12点")
-        rule.onNodeWithTag("agent-preview").performClick()
+        rule.onNodeWithTag("agent-preview").performScrollTo().assertIsDisplayed().performClick()
         rule.waitUntil { request != null }
         rule.waitForIdle()
         assertEquals(50, request!!.existingTasks.size)
@@ -179,7 +179,7 @@ class AgentCenterUiTest {
             onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
         rule.onNodeWithTag("agent-prompt").performTextInput("复习英语")
-        rule.onNodeWithTag("agent-preview").performClick()
+        rule.onNodeWithTag("agent-preview").performScrollTo().assertIsDisplayed().performClick()
         rule.waitUntil { calls == 1 }
         val expected = stored
         rule.runOnIdle { revision.value = 2L }
@@ -255,7 +255,7 @@ class AgentCenterUiTest {
             onWorkspaceChanged = { stored = it }, onSaveTasks = {}, onPlaceTask = { _, _, _, _ -> }, onOpenTimeStudio = {},
         ) } }
         rule.onNodeWithTag("agent-prompt").performTextInput("复习英语")
-        rule.onNodeWithTag("agent-preview").performClick()
+        rule.onNodeWithTag("agent-preview").performScrollTo().assertIsDisplayed().performClick()
         rule.waitUntil { calls == 1 }
         rule.onNodeWithTag("agent-prompt").performTextClearance()
         rule.runOnIdle { response.complete(ArrangementAssistantAdviceResult.Advice(
@@ -447,7 +447,8 @@ class AgentCenterUiTest {
         }
 
         rule.onNodeWithTag("agent-prompt").performTextInput("我想复习英语和写报告")
-        rule.onNodeWithTag("agent-preview").performClick()
+        // The AI data-scope controls can put this button below a compact viewport.
+        rule.onNodeWithTag("agent-preview").performScrollTo().assertIsDisplayed().performClick()
 
         rule.waitUntil(3_000) { calls == 1 }
         rule.onNodeWithText("复习英语").fetchSemanticsNode()

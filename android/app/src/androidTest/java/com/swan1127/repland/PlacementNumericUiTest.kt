@@ -36,8 +36,14 @@ class PlacementNumericUiTest {
         rule.onNodeWithTag("event-hour-input").assertTextContains("-8")
         rule.onNodeWithTag("event-place-confirm").assertIsNotEnabled()
         rule.onNodeWithTag("event-hour-input").performTextReplacement("08")
-        rule.onNodeWithTag("event-place-confirm").assertIsEnabled().performClick()
-        assertEquals(1, writes); assertEquals(480, minute)
+        if (NativeSheetTestInput.shell("dumpsys input_method").contains("mWindowVisible=true")) {
+            NativeSheetTestInput.shell("input keyevent 4")
+            rule.waitUntil(10_000) {
+                !NativeSheetTestInput.shell("dumpsys input_method").contains("mWindowVisible=true")
+            }
+        }
+        rule.onNodeWithTag("event-place-confirm").performScrollTo().assertIsDisplayed().assertIsEnabled().performClick()
+        rule.runOnIdle { assertEquals(1, writes); assertEquals(480, minute) }
     }
 
     @Test fun course_duration_is_not_clamped_into_validity_and_clock_parts_do_not_carry() {

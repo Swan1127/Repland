@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  English strings.
+
+  Two invariants are enforced by I18nResourceTest, and both are load-bearing:
+
+  1. This file is key-for-key identical to values/strings.xml. A key added to one and not the
+     other is a screen that silently falls back to Chinese on an English phone — which is how a
+     half-translated app happens, one commit at a time.
+  2. This file contains no CJK characters anywhere, comments included. That is why the section
+     headings below are in English while the ones in values/strings.xml are not: a guard that has
+     to exempt comments cannot tell a missed translation from a heading.
+
+  Format specifiers must match the default file exactly (%1$s, %2$d, %3$s, and %% for a literal
+  percent). The guard compares them per key, because a mismatch is not a cosmetic problem — it
+  throws IllegalFormatException the moment the string is formatted.
+-->
+<resources>
+
+    <string name="app_name">Repland</string>
+
+    <!-- ============ Main navigation ============ -->
+    <string name="tab_today">Today</string>
+    <string name="tab_tasks">Tasks</string>
+    <string name="tab_time">Time</string>
+    <string name="tab_agent">Assistant</string>
+    <string name="tab_mine">Mine</string>
+
+    <string name="today_title">Today</string>
+    <string name="tasks_title">Tasks</string>
+    <string name="time_title">Time</string>
+    <string name="agent_title">Assistant</string>
+    <string name="mine_title">Mine</string>
+
+    <!-- ============ Shared actions ============ -->
+    <string name="add">Add</string>
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+    <string name="confirm">Confirm</string>
+    <string name="confirm_anyway">Confirm anyway</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="complete">Done</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
+
+    <!-- ============ Tasks ============ -->
+    <string name="add_task">New task</string>
+    <string name="edit_task">Edit task</string>
+    <string name="task_information">Task details</string>
+    <string name="task_name">Task name</string>
+    <string name="task_name_hint">e.g. Review Linear Algebra, chapter 3</string>
+    <string name="task_description">Description</string>
+    <string name="unknown_task">Unknown task</string>
+    <string name="save_task_error">Could not save the task</string>
+    <string name="complete_task">Mark complete</string>
+    <string name="task_cancel">Cancel task</string>
+    <string name="cancel_task_message">A cancelled task stops being scheduled. Continue?</string>
+    <string name="restore_task">Restore task</string>
+    <string name="replace_task">Replace task</string>
+    <string name="replacement_task_format">Replaced by %1$s</string>
+
+    <!-- Fields -->
+    <string name="category">Category</string>
+    <string name="priority">Priority</string>
+    <string name="current_status">Status</string>
+    <string name="due_date_optional">Due date (optional)</string>
+    <string name="duration_minutes_optional">Estimated time in minutes (optional)</string>
+    <string name="estimated_days">Estimated days</string>
+    <string name="estimated_days_format">Estimated days: %1$d</string>
+    <!-- The repeat vocabulary; see values/strings.xml for why "No repeat" is a chip. -->
+    <string name="repeat_rule">Repeat</string>
+    <string name="repeat_none">No repeat</string>
+    <string name="repeat_daily">Daily</string>
+    <string name="repeat_weekly">Weekly</string>
+    <string name="repeat_monthly">Monthly</string>
+    <string name="repeat_hint">Completing it moves it on to the next one; if it has no date, one is scheduled.</string>
+    <string name="duration_format">%1$d min</string>
+    <string name="actual_duration_optional">Actual time</string>
+    <string name="progress_optional">Progress</string>
+    <string name="progress_format">Progress %1$d%%</string>
+    <string name="percent_suffix" formatted="false">%</string>
+    <string name="completed_content">What was done</string>
+    <string name="completed_content_optional">What was done (optional)</string>
+    <string name="completed_content_required">Please describe what was done</string>
+    <string name="completion_result">Outcome</string>
+    <string name="completion_result_optional">Outcome (optional)</string>
+    <string name="partial_completion">Partly done</string>
+    <string name="partial_progress_required">Please enter the progress reached</string>
+    <string name="unscheduled_duration">Unscheduled time</string>
+
+    <!-- Category values -->
+    <string name="category_course">Course</string>
+    <string name="category_extracurricular">Extracurricular</string>
+    <string name="category_office">Errands</string>
+    <string name="category_leisure">Leisure</string>
+
+    <!-- Priority values -->
+    <string name="priority_required">Choose a priority</string>
+    <string name="priority_high">High</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_low">Low</string>
+
+    <!-- Status values -->
+    <string name="status_not_started">Not started</string>
+    <string name="status_in_progress">In progress</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_postponed">Postponed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_replaced">Replaced</string>
+    <string name="confirmed_status_format">Confirmed as "%1$s"</string>
+
+    <!-- ============ Dynamic priority ============ -->
+    <string name="dynamic_priority_score">Dynamic priority %1$s</string>
+    <string name="initial_priority_fixed">Initial priority fixed at "%1$s"</string>
+    <string name="priority_reason_initial">Initial priority %1$d</string>
+    <string name="priority_reason_category">Category weight %1$d</string>
+    <string name="priority_reason_due_today">Due today</string>
+    <string name="priority_reason_due_in_days">Due in %1$d days</string>
+    <string name="priority_reason_overdue">%1$d days overdue</string>
+    <string name="priority_reason_postponed">Postponed %1$d times</string>
+    <string name="priority_reason_ai_neutral">AI suggests no change</string>
+
+    <!-- ============ Postponing ============ -->
+    <string name="postpone">Postpone</string>
+    <string name="postpone_reason">Reason</string>
+    <string name="postpone_reason_optional">Reason (optional)</string>
+    <string name="postpone_notice">Postponing records a reason, which adjusts later plans</string>
+    <string name="postponement_guidance_title">Postponed repeatedly</string>
+    <string name="postponement_guidance_message">This task has been postponed %1$d times. Consider narrowing its scope or moving the due date</string>
+    <string name="adjust_task_scope_or_date">Adjust the scope or the date</string>
+
+    <!-- ============ Time and timetable ============ -->
+    <string name="day_of_week">Day</string>
+    <string name="monday">Mon</string>
+    <string name="tuesday">Tue</string>
+    <string name="wednesday">Wed</string>
+    <string name="thursday">Thu</string>
+    <string name="friday">Fri</string>
+    <string name="saturday">Sat</string>
+    <string name="sunday">Sun</string>
+
+    <string name="start_time">Start time</string>
+    <string name="end_time">End time</string>
+    <string name="start_period">First period</string>
+    <string name="end_period">Last period</string>
+    <string name="course_period_format">Period %1$s</string>
+    <string name="time_hint">Time hint</string>
+
+    <string name="block_kind">Block type</string>
+    <string name="block_kind_course">Class</string>
+    <string name="block_kind_available">Available</string>
+    <string name="block_kind_rest">Rest</string>
+    <string name="block_kind_other">Other</string>
+
+    <string name="time_block_name">Block name</string>
+    <string name="time_block_name_hint">e.g. Calculus</string>
+    <string name="time_block_error">Check the block details</string>
+    <string name="add_weekly_block">Add recurring block</string>
+    <string name="edit_weekly_block">Edit recurring block</string>
+
+    <string name="override_date">Date</string>
+    <string name="override_type">Type</string>
+    <string name="override_available">Can be scheduled</string>
+    <string name="override_blocked">Cannot be scheduled</string>
+    <string name="add_date_override">Add a date override</string>
+    <string name="edit_date_override">Edit the date override</string>
+
+    <string name="delete_time_entry">Delete time entry</string>
+    <string name="delete_time_entry_message">Delete the time entry "%1$s"?</string>
+
+    <!-- Semester weeks -->
+    <string name="semester_week_title">Semester week</string>
+    <string name="semester_week_date">Semester week and date</string>
+    <string name="set_semester_week">Set the semester week</string>
+    <string name="edit_semester_week">Edit the semester week</string>
+    <string name="semester_week_set">Set to %1$s</string>
+    <string name="semester_week_unset">Not set</string>
+    <string name="semester_week_editor_title">Set the current semester week</string>
+    <string name="semester_week_editor_hint">Pick the teaching week this week falls in</string>
+    <string name="semester_week_error">Could not save the semester week</string>
+
+    <!-- Timetable import -->
+    <string name="import_timetable_pdf">Import a timetable PDF</string>
+    <string name="import_timetable_hint">Recognises classes from a timetable PDF, entirely on this device</string>
+    <string name="import_default_period_note">Periods that cannot be read are filled in from the default timetable</string>
+    <string name="import_selected_format">%1$d courses selected</string>
+    <string name="timetable_import_review">Review the import</string>
+    <string name="edit_imported_course">Edit the imported course</string>
+    <string name="imported_course_error">Check the course details</string>
+    <string name="week_pattern_optional">Weeks (optional, e.g. 1-8, 10)</string>
+
+    <!-- ============ Plan ============ -->
+    <string name="plan_overview_title">Plan overview</string>
+    <string name="current_plan_label">Current plan</string>
+    <string name="plan_pending_tasks">Waiting to be scheduled</string>
+    <string name="plan_unassigned_task">%1$s · %2$d min still unscheduled</string>
+    <string name="plan_segment_count">Segments: %1$d</string>
+    <string name="plan_feasibility_warning">There is more work than there is time</string>
+    <string name="capacity_total_window_reason">Not enough total time in the planning window</string>
+    <string name="capacity_before_due_reason">Not enough time before the due date</string>
+    <string name="capacity_rolling_window_reason">Not enough time in the rolling window</string>
+
+    <string name="plan_segment_edit_note">Manual changes affect the current plan only</string>
+    <string name="plan_segment_edit_error">Could not change the segment</string>
+    <string name="plan_segment_overlap_warning">This overlaps something already scheduled</string>
+    <string name="edit_plan_segment">Edit segment</string>
+    <string name="segment_locked">Locked</string>
+    <string name="lock_segment">Lock</string>
+    <string name="unlock_segment">Unlock</string>
+
+    <string name="clear_current_plan">Clear the current plan</string>
+    <string name="clear_current_plan_title">Clear the current plan</string>
+    <string name="clear_current_plan_message">A cleared plan cannot be restored. Continue?</string>
+    <string name="restore_plan">Restore the plan</string>
+    <string name="no_plan_history">No earlier plans</string>
+    <string name="plan_history_version">Earlier versions</string>
+
+    <!-- ============ Plan drafts and assistant suggestions ============ -->
+    <string name="plan_draft_title">Plan draft</string>
+    <string name="plan_draft_notice">The draft takes effect only once you accept it</string>
+    <string name="accept_plan_draft">Accept the draft</string>
+    <string name="discard_plan_draft">Discard the draft</string>
+    <string name="review_agent_draft">Review the assistant draft</string>
+    <string name="review_adjustment_draft">Review the adjustment draft</string>
+    <string name="agent_draft_accepted">Draft accepted</string>
+    <string name="agent_draft_dismissed">Draft discarded</string>
+    <string name="agent_draft_review_notice">The assistant only suggests; you decide whether to accept</string>
+    <string name="editable_agent_advice">Editable assistant suggestion</string>
+    <string name="request_agent_daily_summary">Summarise today</string>
+
+    <!-- ============ AI advisor ============ -->
+    <string name="ai_advisor_title">AI advisor</string>
+    <string name="ai_advisor_description">Produces suggestions only, and never changes your data</string>
+    <string name="ai_advice_result_title">Suggestion</string>
+    <string name="ai_advice_needs_review">A suggestion takes effect only once you accept it</string>
+    <string name="ai_advisor_consent_needed">Your consent is needed</string>
+    <string name="ai_advisor_consent_recorded">Consent recorded</string>
+    <string name="ai_consent_title">What you are consenting to</string>
+    <string name="ai_consent_message">When enabled, requests you submit to the assistant, relevant plans and feedback, and recent conversation, category preferences and profile summaries used by group chat are sent to your configured AI service to generate suggestions. Suggestions are saved to tasks or schedules only after you confirm. You can turn this off at any time.</string>
+    <string name="ai_consent_confirm">I understand</string>
+    <string name="ai_requesting">Requesting…</string>
+    <string name="ai_request_confirm">Send</string>
+    <string name="ai_request_preview_title">What will be sent</string>
+    <string name="ai_request_preview_notice">This is used only to produce a suggestion, and never runs on its own</string>
+    <string name="ai_request_preview_segments_title">Plan segments</string>
+    <string name="ai_request_preview_no_segments">No plan segments</string>
+    <string name="ai_request_preview_task_count">Unscheduled tasks: %1$d</string>
+    <string name="ai_request_preview_feedback_title">Recent feedback</string>
+    <string name="ai_request_preview_no_feedback">No feedback yet</string>
+    <string name="ai_request_preview_daily_feedback">Daily reflection entries: %1$d</string>
+    <string name="ai_request_preview_feedback_format">Feedback %1$d: took %2$s, progress %3$s</string>
+    <string name="ai_request_preview_excluded_data">Never sent: task notes, profile text, API keys</string>
+
+    <!-- AI failure reasons -->
+    <string name="ai_failure_disabled">The AI advisor is off</string>
+    <string name="ai_failure_not_configured">No AI service is configured yet</string>
+    <string name="ai_failure_transport">Could not reach the network</string>
+    <string name="ai_failure_timeout">The request timed out</string>
+    <string name="ai_failure_authentication">Authentication failed — check the API key</string>
+    <string name="ai_failure_rate_limited">Too many requests — try again shortly</string>
+    <string name="ai_failure_remote">The service returned an error</string>
+    <string name="ai_failure_invalid_response">The response could not be read</string>
+
+    <!-- ============ Daily reflection and execution history ============ -->
+    <string name="open_daily_review">Open the daily reflection</string>
+    <string name="daily_review_title">Daily reflection · %1$s</string>
+    <string name="daily_review_notice">Record what actually happened, which adjusts later plans</string>
+    <string name="daily_review_planned_segments">Planned segments</string>
+    <string name="daily_review_pending_segments">Still to handle</string>
+    <string name="daily_review_recorded_feedback">Feedback recorded</string>
+    <string name="daily_review_feedback_count">Feedback entries: %1$d</string>
+    <string name="daily_review_no_feedback">Nothing has been recorded today</string>
+    <string name="daily_review_next_suggestion">Next suggestion: %1$s</string>
+    <string name="skip_daily_review">Skip today</string>
+    <string name="record_feedback">Record feedback</string>
+    <string name="latest_feedback">Latest feedback</string>
+    <string name="feedback_does_not_change_status">Recording feedback does not change a task status</string>
+    <string name="feedback_validation_error">The feedback is incomplete</string>
+
+    <string name="execution_logs">History</string>
+    <string name="no_execution_logs">No history yet</string>
+    <string name="log_event_status_change">Status change</string>
+    <string name="log_event_feedback">Feedback</string>
+    <string name="log_event_partial_completion">Partly done</string>
+    <string name="log_event_correction">Correction</string>
+    <string name="log_event_replacement">Replacement</string>
+    <string name="correct_log">Correct an entry</string>
+    <string name="corrects_log_format">Corrects %1$s</string>
+    <string name="correction_notice">Correcting keeps the original entry</string>
+
+    <!-- ============ Profile evidence ============ -->
+    <string name="profile_evidence_title">Profile evidence</string>
+    <string name="profile_evidence_intro">Based on confirmed feedback on this device; relevant summaries may support planning suggestions when AI group chat is enabled</string>
+    <string name="generate_profile_evidence">Generate profile evidence</string>
+    <string name="no_profile_evidence">No profile evidence yet</string>
+    <string name="profile_evidence_conclusion">Conclusion</string>
+    <string name="profile_evidence_sources_title">Based on</string>
+    <string name="profile_evidence_source_format">Source %1$s</string>
+    <string name="profile_evidence_source_unavailable">That source is no longer available</string>
+    <string name="profile_evidence_tool_outputs_title">Related tool notes (not counted above)</string>
+    <string name="profile_evidence_tool_output_format">%1$s · %2$s: %3$s</string>
+    <string name="profile_evidence_tool_output_more">%1$d more</string>
+    <string name="profile_evidence_tool_kind_kwl">KWL — learned</string>
+    <string name="profile_evidence_tool_kind_review_point">Review point</string>
+    <string name="profile_evidence_tool_kind_self_explanation">Self-explanation</string>
+    <string name="profile_evidence_scope_general">General</string>
+    <string name="profile_evidence_scope_learning">Learning</string>
+    <string name="profile_evidence_generated">Generated</string>
+    <string name="profile_evidence_user_edited">Edited by hand</string>
+    <string name="profile_evidence_validation_error">The content does not meet the requirements</string>
+    <string name="profile_evidence_action_error">That did not work</string>
+    <string name="edit_profile_evidence">Edit profile evidence</string>
+    <string name="edit_profile_evidence_notice">A hand edit is marked "Edited by hand"</string>
+    <string name="delete_profile_evidence_title">Delete profile evidence</string>
+    <string name="delete_profile_evidence_message">This cannot be undone. Continue?</string>
+    <string name="no_introduction">No summary yet</string>
+
+    <!-- ============ Avatar and nickname (batch 3, item 11) ============ -->
+    <string name="profile_default_name">Learner</string>
+    <string name="profile_identity_hint">Tap the avatar or nickname to set it</string>
+    <string name="profile_name_title">Set a nickname</string>
+    <string name="profile_name_hint">Nickname</string>
+    <string name="profile_name_save">Save</string>
+    <string name="profile_avatar_change">Change avatar</string>
+    <string name="profile_avatar_clear">Remove avatar</string>
+    <string name="profile_avatar_not_image">That is not an image file</string>
+    <string name="profile_avatar_too_large">Image too large (%1$d MB max)</string>
+
+    <!-- ============ Category weights ============ -->
+    <string name="category_preferences_title">Category weights</string>
+    <string name="category_preferences_intro">Adjust how much each category counts towards dynamic priority</string>
+    <string name="category_preferences_error">Could not save the weights</string>
+    <string name="save_category_preferences">Save the weights</string>
+
+    <!-- ============ Reminders ============ -->
+    <string name="local_reminders_title">Local reminders</string>
+    <string name="local_reminders_description">Uses the system alarm clock, with no network</string>
+    <string name="reminder_channel_name">Plan reminders</string>
+    <string name="reminder_channel_description">Reminders for segment starts, deadlines and the daily reflection</string>
+    <string name="reminder_start_title">Starting soon: %1$s</string>
+    <string name="reminder_start_content">A planned segment is about to start</string>
+    <string name="reminder_deadline_title">Due: %1$s</string>
+    <string name="reminder_deadline_content">Today is the due date for %1$s</string>
+    <string name="reminder_review_title">Daily reflection</string>
+    <string name="reminder_review_content">Take a minute to record how today went</string>
+    <string name="notification_permission_needed">Notifications must be allowed before reminders can arrive</string>
+    <string name="pending_confirmation_open_task">A task is waiting for confirmation</string>
+
+    <!-- ============ On-device data ============ -->
+    <string name="local_data_title">On-device data</string>
+    <string name="local_data_intro">Data is stored on this device by default. When AI is enabled and you confirm a request, relevant context is sent to your configured service. JSON exports contain business records; full app restoration is not supported yet.</string>
+    <string name="export_local_json">Export as JSON</string>
+    <string name="export_local_xlsx">Export as a spreadsheet (.xlsx)</string>
+    <string name="export_local_xlsx_hint">Timetable, blocks, tasks and time invested, readable in Excel</string>
+    <string name="export_local_data_success">Exported</string>
+    <string name="export_local_data_failed">Export failed</string>
+    <string name="clear_local_data">Erase on-device data</string>
+    <string name="clear_local_data_title">Erase on-device data</string>
+    <string name="clear_local_data_message">Everything stored on this device will be deleted and cannot be recovered. Continue?</string>
+    <string name="clear_local_data_confirm">Erase</string>
+    <string name="clear_local_data_success">On-device data erased</string>
+    <string name="clear_local_data_failed">Could not erase the data</string>
+
+    <!-- ============ Tab navigation and the command palette ============ -->
+    <string name="tab_plan">Plan</string>
+    <string name="plan_tab_title">Plan</string>
+    <string name="command_open_palette">Command palette</string>
+    <string name="command_search_hint">Search for a screen or an action</string>
+    <string name="command_no_match">Nothing matches</string>
+    <string name="command_result_count">Results: %1$d</string>
+    <string name="command_group_navigate">Go to</string>
+    <string name="command_group_task">Tasks</string>
+    <string name="command_group_plan">Plan</string>
+    <string name="command_group_time">Time and timetable</string>
+    <string name="command_group_review">Review and reflect</string>
+    <string name="command_group_method">Study methods</string>
+    <string name="command_group_data">Data and export</string>
+    <string name="command_group_appearance">Appearance</string>
+    <string name="back_to_primary">Back</string>
+
+    <!-- ============ D6 Appearance and dark mode ============ -->
+    <string name="appearance_title">Appearance</string>
+    <string name="appearance_mode">Theme</string>
+    <string name="appearance_mode_system">Follow the system</string>
+    <string name="appearance_mode_light">Light</string>
+    <string name="appearance_mode_dark">Dark</string>
+    <string name="appearance_mode_body">Dark is not white-on-black: hierarchy moves to lightness, accents lose saturation, and the ground avoids pure black.</string>
+    <string name="appearance_accent">Colour theme</string>
+    <string name="appearance_accent_body">A colour theme changes only the brand and second-emphasis colours. The warm neutrals, the page-and-card depth, and light or dark all stay the same.</string>
+    <string name="theme_accent_bamboo">Bamboo</string>
+    <string name="theme_accent_indigo">Indigo</string>
+    <string name="theme_accent_plum">Plum</string>
+
+    <!-- ============ D5 Undo and redo ============ -->
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="undo_done">Undone: %1$s</string>
+    <string name="redo_done">Redone: %1$s</string>
+    <string name="undo_nothing">Nothing to undo</string>
+
+    <!-- ============ D3 calendar export and D4 image export ============ -->
+    <string name="export_ics">Export a calendar (.ics)</string>
+    <string name="export_ics_today">Export today’s plan</string>
+    <string name="export_ics_all">Export every plan</string>
+    <string name="export_ics_success">Calendar file exported</string>
+    <string name="export_ics_failed">Calendar export failed</string>
+    <string name="export_image">Export an image</string>
+    <string name="export_image_timetable">Export the timetable image</string>
+    <string name="export_image_plan">Export the plan image</string>
+    <string name="export_image_success">Image saved to the gallery</string>
+    <string name="export_image_failed">Image export failed</string>
+
+    <!-- ============ D1 Excel timetable import ============ -->
+    <string name="import_excel">Import an Excel timetable</string>
+    <string name="import_excel_hint">Reads .xlsx directly, with no dependencies and no network</string>
+    <string name="import_paste">Paste a timetable</string>
+    <string name="import_paste_hint">Copy the cells in Excel, then paste them in one tap</string>
+    <string name="import_paste_empty">The clipboard holds no usable table</string>
+    <string name="import_excel_success">Courses found: %1$d</string>
+    <string name="import_excel_failed">No courses could be read from this file</string>
+    <string name="import_timetable_done_skip">%1$d more already existed, so they were not added twice</string>
+    <string name="import_timetable_done_none">All %1$d courses had already been imported, so nothing was added</string>
+    <string name="import_timetable_done_empty">Courses were found, but none could be placed on the timetable</string>
+
+    <!-- ============ D2 Timetable sets ============ -->
+    <string name="timetable_sets">Timetable sets</string>
+    <string name="timetable_set_new">New timetable set</string>
+    <string name="timetable_set_name">Set name</string>
+    <string name="timetable_set_activate">Use this one</string>
+    <string name="timetable_set_active">In use</string>
+    <string name="timetable_set_switch_hint">Only one set is active at a time, so the hard constraints never clash</string>
+    <string name="timetable_set_saved">Timetable set saved</string>
+    <string name="timetable_set_deleted">Timetable set "%1$s" deleted</string>
+    <string name="timetable_set_delete_title">Delete timetable set</string>
+    <string name="timetable_set_delete_message">Delete the timetable set "%1$s"? This cannot be undone.</string>
+
+    <!-- ============ D8 Review points ============ -->
+    <string name="review_points">Review points</string>
+    <string name="insights_title">Learning insights</string>
+    <string name="review_point_new">New review point</string>
+    <string name="review_point_prompt">Can you still recall it?</string>
+    <string name="review_point_remembered">I recalled it</string>
+    <string name="review_point_forgotten">I forgot</string>
+    <string name="review_point_due">Review points due today: %1$d</string>
+    <string name="review_point_created_from">From "%1$s"</string>
+    <string name="review_point_none">No review points yet</string>
+    <string name="review_card_title">Review card</string>
+    <string name="review_point_scheduled">Scheduled for review in %1$d days</string>
+
+    <!-- ============ E4 Reflection log ============ -->
+    <string name="reflection_title">Today’s reflection</string>
+    <string name="reflection_keep">Keep it</string>
+    <string name="reflection_edit">Edit it</string>
+    <string name="reflection_skip">Skip today</string>
+    <string name="reflection_saved">Today’s reflection saved</string>
+    <string name="reflection_empty">Nothing was recorded today, so there is no draft to build</string>
+    <string name="reflection_draft_label">Draft (editable)</string>
+
+    <!-- ============ E3 Self-explanation ============ -->
+    <string name="self_explanation_title">Explain it in one sentence</string>
+    <string name="self_explanation_prompt">If you had to teach this to a classmate, which sentence would you start with?</string>
+    <string name="self_explanation_hint">The part you cannot explain is the part you do not really know</string>
+    <string name="self_explanation_saved">Your explanation was recorded</string>
+    <string name="self_explanation_optional">Teach it to a classmate (optional, one sentence)</string>
+
+    <!-- ============ E1 KWL chart ============ -->
+    <string name="kwl_title">KWL chart</string>
+    <string name="kwl_known">What I already know</string>
+    <string name="kwl_want">What I want to know</string>
+    <string name="kwl_learned">What I learned</string>
+    <string name="kwl_generate">Generate a KWL draft</string>
+    <string name="kwl_generated">Draft ready — cross out what is wrong and add one entry</string>
+    <string name="kwl_saved">KWL saved</string>
+
+    <!-- ============ E2 SQ3R scaffold ============ -->
+    <string name="sq3r_title">Reading scaffold</string>
+    <string name="sq3r_hint">Open a step when you need it; you do not have to go in order</string>
+    <string name="sq3r_survey">Survey</string>
+    <string name="sq3r_survey_hint">Look at the contents, headings and figures first — 5 minutes</string>
+    <string name="sq3r_question">Question</string>
+    <string name="sq3r_question_hint">Turn each heading into a question</string>
+    <string name="sq3r_read">Read</string>
+    <string name="sq3r_read_hint">Read with the questions in mind, and stop when you find an answer</string>
+    <string name="sq3r_recite">Recite</string>
+    <string name="sq3r_recite_hint">Close the book and answer in your own words</string>
+    <string name="sq3r_review">Review</string>
+    <string name="sq3r_review_hint">Recite first tomorrow, then read on</string>
+
+    <!-- ============ D7 Semester-week recomputation ============ -->
+    <string name="semester_week_recompute">Weeks recalculated from the new semester start</string>
+
+    <!-- ============ Tool screens, extra copy ============ -->
+    <string name="self_explanation_empty">No finished task has an explanation yet. Writing one right after you finish something is when it is worth the most.</string>
+    <string name="self_explanation_save">Save this sentence</string>
+    <string name="self_explanation_clue">What was recorded at the time</string>
+    <string name="self_explanation_seeded">This sentence is scheduled for review on days 1 / 2 / 4 / 7 / 15</string>
+    <string name="timetable_set_delete">Delete</string>
+    <string name="timetable_set_none">No timetable set has been saved yet. Save the current timetable as a set, then switch between sets as a whole.</string>
+    <string name="timetable_set_from_current">Save the current timetable as a set</string>
+    <string name="timetable_set_saved_count">Saved %1$d timetable entries</string>
+    <string name="timetable_set_switched">Switched to "%1$s"</string>
+    <string name="timetable_set_drifted">The current timetable matches no saved set exactly (it was edited, or new courses were imported). Save it as a new set, or tap "Use this one" to go back to a set.</string>
+    <string name="export_image_hint">The image is written straight to the gallery, with no network involved.</string>
+    <string name="export_image_empty">There is nothing to export right now.</string>
+    <string name="import_excel_pick">Choose an .xlsx file</string>
+
+    <!-- D5 Undo and redo, palette entries and step names. The notices live in the D5 block above. -->
+    <string name="undo_palette_undo">Undo the last step</string>
+    <string name="undo_palette_redo">Redo</string>
+    <string name="undo_palette_will_undo">Will undo: %1$s</string>
+    <string name="undo_palette_will_redo">Will restore: %1$s</string>
+    <string name="undo_palette_empty_undo">Nothing to undo right now (history is kept only for this session)</string>
+    <string name="undo_palette_empty_redo">Nothing to redo right now (history is kept only for this session)</string>
+    <string name="undo_step_delete_block">Delete the timetable block "%1$s"</string>
+    <string name="undo_step_delete_override">Delete the exception day "%1$s"</string>
+    <string name="undo_step_switch_set">Switch to the timetable set "%1$s"</string>
+
+    <!-- Date display patterns. These are DateTimeFormatter patterns rather than prose, so the
+         M / d / E / y letters are format specifiers and must be left alone. They live in resources
+         because a pattern decides the language a date is printed in: keeping them in code is what
+         produced "English screen, Chinese date". -->
+    <string name="date_pattern_month_day">MMM d</string>
+    <string name="date_pattern_month_day_weekday">EEEE, MMM d</string>
+    <string name="date_pattern_month_day_short_weekday">EEE, MMM d</string>
+    <string name="date_pattern_month_day_dot_weekday">EEEE, MMM d</string>
+    <string name="date_pattern_numeric_month_day_weekday">EEE M/d</string>
+    <string name="date_pattern_numeric_month_day">M/d</string>
+    <string name="date_pattern_weekday_short">EEE</string>
+    <string name="date_pattern_year_month_day">MMM d, yyyy</string>
+
+    <!-- Task date labels: the two relative words taskDateLabel can say, plus the date picker's
+         confirm button. Everything else goes through the patterns above. -->
+    <string name="task_date_today">Today</string>
+    <string name="task_date_tomorrow">Tomorrow</string>
+    <string name="date_picker_confirm">OK</string>
+
+    <!-- Task card summary. These are format strings: %1$s / %2$s are already-localised dates and
+         %3$d is a minute count. They carry the date's position in the sentence, so they have to
+         follow the language too — otherwise an English screen keeps a Chinese "due" in front of an
+         English date. -->
+    <string name="task_summary_in_progress">In progress</string>
+    <string name="task_summary_completed">Completed</string>
+    <string name="task_summary_postponed">Postponed</string>
+    <string name="task_summary_overdue">Overdue · %1$s</string>
+    <string name="task_summary_needs_rescheduling">Needs rescheduling · %1$s</string>
+    <string name="task_summary_planned_due_minutes">Planned %1$s · Due %2$s · %3$d min</string>
+    <string name="task_summary_planned_due">Planned %1$s · Due %2$s</string>
+    <string name="task_summary_planned_minutes">Planned %1$s · %2$d min</string>
+    <string name="task_summary_planned">Planned %1$s</string>
+    <string name="task_summary_due_minutes">Due %1$s · %2$d min</string>
+    <string name="task_summary_due">Due %1$s</string>
+    <string name="task_summary_unscheduled_minutes">Unscheduled · %1$d min</string>
+    <string name="task_summary_unscheduled">Unscheduled</string>
+
+    <!-- Exported plan image. The bitmap is drawn on a Canvas with no Context, so the caller
+         resolves these from resources and hands them in. -->
+    <string name="plan_image_title_week">Weekly timetable</string>
+    <string name="plan_image_empty_plan">Nothing scheduled today</string>
+    <string name="plan_image_empty_timetable">No fixed blocks yet</string>
+    <string name="plan_image_segment_count">%1$d scheduled blocks</string>
+    <string name="plan_image_block_count">%1$d fixed blocks</string>
+    <string name="plan_image_missing_task">Deleted task</string>
+    <string name="plan_image_week_overview">All teaching weeks · Check each course’s weeks; this image is not filtered to the current week</string>
+    <string name="plan_image_week_pattern">Weeks: %1$s</string>
+    <string name="plan_image_unrestricted_weeks">Every week (no week restriction)</string>
+
+    <!-- The deadline step is entirely about dates, so its heading travels with them; the Today /
+         Tomorrow row labels reuse the task_date_* words above. -->
+    <string name="task_capture_deadline_title">When does this need to be done?</string>
+    <string name="task_capture_deadline_hint">These are shortcuts, not limits — browse the calendar, or switch to typing a date.</string>
+    <string name="task_capture_deadline_week">In a week</string>
+    <string name="task_capture_deadline_week_hint">By %1$s</string>
+    <string name="task_capture_deadline_custom">Pick another date</string>
+    <string name="task_capture_deadline_custom_hint">Any date, or type one in</string>
+
+    <!-- Metacognition recommendations. The rules live in ToolRecommendation.kt and are pure; each
+         reason below takes exactly one argument, and ToolRecommendationResourceTest reads both
+         files to prove the placeholder kind matches the argument kind. -->
+    <string name="tool_suggest_title">Right now</string>
+    <string name="tool_suggest_open">Open</string>
+    <string name="tool_suggest_review_points">%1$d review points are due today</string>
+    <string name="tool_suggest_sq3r">The reading block for “%1$s” just ended — run it through the scaffold</string>
+    <string name="tool_suggest_kwl">“%1$s” is done — capture what you learned with a KWL chart</string>
+    <string name="tool_suggest_reflection">%1$d tasks finished today — write one line of reflection</string>
+    <string name="tool_suggest_self_explanation">“%1$s” is done — explain it in your own words</string>
+
+    <!-- Timetable conflicts. The rule lives in WeeklyBlockConflicts.kt and is pure; this is only
+         the wording it needs. -->
+    <string name="conflict_banner_title">%1$d overlapping time blocks</string>
+    <string name="conflict_banner_body">Two blocks claim the same minutes. If they really run in parallel, give them different tracks and this goes away.</string>
+    <string name="conflict_row_pair">%1$s and %2$s</string>
+
+    <!-- Batch actions. The selection model and the "which rows does this touch" rule live in
+         TaskSelection.kt and are pure; this is only the wording. The three batch_action_* keys each
+         get their own entry instead of reusing `cancel`: they are driven by BatchTaskAction.entries
+         and TaskBatchResourceTest checks one key per enum entry, which reuse would defeat. -->
+    <string name="batch_select_mode">Select</string>
+    <string name="batch_exit">Exit</string>
+    <string name="batch_selected_count">%1$d selected</string>
+    <string name="batch_select_all">Select all</string>
+    <string name="batch_action_complete">Complete</string>
+    <string name="batch_action_cancel">Cancel</string>
+    <string name="batch_action_restore">Restore</string>
+    <string name="batch_confirm_title">Batch action</string>
+    <string name="batch_confirm_body">%1$d tasks will be marked “%2$s”.</string>
+    <string name="batch_confirm_skipped">%1$d more cannot take this action (already replaced, or the current status forbids it) and will be skipped.</string>
+
+    <!-- Home-screen widget. The rules live in WidgetSchedule.kt and are pure; every key below is
+         parsed out of HomeWidgetProvider.kt by WidgetScheduleResourceTest, so a missing
+         translation cannot pass silently. The header reuses today_title: one word for one thing. -->
+    <string name="widget_label_now">Now</string>
+    <string name="widget_label_late">Overdue</string>
+    <string name="widget_label_next">Next</string>
+    <string name="widget_time_range">%1$s–%2$s</string>
+    <string name="widget_empty_title">Nothing scheduled yet today</string>
+    <string name="widget_empty_hint">Pick something from your tasks and drop it on today’s track.</string>
+    <string name="widget_done_title">Today’s schedule is over</string>
+    <string name="widget_remaining">%1$d more today</string>
+
+    <!-- Today's focal card. The rule lives in ui/schedule/TimelineFocus.kt and is pure. It reuses
+         the three phase words above and both empty-state lines: one word, one key, or the two
+         surfaces drift apart in wording. The two keys below are the card's own — it has an extra
+         line for parallel blocks and renders the unscheduled count as a numbered button. -->
+    <string name="today_parallel_count">%1$d more in the same slot</string>
+    <string name="today_unplaced_count">%1$d to schedule</string>
+
+    <!-- Calendar import. The reader lives in IcsImporter.kt and the mapping in CalendarImport.kt,
+         both pure. The strings below are how the result is *worded*: added, duplicates and ignored
+         are three separate sentences because they mean opposite things — "already there" is the
+         correct outcome of re-importing, while "ignored" is a request this app will not carry out. -->
+    <string name="import_calendar_title">Calendar file</string>
+    <string name="import_calendar_hint">An .ics file exported from your phone calendar. Its entries are added as occupied time, so automatic planning will not schedule over them; weekly repeats become fixed blocks.</string>
+    <string name="import_reading">Reading the file…</string>
+    <string name="import_calendar_pick">Choose .ics file</string>
+    <string name="calendar_import_untitled">(untitled entry)</string>
+    <string name="calendar_import_success">Imported %1$d entries</string>
+    <string name="calendar_import_none_new">%1$d entries were already in your timetable</string>
+    <string name="calendar_import_none">No entries to import in this calendar</string>
+    <string name="calendar_import_breakdown">%1$d weekly blocks · %2$d one-day entries</string>
+    <string name="calendar_import_duplicate">%1$d more were already there and were not added again</string>
+    <string name="calendar_import_ignored">%1$d ignored (cancelled, marked free, or exported by this app)</string>
+    <string name="calendar_import_approximated">%1$d repeating entries were imported as always-on — the file says they end, and a semester start date would make them exact</string>
+    <string name="subtask_progress_chip">✓ %1$d/%2$d</string>
+    <string name="subtasks_title">Subtasks</string>
+    <string name="subtasks_eyebrow">Break it down</string>
+    <string name="subtasks_empty">No subtasks yet — break this into a few steps.</string>
+    <string name="subtask_add_hint">Add a step…</string>
+    <string name="subtask_add">Add</string>
+    <string name="subtask_remove">Delete %1$s</string>
+    <string name="subtask_progress_label">%1$d / %2$d done</string>
+</resources>

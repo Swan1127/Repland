@@ -84,7 +84,17 @@ class PriorityScheduleUiTest {
         rule.onNodeWithTag("schedule-detail-mode").performClick()
         val positions = listOf("high", "middle", "low", "unknown").map { rule.onNodeWithTag("timeline-$it").getUnclippedBoundsInRoot().top }
         assertEquals(positions.sorted(), positions)
-        rule.onAllNodesWithText("09:30").assertCountEquals(2)
+        // Compact rows join the time range; wider rows render two labels.
+        // Check each original entry so neither layout can hide a changed time.
+        mapOf(
+            "high" to ("09:00" to "10:00"),
+            "middle" to ("09:30" to "10:30"),
+            "low" to ("09:30" to "10:00"),
+            "unknown" to ("08:00" to "08:20"),
+        ).forEach { (id, times) ->
+            rule.onNodeWithTag("timeline-$id")
+                .assert(hasText(times.first, substring = true) and hasText(times.second, substring = true))
+        }
         rule.onNodeWithTag("timeline-unknown").performScrollTo().assertIsDisplayed()
     }
 

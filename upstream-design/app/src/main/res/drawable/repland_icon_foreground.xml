@@ -1,0 +1,9 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Three time tracks resolve into a continuous, ascending rhythm. -->
+    <path android:fillColor="#F5F6EE" android:pathData="M32,34 Q32,30 36,30 L65,30 Q69,30 69,34 L69,39 Q69,43 65,43 L36,43 Q32,43 32,39 Z" />
+    <path android:fillColor="#B6D6C2" android:pathData="M40,48 Q40,44 44,44 L73,44 Q77,44 77,48 L77,53 Q77,57 73,57 L44,57 Q40,57 40,53 Z" />
+    <path android:fillColor="#F5F6EE" android:pathData="M32,66 Q32,62 36,62 L57,62 Q61,62 61,66 L61,71 Q61,75 57,75 L36,75 Q32,75 32,71 Z" />
+    <path android:fillColor="#E5C995" android:pathData="M70,65 A5,5 0,1 1,70,75 A5,5 0,1 1,70,65" />
+</vector>

@@ -2,6 +2,7 @@ package com.swan1127.repland
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.swan1127.repland.domain.model.DateOverrideDraft
 import com.swan1127.repland.domain.model.DateOverrideType
@@ -9,9 +10,13 @@ import com.swan1127.repland.domain.model.TaskInputSource
 import com.swan1127.repland.domain.model.TaskStatus
 import com.swan1127.repland.domain.planteam.runtime.AcceptanceFinished
 import com.swan1127.repland.domain.planteam.runtime.DraftReady
+import com.swan1127.repland.ui.tasks.TaskCaptureViewModel
 import java.time.LocalDate
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -28,11 +33,23 @@ class UnifiedAppWorkflowUiTest {
         check(rule.activity.packageName == "com.swan1127.repland.qa")
         runBlocking {
             app.autonomyRepository.setEnabled(false)
-            app.dataManagementRepository.clearAllLocalData()
-            app.autonomyRepository.setEnabled(false)
-            app.aiSettingsRepository.setEnabled(false)
+            val capture = withContext(Dispatchers.Main) {
+                ViewModelProvider(rule.activity, TaskCaptureViewModel.Factory(app.taskCaptureRepository))
+                    .get(TaskCaptureViewModel::class.java)
+            }
+            withTimeout(10_000) { capture.uiState.first { !it.loading } }
+            withContext(Dispatchers.Main) { capture.prepareForDataClear() }
+            var cleared = false
+            try {
+                app.dataManagementRepository.clearAllLocalData()
+                cleared = true
+                app.autonomyRepository.setEnabled(false)
+                app.aiSettingsRepository.setEnabled(false)
+            } finally {
+                withContext(Dispatchers.Main) { capture.finishDataClear(cleared) }
+            }
         }
-        // Refresh UI caches and restore the actual cold-start route after the repository reset.
+        // Recreation retains ViewModels; reset their pending draft writes before clearing storage.
         rule.activityRule.scenario.recreate()
         waitTag("navigation-today")
     }
@@ -42,6 +59,8 @@ class UnifiedAppWorkflowUiTest {
     }
 
     private fun hideImeIfVisible() {
+        // Let Compose commit the replacement before native Back can trigger a blur callback.
+        rule.waitForIdle()
         if (NativeSheetTestInput.shell("dumpsys input_method").contains("mWindowVisible=true")) {
             NativeSheetTestInput.shell("input keyevent 4")
             rule.waitUntil(10_000) {
@@ -51,6 +70,21 @@ class UnifiedAppWorkflowUiTest {
         rule.waitForIdle()
     }
 
+    private fun clickCapture(tag: String) {
+        hideImeIfVisible()
+        NativeSheetTestInput.awaitFocusedDialog(rule, "新任务")
+        val node = rule.onNodeWithTag(tag)
+        var parent = node.fetchSemanticsNode().parent
+        var scrollable = false
+        while (parent != null) {
+            if (parent.config.contains(androidx.compose.ui.semantics.SemanticsActions.ScrollBy)) scrollable = true
+            parent = parent.parent
+        }
+        // On API 26's compact display the entire sheet scrolls, including its footer.
+        if (scrollable) node.performScrollTo()
+        node.assertIsDisplayed().assertIsEnabled().performClick()
+    }
+
     @Test fun realTaskAndAvailabilityReachTheTeamAndLearningMemoryThroughTheApp() {
         val name = "融合流程英语复习"
         val content = "recall 是主动提取，recognition 是看到后识别"
@@ -58,15 +92,16 @@ class UnifiedAppWorkflowUiTest {
         waitTag("add-task")
         rule.onNodeWithTag("add-task").performClick()
         waitTag("task-capture-input")
-        rule.onNodeWithTag("task-capture-input").performTextReplacement(name)
-        hideImeIfVisible()
-        // Capture's footer stays outside the scrolling body on a regular-height display.
-        rule.onNodeWithTag("task-capture-arrange-today").assertIsDisplayed().performClick()
+        NativeSheetTestInput.awaitFocusedDialog(rule, "新任务")
+        rule.onNodeWithTag("task-capture-input").performClick().performTextReplacement(name)
+        rule.waitForIdle()
+        rule.onNodeWithTag("task-capture-input").assertTextContains(name)
+        clickCapture("task-capture-arrange-today")
         waitTag("task-capture-choose-duration")
-        rule.onNodeWithTag("task-capture-choose-duration").performScrollTo().performClick()
+        clickCapture("task-capture-choose-duration")
         waitTag("task-capture-duration-30")
-        rule.onNodeWithTag("task-capture-duration-30").performScrollTo().performClick()
-        rule.onNodeWithTag("task-capture-save-duration").performClick()
+        clickCapture("task-capture-duration-30")
+        clickCapture("task-capture-save-duration")
         rule.waitUntil(15_000) {
             rule.onAllNodesWithTag("task-capture-input").fetchSemanticsNodes().isEmpty() &&
                 runBlocking { app.taskRepository.observeTasks().first().size == 1 }

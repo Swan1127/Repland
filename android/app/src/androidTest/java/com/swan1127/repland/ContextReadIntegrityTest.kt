@@ -70,6 +70,7 @@ class ContextReadIntegrityTest {
             }
             assertEquals(plan, base.observeCurrentPlan().first()); assertEquals(draft, base.observeDraft().first())
             assertEquals(order, base.observeTaskOrder().first()); assertEquals(workspace, base.observeAssistantWorkspace().first())
+            assertEquals(0, fault.draftWrites.get())
             assertNotNull(if (mainFailure) vm.uiState.value.readError else vm.workspaceUiState.value.readError)
             fault.failedPart.value = null
             withContext(Dispatchers.Main) { vm.retryRead() }
@@ -80,11 +81,20 @@ class ContextReadIntegrityTest {
             assertEquals(2, fault.mainSources.get()); assertEquals(2, fault.workspaceSources.get())
             assertEquals(plan, vm.uiState.value.currentPlan); assertEquals(draft, vm.uiState.value.draft)
             withContext(Dispatchers.Main) { vm.discardDraft() }
-            phase = "recovered discard"
+            phase = "recovered discard write started"
+            withTimeout(10_000) { fault.genericDraftWriteStarted.await() }
+            phase = "recovered discard write completed"
+            withTimeout(10_000) { fault.genericDraftWriteCompleted.await() }
+            assertEquals(1, fault.draftWrites.get())
+            assertNull(database.planningWorkspaceDao().get("draft"))
+            phase = "recovered discard observed"
             withTimeout(10_000) { vm.uiState.first { it.draft == null && !it.isWorking } }
             assertEquals(plan, base.observeCurrentPlan().first()); assertNull(base.observeDraft().first())
         } catch (timeout: TimeoutCancellationException) {
-            throw AssertionError("$part/$initialFailure timed out at $phase; main=${vm.uiState.value}; workspace=${vm.workspaceUiState.value}", timeout)
+            val persistedDraft = runCatching {
+                withTimeout(1_000) { database.planningWorkspaceDao().get("draft") != null }
+            }.getOrNull()
+            throw AssertionError("$part/$initialFailure timed out at $phase; draftWrites=${fault.draftWrites.get()}; persistedDraft=$persistedDraft; main=${vm.uiState.value}; workspace=${vm.workspaceUiState.value}", timeout)
         } finally { observers.forEach { it.cancelAndJoin() }; withContext(Dispatchers.Main) { store.clear() }; database.close() }
     }
 

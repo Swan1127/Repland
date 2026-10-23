@@ -37,12 +37,14 @@ internal class ReadFaultPlans(private val base: PlanRepository) : PlanRepository
     val draftWriteStarted = CompletableDeferred<Unit>()
     val draftWriteCancelled = CompletableDeferred<Unit>()
     val genericDraftWriteStarted = CompletableDeferred<Unit>()
+    val genericDraftWriteCompleted = CompletableDeferred<Unit>()
     var genericDraftWriteGate: CompletableDeferred<Unit>? = null
     override suspend fun saveDraft(draft: PlanDraft?) {
         genericDraftWriteStarted.complete(Unit)
         genericDraftWriteGate?.await()
         check(!failDraftWrite) { "QA draft write failure" }
         base.saveDraft(draft); draftWrites.incrementAndGet()
+        genericDraftWriteCompleted.complete(Unit)
     }
     override suspend fun replaceDraftIfCurrent(expected: PlanDraft, updated: PlanDraft) {
         draftWriteStarted.complete(Unit)

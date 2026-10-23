@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mirrors Palette.NightPage / CalmAccentDark in ui/theme/Color.kt. -->
+    <color name="repland_window_background">#171921</color>
+    <color name="repland_primary">#A8D9DE</color>
+    <color name="repland_launcher_background">#1E5143</color>
+
+    <!-- Mirrors Palette.NightInk / Palette.NightInkSoft. See values/colors.xml for why the widget
+         follows the system night qualifier rather than the in-app appearance setting. -->
+    <color name="repland_widget_text">#E9EBF1</color>
+    <color name="repland_widget_muted">#B8BECA</color>
+</resources>

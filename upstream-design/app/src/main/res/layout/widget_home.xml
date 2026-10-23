@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  What the home screen shows about today's schedule: the block that is running now (or the one
+  that starts next), and the block after it. See WidgetSchedule.kt for the rule that picks them.
+
+  RemoteViews supports only a small set of views and no custom ones, so this is deliberately plain
+  LinearLayouts and TextViews — no Compose, no Material components, no custom drawables beyond the
+  background shape.
+
+  Two constraints this file has to respect:
+    * Every string is set from HomeWidgetProvider at update time. The one exception is the header,
+      which points at the same resource the app's Today tab uses, so the few milliseconds before
+      the first update still show something true.
+    * No `android:text` may be a literal. The launcher inflates this layout in its own process, so
+      a hard-coded string here could never be translated, and WidgetScheduleResourceTest fails the
+      build's test run if one appears.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/today_title"
+        android:textColor="@color/repland_primary"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <!-- Row 1: the block the user is in, or the one that starts next. -->
+    <LinearLayout
+        android:id="@+id/widget_primary_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_primary_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textColor="@color/repland_primary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_primary_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:textColor="@color/repland_widget_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/widget_primary_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/repland_widget_text"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+    <!-- Row 2: always the next block, never a second missed one. Hidden when the day has one block. -->
+    <LinearLayout
+        android:id="@+id/widget_secondary_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/widget_secondary_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:textColor="@color/repland_widget_muted"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/widget_secondary_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:textColor="@color/repland_widget_muted"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/widget_secondary_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/repland_widget_text"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Replaces both rows when there is nothing to show. Two different sentences, because
+         "nothing scheduled yet" and "today is over" are not the same thing. -->
+    <TextView
+        android:id="@+id/widget_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textColor="@color/repland_widget_text"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <!-- The count of what is left after the two rows, or the hint under an empty day. -->
+    <TextView
+        android:id="@+id/widget_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/repland_widget_muted"
+        android:textSize="11sp" />
+
+</LinearLayout>

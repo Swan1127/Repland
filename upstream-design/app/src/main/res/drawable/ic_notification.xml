@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Notification small icon. Must be a flat single-colour silhouette: the system
+  masks it to alpha and tints it. An adaptive launcher icon would render as a
+  filled square here, which is why the receiver points at this drawable instead.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+
+    <path
+        android:pathData="M4,5.5 A1.5,1.5 0 0 1 5.5,4 L18.5,4 A1.5,1.5 0 0 1 20,5.5 L20,18.5 A1.5,1.5 0 0 1 18.5,20 L5.5,20 A1.5,1.5 0 0 1 4,18.5 Z"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineJoin="round" />
+
+    <path
+        android:pathData="M8,12.2 L11,15.2 L16.2,9.4"
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

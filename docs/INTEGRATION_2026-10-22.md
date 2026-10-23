@@ -13,7 +13,7 @@
 
 没有将 swan 的另一套数据库和 Task 模型整体替换进来。继续使用主工程的 Room 21 及原迁移链、未知估时和输入来源语义。记忆保存在现有辅助 SharedPreferences；草案仍在 Room `planning_workspace`，新增的 JSON 元数据兼容旧草案，不需要改变数据库版本。
 
-整合前源码备份：`output/integration-backup-20261022/main-source-before.zip`；原完整工作区差异：同目录 `local-before.patch`。没有向 GitHub 推送本次整合。
+整合前源码备份：`output/integration-backup-20261022/main-source-before.zip`；原完整工作区差异：同目录 `local-before.patch`。本记录写作时尚未推送；2026-10-23 核查已确认整合提交 `d5b7c7a` 位于 GitHub `main`。另行维护的 `1.0.1-dev` 主开发版见 [`upstream-design/`](../upstream-design/SETUP.md)，其源码与本工程分别保存。
 
 ## 统一业务链路
 

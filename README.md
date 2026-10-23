@@ -1,5 +1,9 @@
 # Repland
 
+当前主开发版是独立工程 **[upstream-design/](upstream-design/SETUP.md)**，版本 `1.0.1-dev / 2`，使用 JDK 21、Gradle 9.1.0 和 SDK 36。首次检出需在该目录执行 `setup-junction.ps1`（Windows）或 `bash setup-junction.sh`（Linux / macOS），随后运行 Gradle wrapper。该工程的完整源码、测试、资源和构建脚本均独立保存；私人课表、凭据、构建缓存和安装包不入库。[独立 CI](.github/workflows/upstream-design.yml) 验证构建、JVM、Lint 和 API 26 设备测试，缺少私人课表的用例会明确跳过。
+
+下文及根目录的 `Build-App.ps1` / `Open-App.cmd` 对应现有 `android/` 整合工程 `0.1.35 / 1035`；它有自己的 [Android CI](.github/workflows/android.yml)。两个工程的 Room 21 数据结构不同，当前分别构建和验证；主开发版入口与说明见上面的独立工程链接。
+
 Android 本地优先的个人任务规划与执行辅助工具：用一句话记录事项，在已设置的时间约束中安排，依据明确进度维护剩余计划，并保留解释与撤销。
 
 源码版本 **0.1.35（1035）**。2026-10-22 已以 GitHub 合并提交 `a9255e4`（Henry PR #4）为基础，将新前端、swan 六角色规划、FSRS 形状记忆模型及本地修复整合到本目录的 `android/`。整合分支为 `codex/unified-app-20261022`；具体改动与验证见 [整合交接](docs/INTEGRATION_2026-10-22.md)。产品规则统一见 [主思路](REPLAND_IDEA.md)。

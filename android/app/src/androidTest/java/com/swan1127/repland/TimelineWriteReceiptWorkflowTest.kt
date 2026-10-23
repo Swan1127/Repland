@@ -31,8 +31,7 @@ class TimelineWriteReceiptWorkflowTest {
         visible("navigation-today").performClick()
         rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-schedule"))
         visible("month-schedule").performClick()
-        rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-date-$day"))
-        visible("month-date-$day").performClick()
+        rule.clickScheduleDate(day)
         rule.openDetailedSchedule()
     }
     private fun freeStart(day: LocalDate): Int = runBlocking {

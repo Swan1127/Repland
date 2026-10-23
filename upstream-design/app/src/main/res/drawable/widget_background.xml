@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The widget's own surface. A shape rather than a reference to the window background colour,
+  because the launcher draws the widget over the wallpaper and an unrounded rectangle in the
+  corner of the home screen looks like a rendering bug.
+
+  On Android 12 and later the launcher also clips the widget to its own radius, so this is the
+  floor rather than the final shape — the two agree closely enough that the difference is not
+  visible, and the widget still looks right on API 26 through 30 where nothing else rounds it.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/repland_window_background" />
+    <corners android:radius="20dp" />
+</shape>

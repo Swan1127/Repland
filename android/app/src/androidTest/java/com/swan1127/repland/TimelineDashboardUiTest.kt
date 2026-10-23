@@ -129,8 +129,7 @@ class TimelineDashboardUiTest {
         rule.onNodeWithText("课程 · 运动").assertExists()
         rule.onNodeWithTag("schedule-detail-mode").performScrollTo().performClick()
         rule.onNodeWithTag("timeline-course").assertExists()
-        rule.onNodeWithText("09:00").assertExists()
-        rule.onNodeWithText("10:00").assertExists()
+            .assert(hasText("高数") and hasText("09:00", substring = true) and hasText("10:00", substring = true))
     }
 
     @Test fun mergedViewGroupsOverlappingEntriesWithoutDiscardingTheirTimes() {

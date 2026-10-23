@@ -32,8 +32,7 @@ class ScheduleNavigationStateUiTest {
         rule.onNodeWithTag("navigation-today").performClick()
         rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-schedule"))
         rule.onNodeWithTag("month-schedule").performClick()
-        rule.onNodeWithTag("today-page-scroll").performScrollToNode(hasTestTag("month-date-$date"))
-        rule.onNodeWithTag("month-date-$date").performClick()
+        rule.clickScheduleDate(date)
     }
 
     @Test fun selected_date_header_and_day_view_survive_activity_recreation() {

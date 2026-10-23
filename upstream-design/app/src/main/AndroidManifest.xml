@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      The planning team talks to an OpenAI-compatible provider, so the process needs the
+      network. This permission was missing until now: the debug transport existed and the
+      settings screen reported "连接成功", but every request threw before it left the
+      device, which is why the one-sentence flow always fell back to the local
+      interpreter. The "AI proposes, never executes" invariant is still enforced by
+      contract — a proposal cannot write a plan without confirmation — not by removing
+      the socket.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Local alarm reminders only. AlarmManager.set() is inexact, so no
+         SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM permission is required. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- In-app voice bar (SpeechRecognizer). The system-dialog fallback needs no permission. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name=".ReplandApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Repland">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Repland"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Fired by our own PendingIntent, so it stays unexported. -->
+        <receiver
+            android:name=".reminders.LocalReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.swan1127.repland.DELIVER_REMINDER" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Restores local alarms after reboot / clock / timezone change.
+             Exported so the system can reach it; every action below is a protected
+             broadcast that third-party apps cannot forge. -->
+        <receiver
+            android:name=".reminders.ReminderRescheduleReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- The home-screen widget. The platform delivers ACTION_APPWIDGET_UPDATE as an explicit
+             broadcast addressed to this component; the app also sends itself the same action from
+             MainActivity.onStop and from its own boundary alarm, so all three arrive through
+             AppWidgetProvider.onUpdate.
+
+             exported="true" is a deliberate choice under contradictory documentation: the Views
+             guide and the Glance guide on developer.android.com show the same receiver with
+             opposite values, and neither explains the choice. `true` is what a receiver with an
+             intent-filter defaulted to before API 31 — i.e. the value widgets have always worked
+             with — so it is the direction that cannot silently leave the widget stuck on its
+             initial layout. The exposure is bounded and worth naming: the receiver only reads the
+             database and redraws, and re-arming the alarm is idempotent because AlarmManager.set
+             replaces the previous alarm for the same PendingIntent, so a forged broadcast can
+             neither change stored data nor make the app do anything the user did not ask for. -->
+        <receiver
+            android:name=".ui.widget.HomeWidgetProvider"
+            android:exported="true"
+            android:label="@string/today_title">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_home_info" />
+        </receiver>
+
+    </application>
+
+</manifest>
